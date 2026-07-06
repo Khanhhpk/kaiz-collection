@@ -1,4 +1,4 @@
-# @KAIZ Collection (SillyTavern Phone Ecosystem & Helper Scripts)
+# KAIZ Collection (SillyTavern Phone Ecosystem & Helper Scripts)
 
 Đây là bộ sưu tập mở rộng (Extension) chính thức cho **SillyTavern**, bao gồm Hệ sinh thái **Lõi Điện thoại (Phone Core)**, hơn 20 ứng dụng tích hợp và bộ công cụ trợ thủ giao diện (Visual Novel Dialogue, Vtuber Voice Assistant, Shimeji, Quản lý bóng nổi, v.v.).
 
@@ -40,13 +40,13 @@
 ---
 
 ## 🔄 Cách cập nhật phiên bản mới
-- **Đối với người dùng SillyTavern**: Chỉ cần vào menu **Extensions 🧩** -> bấm nút **Update (Cập nhật)** ngay bên cạnh tên extension `@KAIZ Collection`. Không cần phải import lại từng script JSON như trước đây!
+- **Đối với người dùng SillyTavern**: Chỉ cần vào menu **Extensions 🧩** -> bấm nút **Update (Cập nhật)** ngay bên cạnh tên extension `KAIZ Collection`. Không cần phải import lại từng script JSON như trước đây!
 ---
 
 ## 📂 Cấu trúc thư mục Extension
 ```
 kaiz-collection/
-├── manifest.json       # File khai báo Extension với SillyTavern (@KAIZ Collection)
+├── manifest.json       # File khai báo Extension với SillyTavern (KAIZ Collection)
 ├── index.js            # Entry point tự động nạp tất cả module & quản lý UI / Log
 ├── README.md           # Tài liệu hướng dẫn
 └── modules/            # Thư mục chứa mã nguồn JS đã tách sạch từ JSON
@@ -55,4 +55,5 @@ kaiz-collection/
     ├── app_wechat.js
     ... (28 file module JS)
 ```
+
 

@@ -1,10 +1,10 @@
 {
-    "display_name": "@KAIZ Collection",
+    "display_name": "KAIZ Collection",
     "loading_order": 5,
     "js": "index.js",
     "requires": [],
     "optional": [],
-    "version": "1.1.0",
+    "version": "1.1.1",
     "author": "Kaiz",
-    "description": "Bộ sưu tập @KAIZ Collection: Hệ sinh thái Điện thoại (Phone Ecosystem), 20+ Ứng dụng tích hợp, và Bộ tiện ích đa năng (VN Dialogue, Vtuber Assistant, Shimeji...) cho SillyTavern."
+    "description": "Bộ sưu tập KAIZ Collection: Hệ sinh thái Điện thoại (Phone Ecosystem), 20+ Ứng dụng tích hợp, và Bộ tiện ích đa năng (VN Dialogue, Vtuber Assistant, Shimeji...) cho SillyTavern."
 }

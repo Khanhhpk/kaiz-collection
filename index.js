@@ -1,10 +1,10 @@
 /**
- * SillyTavern Extension: @KAIZ Collection
+ * SillyTavern Extension: KAIZ Collection
  * Entry point nạp tự động các module trong hệ sinh thái với cơ chế kiểm tra môi trường sẵn sàng & thu thập log hệ thống.
  */
 
 // ==========================================
-// HỆ THỐNG QUẢN LÝ LOG (@KAIZ LOGGER)
+// HỆ THỐNG QUẢN LÝ LOG (KAIZ LOGGER)
 // ==========================================
 window._kaizLogs = window._kaizLogs || [];
 
@@ -55,7 +55,7 @@ const originalConsoleError = console.error;
 
 const kaizPrefixes = [
     '[PhoneEcosystem]', '[Phone Ecosystem]', '[SillyTavern Extension]', 
-    '[@KAIZ Collection]', '[PhoneCore]', '[Phone Core]', '[FloatingBall]', 
+    '[KAIZ Collection]', '[KAIZ]', '[PhoneCore]', '[Phone Core]', '[FloatingBall]', 
     '[App ', '[Shimeji]', '[Vtuber]', '[VN Dialogue]', '[Storage Inspector]', '[Avar]'
 ];
 
@@ -90,7 +90,7 @@ console.error = function(...args) {
     originalConsoleError.apply(console, args);
 };
 
-console.log('[@KAIZ Collection] Đang chờ môi trường SillyTavern sẵn sàng...');
+console.log('[KAIZ Collection] Đang chờ môi trường SillyTavern sẵn sàng...');
 
 function getTargetWindow() {
     return (typeof window !== 'undefined' && window.parent && window.parent.document) ? window.parent : window;
@@ -111,10 +111,10 @@ function waitForEnvironment(callback) {
             jq
         ) {
             clearInterval(checkInterval);
-            console.log(`[@KAIZ Collection] Môi trường đã sẵn sàng sau ${attempts * 100}ms!`);
+            console.log(`[KAIZ Collection] Môi trường đã sẵn sàng sau ${attempts * 100}ms!`);
             callback(targetWin, jq);
         } else if (attempts >= 100) { // 10 giây
-            console.warn('[@KAIZ Collection] Quá thời gian chờ jQuery/DOM, tiến hành nạp ép buộc...');
+            console.warn('[KAIZ Collection] Quá thời gian chờ jQuery/DOM, tiến hành nạp ép buộc...');
             clearInterval(checkInterval);
             callback(targetWin, jq || window.$ || null);
         }
@@ -170,7 +170,7 @@ function getPhoneConfig() {
             return JSON.parse(saved);
         }
     } catch (e) {
-        console.error('[@KAIZ Collection] Lỗi đọc cấu hình từ localStorage:', e);
+        console.error('[KAIZ Collection] Lỗi đọc cấu hình từ localStorage:', e);
     }
     return {
         enabled: true,
@@ -183,12 +183,12 @@ function savePhoneConfig(config) {
         localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
         const win = getTargetWindow();
         if (win && win.toastr) {
-            win.toastr.success('Đã lưu cấu hình @KAIZ Collection! Nhấn F5 để áp dụng thay đổi.');
+            win.toastr.success('Đã lưu cấu hình KAIZ Collection! Nhấn F5 để áp dụng thay đổi.');
         } else {
-            console.log('[@KAIZ Collection] Đã lưu cấu hình:', config);
+            console.log('[KAIZ Collection] Đã lưu cấu hình:', config);
         }
     } catch (e) {
-        console.error('[@KAIZ Collection] Lỗi lưu cấu hình:', e);
+        console.error('[KAIZ Collection] Lỗi lưu cấu hình:', e);
     }
 }
 
@@ -236,7 +236,7 @@ function renderExtensionSettings(targetWin, jq) {
     section.innerHTML = `
     <div class="inline-drawer">
         <div class="inline-drawer-toggle inline-drawer-header">
-            <b>✨ @KAIZ Collection (Hệ sinh thái & Tiện ích)</b>
+            <b>✨ KAIZ Collection (Hệ sinh thái & Tiện ích)</b>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content" style="display: none; padding: 12px; flex-direction: column; gap: 14px;">
@@ -262,7 +262,7 @@ function renderExtensionSettings(targetWin, jq) {
                         </label>
                     </div>
                     <div style="font-size: 0.85em; opacity: 0.85; margin-bottom: 12px; line-height: 1.4;">
-                        Bật hoặc tắt toàn bộ bộ sưu tập @KAIZ Collection. Khi tắt công tắc này, không có module nào được nạp vào bộ nhớ.
+                        Bật hoặc tắt toàn bộ bộ sưu tập KAIZ Collection. Khi tắt công tắc này, không có module nào được nạp vào bộ nhớ.
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <button id="pe_enable_all_btn" class="menu_button interactable" style="flex: 1; min-width: 120px; padding: 6px; font-size: 0.85em; background: rgba(163, 190, 140, 0.2); color: #a3be8c; border: 1px solid #a3be8c; border-radius: 6px; cursor: pointer; font-weight: bold;">
@@ -468,28 +468,28 @@ function renderExtensionSettings(targetWin, jq) {
 }
 
 waitForEnvironment(async (targetWin, jq) => {
-    console.log('[@KAIZ Collection] Đang khởi tạo giao diện quản lý...');
+    console.log('[KAIZ Collection] Đang khởi tạo giao diện quản lý...');
     renderExtensionSettings(targetWin, jq);
 
     const config = getPhoneConfig();
     if (config.enabled === false) {
-        console.log('[@KAIZ Collection] ⏸️ Toàn bộ hệ sinh thái đang bị TẮT trong cài đặt Extensions.');
+        console.log('[KAIZ Collection] ⏸️ Toàn bộ hệ sinh thái đang bị TẮT trong cài đặt Extensions.');
         if (targetWin && targetWin.toastr) {
-            targetWin.toastr.info('@KAIZ Collection: Hệ sinh thái đang tắt. Bạn có thể bật lại trong tab Extensions.');
+            targetWin.toastr.info('KAIZ Collection: Hệ sinh thái đang tắt. Bạn có thể bật lại trong tab Extensions.');
         }
         return;
     }
 
-    console.log('[@KAIZ Collection] Đang nạp hệ sinh thái & tiện ích...');
+    console.log('[KAIZ Collection] Đang nạp hệ sinh thái & tiện ích...');
     
     // Hàm hỗ trợ load module an toàn độc lập
     async function safeImport(path, name) {
         try {
             await import(path);
-            console.log(`[@KAIZ Collection] Đã nạp thành công: ${name}`);
+            console.log(`[KAIZ Collection] Đã nạp thành công: ${name}`);
             return true;
         } catch (err) {
-            console.error(`[@KAIZ Collection] ❌ Lỗi khi nạp module "${name}" (${path}):`, err);
+            console.error(`[KAIZ Collection] ❌ Lỗi khi nạp module "${name}" (${path}):`, err);
             return false;
         }
     }
@@ -502,7 +502,7 @@ waitForEnvironment(async (targetWin, jq) => {
 
     for (const app of allModulesToLoad) {
         if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
-            console.log(`[@KAIZ Collection] ⏸️ Bỏ qua module đã tắt trong cài đặt: ${app.name}`);
+            console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt trong cài đặt: ${app.name}`);
             skipCount++;
             continue;
         }
@@ -510,6 +510,5 @@ waitForEnvironment(async (targetWin, jq) => {
         if (ok) successCount++; else failCount++;
     }
 
-    console.log(`[@KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
+    console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
 });
-
