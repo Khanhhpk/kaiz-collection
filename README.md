@@ -25,7 +25,6 @@
    ```
    https://github.com/Tên_Của_Bạn/sillytavern-phone-ecosystem
    ```
-   *(Thay `https://github.com/Tên_Của_Bạn/sillytavern-phone-ecosystem` bằng link GitHub thực tế sau khi bạn đẩy repo lên)*.
 5. Bấm **Save / Install (Lưu / Cài đặt)**. SillyTavern sẽ tự động tải về và nạp extension!
 
 ### Cách 2: Cài thủ công (Chép thư mục)
@@ -40,12 +39,6 @@
 
 ## 🔄 Cách cập nhật phiên bản mới
 - **Đối với người dùng SillyTavern**: Chỉ cần vào menu **Extensions 🧩** -> bấm nút **Update (Cập nhật)** ngay bên cạnh tên extension `SillyTavern Phone Ecosystem & Helper Scripts`. Không cần phải import lại từng script JSON như trước đây!
-- **Đối với nhà phát triển (Dev)**: Khi bạn có file JSON mới xuất ra từ Tavern Helper vào folder `ext`, chỉ cần chạy script đồng bộ:
-  ```bash
-  node convert_ext_to_extension.js
-  ```
-  Toàn bộ code mới sẽ tự động được cập nhật vào thư mục `modules/` và nạp vào `index.js`. Sau đó bạn chỉ cần commit & push lên GitHub là người dùng có thể update lập tức!
-
 ---
 
 ## 📂 Cấu trúc thư mục Extension
