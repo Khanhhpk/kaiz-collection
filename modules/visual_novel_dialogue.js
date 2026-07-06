@@ -2804,10 +2804,20 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (!el) return false;
         const mes = el.classList && el.classList.contains('mes') ? el : el.closest && el.closest('.mes');
         if (!mes) return false;
-        return mes.classList.contains('is_streaming') || 
-               mes.classList.contains('streaming') || 
-               mes.getAttribute('is_streaming') === 'true' ||
-               (mes.querySelector && mes.querySelector('.is_streaming, .streaming, [is_streaming="true"]') !== null);
+        if (mes.classList.contains('is_streaming') || 
+            mes.classList.contains('streaming') || 
+            mes.getAttribute('is_streaming') === 'true' ||
+            (mes.querySelector && mes.querySelector('.is_streaming, .streaming, [is_streaming="true"]') !== null)) {
+            return true;
+        }
+        const ctx = window.SillyTavern?.getContext?.() || window;
+        if (ctx.is_generating || window.is_generating || document.body.classList.contains('generating') || document.body.classList.contains('is_generating')) {
+            const chat = document.getElementById('chat');
+            if (chat && (chat.lastElementChild === mes || !mes.nextElementSibling)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function processMessage(mesEl, isStreaming = false) {
@@ -2951,30 +2961,22 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         PD._vnObserver = new MutationObserver((mutations) => {
             if (!CFG.enabled || !CFG.renderMode) return;
-            const streamingSeen = new Set();
+            const seen = new Set();
             for (const mut of mutations) {
                 for (const node of mut.addedNodes) {
                     if (node.nodeType !== 1) continue;
                     if (node.classList && node.classList.contains('mes')) {
                         clearTimeout(node._vnTimer);
-                        if (isElementStreaming(node)) {
-                            if (!streamingSeen.has(node)) {
-                                streamingSeen.add(node);
-                                processMessage(node, true);
-                            }
-                        } else {
-                            node._vnTimer = setTimeout(() => processMessage(node, false), 80);
+                        if (!seen.has(node)) {
+                            seen.add(node);
+                            processMessage(node, isElementStreaming(node));
                         }
                     }
                     node.querySelectorAll && node.querySelectorAll('.mes').forEach(m => {
                         clearTimeout(m._vnTimer);
-                        if (isElementStreaming(m)) {
-                            if (!streamingSeen.has(m)) {
-                                streamingSeen.add(m);
-                                processMessage(m, true);
-                            }
-                        } else {
-                            m._vnTimer = setTimeout(() => processMessage(m, false), 80);
+                        if (!seen.has(m)) {
+                            seen.add(m);
+                            processMessage(m, isElementStreaming(m));
                         }
                     });
                 }
@@ -2982,13 +2984,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     const mesEl = mut.target.closest && mut.target.closest('.mes');
                     if (mesEl) {
                         clearTimeout(mesEl._vnTimer);
-                        if (isElementStreaming(mesEl)) {
-                            if (!streamingSeen.has(mesEl)) {
-                                streamingSeen.add(mesEl);
-                                processMessage(mesEl, true);
-                            }
-                        } else {
-                            mesEl._vnTimer = setTimeout(() => processMessage(mesEl, false), 150);
+                        if (!seen.has(mesEl)) {
+                            seen.add(mesEl);
+                            processMessage(mesEl, isElementStreaming(mesEl));
                         }
                     }
                 }
