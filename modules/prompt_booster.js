@@ -1,21 +1,26 @@
 /**
- * Module: App Trạm Bơm Prompt (Prompt Booster & Injection Lab)
- * Phụ thuộc: Lõi Điện thoại (Phone Core) & SillyTavern Extension Prompts API
- * Chức năng: Thử nghiệm bơm prompt chuẩn chỉ theo cơ chế hỗ trợ riêng cho Extension của SillyTavern (extension_prompts).
+ * Module: Trạm Bơm Prompt (Prompt Booster & Injection Lab) - Standalone Bubble Utility
+ * Phụ thuộc: Bong Bóng Mẹ (FloatingMenuManager) & SillyTavern Extension Prompts API
+ * Chức năng: Thử nghiệm bơm prompt chuẩn chỉ theo cơ chế hỗ trợ riêng cho Extension của SillyTavern (extension_prompts) dưới dạng Bong bóng riêng.
  */
 
-(function initPromptBoosterApp() {
-    if (!window.parent.PhoneSystem) {
-        setTimeout(initPromptBoosterApp, 1000);
-        return;
-    }
+(function initPromptBoosterBubble() {
+    'use strict';
 
-    const APP_ID = 'prompt-booster-app';
-    const STORAGE_KEY = 'Kaiz_PromptBooster_Settings_v2';
     const parentWin = window.parent || window;
+    const parentDoc = parentWin.document;
+    const APP_ID = 'prompt_booster_bubble';
+    const OVERLAY_ID = 'st-prompt-booster-overlay';
+    const STORAGE_KEY = 'Kaiz_PromptBooster_Settings_v3';
     const PROMPT_KEY = 'kaiz_prompt_booster_app';
 
-    // Cấu hình mặc định theo chuẩn SillyTavern Extension Prompts
+    console.log('[PromptBooster] Đang khởi tạo Trạm Bơm Prompt (Bong bóng riêng)...');
+
+    // Dọn dẹp DOM cũ nếu reload
+    const oldOverlay = parentDoc.getElementById(OVERLAY_ID);
+    if (oldOverlay) oldOverlay.remove();
+
+    // Cấu hình mặc định
     let settings = {
         enabled: true,
         target: 'in_chat', // 'in_prompt' (System/Before) | 'in_chat' (Depth) | 'after_prompt' (After)
@@ -56,31 +61,42 @@
     // =========================================================================
     function updateSillyTavernExtensionPrompt() {
         const ctx = parentWin.SillyTavern?.getContext?.() || parentWin;
-        const extPrompts = ctx.extension_prompts || parentWin.extension_prompts;
-        const extTypes = ctx.extension_prompt_types || parentWin.extension_prompt_types || {};
-        const extRoles = ctx.extension_prompt_roles || parentWin.extension_prompt_roles || {};
         
-        // SillyTavern hỗ trợ depth qua extension_prompt_depth hoặc extension_prompt_depths
-        let extDepths = ctx.extension_prompt_depth || ctx.extension_prompt_depths || parentWin.extension_prompt_depth || parentWin.extension_prompt_depths;
-        if (!extDepths && extPrompts) {
-            // Tự khởi tạo nếu chưa có
-            extDepths = {};
-            if (ctx.extension_prompts) ctx.extension_prompt_depth = extDepths;
-            else parentWin.extension_prompt_depth = extDepths;
+        // Tự động tìm hoặc khởi tạo extension_prompts
+        let extPrompts = ctx.extension_prompts || ctx.extensionPrompts || parentWin.extension_prompts || parentWin.extensionPrompts;
+        if (!extPrompts) {
+            extPrompts = {};
+            if (ctx) { ctx.extension_prompts = extPrompts; ctx.extensionPrompts = extPrompts; }
+            parentWin.extension_prompts = extPrompts; parentWin.extensionPrompts = extPrompts;
         }
 
-        if (!extPrompts) {
-            addLog('⚠️ Không tìm thấy đối tượng extension_prompts của SillyTavern. Hãy đảm bảo bạn đang chạy trong môi trường SillyTavern chuẩn.', 'warn');
-            return;
+        let extTypes = ctx.extension_prompt_types || ctx.extensionPromptTypes || parentWin.extension_prompt_types || parentWin.extensionPromptTypes;
+        if (!extTypes) {
+            extTypes = { IN_CHAT: 0, IN_PROMPT: 1, AFTER_PROMPT: 2 };
+            if (ctx) { ctx.extension_prompt_types = extTypes; ctx.extensionPromptTypes = extTypes; }
+            parentWin.extension_prompt_types = extTypes; parentWin.extensionPromptTypes = extTypes;
+        }
+
+        let extRoles = ctx.extension_prompt_roles || ctx.extensionPromptRoles || parentWin.extension_prompt_roles || parentWin.extensionPromptRoles;
+        if (!extRoles) {
+            extRoles = { SYSTEM: 0, USER: 1, ASSISTANT: 2 };
+            if (ctx) { ctx.extension_prompt_roles = extRoles; ctx.extensionPromptRoles = extRoles; }
+            parentWin.extension_prompt_roles = extRoles; parentWin.extensionPromptRoles = extRoles;
+        }
+
+        let extDepths = ctx.extension_prompt_depth || ctx.extension_prompt_depths || ctx.extensionPromptDepth || ctx.extensionPromptDepths || parentWin.extension_prompt_depth || parentWin.extension_prompt_depths || parentWin.extensionPromptDepth || parentWin.extensionPromptDepths;
+        if (!extDepths) {
+            extDepths = {};
+            if (ctx) { ctx.extension_prompt_depth = extDepths; ctx.extension_prompt_depths = extDepths; }
+            parentWin.extension_prompt_depth = extDepths; parentWin.extension_prompt_depths = extDepths;
         }
 
         if (!settings.enabled || !settings.promptText.trim()) {
-            // Gỡ bỏ prompt khỏi SillyTavern
             delete extPrompts[PROMPT_KEY];
             if (extTypes) delete extTypes[PROMPT_KEY];
             if (extRoles) delete extRoles[PROMPT_KEY];
             if (extDepths) delete extDepths[PROMPT_KEY];
-            addLog('⏸️ Đã gỡ Prompt khỏi hệ thống SillyTavern (extension_prompts).', 'warn');
+            addLog('⏸️ Đã gỡ Prompt khỏi hệ thống SillyTavern.', 'warn');
             return;
         }
 
@@ -127,7 +143,6 @@
 
         if (eventSource && event_types) {
             isHooked = true;
-            // Ghi log khi bắt đầu tạo AI response
             const genEvt = event_types.GENERATION_STARTED || event_types.CHAT_COMPLETION_PROMPT_READY;
             if (genEvt) {
                 eventSource.on(genEvt, () => {
@@ -142,22 +157,13 @@
     }
 
     setupEventListeners();
-    // Khởi tạo đồng bộ ngay khi load script
     setTimeout(updateSillyTavernExtensionPrompt, 500);
 
-    // Đăng ký App vào hệ sinh thái
-    parentWin.PhoneSystem.registerApp({
-        id: APP_ID,
-        name: 'Trạm Bơm Prompt',
-        icon: '💉',
-        color: 'linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)',
-        order: 3
-    });
-
-    let activeContainer = null;
+    // =========================================================================
+    // GIAO DIỆN MODAL BONG BÓNG (CYBER-MINIMALIST MODAL)
+    // =========================================================================
     function updateLogUI() {
-        if (!activeContainer) return;
-        const logBox = activeContainer.querySelector('#pb-log-box');
+        const logBox = parentDoc.getElementById('pb-bubble-log-box');
         if (!logBox) return;
         if (settings.logs.length === 0) {
             logBox.innerHTML = `<div style="color: #64748b; text-align: center; padding: 20px 0; font-size: 0.85em;">Chưa có hoạt động bơm prompt nào.</div>`;
@@ -179,43 +185,47 @@
         }).join('');
     }
 
-    // Đăng ký Giao diện App (Renderer)
-    parentWin.PhoneSystem.registerRenderer(APP_ID, function(container) {
-        activeContainer = container;
-        container.innerHTML = '';
+    function buildModalDOM() {
+        let overlay = parentDoc.getElementById(OVERLAY_ID);
+        if (overlay) overlay.remove();
 
-        const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'display: flex; flex-direction: column; height: 100%; width: 100%; background: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; position: absolute; top: 0; left: 0; z-index: 10; overflow: hidden;';
+        overlay = parentDoc.createElement('div');
+        overlay.id = OVERLAY_ID;
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.65); z-index: 999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
+
+        const modal = parentDoc.createElement('div');
+        modal.style.cssText = 'width: 620px; max-width: 95vw; max-height: 90vh; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column; overflow: hidden; color: #f8fafc;';
 
         // Header
-        const header = document.createElement('div');
-        header.style.cssText = 'height: 54px; width: 100%; background: #1e293b; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; box-sizing: border-box;';
+        const header = parentDoc.createElement('div');
+        header.style.cssText = 'height: 56px; background: #1e293b; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;';
         header.innerHTML = `
-            <div id="pb-back-btn" style="color: #38bdf8; font-size: 15px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 4px;">‹ Trang chủ</div>
-            <div style="font-size: 16px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 6px;">💉 Trạm Bơm Prompt</div>
-            <div style="width: 60px; text-align: right;">
-                <span id="pb-status-badge" style="padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; background: ${settings.enabled ? 'rgba(74, 222, 128, 0.2)' : 'rgba(244, 63, 94, 0.2)'}; color: ${settings.enabled ? '#4ade80' : '#fb7185'};">${settings.enabled ? 'ON' : 'OFF'}</span>
+            <div style="font-size: 16px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2em;">💉</span>
+                <span>Trạm Bơm Prompt (Extension Prompts)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span id="pb-bubble-status-badge" style="padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; background: ${settings.enabled ? 'rgba(74, 222, 128, 0.2)' : 'rgba(244, 63, 94, 0.2)'}; color: ${settings.enabled ? '#4ade80' : '#fb7185'};">${settings.enabled ? 'ON' : 'OFF'}</span>
+                <button id="pb-bubble-close-btn" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s;">✕</button>
             </div>
         `;
-        wrapper.appendChild(header);
+        modal.appendChild(header);
 
-        header.querySelector('#pb-back-btn').onclick = () => parentWin.PhoneSystem.goHome();
-
-        // Content
-        const content = document.createElement('div');
-        content.style.cssText = 'flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box;';
+        // Content Body
+        const body = parentDoc.createElement('div');
+        body.style.cssText = 'flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box;';
 
         // 1. Control Card
-        const controlCard = document.createElement('div');
+        const controlCard = parentDoc.createElement('div');
         controlCard.style.cssText = 'background: #1e293b; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px;';
         controlCard.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="font-weight: 600; font-size: 0.95em;">Bơm Prompt Chuản ST API</div>
-                    <div style="font-size: 0.78em; color: #94a3b8;">Đồng bộ vào hệ thống extension_prompts</div>
+                    <div style="font-weight: 600; font-size: 0.95em;">Bơm Prompt Chuẩn SillyTavern</div>
+                    <div style="font-size: 0.78em; color: #94a3b8;">Đồng bộ vào hệ thống extension_prompts của Quán Rượu</div>
                 </div>
                 <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
-                    <input type="checkbox" id="pb-enable-toggle" ${settings.enabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
+                    <input type="checkbox" id="pb-bubble-enable-toggle" ${settings.enabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
                     <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: ${settings.enabled ? '#38bdf8' : '#475569'}; border-radius: 24px; transition: .3s; display: flex; align-items: center; padding: 2px; box-sizing: border-box;">
                         <span style="width: 20px; height: 20px; background-color: white; border-radius: 50%; transition: .3s; transform: translateX(${settings.enabled ? '20px' : '0'});"></span>
                     </span>
@@ -227,7 +237,7 @@
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div>
                     <div style="font-size: 0.8em; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">VỊ TRÍ BƠM (POSITION TYPE):</div>
-                    <select id="pb-target-select" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; outline: none; cursor: pointer;">
+                    <select id="pb-bubble-target-select" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; outline: none; cursor: pointer;">
                         <option value="in_prompt" ${settings.target === 'in_prompt' ? 'selected' : ''}>🛡️ In Prompt (Đầu hồ sơ / System area)</option>
                         <option value="in_chat" ${settings.target === 'in_chat' ? 'selected' : ''}>🎯 In Chat (Trong lịch sử chat theo Depth)</option>
                         <option value="after_prompt" ${settings.target === 'after_prompt' ? 'selected' : ''}>📌 After Prompt (Cuối cùng toàn bộ prompt)</option>
@@ -237,50 +247,50 @@
                 <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
                         <div style="font-size: 0.8em; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">VAI TRÒ (ROLE):</div>
-                        <select id="pb-role-select" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; outline: none; cursor: pointer;">
+                        <select id="pb-bubble-role-select" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; outline: none; cursor: pointer;">
                             <option value="system" ${settings.role === 'system' ? 'selected' : ''}>🤖 System</option>
                             <option value="user" ${settings.role === 'user' ? 'selected' : ''}>👤 User</option>
                             <option value="assistant" ${settings.role === 'assistant' ? 'selected' : ''}>💬 Assistant</option>
                         </select>
                     </div>
 
-                    <div id="pb-depth-container" style="flex: 1; display: ${settings.target === 'in_chat' ? 'block' : 'none'};">
+                    <div id="pb-bubble-depth-container" style="flex: 1; display: ${settings.target === 'in_chat' ? 'block' : 'none'};">
                         <div style="font-size: 0.8em; color: #94a3b8; margin-bottom: 4px; font-weight: 600;">ĐỘ SÂU (DEPTH):</div>
-                        <input type="number" id="pb-depth-input" value="${settings.depth}" min="0" max="100" style="width: 100%; padding: 7px 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; outline: none; box-sizing: border-box;" title="0 = Ngay trước tin nhắn cuối">
+                        <input type="number" id="pb-bubble-depth-input" value="${settings.depth}" min="0" max="100" style="width: 100%; padding: 7px 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; outline: none; box-sizing: border-box;" title="0 = Ngay trước tin nhắn cuối">
                     </div>
                 </div>
             </div>
         `;
-        content.appendChild(controlCard);
+        body.appendChild(controlCard);
 
         // 2. Prompt Editor Card
-        const editorCard = document.createElement('div');
+        const editorCard = parentDoc.createElement('div');
         editorCard.style.cssText = 'background: #1e293b; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;';
         editorCard.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="font-weight: 600; font-size: 0.9em;">NỘI DUNG CHỈ LỆNH BƠM (PROMPT):</div>
-                <span id="pb-save-hint" style="font-size: 0.75em; color: #4ade80; opacity: 0; transition: opacity 0.3s;">Đã đồng bộ!</span>
+                <span id="pb-bubble-save-hint" style="font-size: 0.75em; color: #4ade80; opacity: 0; transition: opacity 0.3s;">Đã đồng bộ!</span>
             </div>
-            <textarea id="pb-prompt-input" rows="4" placeholder="Nhập chỉ lệnh hoặc kịch bản muốn bơm vào luồng AI..." style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; resize: vertical; outline: none; box-sizing: border-box; line-height: 1.4;">${settings.promptText}</textarea>
+            <textarea id="pb-bubble-prompt-input" rows="4" placeholder="Nhập chỉ lệnh hoặc kịch bản muốn bơm vào luồng AI..." style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #f8fafc; font-size: 0.85em; resize: vertical; outline: none; box-sizing: border-box; line-height: 1.4;">${settings.promptText}</textarea>
             
             <div style="font-size: 0.78em; color: #94a3b8; font-weight: 600;">PRESETS MẪU NHANH:</div>
             <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                <button class="pb-preset-btn" data-text="Hãy trả lời bằng thái độ ngoài lạnh trong nóng (tsundere), đỏ mặt và hơi gắt gỏng nhưng vẫn quan tâm." style="padding: 5px 10px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; color: #38bdf8; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">🔮 Tsundere</button>
-                <button class="pb-preset-btn" data-text="Miêu tả chi tiết các động tác chiến đấu kịch tính, tiếng va chạm vũ khí, nhịp thở và sự căng thẳng tuyệt đối." style="padding: 5px 10px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 6px; color: #fb7185; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">⚔️ Chiến đấu</button>
-                <button class="pb-preset-btn" data-text="Bối cảnh trời đang mưa to ngoài cửa sổ. Thêm chi tiết tiếng mưa rơi, không khí lạnh lẽo và cảm xúc trầm lắng." style="padding: 5px 10px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; color: #c084fc; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">🌧️ Mưa buồn</button>
-                <button class="pb-preset-btn" data-text="Chỉ trả lời ngắn gọn, súc tích trong tối đa 2 câu. Đi thẳng vào vấn đề không dài dòng." style="padding: 5px 10px; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 6px; color: #facc15; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">⚡ Ngắn gọn</button>
+                <button class="pb-bubble-preset-btn" data-text="Hãy trả lời bằng thái độ ngoài lạnh trong nóng (tsundere), đỏ mặt và hơi gắt gỏng nhưng vẫn quan tâm." style="padding: 5px 10px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; color: #38bdf8; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">🔮 Tsundere</button>
+                <button class="pb-bubble-preset-btn" data-text="Miêu tả chi tiết các động tác chiến đấu kịch tính, tiếng va chạm vũ khí, nhịp thở và sự căng thẳng tuyệt đối." style="padding: 5px 10px; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 6px; color: #fb7185; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">⚔️ Chiến đấu</button>
+                <button class="pb-bubble-preset-btn" data-text="Bối cảnh trời đang mưa to ngoài cửa sổ. Thêm chi tiết tiếng mưa rơi, không khí lạnh lẽo và cảm xúc trầm lắng." style="padding: 5px 10px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; color: #c084fc; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">🌧️ Mưa buồn</button>
+                <button class="pb-bubble-preset-btn" data-text="Chỉ trả lời ngắn gọn, súc tích trong tối đa 2 câu. Đi thẳng vào vấn đề không dài dòng." style="padding: 5px 10px; background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 6px; color: #facc15; font-size: 0.78em; cursor: pointer; transition: all 0.2s;">⚡ Ngắn gọn</button>
             </div>
 
             <div style="display: flex; gap: 8px; margin-top: 6px;">
-                <button id="pb-test-inject-btn" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85em; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <button id="pb-bubble-test-inject-btn" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85em; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
                     <span>🧪 Bơm Thử Vào Khung Chat</span>
                 </button>
             </div>
         `;
-        content.appendChild(editorCard);
+        body.appendChild(editorCard);
 
         // 3. Monitor Card
-        const monitorCard = document.createElement('div');
+        const monitorCard = parentDoc.createElement('div');
         monitorCard.style.cssText = 'background: #1e293b; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 180px;';
         monitorCard.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -288,17 +298,26 @@
                     <span style="display: inline-block; width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80;"></span>
                     <span>LỊCH SỬ ĐỒNG BỘ (LIVE MONITOR):</span>
                 </div>
-                <button id="pb-clear-log-btn" style="background: none; border: none; color: #64748b; font-size: 0.78em; cursor: pointer;">Xóa Log</button>
+                <button id="pb-bubble-clear-log-btn" style="background: none; border: none; color: #64748b; font-size: 0.78em; cursor: pointer;">Xóa Log</button>
             </div>
-            <div id="pb-log-box" style="flex: 1; overflow-y: auto; background: #0f172a; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px; max-height: 220px;"></div>
+            <div id="pb-bubble-log-box" style="flex: 1; overflow-y: auto; background: #0f172a; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px; max-height: 200px;"></div>
         `;
-        content.appendChild(monitorCard);
-        wrapper.appendChild(content);
-        container.appendChild(wrapper);
+        body.appendChild(monitorCard);
+        modal.appendChild(body);
+        overlay.appendChild(modal);
+        parentDoc.body.appendChild(overlay);
 
         // --- Event Listeners ---
-        const toggleBtn = wrapper.querySelector('#pb-enable-toggle');
-        const badge = wrapper.querySelector('#pb-status-badge');
+        const closeBtn = header.querySelector('#pb-bubble-close-btn');
+        const closeOverlay = () => {
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+        };
+        closeBtn.onclick = closeOverlay;
+        overlay.onclick = (e) => { if (e.target === overlay) closeOverlay(); };
+
+        const toggleBtn = body.querySelector('#pb-bubble-enable-toggle');
+        const badge = header.querySelector('#pb-bubble-status-badge');
         toggleBtn.onchange = (e) => {
             settings.enabled = e.target.checked;
             badge.innerText = settings.enabled ? 'ON' : 'OFF';
@@ -309,8 +328,8 @@
             addLog(`Đã ${settings.enabled ? 'BẬT' : 'TẮT'} chế độ Bơm Prompt.`, settings.enabled ? 'success' : 'warn');
         };
 
-        const targetSelect = wrapper.querySelector('#pb-target-select');
-        const depthContainer = wrapper.querySelector('#pb-depth-container');
+        const targetSelect = body.querySelector('#pb-bubble-target-select');
+        const depthContainer = body.querySelector('#pb-bubble-depth-container');
         targetSelect.onchange = (e) => {
             settings.target = e.target.value;
             depthContainer.style.display = settings.target === 'in_chat' ? 'block' : 'none';
@@ -318,20 +337,20 @@
             updateSillyTavernExtensionPrompt();
         };
 
-        wrapper.querySelector('#pb-role-select').onchange = (e) => {
+        body.querySelector('#pb-bubble-role-select').onchange = (e) => {
             settings.role = e.target.value;
             saveSettings();
             updateSillyTavernExtensionPrompt();
         };
 
-        wrapper.querySelector('#pb-depth-input').oninput = (e) => {
+        body.querySelector('#pb-bubble-depth-input').oninput = (e) => {
             settings.depth = parseInt(e.target.value, 10) || 0;
             saveSettings();
             updateSillyTavernExtensionPrompt();
         };
 
-        const promptInput = wrapper.querySelector('#pb-prompt-input');
-        const saveHint = wrapper.querySelector('#pb-save-hint');
+        const promptInput = body.querySelector('#pb-bubble-prompt-input');
+        const saveHint = body.querySelector('#pb-bubble-save-hint');
         let saveTimeout;
         promptInput.oninput = () => {
             settings.promptText = promptInput.value;
@@ -342,7 +361,7 @@
             saveTimeout = setTimeout(() => { saveHint.style.opacity = '0'; }, 1500);
         };
 
-        wrapper.querySelectorAll('.pb-preset-btn').forEach(btn => {
+        body.querySelectorAll('.pb-bubble-preset-btn').forEach(btn => {
             btn.onclick = () => {
                 const text = btn.getAttribute('data-text');
                 promptInput.value = text;
@@ -355,7 +374,7 @@
             };
         });
 
-        wrapper.querySelector('#pb-test-inject-btn').onclick = () => {
+        body.querySelector('#pb-bubble-test-inject-btn').onclick = () => {
             const sendTextarea = parentWin.document.getElementById('send_textarea');
             if (sendTextarea) {
                 const injectNote = `[System note: ${settings.promptText.trim()}] `;
@@ -369,14 +388,61 @@
             }
         };
 
-        wrapper.querySelector('#pb-clear-log-btn').onclick = () => {
+        body.querySelector('#pb-bubble-clear-log-btn').onclick = () => {
             settings.logs = [];
             saveSettings();
             updateLogUI();
         };
 
         updateLogUI();
-    });
+    }
 
-    console.log('[App Prompt Booster] Đã khởi tạo Trạm Bơm Prompt thành công theo chuẩn SillyTavern API.');
+    function openBoosterModal() {
+        let overlay = parentDoc.getElementById(OVERLAY_ID);
+        if (!overlay) {
+            buildModalDOM();
+            overlay = parentDoc.getElementById(OVERLAY_ID);
+        }
+        if (overlay) {
+            overlay.style.opacity = '1';
+            overlay.style.pointerEvents = 'auto';
+            updateLogUI();
+        }
+        if (parentWin.FloatingMenuManager) parentWin.FloatingMenuManager.collapse();
+    }
+
+    // =========================================================================
+    // ĐĂNG KÝ BONG BÓNG VÀO FLOATING MENU MANAGER
+    // =========================================================================
+    const fmmConfig = {
+        id: 'prompt_booster_btn',
+        icon: '💉',
+        label: 'Bơm Prompt',
+        color: 'linear-gradient(135deg, #f43f5e 0%, #8b5cf6 100%)',
+        order: 4,
+        onClick: openBoosterModal
+    };
+
+    function tryRegisterFMM() {
+        if (parentWin.FloatingMenuManager && typeof parentWin.FloatingMenuManager.registerButton === 'function') {
+            parentWin.FloatingMenuManager.registerButton(fmmConfig);
+            return true;
+        } else {
+            parentWin._fmmPendingRegistrations = parentWin._fmmPendingRegistrations || [];
+            if (!parentWin._fmmPendingRegistrations.some(b => b.id === fmmConfig.id)) {
+                parentWin._fmmPendingRegistrations.push(fmmConfig);
+            }
+            return false;
+        }
+    }
+
+    if (!tryRegisterFMM()) {
+        let retry = 0;
+        const timer = setInterval(() => {
+            retry++;
+            if (tryRegisterFMM() || retry >= 60) clearInterval(timer);
+        }, 500);
+    }
+
+    console.log('[PromptBooster] Đã đăng ký thành công vào Bong Bóng Mẹ v3.');
 })();
