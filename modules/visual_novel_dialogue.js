@@ -4048,9 +4048,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <div style="font-size:11.5px;color:#94a3b8;margin-top:4px;">Nhập các ký tự bạn muốn xóa khỏi 2 đầu bong bóng thoại (cách nhau bởi dấu <code>|</code> hoặc viết liền như <code>&quot;*“”</code>). Nếu <b>để trống</b>, script sẽ tuân thủ tuyệt đối theo regex của bạn và không tự ý xóa gì cả!</div>
       </div>
     </div>
-    <div style="font-size:12px;color:#94a3b8;line-height:1.7;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;">
-      <b>⚙️ Cơ chế hoạt động:</b> Script sử dụng hệ thống <b>Event Hooks (CHAT_COMPLETION_PROMPT_READY / GENERATE_AFTER_COMBINE_PROMPTS)</b> chuẩn của SillyTavern để tự động tiêm prompt hướng dẫn vào luồng xử lý (In-Chat @ Depth 0) khi AI tạo phản hồi. Phương thức này hoạt động ngầm 100%, <b>hoàn toàn không xâm lấn hay chiếm dụng ô Author's Note của bạn</b>, trả lại Author's Note để bạn tự do sử dụng!
-    </div>
   </div>
   <!-- TAB 4: CÀI ĐẶT -->
   <div class="vn-tab-content" data-tab="settings" id="vn-tab-settings">
