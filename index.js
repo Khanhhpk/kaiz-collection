@@ -56,18 +56,18 @@ function logToKaiz(argsOrMsg, type = 'info') {
     window._kaizLogs.push(logItem);
     if (window._kaizLogs.length > 800) window._kaizLogs.shift(); // Giữ tối đa 800 dòng log
 
-    // Nếu UI log đang mở/tồn tại trong DOM, cập nhật ngay vào khung log
+    // Nếu UI log đang mở/tồn tại trong DOM, cập nhật ngay vào khung log (O(1) append, không re-render lại toàn bộ)
     const logBox = document.getElementById('kaiz_log_box');
     if (logBox) {
         if (logBox.children.length === 1 && logBox.children[0].textContent.includes('Chưa có nhật ký')) {
             logBox.innerHTML = '';
         }
         logBox.appendChild(createLogItemElement(logItem));
+        if (logBox.children.length > 800) {
+            logBox.removeChild(logBox.children[0]);
+        }
         logBox.scrollTop = logBox.scrollHeight;
     }
-    
-    // Phát sự kiện để các UI lắng nghe có thể cập nhật
-    window.dispatchEvent(new CustomEvent('kaiz_log_updated'));
 }
 
 // Intercept (Chuyển hướng) toàn diện console.log / warn / error của Web Console về bảng Log của Extension
@@ -354,15 +354,16 @@ function renderExtensionSettings(targetWin, jq) {
                         </label>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px;">
-                        <button id="pe_enable_all_btn" class="menu_button interactable" style="flex: 1; min-width: 120px; padding: 8px 12px; font-size: 0.85em; background: rgba(163, 190, 140, 0.25); color: #a3be8c; border: 1px solid #a3be8c; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                        <button id="pe_enable_all_btn" style="flex: 1; min-width: 120px; padding: 10px 14px; font-size: 0.88em; background: rgba(46, 204, 113, 0.22) !important; color: #2ecc71 !important; border: 1px solid #2ecc71 !important; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2); display: flex; align-items: center; justify-content: center; gap: 6px;">
                             ✅ Bật tất cả
                         </button>
-                        <button id="pe_disable_all_btn" class="menu_button interactable" style="flex: 1; min-width: 120px; padding: 8px 12px; font-size: 0.85em; background: rgba(191, 97, 106, 0.25); color: #bf616a; border: 1px solid #bf616a; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                        <button id="pe_disable_all_btn" style="flex: 1; min-width: 120px; padding: 10px 14px; font-size: 0.88em; background: rgba(231, 76, 60, 0.22) !important; color: #e74c3c !important; border: 1px solid #e74c3c !important; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2); display: flex; align-items: center; justify-content: center; gap: 6px;">
                             ❌ Tắt tất cả
                         </button>
                     </div>
-                    <button id="pe_reload_btn" class="menu_button interactable" style="width: 100%; margin-top: 12px; padding: 10px; background: linear-gradient(90deg, #88c0d0, #81a1c1); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.92em; transition: all 0.2s; box-shadow: 0 4px 12px rgba(136,192,208,0.3);">
-                        🔄 Làm mới trang (F5) để áp dụng thay đổi
+                    <button id="pe_reload_btn" style="width: 100%; margin-top: 14px; padding: 12px 16px; background: linear-gradient(135deg, #00b4d8, #0077b6) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.3) !important; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 0.96em; letter-spacing: 0.5px; transition: all 0.25s ease; box-shadow: 0 4px 15px rgba(0, 180, 216, 0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span style="font-size: 1.15em;">🔄</span>
+                        <span>LÀM MỚI TRANG (F5) ĐỂ ÁP DỤNG THAY ĐỔI</span>
                     </button>
                 </div>
 
@@ -386,7 +387,7 @@ function renderExtensionSettings(targetWin, jq) {
                             <span>Ẩn log khỏi Console Web (F12) để giảm rác</span>
                         </label>
                     </div>
-                    <button id="kaiz_log_clear_btn" class="menu_button interactable" style="padding: 6px 14px; font-size: 0.82em; border-radius: 6px; border: 1px solid #bf616a; background: rgba(191,97,106,0.2); color: #bf616a; cursor: pointer; font-weight: bold; transition: all 0.2s;">
+                    <button id="kaiz_log_clear_btn" style="padding: 6px 14px; font-size: 0.85em; border-radius: 6px; border: 1px solid #bf616a !important; background: rgba(191,97,106,0.25) !important; color: #bf616a !important; cursor: pointer; font-weight: bold; transition: all 0.2s;">
                         🗑️ Xóa Log
                     </button>
                 </div>
@@ -460,13 +461,6 @@ function renderExtensionSettings(targetWin, jq) {
             renderAllLogsToUI();
         });
     }
-
-    // Đăng ký nhận sự kiện log từ hệ thống để cập nhật realtime
-    window.addEventListener('kaiz_log_updated', () => {
-        if (contentLogs && contentLogs.style.display !== 'none') {
-            renderAllLogsToUI();
-        }
-    });
 
     // Xử lý đóng/mở Accordion (phân khu thu nhỏ mặc định)
     const accHeaders = section.querySelectorAll('.kaiz-accordion-header');
