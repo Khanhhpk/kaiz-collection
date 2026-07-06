@@ -2220,27 +2220,18 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
     };
 
-    // ========== MODULE 1: PROMPT INJECTION (SYSTEM & AUTHOR NOTE) ==========
+    // ========== MODULE 1: PROMPT INJECTION (EVENT HOOKS - KHÔNG XÂM LẤN AUTHOR'S NOTE) ==========
     function setupPromptInjection() {
         if (PD._vnClickHook) {
             PD.removeEventListener('click', PD._vnClickHook, true);
             PD.removeEventListener('keydown', PD._vnClickHook, true);
             delete PD._vnClickHook;
         }
+        // Luôn dọn dẹp sạch sẽ marker cũ khỏi Author's Note / extensionPrompts của người dùng
+        cleanUpLegacyAuthorNote();
         if (!CFG.enabled) return;
 
-        if (CFG.promptInjection) {
-            PD._vnClickHook = function (e) {
-                const btn = e.target.closest('#send_but, #send_textarea');
-                if (!btn) return;
-                if (e.type === 'keydown' && !(e.key === 'Enter' && !e.shiftKey)) return;
-                doInjectSystemPrompt();
-            };
-            PD.addEventListener('click', PD._vnClickHook, true);
-            PD.addEventListener('keydown', PD._vnClickHook, true);
-        }
-
-        // Đăng ký qua SillyTavern eventSource nếu có
+        // Đăng ký qua SillyTavern eventSource chuẩn (Event Hooks)
         try {
             const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
             if (ctx && ctx.eventSource && ctx.event_types) {
@@ -2258,9 +2249,24 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     }
                 };
 
-                if (ctx.event_types.CHAT_COMPLETION_PROMPT_READY) {
-                    addEv(ctx.event_types.CHAT_COMPLETION_PROMPT_READY, doInjectSystemPrompt);
-                }
+                // Lắng nghe tất cả các sự kiện dựng prompt để tiêm hướng dẫn vào luồng xử lý (In-Chat @ Depth 0)
+                const promptEvents = [
+                    ctx.event_types.CHAT_COMPLETION_PROMPT_READY,
+                    ctx.event_types.GENERATE_AFTER_COMBINE_PROMPTS,
+                    ctx.event_types.TEXT_COMPLETION_PROMPT_READY,
+                    ctx.event_types.PROMPT_READY,
+                    'chat_completion_prompt_ready',
+                    'generate_after_combine_prompts',
+                    'text_completion_prompt_ready',
+                    'prompt_ready'
+                ];
+                promptEvents.forEach(evt => {
+                    if (evt) {
+                        addEv(evt, (payload) => {
+                            injectVnDialoguePrompt(payload, typeof evt === 'string' ? evt : 'PROMPT_READY');
+                        });
+                    }
+                });
 
                 // --- TỐI ƯU STREAMING THỜI GIAN THỰC (TỚI ĐÂU RENDER TỚI ĐÓ, KHÔNG NHÁY) ---
                 let streamTickRaf = 0;
@@ -2310,11 +2316,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 });
             }
         } catch (err) { }
-
-        doInjectSystemPrompt();
     }
 
-    function removeInjectedPrompt() {
+    function cleanUpLegacyAuthorNote() {
         try {
             const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
             if (ctx) {
@@ -2331,7 +2335,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const marker = 'vn_dialogue_format_marker';
             const startMark = `<!-- ${marker}_start -->`;
             const endMark = `<!-- ${marker}_end -->`;
-            // CHỈ target đúng ô Chat Author's Note (Unique to this chat), TRÁNH TUYỆT ĐỐI Character Author's Note & Default Author's Note
             const selectors = [
                 '#authors_note_textarea',
                 '#extension_floating_prompt',
@@ -2340,7 +2343,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             ];
             selectors.forEach(sel => {
                 PD.querySelectorAll(sel).forEach(el => {
-                    // Kiểm tra siêu nghiêm ngặt: TUYỆT ĐỐI KHÔNG chạm vào bất kỳ container nào liên quan đến character, default hay preset
                     if (el && el.value !== undefined && !el.closest('#character_popup, #character_edit_form, .character_edit, #character_editor, .character-edit-form, #character_author_note_popup, #char_author_note, .character-author-note, #default_author_note_popup, #default_author_note, [id*="char"], [class*="char"], [id*="default"], [class*="default"], [id*="preset"], [class*="preset"]')) {
                         let cur = el.value || '';
                         if (cur.includes(startMark) && cur.includes(endMark)) {
@@ -2368,67 +2370,56 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return base;
     }
 
-    function doInjectSystemPrompt() {
-        removeInjectedPrompt();
-        if (!CFG.enabled || !CFG.promptInjection || !CFG.customPrompt || !CFG.customPrompt.trim()) return;
+    function injectVnDialoguePrompt(payload, evtName) {
+        if (!CFG.enabled || !CFG.promptInjection) return;
+        if (!payload) return;
 
-        try {
-            const effectivePrompt = getEffectivePrompt();
-            const marker = 'vn_dialogue_format_marker';
-            const startMark = `<!-- ${marker}_start -->`;
-            const endMark = `<!-- ${marker}_end -->`;
-            // CHỈ target đúng ô Chat Author's Note (Unique to this chat), TRÁNH TUYỆT ĐỐI Character Author's Note & Default Author's Note
-            const selectors = [
-                '#authors_note_textarea',
-                '#extension_floating_prompt',
-                '#floatingPrompt textarea',
-                '#author_note_popup #authors_note_textarea'
-            ];
+        const customPrompt = getEffectivePrompt();
+        if (!customPrompt) return;
 
-            let injected = false;
-            selectors.forEach(sel => {
-                PD.querySelectorAll(sel).forEach(el => {
-                    if (el && el.value !== undefined && !el.closest('#character_popup, #character_edit_form, .character_edit, #character_editor, .character-edit-form, #character_author_note_popup, #char_author_note, .character-author-note, #default_author_note_popup, #default_author_note, [id*="char"], [class*="char"], [id*="default"], [class*="default"], [id*="preset"], [class*="preset"]') && !injected) {
-                        let cur = el.value || '';
-                        el.value = `${startMark}\n${effectivePrompt}\n${endMark}\n\n${cur}`.trim();
-                        el.dispatchEvent(new Event('input', { bubbles: true }));
-                        el.dispatchEvent(new Event('change', { bubbles: true }));
-                        injected = true;
-                    }
-                });
-            });
+        // Chống bơm kép (Anti-double injection)
+        if (payload._vnDialogueInjected || (Array.isArray(payload) && payload._vnDialogueInjected)) return;
 
-            // Ép đặt Depth của Chat Author's Note về 0 (chỉ target đúng depth của Chat Author Note)
-            const depthSelectors = [
-                '#authors_note_depth',
-                '#an_depth',
-                '#author_note_depth'
-            ];
-            depthSelectors.forEach(sel => {
-                PD.querySelectorAll(sel).forEach(el => {
-                    if (el && el.value !== undefined && !el.closest('#character_popup, #character_edit_form, .character_edit, #character_editor, .character-edit-form, #character_author_note_popup, #char_author_note, .character-author-note, #default_author_note_popup, #default_author_note, [id*="char"], [class*="char"], [id*="default"], [class*="default"], [id*="preset"], [class*="preset"]') && (el.value !== '0' && el.value !== 0)) {
-                        el.value = '0';
-                        el.dispatchEvent(new Event('input', { bubbles: true }));
-                        el.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                });
-            });
+        let targetArray = null;
+        if (Array.isArray(payload)) {
+            targetArray = payload;
+        } else if (payload && Array.isArray(payload.messages)) {
+            targetArray = payload.messages;
+        } else if (payload && Array.isArray(payload.chat)) {
+            targetArray = payload.chat;
+        }
 
-            const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
-            if (ctx) {
-                if (typeof ctx.setExtensionPrompt === 'function') {
-                    ctx.setExtensionPrompt('vn_dialogue_format', effectivePrompt, 4, 0, false, 0);
-                } else {
-                    ctx.extensionPrompts = ctx.extensionPrompts || {};
-                    ctx.extensionPrompts['vn_dialogue_format'] = {
-                        value: effectivePrompt,
-                        position: 4,
-                        depth: 0,
-                        role: 0
-                    };
-                }
+        if (targetArray) {
+            // Kiểm tra chống trùng lặp nội dung
+            if (targetArray.some(m => m && (m._vnDialogueInjected || (typeof m.content === 'string' && m.content.includes(customPrompt))))) {
+                return;
             }
-        } catch (e) { }
+
+            targetArray._vnDialogueInjected = true;
+            if (!payload._vnDialogueInjected) payload._vnDialogueInjected = true;
+
+            // Tiêm vào In-Chat @ Depth 0 (ngay trước tin nhắn cuối cùng trong luồng chat để AI tuân thủ cấu trúc thoại tốt nhất)
+            const role = 'system';
+            if (targetArray.length === 0) {
+                targetArray.push({ role: role, content: customPrompt, _vnDialogueInjected: true });
+            } else {
+                let insertIdx = targetArray.length - 1;
+                if (insertIdx < 0) insertIdx = 0;
+                targetArray.splice(insertIdx, 0, { role: role, content: customPrompt, _vnDialogueInjected: true });
+            }
+        } 
+        // Xử lý Text Completion (Chuỗi thô)
+        else if (payload && typeof payload.prompt === 'string') {
+            if (payload.prompt.includes(customPrompt)) return;
+            payload._vnDialogueInjected = true;
+            const formattedPrompt = `\n[SYSTEM: ${customPrompt}]\n`;
+            payload.prompt = payload.prompt + formattedPrompt;
+        }
+    }
+
+    // Giữ hàm doInjectSystemPrompt để tương thích ngược nếu có sự kiện hay nút bấm nào gọi
+    function doInjectSystemPrompt() {
+        cleanUpLegacyAuthorNote();
     }
 
     // ========== MODULE 3: DIALOGUE PARSER & RENDERER (HTML-PRESERVING & MULTI-FORMAT) ==========
@@ -3929,8 +3920,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
   <div class="vn-tab-content" data-tab="prompt" id="vn-tab-prompt">
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name">Bật tự động tiêm Prompt vào Author's Note</div>
-        <div class="vn-toggle-desc">Tự động chèn hướng dẫn cấu trúc lời thoại [Tên] vào Author's Note / In-Chat cho AI trước mỗi lần gửi</div>
+        <div class="vn-toggle-name">Bật tự động tiêm Prompt hướng dẫn cấu trúc lời thoại</div>
+        <div class="vn-toggle-desc">Tự động chèn hướng dẫn cấu trúc lời thoại [Tên] vào luồng xử lý (In-Chat @ Depth 0) bằng Event Hooks chuẩn của SillyTavern</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-inject" /><span class="vn-slider"></span></label>
     </div>
@@ -3947,10 +3938,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <span id="vn-gender-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
       </div>
       <textarea class="vn-input vn-textarea" id="vn-gender-prompt-text" rows="4" style="border-color:rgba(244,63,94,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
-      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;">💡 Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào Author's Note để dạy AI trả về @Tên(Nữ/Nam)@.</div>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;">💡 Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào luồng xử lý để dạy AI trả về @Tên(Nữ/Nam)@.</div>
     </div>
     <div class="vn-group">
-      <div class="vn-section-label">Nội dung Prompt hướng dẫn AI gốc (Author's Note / In-Chat)</div>
+      <div class="vn-section-label">Nội dung Prompt hướng dẫn AI gốc (In-Chat @ Depth 0 via Event Hooks)</div>
       <textarea class="vn-input vn-textarea" id="vn-prompt-text" rows="8"></textarea>
     </div>
     <div style="display:flex;gap:10px;">
@@ -3997,7 +3988,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
     </div>
     <div style="font-size:12px;color:#94a3b8;line-height:1.7;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;">
-      <b>⚙️ Cơ chế hoạt động:</b> Script sẽ tự động chèn prompt hướng dẫn này vào khối <b>Author's Note Chung (In-Chat @ Depth 0)</b> của SillyTavern. Đây là phương thức hoạt động ổn định nhất, giúp AI tuân thủ cấu trúc lời thoại 100% mà không bị đè bởi thẻ nhân vật!
+      <b>⚙️ Cơ chế hoạt động:</b> Script sử dụng hệ thống <b>Event Hooks (CHAT_COMPLETION_PROMPT_READY / GENERATE_AFTER_COMBINE_PROMPTS)</b> chuẩn của SillyTavern để tự động tiêm prompt hướng dẫn vào luồng xử lý (In-Chat @ Depth 0) khi AI tạo phản hồi. Phương thức này hoạt động ngầm 100%, <b>hoàn toàn không xâm lấn hay chiếm dụng ô Author's Note của bạn</b>, trả lại Author's Note để bạn tự do sử dụng!
     </div>
   </div>
   <!-- TAB 4: CÀI ĐẶT -->
@@ -4331,7 +4322,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             CFG.promptInjection = e.target.checked;
             saveConfig(CFG);
             setupPromptInjection();
-            showToast(CFG.promptInjection ? 'Đã bật tiêm Prompt Author\'s Note ✓' : 'Đã tắt tiêm Prompt Author\'s Note', 'info');
+            showToast(CFG.promptInjection ? 'Đã bật tiêm Prompt hướng dẫn VN Dialogue ✓' : 'Đã tắt tiêm Prompt hướng dẫn VN Dialogue', 'info');
         });
         $('vn-toggle-fab').addEventListener('change', e => {
             CFG.showStandaloneIcon = e.target.checked;
@@ -4592,7 +4583,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ($('vn-gender-prompt-text')) CFG.genderPrompt = $('vn-gender-prompt-text').value;
             saveConfig(CFG);
             doInjectSystemPrompt();
-            showToast('💾 Đã lưu và cập nhật cả 2 Prompt vào Author\'s Note!', 'success');
+            showToast('💾 Đã lưu và cập nhật cả 2 Prompt hướng dẫn cấu trúc lời thoại!', 'success');
         });
         $('vn-prompt-reset').addEventListener('click', () => {
             if (!confirm('Khôi phục cả 2 prompt hướng dẫn về mặc định?')) return;
@@ -4602,7 +4593,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ($('vn-gender-prompt-text')) $('vn-gender-prompt-text').value = CFG.genderPrompt;
             saveConfig(CFG);
             doInjectSystemPrompt();
-            showToast('🔄 Đã khôi phục prompt mặc định và cập nhật Author\'s Note!', 'info');
+            showToast('🔄 Đã khôi phục prompt mặc định!', 'info');
         });
 
         $('vn-new-char-add').addEventListener('click', () => {
