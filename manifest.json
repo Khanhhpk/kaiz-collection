@@ -1,9 +1,10 @@
 {
     "display_name": "SillyTavern Phone Ecosystem & Helper Scripts",
     "loading_order": 5,
+    "js": "index.js",
     "requires": [],
     "optional": [],
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "Kaiz & SillyTavern Mod Team",
     "description": "Hệ sinh thái Lõi Điện thoại (Phone Core), 20+ Ứng dụng tích hợp, và Bộ công cụ tiện ích (VN Dialogue, Vtuber Assistant, Shimeji, v.v.) dành cho SillyTavern."
 }

@@ -6,9 +6,10 @@
 console.log('[SillyTavern Extension] Đang khởi tạo hệ sinh thái Phone Ecosystem & Helper Scripts...');
 
 // ==========================================
-// 1. NẠP LÕI HỆ THỐNG (CORE SYSTEM)
+// 1. NẠP LÕI QUẢN LÝ GIAO DIỆN & HỆ THỐNG (CORE MASTERS)
 // ==========================================
-import './modules/phone_core.js'; // Lõi Điện thoại (Phone Core)
+import './modules/floating_ball_manager.js'; // Quản lý bóng nổi (Bong bóng mẹ - UI Master)
+import './modules/phone_core.js'; // Lõi Điện thoại (Phone Core - App Master)
 
 // ==========================================
 // 2. NẠP CÁC ỨNG DỤNG ĐIỆN THOẠI (PHONE APPS)
@@ -39,7 +40,6 @@ import './modules/app_youtube.js'; // App Youtube - 17
 // 3. NẠP CÁC TIỆN ÍCH & TÍNH NĂNG ĐỘC LẬP (UTILITIES)
 // ==========================================
 import './modules/avar_ai_input.js'; // Avar AI Input @Kaiz
-import './modules/floating_ball_manager.js'; // Quản lý bóng nổi
 import './modules/shimeji.js'; // Shimeji v14.21
 import './modules/storage_inspector.js'; // Quản lý Dữ liệu Web (Storage & IndexedDB Inspector)
 import './modules/visual_novel_dialogue.js'; // Visual Novel Dialogue
