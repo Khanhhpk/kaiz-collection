@@ -6,5 +6,6 @@
     "optional": [],
     "version": "1.1.1",
     "author": "Kaiz",
+    "generate_interceptor": "kaizPromptInterceptor",
     "description": "Bộ sưu tập KAIZ Collection: Hệ sinh thái Điện thoại (Phone Ecosystem), 20+ Ứng dụng tích hợp, và Bộ tiện ích đa năng (VN Dialogue, Vtuber Assistant, Shimeji...) cho SillyTavern."
 }

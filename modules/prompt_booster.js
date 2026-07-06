@@ -133,6 +133,63 @@
         addLog(`✅ Đã đồng bộ vào SillyTavern extension_prompts [Key: ${PROMPT_KEY}, Vị trí: ${settings.target.toUpperCase()}, Role: ${settings.role.toUpperCase()}${settings.target === 'in_chat' ? ', Depth: ' + settings.depth : ''}]`, 'success');
     }
 
+    // =========================================================================
+    // CƠ CHẾ GENERATE INTERCEPTOR (HIỆN TRỰC TIẾP TRONG PROMPT VIEWER)
+    // =========================================================================
+    function kaizPromptInterceptor(chatContext) {
+        if (!settings.enabled || !settings.promptText || !settings.promptText.trim()) {
+            return chatContext;
+        }
+
+        const customPrompt = settings.promptText.trim();
+        const target = settings.target; // 'in_prompt' (System/Before), 'in_chat' (Depth), 'after_prompt' (After)
+        const role = settings.role || 'system';
+        const depth = parseInt(settings.depth, 10) || 0;
+
+        addLog(`⚡ [Interceptor] Đã chèn prompt vào ngữ cảnh (Target: ${target.toUpperCase()}, Role: ${role.toUpperCase()}${target === 'in_chat' ? ', Depth: ' + depth : ''})!`, 'success');
+
+        // Trường hợp chatContext là Mảng (Array of Messages - Chat Completion API)
+        if (Array.isArray(chatContext)) {
+            const newContext = [...chatContext];
+            if (target === 'in_prompt') {
+                const sysIndex = newContext.findIndex(msg => msg && (msg.role === 'system' || msg.role === 0));
+                if (sysIndex !== -1 && newContext[sysIndex]) {
+                    newContext[sysIndex].content += `\n\n[System Direction]: ${customPrompt}`;
+                } else {
+                    newContext.unshift({ role: role, content: customPrompt });
+                }
+            } else if (target === 'after_prompt') {
+                newContext.push({ role: role, content: customPrompt });
+            } else if (target === 'in_chat') {
+                if (newContext.length === 0) {
+                    newContext.push({ role: role, content: customPrompt });
+                } else {
+                    let insertIdx = newContext.length - 1 - depth;
+                    if (insertIdx < 0) insertIdx = 0;
+                    newContext.splice(insertIdx, 0, { role: role, content: customPrompt });
+                }
+            }
+            return newContext;
+        } 
+        // Trường hợp chatContext là Chuỗi (String - Text Completion API)
+        else if (typeof chatContext === 'string') {
+            let newString = chatContext;
+            const formattedPrompt = `\n[${role.toUpperCase()}: ${customPrompt}]\n`;
+            if (target === 'in_prompt') {
+                newString = formattedPrompt + newString;
+            } else if (target === 'after_prompt' || target === 'in_chat') {
+                newString = newString + formattedPrompt;
+            }
+            return newString;
+        }
+
+        return chatContext;
+    }
+
+    // Đăng ký ra toàn cục để manifest.json (generate_interceptor) có thể gọi
+    window.kaizPromptInterceptor = kaizPromptInterceptor;
+    if (parentWin) parentWin.kaizPromptInterceptor = kaizPromptInterceptor;
+
     // Lắng nghe sự kiện để ghi log theo thời gian thực
     let isHooked = false;
     function setupEventListeners() {
