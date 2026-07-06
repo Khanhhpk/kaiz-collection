@@ -2028,6 +2028,32 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 .vn-block.vn-no-anim .vn-avatar-viewport {
     transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-radius 0.35s ease, width 0.35s ease, height 0.35s ease !important;
 }
+
+/* --- BẢN VÁ TUYỆT ĐỐI CHỐNG RUNG VÀ CHỐNG NHẢY PIXEL KHI STREAMING & REFLOW --- */
+/* 1. Tối ưu GPU compositing cho ảnh trong chế độ always_full và expanded để tránh nhảy sub-pixel trên Windows */
+html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar,
+.vn-block.vn-expanded-img .vn-avatar {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transform: translateZ(0) scale(1) !important;
+}
+/* 2. Khi đang streaming (có lớp vn-streaming hoặc tin nhắn đang streaming): Khóa tuyệt đối mọi transition & animation trên toàn bộ block và avatar */
+.mes.is_streaming .vn-block *,
+.mes[is_streaming="true"] .vn-block *,
+.mes.streaming .vn-block *,
+.vn-block.vn-streaming,
+.vn-block.vn-streaming *,
+.vn-block.vn-streaming .vn-avatar,
+.vn-block.vn-streaming .vn-avatar-viewport,
+.vn-block.vn-streaming .vn-avatar-wrap,
+.vn-block.vn-streaming .vn-bubble,
+.vn-block.vn-streaming .vn-charname {
+    animation: none !important;
+    transition: none !important;
+    transform: translateZ(0) scale(1) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
 `;
         PD.head.appendChild(s);
     }
@@ -2797,7 +2823,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const safeTextColor = safeCssValue(charCfg.textColor, '');
             if (safeTextColor) customTextStyle = ` style="color:${escapeAttr(safeTextColor)} !important;"`;
         }
-        return `<div class="vn-block${isRight ? ' vn-right' : ''}${noAnim ? ' vn-no-anim' : ''}">${avatarHtml}<div class="vn-bubble${isThought ? ' vn-thought' : ''}"${customTextStyle}><div class="vn-bubble-tag" style="${escapeAttr(tagStyle)}">${escapeHtml(tagText)}</div><div class="vn-bubble-text"${customTextStyle}>${bubbleText}</div></div></div>`;
+        return `<div class="vn-block${isRight ? ' vn-right' : ''}${noAnim ? ' vn-no-anim' : ''}${isStreaming ? ' vn-streaming' : ''}">${avatarHtml}<div class="vn-bubble${isThought ? ' vn-thought' : ''}"${customTextStyle}><div class="vn-bubble-tag" style="${escapeAttr(tagStyle)}">${escapeHtml(tagText)}</div><div class="vn-bubble-text"${customTextStyle}>${bubbleText}</div></div></div>`;
     }
 
     function isElementStreaming(el) {
