@@ -271,42 +271,44 @@ function renderExtensionSettings(targetWin, jq) {
         return modulesList.map(mod => {
             const isChecked = !(config.disabled_modules && config.disabled_modules.includes(mod.file));
             return `
-            <div class="pe-module-item" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; margin: 6px 0; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; transition: all 0.25s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
-                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; margin: 0; user-select: none;">
-                    <input type="checkbox" class="pe_module_checkbox" data-file="${mod.file}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #88c0d0; flex-shrink: 0;">
+            <div class="pe-module-item" style="display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; margin: 6px 0; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; transition: all 0.25s ease;">
+                <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; flex: 1; margin: 0; user-select: none;">
+                    <input type="checkbox" class="pe_module_checkbox" data-file="${mod.file}" ${isChecked ? 'checked' : ''} style="width: 17px; height: 17px; cursor: pointer; accent-color: #38bdf8; flex-shrink: 0;">
                     <div style="flex: 1;">
-                        <div style="font-weight: 600; color: #fff; font-size: 0.94em; letter-spacing: 0.2px;">${mod.name}</div>
-                        <div style="font-size: 0.78em; color: #aaa; margin-top: 3px; line-height: 1.3;">${mod.desc}</div>
+                        <div style="font-weight: 600; color: #f8fafc; font-size: 0.94em; letter-spacing: 0.2px;">${mod.name}</div>
+                        <div style="font-size: 0.78em; color: #64748b; margin-top: 3px; line-height: 1.3;">${mod.desc}</div>
                     </div>
                 </label>
-                <span class="pe-status-badge" style="font-size: 0.72em; font-weight: bold; padding: 4px 10px; border-radius: 20px; background: ${isChecked ? 'rgba(163, 190, 140, 0.2); color: #a3be8c; border: 1px solid rgba(163,190,140,0.3);' : 'rgba(191, 97, 106, 0.2); color: #bf616a; border: 1px solid rgba(191,97,106,0.3);'}; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
-                    ${isChecked ? '🟢 Đang bật' : '🔴 Đã tắt'}
+                <span class="pe-status-badge" style="font-size: 0.72em; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: ${isChecked ? 'rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.25);' : 'rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.25);'}; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid ${isChecked ? 'fa-circle-check' : 'fa-circle-xmark'}"></i><span>${isChecked ? 'Đang bật' : 'Đã tắt'}</span>
                 </span>
             </div>`;
         }).join('');
     }
 
-    function buildAccordionHtml(id, icon, title, subtitle, colorTheme, modulesList) {
+    function buildAccordionHtml(id, iconHtml, title, subtitle, colorTheme, modulesList) {
         const count = modulesList.length;
         const activeCount = modulesList.filter(m => !(config.disabled_modules && config.disabled_modules.includes(m.file))).length;
         return `
-        <div class="kaiz-accordion-section" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.12)); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: border-color 0.3s ease;">
-            <div class="kaiz-accordion-header" data-target="kaiz_acc_body_${id}" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(90deg, ${colorTheme}1a, rgba(0,0,0,0.1)); cursor: pointer; user-select: none; transition: background 0.2s;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.3em; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">${icon}</span>
+        <div class="kaiz-accordion-section" style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.3); transition: border-color 0.3s ease;">
+            <div class="kaiz-accordion-header" data-target="kaiz_acc_body_${id}" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: rgba(255, 255, 255, 0.025); cursor: pointer; user-select: none; transition: background 0.2s; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: ${colorTheme}1a; border: 1px solid ${colorTheme}33; display: flex; align-items: center; justify-content: center; color: ${colorTheme}; font-size: 1.15em;">
+                        ${iconHtml}
+                    </div>
                     <div>
-                        <div style="font-weight: bold; font-size: 0.98em; color: ${colorTheme}; letter-spacing: 0.3px;">${title}</div>
-                        <div style="font-size: 0.75em; color: #ccc; opacity: 0.8; margin-top: 2px;">${subtitle}</div>
+                        <div style="font-weight: 700; font-size: 0.96em; color: #f8fafc; letter-spacing: 0.2px;">${title}</div>
+                        <div style="font-size: 0.76em; color: #64748b; margin-top: 2px;">${subtitle}</div>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="kaiz-acc-badge-${id}" style="font-size: 0.75em; background: rgba(0,0,0,0.4); color: #fff; padding: 4px 10px; border-radius: 14px; font-weight: bold; border: 1px solid rgba(255,255,255,0.15);">
-                        <span style="color: #a3be8c;">${activeCount}</span>/${count} bật
+                    <span class="kaiz-acc-badge-${id}" style="font-size: 0.75em; background: rgba(0,0,0,0.45); color: #cbd5e1; padding: 4px 12px; border-radius: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.08);">
+                        <span style="color: #34d399; font-weight: bold;">${activeCount}</span>/${count} bật
                     </span>
-                    <span id="kaiz_acc_icon_${id}" style="font-size: 0.85em; color: ${colorTheme}; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); display: inline-block;">▼</span>
+                    <span id="kaiz_acc_icon_${id}" style="font-size: 0.8em; color: #64748b; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); display: inline-block;">▼</span>
                 </div>
             </div>
-            <div id="kaiz_acc_body_${id}" class="kaiz-accordion-body" style="display: none; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2); flex-direction: column; gap: 6px;">
+            <div id="kaiz_acc_body_${id}" class="kaiz-accordion-body" style="display: none; padding: 12px 14px; background: rgba(0,0,0,0.25); flex-direction: column; gap: 6px;">
                 ${buildModuleListHtml(modulesList)}
             </div>
         </div>`;
@@ -315,84 +317,95 @@ function renderExtensionSettings(targetWin, jq) {
     section.innerHTML = `
     <style>
         .kaiz-tab-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-        .pe-module-item:hover { background: rgba(255,255,255,0.07) !important; border-color: rgba(255,255,255,0.25) !important; transform: translateX(4px); }
-        .kaiz-accordion-header:hover { background: rgba(255,255,255,0.08) !important; }
-        #pe_reload_btn:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(136,192,208,0.4) !important; }
-        .menu_button.interactable:hover { filter: brightness(1.15); transform: translateY(-1px); }
+        .pe-module-item:hover { background: rgba(255,255,255,0.06) !important; border-color: rgba(56,189,248,0.3) !important; transform: translateX(3px); }
+        .kaiz-accordion-header:hover { background: rgba(255,255,255,0.06) !important; }
+        #pe_reload_btn:hover { background: rgba(56, 189, 248, 0.18) !important; border-color: #38bdf8 !important; color: #ffffff !important; box-shadow: 0 0 16px rgba(56, 189, 248, 0.3) !important; transform: translateY(-1px); }
+        #pe_enable_all_btn:hover { background: rgba(16, 185, 129, 0.22) !important; border-color: #34d399 !important; box-shadow: 0 0 12px rgba(52, 211, 153, 0.25); }
+        #pe_disable_all_btn:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #f87171 !important; box-shadow: 0 0 12px rgba(248, 113, 113, 0.25); }
+        #kaiz_log_clear_btn:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #f87171 !important; }
     </style>
     <div class="inline-drawer">
-        <div class="inline-drawer-toggle inline-drawer-header" style="background: linear-gradient(90deg, rgba(136,192,208,0.2), rgba(0,0,0,0.1)); border-radius: 8px; padding: 10px 14px;">
-            <b style="font-size: 1.05em; color: #88c0d0; letter-spacing: 0.3px;">✨ KAIZ Collection (Hệ sinh thái & Tiện ích)</b>
-            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        <div class="inline-drawer-toggle inline-drawer-header" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-layer-group" style="color: #38bdf8; font-size: 1.1em;"></i>
+                <b style="font-size: 1.02em; color: #f8fafc; letter-spacing: 0.3px;">KAIZ Collection (Hệ sinh thái & Tiện ích)</b>
+            </div>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down" style="color: #64748b;"></div>
         </div>
-        <div class="inline-drawer-content" style="display: none; padding: 14px; flex-direction: column; gap: 16px;">
+        <div class="inline-drawer-content" style="display: none; padding: 16px; flex-direction: column; gap: 18px;">
             <!-- Tab Navigation Buttons -->
-            <div style="display: flex; gap: 10px; border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.15)); padding-bottom: 12px;">
-                <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1; padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid var(--SmartThemeQuoteColor, #88c0d0); background: var(--SmartThemeQuoteColor, #88c0d0); color: #000; transition: all 0.2s; box-shadow: 0 2px 8px rgba(136,192,208,0.3); font-size: 0.92em;">
-                    📦 Quản lý Module (28)
+            <div style="display: flex; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+                <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.12); color: #38bdf8; transition: all 0.2s; box-shadow: 0 0 12px rgba(56, 189, 248, 0.12); font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-cubes-stacked"></i><span>Quản lý Module (28)</span>
                 </button>
-                <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1; padding: 10px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: var(--SmartThemeBodyColor, #fff); transition: all 0.2s; font-size: 0.92em;">
-                    📋 Nhật ký & Console
+                <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-terminal"></i><span>Nhật ký & Console</span>
                 </button>
             </div>
 
             <!-- TAB 1: MODULES MANAGEMENT -->
             <div id="kaiz_tab_content_modules" style="display: flex; flex-direction: column; gap: 16px;">
                 <!-- Master Control Block -->
-                <div style="padding: 16px; background: linear-gradient(135deg, rgba(136, 192, 208, 0.15), rgba(0,0,0,0.35)); border: 1px solid var(--SmartThemeQuoteColor, #88c0d0); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.4em; filter: drop-shadow(0 0 8px rgba(136,192,208,0.6));">⚡</span>
+                <div style="padding: 18px; background: rgba(18, 24, 36, 0.7); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.4); backdrop-filter: blur(10px);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.3em; box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);">
+                                <i class="fa-solid fa-sliders"></i>
+                            </div>
                             <div>
-                                <span style="font-size: 1.05em; font-weight: bold; color: #88c0d0; letter-spacing: 0.3px;">Công tắc Chính (Master Switch)</span>
-                                <div style="font-size: 0.78em; color: #ccc; margin-top: 2px;">Điều khiển toàn bộ hệ sinh thái KAIZ Collection</div>
+                                <div style="font-size: 1.05em; font-weight: 700; color: #f8fafc; letter-spacing: 0.3px;">Công tắc Chính (Master Switch)</div>
+                                <div style="font-size: 0.78em; color: #64748b; margin-top: 3px;">Điều khiển toàn bộ hệ sinh thái KAIZ Collection</div>
                             </div>
                         </div>
-                        <label class="checkbox_label" style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.45); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);">
-                            <input type="checkbox" id="pe_master_toggle" ${config.enabled ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #a3be8c;">
-                            <span id="pe_master_status_text" style="font-weight: bold; font-size: 0.9em; color: ${config.enabled ? '#a3be8c' : '#bf616a'};">${config.enabled ? '🟢 ĐANG BẬT' : '🔴 ĐÃ TẮT'}</span>
+                        <label class="checkbox_label" style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); padding: 7px 16px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08);">
+                            <input type="checkbox" id="pe_master_toggle" ${config.enabled ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #34d399;">
+                            <span id="pe_master_status_text" style="font-weight: 700; font-size: 0.88em; color: ${config.enabled ? '#34d399' : '#f87171'}; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid ${config.enabled ? 'fa-circle-check' : 'fa-circle-xmark'}"></i><span>${config.enabled ? 'ĐANG BẬT' : 'ĐÃ TẮT'}</span>
+                            </span>
                         </label>
                     </div>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px;">
-                        <button id="pe_enable_all_btn" style="flex: 1; min-width: 120px; padding: 10px 14px; font-size: 0.88em; background: rgba(46, 204, 113, 0.22) !important; color: #2ecc71 !important; border: 1px solid #2ecc71 !important; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                            ✅ Bật tất cả
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+                        <button id="pe_enable_all_btn" style="flex: 1; min-width: 130px; padding: 10px 14px; font-size: 0.88em; background: rgba(16, 185, 129, 0.12) !important; color: #34d399 !important; border: 1px solid rgba(52, 211, 153, 0.3) !important; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-check-double"></i><span>Bật tất cả</span>
                         </button>
-                        <button id="pe_disable_all_btn" style="flex: 1; min-width: 120px; padding: 10px 14px; font-size: 0.88em; background: rgba(231, 76, 60, 0.22) !important; color: #e74c3c !important; border: 1px solid #e74c3c !important; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                            ❌ Tắt tất cả
+                        <button id="pe_disable_all_btn" style="flex: 1; min-width: 130px; padding: 10px 14px; font-size: 0.88em; background: rgba(239, 68, 68, 0.12) !important; color: #f87171 !important; border: 1px solid rgba(248, 113, 113, 0.3) !important; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-power-off"></i><span>Tắt tất cả</span>
                         </button>
                     </div>
-                    <button id="pe_reload_btn" style="width: 100%; margin-top: 14px; padding: 12px 16px; background: linear-gradient(135deg, #00b4d8, #0077b6) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.3) !important; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 0.96em; letter-spacing: 0.5px; transition: all 0.25s ease; box-shadow: 0 4px 15px rgba(0, 180, 216, 0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <span style="font-size: 1.15em;">🔄</span>
+                    <button id="pe_reload_btn" style="width: 100%; margin-top: 14px; padding: 12px 16px; background: rgba(30, 41, 59, 0.85) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.94em; letter-spacing: 0.4px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fa-solid fa-rotate-right" style="font-size: 1.1em;"></i>
                         <span>LÀM MỚI TRANG (F5) ĐỂ ÁP DỤNG THAY ĐỔI</span>
                     </button>
                 </div>
 
                 <!-- Accordion Section 1: Core Modules -->
-                ${buildAccordionHtml('core', '👑', 'Lõi Hệ thống (Core Masters)', 'Các module nền tảng và quản lý cốt lõi', '#ebcb8b', CORE_MODULES)}
+                ${buildAccordionHtml('core', '<i class="fa-solid fa-microchip"></i>', 'Lõi Hệ thống (Core Masters)', 'Các module nền tảng và quản lý cốt lõi', '#fbbf24', CORE_MODULES)}
 
                 <!-- Accordion Section 2: Phone Apps -->
-                ${buildAccordionHtml('apps', '📱', 'Ứng dụng Điện thoại (Phone Apps)', 'Hệ sinh thái ứng dụng giả lập điện thoại', '#88c0d0', PHONE_APPS)}
+                ${buildAccordionHtml('apps', '<i class="fa-solid fa-mobile-screen-button"></i>', 'Ứng dụng Điện thoại (Phone Apps)', 'Hệ sinh thái ứng dụng giả lập điện thoại', '#38bdf8', PHONE_APPS)}
 
                 <!-- Accordion Section 3: Utilities -->
-                ${buildAccordionHtml('utils', '🛠️', 'Tiện ích Độc lập (Utilities & Assistants)', 'Thú cưng, trợ lý ảo, kiểm tra dung lượng', '#b48ead', UTILITY_MODULES)}
+                ${buildAccordionHtml('utils', '<i class="fa-solid fa-toolbox"></i>', 'Tiện ích Độc lập (Utilities & Assistants)', 'Thú cưng, trợ lý ảo, kiểm tra dung lượng', '#a855f7', UTILITY_MODULES)}
             </div>
 
             <!-- TAB 2: LOGS & CONSOLE -->
-            <div id="kaiz_tab_content_logs" style="display: none; flex-direction: column; gap: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.35); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); flex-wrap: wrap; gap: 10px;">
+            <div id="kaiz_tab_content_logs" style="display: none; flex-direction: column; gap: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(18, 24, 36, 0.7); padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 12px;">
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 0.88em; font-weight: bold; color: #88c0d0;">💡 Nhật ký Hệ thống (Real-time Console):</span>
-                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82em; color: #ccc; cursor: pointer; user-select: none;">
-                            <input type="checkbox" id="kaiz_silent_f12_cb" ${config.silent_f12 ? 'checked' : ''} style="cursor: pointer; accent-color: #88c0d0; width: 16px; height: 16px;">
+                        <span style="font-size: 0.9em; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-terminal" style="color: #38bdf8;"></i><span>Nhật ký Hệ thống (Real-time Console):</span>
+                        </span>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82em; color: #94a3b8; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="kaiz_silent_f12_cb" ${config.silent_f12 ? 'checked' : ''} style="cursor: pointer; accent-color: #38bdf8; width: 16px; height: 16px;">
                             <span>Ẩn log khỏi Console Web (F12) để giảm rác</span>
                         </label>
                     </div>
-                    <button id="kaiz_log_clear_btn" style="padding: 6px 14px; font-size: 0.85em; border-radius: 6px; border: 1px solid #bf616a !important; background: rgba(191,97,106,0.25) !important; color: #bf616a !important; cursor: pointer; font-weight: bold; transition: all 0.2s;">
-                        🗑️ Xóa Log
+                    <button id="kaiz_log_clear_btn" style="padding: 8px 14px; font-size: 0.85em; border-radius: 8px; border: 1px solid rgba(248, 113, 113, 0.3) !important; background: rgba(239, 68, 68, 0.12) !important; color: #f87171 !important; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-trash-can"></i><span>Xóa Log</span>
                     </button>
                 </div>
-                <div id="kaiz_log_box" style="height: 400px; overflow-y: auto; background: rgba(0,0,0,0.75); border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.15)); border-radius: 10px; padding: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);">
-                    <div style="color: #888; text-align: center; padding: 20px;">Chưa có nhật ký hoạt động nào.</div>
+                <div id="kaiz_log_box" style="height: 420px; overflow-y: auto; background: rgba(10, 14, 23, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);">
+                    <div style="color: #64748b; text-align: center; padding: 30px;"><i class="fa-solid fa-inbox" style="font-size: 2em; margin-bottom: 8px; display: block; opacity: 0.5;"></i>Chưa có nhật ký hoạt động nào.</div>
                 </div>
             </div>
         </div>
@@ -413,7 +426,7 @@ function renderExtensionSettings(targetWin, jq) {
         logBox.innerHTML = '';
         const logs = window._kaizLogs || [];
         if (logs.length === 0) {
-            logBox.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Chưa có nhật ký hoạt động nào.</div>';
+            logBox.innerHTML = '<div style="color: #64748b; text-align: center; padding: 30px;"><i class="fa-solid fa-inbox" style="font-size: 2em; margin-bottom: 8px; display: block; opacity: 0.5;"></i>Chưa có nhật ký hoạt động nào.</div>';
             return;
         }
         logs.forEach(item => {
@@ -424,14 +437,14 @@ function renderExtensionSettings(targetWin, jq) {
 
     if (tabBtnModules && tabBtnLogs) {
         tabBtnModules.addEventListener('click', () => {
-            tabBtnModules.style.background = 'var(--SmartThemeQuoteColor, #88c0d0)';
-            tabBtnModules.style.color = '#000';
-            tabBtnModules.style.borderColor = 'var(--SmartThemeQuoteColor, #88c0d0)';
-            tabBtnModules.style.boxShadow = '0 2px 8px rgba(136,192,208,0.3)';
+            tabBtnModules.style.background = 'rgba(56, 189, 248, 0.12)';
+            tabBtnModules.style.color = '#38bdf8';
+            tabBtnModules.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+            tabBtnModules.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.12)';
             
-            tabBtnLogs.style.background = 'rgba(0,0,0,0.3)';
-            tabBtnLogs.style.color = 'var(--SmartThemeBodyColor, #fff)';
-            tabBtnLogs.style.borderColor = 'rgba(255,255,255,0.2)';
+            tabBtnLogs.style.background = 'rgba(255, 255, 255, 0.03)';
+            tabBtnLogs.style.color = '#94a3b8';
+            tabBtnLogs.style.borderColor = 'rgba(255, 255, 255, 0.07)';
             tabBtnLogs.style.boxShadow = 'none';
 
             contentModules.style.display = 'flex';
@@ -439,14 +452,14 @@ function renderExtensionSettings(targetWin, jq) {
         });
 
         tabBtnLogs.addEventListener('click', () => {
-            tabBtnLogs.style.background = 'var(--SmartThemeQuoteColor, #88c0d0)';
-            tabBtnLogs.style.color = '#000';
-            tabBtnLogs.style.borderColor = 'var(--SmartThemeQuoteColor, #88c0d0)';
-            tabBtnLogs.style.boxShadow = '0 2px 8px rgba(136,192,208,0.3)';
+            tabBtnLogs.style.background = 'rgba(56, 189, 248, 0.12)';
+            tabBtnLogs.style.color = '#38bdf8';
+            tabBtnLogs.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+            tabBtnLogs.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.12)';
             
-            tabBtnModules.style.background = 'rgba(0,0,0,0.3)';
-            tabBtnModules.style.color = 'var(--SmartThemeBodyColor, #fff)';
-            tabBtnModules.style.borderColor = 'rgba(255,255,255,0.2)';
+            tabBtnModules.style.background = 'rgba(255, 255, 255, 0.03)';
+            tabBtnModules.style.color = '#94a3b8';
+            tabBtnModules.style.borderColor = 'rgba(255, 255, 255, 0.07)';
             tabBtnModules.style.boxShadow = 'none';
 
             contentModules.style.display = 'none';
@@ -494,10 +507,10 @@ function renderExtensionSettings(targetWin, jq) {
             cb.checked = isChecked;
             const badge = cb.closest('.pe-module-item').querySelector('.pe-status-badge');
             if (badge) {
-                badge.style.background = isChecked ? 'rgba(163, 190, 140, 0.2)' : 'rgba(191, 97, 106, 0.2)';
-                badge.style.color = isChecked ? '#a3be8c' : '#bf616a';
-                badge.style.border = isChecked ? '1px solid rgba(163,190,140,0.3)' : '1px solid rgba(191,97,106,0.3)';
-                badge.textContent = isChecked ? '🟢 Đang bật' : '🔴 Đã tắt';
+                badge.style.background = isChecked ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+                badge.style.color = isChecked ? '#34d399' : '#f87171';
+                badge.style.border = isChecked ? '1px solid rgba(52, 211, 153, 0.25)' : '1px solid rgba(248, 113, 113, 0.25)';
+                badge.innerHTML = `<i class="fa-solid ${isChecked ? 'fa-circle-check' : 'fa-circle-xmark'}"></i><span>${isChecked ? 'Đang bật' : 'Đã tắt'}</span>`;
             }
         });
 
@@ -506,7 +519,7 @@ function renderExtensionSettings(targetWin, jq) {
             const badgeEl = section.querySelector(`.kaiz-acc-badge-${id}`);
             if (badgeEl) {
                 const active = list.filter(m => !(config.disabled_modules && config.disabled_modules.includes(m.file))).length;
-                badgeEl.innerHTML = `<span style="color: #a3be8c;">${active}</span>/${list.length} bật`;
+                badgeEl.innerHTML = `<span style="color: #34d399; font-weight: bold;">${active}</span>/${list.length} bật`;
             }
         };
         updateCount('core', CORE_MODULES);
@@ -518,8 +531,8 @@ function renderExtensionSettings(targetWin, jq) {
         masterToggle.addEventListener('change', (e) => {
             config.enabled = e.target.checked;
             if (masterStatusText) {
-                masterStatusText.textContent = config.enabled ? '🟢 ĐANG BẬT' : '🔴 ĐÃ TẮT';
-                masterStatusText.style.color = config.enabled ? '#a3be8c' : '#bf616a';
+                masterStatusText.innerHTML = `<i class="fa-solid ${config.enabled ? 'fa-circle-check' : 'fa-circle-xmark'}"></i><span>${config.enabled ? 'ĐANG BẬT' : 'ĐÃ TẮT'}</span>`;
+                masterStatusText.style.color = config.enabled ? '#34d399' : '#f87171';
             }
             savePhoneConfig(config);
         });
