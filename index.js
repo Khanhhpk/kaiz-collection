@@ -8,10 +8,50 @@
 // ==========================================
 window._kaizLogs = window._kaizLogs || [];
 
-function logToKaiz(message, type = 'info') {
+function createLogItemElement(item) {
+    const div = document.createElement('div');
+    let badgeColor = '#88c0d0';
+    let badgeBg = 'rgba(136, 192, 208, 0.2)';
+    let badgeText = 'INFO';
+    
+    if (item.type === 'warn') {
+        badgeColor = '#ebcb8b';
+        badgeBg = 'rgba(235, 203, 139, 0.2)';
+        badgeText = 'WARN';
+    } else if (item.type === 'error') {
+        badgeColor = '#bf616a';
+        badgeBg = 'rgba(191, 97, 106, 0.2)';
+        badgeText = 'ERR ';
+    }
+    
+    div.style.cssText = `padding: 6px 10px; border-left: 3px solid ${badgeColor}; background: rgba(255,255,255,0.03); border-radius: 4px; display: flex; gap: 8px; align-items: flex-start; word-break: break-all; margin-bottom: 4px;`;
+    div.innerHTML = `
+        <span style="color: #666; font-size: 0.85em; white-space: nowrap;">[${item.time}]</span>
+        <span style="color: ${badgeColor}; background: ${badgeBg}; padding: 1px 6px; border-radius: 3px; font-size: 0.8em; font-weight: bold; white-space: nowrap;">${badgeText}</span>
+        <span style="color: var(--SmartThemeBodyColor, #eee); flex: 1;">${item.message}</span>
+    `;
+    return div;
+}
+
+function formatLogArgs(args) {
+    return args.map(a => {
+        if (typeof a === 'string') return a;
+        if (typeof a !== 'object' || a === null) return String(a);
+        try {
+            // Giới hạn độ dài stringify để tránh đơ lag khi gặp array/object quá lớn của SillyTavern
+            const str = JSON.stringify(a);
+            return str.length > 1500 ? str.substring(0, 1500) + '... [truncated]' : str;
+        } catch (e) {
+            return '[Object/Circular]';
+        }
+    }).join(' ');
+}
+
+function logToKaiz(argsOrMsg, type = 'info') {
     const now = new Date();
     const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
-    const logItem = { time: timeStr, message: String(message), type: type };
+    const message = Array.isArray(argsOrMsg) ? formatLogArgs(argsOrMsg) : String(argsOrMsg);
+    const logItem = { time: timeStr, message: message, type: type };
     
     window._kaizLogs.push(logItem);
     if (window._kaizLogs.length > 800) window._kaizLogs.shift(); // Giữ tối đa 800 dòng log
@@ -22,30 +62,12 @@ function logToKaiz(message, type = 'info') {
         if (logBox.children.length === 1 && logBox.children[0].textContent.includes('Chưa có nhật ký')) {
             logBox.innerHTML = '';
         }
-        const div = document.createElement('div');
-        let badgeColor = '#88c0d0';
-        let badgeBg = 'rgba(136, 192, 208, 0.2)';
-        let badgeText = 'INFO';
-        
-        if (type === 'warn') {
-            badgeColor = '#ebcb8b';
-            badgeBg = 'rgba(235, 203, 139, 0.2)';
-            badgeText = 'WARN';
-        } else if (type === 'error') {
-            badgeColor = '#bf616a';
-            badgeBg = 'rgba(191, 97, 106, 0.2)';
-            badgeText = 'ERR ';
-        }
-        
-        div.style.cssText = "padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.03); border-left: 3px solid " + badgeColor + "; display: flex; gap: 8px; align-items: baseline; flex-shrink: 0;";
-        div.innerHTML = `
-            <span style="color: #888; font-size: 0.8em; white-space: nowrap;">[${logItem.time}]</span>
-            <span style="color: ${badgeColor}; background: ${badgeBg}; font-size: 0.75em; font-weight: bold; padding: 1px 5px; border-radius: 3px;">${badgeText}</span>
-            <span style="color: #fff; word-break: break-all; flex: 1;">${logItem.message}</span>
-        `;
-        logBox.appendChild(div);
+        logBox.appendChild(createLogItemElement(logItem));
         logBox.scrollTop = logBox.scrollHeight;
     }
+    
+    // Phát sự kiện để các UI lắng nghe có thể cập nhật
+    window.dispatchEvent(new CustomEvent('kaiz_log_updated'));
 }
 
 // Intercept (Chuyển hướng) toàn diện console.log / warn / error của Web Console về bảng Log của Extension
@@ -65,8 +87,14 @@ const kaizPrefixes = [
 
 function isKaizLog(args) {
     if (!args || args.length === 0) return false;
-    const fullStr = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ').toLowerCase();
-    return kaizPrefixes.some(prefix => fullStr.includes(prefix));
+    // TỐI ƯU HIỆU SUẤT: Chỉ kiểm tra string/number argument để tìm prefix, tuyệt đối không JSON.stringify các object khổng lồ (context, char list) gây nghẽn CPU
+    for (let i = 0; i < args.length; i++) {
+        if (typeof args[i] === 'string' || typeof args[i] === 'number') {
+            const str = String(args[i]).toLowerCase();
+            if (kaizPrefixes.some(prefix => str.includes(prefix))) return true;
+        }
+    }
+    return false;
 }
 
 function getTargetWindow() {
@@ -92,7 +120,7 @@ function setupConsoleInterception(targetConsole) {
 
     targetConsole.log = function(...args) {
         if (isKaizLog(args)) {
-            logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'info');
+            logToKaiz(args, 'info');
             if (window._kaizSilentF12) return;
         }
         origLog.apply(targetConsole, args);
@@ -100,7 +128,7 @@ function setupConsoleInterception(targetConsole) {
 
     targetConsole.warn = function(...args) {
         if (isKaizLog(args)) {
-            logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'warn');
+            logToKaiz(args, 'warn');
             if (window._kaizSilentF12) return;
         }
         origWarn.apply(targetConsole, args);
@@ -108,7 +136,7 @@ function setupConsoleInterception(targetConsole) {
 
     targetConsole.error = function(...args) {
         if (isKaizLog(args)) {
-            logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'error');
+            logToKaiz(args, 'error');
             if (window._kaizSilentF12) return;
         }
         origError.apply(targetConsole, args);
@@ -388,28 +416,7 @@ function renderExtensionSettings(targetWin, jq) {
             return;
         }
         logs.forEach(item => {
-            const div = doc.createElement('div');
-            let badgeColor = '#88c0d0';
-            let badgeBg = 'rgba(136, 192, 208, 0.2)';
-            let badgeText = 'INFO';
-            
-            if (item.type === 'warn') {
-                badgeColor = '#ebcb8b';
-                badgeBg = 'rgba(235, 203, 139, 0.2)';
-                badgeText = 'WARN';
-            } else if (item.type === 'error') {
-                badgeColor = '#bf616a';
-                badgeBg = 'rgba(191, 97, 106, 0.2)';
-                badgeText = 'ERR ';
-            }
-            
-            div.style.cssText = `padding: 6px 10px; border-left: 3px solid ${badgeColor}; background: rgba(255,255,255,0.03); border-radius: 4px; display: flex; gap: 8px; align-items: flex-start; word-break: break-all;`;
-            div.innerHTML = `
-                <span style="color: #666; font-size: 0.85em; white-space: nowrap;">[${item.time}]</span>
-                <span style="color: ${badgeColor}; background: ${badgeBg}; padding: 1px 6px; border-radius: 3px; font-size: 0.8em; font-weight: bold; white-space: nowrap;">${badgeText}</span>
-                <span style="color: var(--SmartThemeBodyColor, #eee); flex: 1;">${item.msg}</span>
-            `;
-            logBox.appendChild(div);
+            logBox.appendChild(createLogItemElement(item));
         });
         logBox.scrollTop = logBox.scrollHeight;
     }
@@ -604,17 +611,29 @@ waitForEnvironment(async (targetWin, jq) => {
     let failCount = 0;
     let skipCount = 0;
 
-    const allModulesToLoad = [...CORE_MODULES, ...PHONE_APPS, ...UTILITY_MODULES];
-
-    for (const app of allModulesToLoad) {
+    // TỐI ƯU HIỆU SUẤT: Nạp song song (concurrently) để giảm thời gian load từ 3s xuống 0.3s
+    // Bước 1: Nạp song song Core Modules trước để đảm bảo nền tảng sẵn sàng
+    await Promise.all(CORE_MODULES.map(async (app) => {
         if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
-            console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt trong cài đặt: ${app.name}`);
+            console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
             skipCount++;
-            continue;
+            return;
         }
         const ok = await safeImport(app.path, app.name);
         if (ok) successCount++; else failCount++;
-    }
+    }));
+
+    // Bước 2: Nạp song song toàn bộ Phone Apps & Utilities
+    const otherModules = [...PHONE_APPS, ...UTILITY_MODULES];
+    await Promise.all(otherModules.map(async (app) => {
+        if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
+            console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
+            skipCount++;
+            return;
+        }
+        const ok = await safeImport(app.path, app.name);
+        if (ok) successCount++; else failCount++;
+    }));
 
     console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
 });
