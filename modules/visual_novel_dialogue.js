@@ -44,6 +44,10 @@
     const DEFAULT_CONFIG = {
         enabled: true,
         promptInjection: true,
+        wrapRuleBlock: true,
+        injectTarget: 'in_chat', // in_chat | in_prompt | after_prompt
+        injectRole: 'system', // system | user | assistant
+        injectDepth: 0, // Độ sâu khi chọn in_chat (0 = trước câu cuối)
         renderMode: true,
         showStandaloneIcon: true,
         standalonePos: { x: null, y: null },
@@ -2380,6 +2384,16 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         // Chống bơm kép (Anti-double injection)
         if (payload._vnDialogueInjected || (Array.isArray(payload) && payload._vnDialogueInjected)) return;
 
+        // Bọc khối luật theo cấu hình (Wrap Rule Block)
+        let finalPrompt = customPrompt;
+        if (CFG.wrapRuleBlock !== false) {
+            finalPrompt = `[START OF SYSTEM RULES - STRICT VISUAL NOVEL DIALOGUE FORMAT]\n${customPrompt}\n[END OF SYSTEM RULES]`;
+        }
+
+        const target = CFG.injectTarget || 'in_chat';
+        const role = CFG.injectRole || 'system';
+        const depth = parseInt(CFG.injectDepth, 10) || 0;
+
         let targetArray = null;
         if (Array.isArray(payload)) {
             targetArray = payload;
@@ -2398,22 +2412,36 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             targetArray._vnDialogueInjected = true;
             if (!payload._vnDialogueInjected) payload._vnDialogueInjected = true;
 
-            // Tiêm vào In-Chat @ Depth 0 (ngay trước tin nhắn cuối cùng trong luồng chat để AI tuân thủ cấu trúc thoại tốt nhất)
-            const role = 'system';
-            if (targetArray.length === 0) {
-                targetArray.push({ role: role, content: customPrompt, _vnDialogueInjected: true });
-            } else {
-                let insertIdx = targetArray.length - 1;
-                if (insertIdx < 0) insertIdx = 0;
-                targetArray.splice(insertIdx, 0, { role: role, content: customPrompt, _vnDialogueInjected: true });
+            if (target === 'in_prompt') {
+                const sysMsg = targetArray.find(m => m && (m.role === 'system' || m.role === 0));
+                if (sysMsg) {
+                    sysMsg.content += `\n\n${finalPrompt}`;
+                    sysMsg._vnDialogueInjected = true;
+                } else {
+                    targetArray.unshift({ role: role, content: finalPrompt, _vnDialogueInjected: true });
+                }
+            } else if (target === 'after_prompt') {
+                targetArray.push({ role: role, content: finalPrompt, _vnDialogueInjected: true });
+            } else if (target === 'in_chat') {
+                if (targetArray.length === 0) {
+                    targetArray.push({ role: role, content: finalPrompt, _vnDialogueInjected: true });
+                } else {
+                    let insertIdx = targetArray.length - 1 - depth;
+                    if (insertIdx < 0) insertIdx = 0;
+                    targetArray.splice(insertIdx, 0, { role: role, content: finalPrompt, _vnDialogueInjected: true });
+                }
             }
         } 
         // Xử lý Text Completion (Chuỗi thô)
         else if (payload && typeof payload.prompt === 'string') {
             if (payload.prompt.includes(customPrompt)) return;
             payload._vnDialogueInjected = true;
-            const formattedPrompt = `\n[SYSTEM: ${customPrompt}]\n`;
-            payload.prompt = payload.prompt + formattedPrompt;
+            const formattedPrompt = `\n[${role.toUpperCase()}: ${finalPrompt}]\n`;
+            if (target === 'in_prompt') {
+                payload.prompt = formattedPrompt + payload.prompt;
+            } else {
+                payload.prompt = payload.prompt + formattedPrompt;
+            }
         }
     }
 
@@ -3925,6 +3953,39 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-inject" /><span class="vn-slider"></span></label>
     </div>
+    <div class="vn-toggle-row">
+      <div class="vn-toggle-info">
+        <div class="vn-toggle-name">📦 Bọc khối luật bằng thẻ [START/END OF SYSTEM RULES]</div>
+        <div class="vn-toggle-desc">Giúp AI phân định rõ ràng đâu là chỉ lệnh hệ thống, đâu là ngữ cảnh truyện, chống rò rỉ prompt ra lời thoại</div>
+      </div>
+      <label class="vn-switch"><input type="checkbox" id="vn-toggle-wrap-rule" /><span class="vn-slider"></span></label>
+    </div>
+    <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div class="vn-section-label" style="margin-top:0;">📍 Tùy chỉnh vị trí & vai trò bơm Prompt (Injection Position)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px;">
+        <div>
+          <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Vị trí bơm (Target):</label>
+          <select class="vn-input" id="vn-inject-target" style="width:100%;padding:6px 10px;font-size:12.5px;">
+            <option value="in_chat">In-Chat (Trong luồng thoại)</option>
+            <option value="in_prompt">In-Prompt (Trước luồng thoại)</option>
+            <option value="after_prompt">After-Prompt (Sau cùng)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Vai trò (Role):</label>
+          <select class="vn-input" id="vn-inject-role" style="width:100%;padding:6px 10px;font-size:12.5px;">
+            <option value="system">System (Hệ thống)</option>
+            <option value="user">User (Người dùng)</option>
+            <option value="assistant">Assistant (AI)</option>
+          </select>
+        </div>
+        <div id="vn-inject-depth-wrap">
+          <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Độ sâu (Depth):</label>
+          <input type="number" class="vn-input" id="vn-inject-depth" min="0" max="50" value="0" style="width:100%;padding:6px 10px;font-size:12.5px;" title="0 = Ngay trước tin nhắn cuối cùng" />
+        </div>
+      </div>
+      <div style="font-size:11.5px;color:#94a3b8;margin-top:8px;">💡 <b>Khuyên dùng:</b> In-Chat + Role System + Depth 0 (Bơm ngay sát câu cuối cùng để AI nhớ cấu trúc thoại tốt nhất).</div>
+    </div>
     <div class="vn-toggle-row" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);margin-bottom:8px;">
       <div class="vn-toggle-info">
         <div class="vn-toggle-name" style="color:#f43f5e;">🌸 Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
@@ -4061,6 +4122,16 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (tog) tog.checked = CFG.enabled;
         if (togR) togR.checked = CFG.renderMode;
         if (togI) togI.checked = CFG.promptInjection;
+        const togWrap = PD.getElementById('vn-toggle-wrap-rule');
+        if (togWrap) togWrap.checked = CFG.wrapRuleBlock !== false;
+        const injTarget = PD.getElementById('vn-inject-target');
+        if (injTarget) injTarget.value = CFG.injectTarget || 'in_chat';
+        const injRole = PD.getElementById('vn-inject-role');
+        if (injRole) injRole.value = CFG.injectRole || 'system';
+        const injDepth = PD.getElementById('vn-inject-depth');
+        if (injDepth) injDepth.value = CFG.injectDepth !== undefined ? CFG.injectDepth : 0;
+        const depthWrap = PD.getElementById('vn-inject-depth-wrap');
+        if (depthWrap) depthWrap.style.display = (CFG.injectTarget || 'in_chat') === 'in_chat' ? 'block' : 'none';
         if (togF) togF.checked = CFG.showStandaloneIcon !== false;
         PD.querySelectorAll('.vn-auto-reg-toggle, #vn-toggle-autoreg, #vn-toggle-autoreg-char').forEach(el => { el.checked = CFG.autoRegisterChars !== false; });
         if (togAutoAssign) togAutoAssign.checked = !!CFG.autoAssignAvatar;
@@ -4324,6 +4395,40 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             setupPromptInjection();
             showToast(CFG.promptInjection ? 'Đã bật tiêm Prompt hướng dẫn VN Dialogue ✓' : 'Đã tắt tiêm Prompt hướng dẫn VN Dialogue', 'info');
         });
+        const togWrap = $('vn-toggle-wrap-rule');
+        if (togWrap) {
+            togWrap.addEventListener('change', e => {
+                CFG.wrapRuleBlock = e.target.checked;
+                saveConfig(CFG);
+                showToast(CFG.wrapRuleBlock ? '📦 Đã bật bọc khối luật bằng thẻ [START/END OF SYSTEM RULES]' : 'Đã tắt bọc thẻ khối luật', 'info');
+            });
+        }
+        const injTarget = $('vn-inject-target');
+        const depthWrap = $('vn-inject-depth-wrap');
+        if (injTarget) {
+            injTarget.addEventListener('change', e => {
+                CFG.injectTarget = e.target.value;
+                if (depthWrap) depthWrap.style.display = CFG.injectTarget === 'in_chat' ? 'block' : 'none';
+                saveConfig(CFG);
+                showToast(`📍 Đã đổi vị trí bơm: ${e.target.options[e.target.selectedIndex].text}`, 'success');
+            });
+        }
+        const injRole = $('vn-inject-role');
+        if (injRole) {
+            injRole.addEventListener('change', e => {
+                CFG.injectRole = e.target.value;
+                saveConfig(CFG);
+                showToast(`👤 Đã đổi vai trò bơm: ${e.target.options[e.target.selectedIndex].text}`, 'success');
+            });
+        }
+        const injDepth = $('vn-inject-depth');
+        if (injDepth) {
+            injDepth.addEventListener('change', e => {
+                CFG.injectDepth = parseInt(e.target.value, 10) || 0;
+                saveConfig(CFG);
+                showToast(`🔢 Đã đặt độ sâu bơm: Depth ${CFG.injectDepth}`, 'info');
+            });
+        }
         $('vn-toggle-fab').addEventListener('change', e => {
             CFG.showStandaloneIcon = e.target.checked;
             saveConfig(CFG);
@@ -4586,14 +4691,23 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             showToast('💾 Đã lưu và cập nhật cả 2 Prompt hướng dẫn cấu trúc lời thoại!', 'success');
         });
         $('vn-prompt-reset').addEventListener('click', () => {
-            if (!confirm('Khôi phục cả 2 prompt hướng dẫn về mặc định?')) return;
+            if (!confirm('Khôi phục prompt hướng dẫn & cấu hình bơm về mặc định?')) return;
             CFG.customPrompt = DEFAULT_CONFIG.customPrompt;
             CFG.genderPrompt = DEFAULT_CONFIG.genderPrompt;
+            CFG.wrapRuleBlock = DEFAULT_CONFIG.wrapRuleBlock;
+            CFG.injectTarget = DEFAULT_CONFIG.injectTarget;
+            CFG.injectRole = DEFAULT_CONFIG.injectRole;
+            CFG.injectDepth = DEFAULT_CONFIG.injectDepth;
             if ($('vn-prompt-text')) $('vn-prompt-text').value = CFG.customPrompt;
             if ($('vn-gender-prompt-text')) $('vn-gender-prompt-text').value = CFG.genderPrompt;
+            if ($('vn-toggle-wrap-rule')) $('vn-toggle-wrap-rule').checked = CFG.wrapRuleBlock;
+            if ($('vn-inject-target')) $('vn-inject-target').value = CFG.injectTarget;
+            if ($('vn-inject-role')) $('vn-inject-role').value = CFG.injectRole;
+            if ($('vn-inject-depth')) $('vn-inject-depth').value = CFG.injectDepth;
+            if ($('vn-inject-depth-wrap')) $('vn-inject-depth-wrap').style.display = 'block';
             saveConfig(CFG);
             doInjectSystemPrompt();
-            showToast('🔄 Đã khôi phục prompt mặc định!', 'info');
+            showToast('🔄 Đã khôi phục prompt & vị trí bơm về mặc định!', 'info');
         });
 
         $('vn-new-char-add').addEventListener('click', () => {
