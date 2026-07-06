@@ -48,53 +48,71 @@ function logToKaiz(message, type = 'info') {
     }
 }
 
-// Intercept (Chuyển hướng) console.log / warn / error của Web Console về bảng Log của Extension
-const originalConsoleLog = console.log;
-const originalConsoleWarn = console.warn;
-const originalConsoleError = console.error;
-
+// Intercept (Chuyển hướng) toàn diện console.log / warn / error của Web Console về bảng Log của Extension
 const kaizPrefixes = [
-    '[PhoneEcosystem]', '[Phone Ecosystem]', '[SillyTavern Extension]', 
-    '[KAIZ Collection]', '[KAIZ]', '[PhoneCore]', '[Phone Core]', '[FloatingBall]', 
-    '[App ', '[Shimeji]', '[Vtuber]', '[VN Dialogue]', '[Storage Inspector]', '[Avar]'
+    '[phoneecosystem]', '[phone ecosystem]', '[sillytavern extension]', 
+    '[kaiz collection]', '[kaiz]', '[phonecore]', '[phone core]', '[floatingball]', 
+    '[app ', '[app]', '[shimeji]', '[vtuber]', '[vtuber', '[vn dialogue]', '[vndialogue]', 
+    '[storageinspector]', '[storage inspector]', '[avar]', '[autouserrp]', '[wechat]', 
+    '[weather]', '[music]', '[chess]', '[canvas]', '[browser]', '[cleanup]', '[flappy]', 
+    '[freegen]', '[infinite]', '[livestream]', '[news]', '[pollinations]', '[terminal]', 
+    '[theme]', '[virtual tube]', '[world map]', '[bản đồ thế giới]', '[youtube]', 
+    '[oc group]', '[auau]', '[create char]', '[điện thoại]', '[cài đặt]', '[iframe]', 
+    '[bong bóng]', '[floatingmenumanager]', '[phonesystem]', '[bản đồ]', '[tạo char]', 
+    '[tạo oc]', 'reset pose error', 'init model error', 'lỗi ai chat', 
+    'lỗi giải mã android', 'lỗi fetch models', 'lỗi nạp dữ liệu'
 ];
 
 function isKaizLog(args) {
     if (!args || args.length === 0) return false;
-    const firstArg = String(args[0]);
-    return kaizPrefixes.some(prefix => firstArg.includes(prefix));
+    const fullStr = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ').toLowerCase();
+    return kaizPrefixes.some(prefix => fullStr.includes(prefix));
 }
-
-console.log = function(...args) {
-    if (isKaizLog(args)) {
-        logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'info');
-        return; // Không in ra console log của web cho gọn!
-    }
-    originalConsoleLog.apply(console, args);
-};
-
-console.warn = function(...args) {
-    if (isKaizLog(args)) {
-        logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'warn');
-        return;
-    }
-    originalConsoleWarn.apply(console, args);
-};
-
-console.error = function(...args) {
-    if (isKaizLog(args)) {
-        logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'error');
-        originalConsoleError.apply(console, args); // Vẫn in error ra console web để debug khi cần
-        return;
-    }
-    originalConsoleError.apply(console, args);
-};
-
-console.log('[KAIZ Collection] Đang chờ môi trường SillyTavern sẵn sàng...');
 
 function getTargetWindow() {
     return (typeof window !== 'undefined' && window.parent && window.parent.document) ? window.parent : window;
 }
+
+function setupConsoleInterception(targetConsole) {
+    if (!targetConsole || targetConsole._kaizIntercepted) return;
+    targetConsole._kaizIntercepted = true;
+
+    const origLog = targetConsole.log;
+    const origWarn = targetConsole.warn;
+    const origError = targetConsole.error;
+
+    targetConsole.log = function(...args) {
+        if (isKaizLog(args)) {
+            logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'info');
+            return; // KHÔNG in ra console F12 của trình duyệt!
+        }
+        origLog.apply(targetConsole, args);
+    };
+
+    targetConsole.warn = function(...args) {
+        if (isKaizLog(args)) {
+            logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'warn');
+            return; // KHÔNG in ra console F12 của trình duyệt!
+        }
+        origWarn.apply(targetConsole, args);
+    };
+
+    targetConsole.error = function(...args) {
+        if (isKaizLog(args)) {
+            logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'error');
+            return; // KHÔNG in ra console F12 của trình duyệt! (đã chuyển hoàn toàn vào tab log)
+        }
+        origError.apply(targetConsole, args);
+    };
+}
+
+// Đánh chặn console của cả window hiện tại và window cha (SillyTavern chính)
+setupConsoleInterception(console);
+if (typeof window !== 'undefined' && window.console) setupConsoleInterception(window.console);
+const targetWin = getTargetWindow();
+if (targetWin && targetWin.console) setupConsoleInterception(targetWin.console);
+
+console.log('[KAIZ Collection] Đang chờ môi trường SillyTavern sẵn sàng...');
 
 function waitForEnvironment(callback) {
     let attempts = 0;
