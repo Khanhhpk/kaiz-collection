@@ -91,20 +91,29 @@
 
     function initDB() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, 3);
-            request.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(STORE_IMAGES)) db.createObjectStore(STORE_IMAGES, { keyPath: 'name' });
-                if (!db.objectStoreNames.contains(STORE_XML)) db.createObjectStore(STORE_XML, { keyPath: 'id' });
-                if (!db.objectStoreNames.contains(STORE_SETTINGS)) db.createObjectStore(STORE_SETTINGS, { keyPath: 'id' });
-            };
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+            try {
+                const idb = (typeof window !== 'undefined' && window.indexedDB) ? window.indexedDB : (typeof indexedDB !== 'undefined' ? indexedDB : null);
+                if (!idb) {
+                    return reject(new Error('indexedDB is not available in this environment'));
+                }
+                const request = idb.open(DB_NAME, 3);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_IMAGES)) db.createObjectStore(STORE_IMAGES, { keyPath: 'name' });
+                    if (!db.objectStoreNames.contains(STORE_XML)) db.createObjectStore(STORE_XML, { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains(STORE_SETTINGS)) db.createObjectStore(STORE_SETTINGS, { keyPath: 'id' });
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 
     async function loadAIConfig() {
         try {
+            if (typeof window === 'undefined' || !(window.indexedDB || (typeof indexedDB !== 'undefined' && indexedDB))) return;
             const db = await initDB();
             if (!db.objectStoreNames.contains(STORE_SETTINGS)) return;
             const tx = db.transaction([STORE_SETTINGS], 'readonly');
@@ -126,6 +135,7 @@
 
     async function saveAIConfig() {
         try {
+            if (typeof window === 'undefined' || !(window.indexedDB || (typeof indexedDB !== 'undefined' && indexedDB))) return;
             const db = await initDB();
             const tx = db.transaction([STORE_SETTINGS], 'readwrite');
             tx.objectStore(STORE_SETTINGS).put({ id: 'aiConfig', data: aiConfig });

@@ -711,6 +711,11 @@
             }
         },
         init: function() {
+            if (!parentDocument || !parentDocument.body) {
+                console.log('[FloatingMenuManager] document.body chưa sẵn sàng, đang chờ...');
+                setTimeout(() => FloatingMenuManager.init(), 100);
+                return;
+            }
             console.log('[FloatingMenuManager] Đang khởi tạo v2.5...');
             this.destroy();
             loadPosition();
@@ -756,7 +761,7 @@
         parentWindow.FloatingMenuManager = FloatingMenuManager;
     }
 
-    if (parentDocument.readyState === 'loading') {
+    if (parentDocument.readyState === 'loading' || !parentDocument.body) {
         parentDocument.addEventListener('DOMContentLoaded', () => FloatingMenuManager.init());
     } else {
         FloatingMenuManager.init();
