@@ -73,6 +73,15 @@ function getTargetWindow() {
     return (typeof window !== 'undefined' && window.parent && window.parent.document) ? window.parent : window;
 }
 
+window._kaizSilentF12 = false;
+try {
+    const savedCfg = localStorage.getItem('st_phone_ecosystem_config');
+    if (savedCfg) {
+        const parsedCfg = JSON.parse(savedCfg);
+        if (parsedCfg.silent_f12) window._kaizSilentF12 = true;
+    }
+} catch (e) {}
+
 function setupConsoleInterception(targetConsole) {
     if (!targetConsole || targetConsole._kaizIntercepted) return;
     targetConsole._kaizIntercepted = true;
@@ -84,7 +93,7 @@ function setupConsoleInterception(targetConsole) {
     targetConsole.log = function(...args) {
         if (isKaizLog(args)) {
             logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'info');
-            if (typeof getPhoneConfig === 'function' && getPhoneConfig().silent_f12) return;
+            if (window._kaizSilentF12) return;
         }
         origLog.apply(targetConsole, args);
     };
@@ -92,7 +101,7 @@ function setupConsoleInterception(targetConsole) {
     targetConsole.warn = function(...args) {
         if (isKaizLog(args)) {
             logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'warn');
-            if (typeof getPhoneConfig === 'function' && getPhoneConfig().silent_f12) return;
+            if (window._kaizSilentF12) return;
         }
         origWarn.apply(targetConsole, args);
     };
@@ -100,7 +109,7 @@ function setupConsoleInterception(targetConsole) {
     targetConsole.error = function(...args) {
         if (isKaizLog(args)) {
             logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'error');
-            if (typeof getPhoneConfig === 'function' && getPhoneConfig().silent_f12) return;
+            if (window._kaizSilentF12) return;
         }
         origError.apply(targetConsole, args);
     };
@@ -188,7 +197,7 @@ function getPhoneConfig() {
             return JSON.parse(saved);
         }
     } catch (e) {
-        console.error('[KAIZ Collection] Lỗi đọc cấu hình từ localStorage:', e);
+        // Không gọi console.error để tránh đệ quy log vô tận
     }
     return {
         enabled: true,
@@ -198,16 +207,15 @@ function getPhoneConfig() {
 
 function savePhoneConfig(config) {
     try {
+        if (config && config.silent_f12 !== undefined) {
+            window._kaizSilentF12 = !!config.silent_f12;
+        }
         localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
         const win = getTargetWindow();
         if (win && win.toastr) {
             win.toastr.success('Đã lưu cấu hình KAIZ Collection! Nhấn F5 để áp dụng thay đổi.');
-        } else {
-            console.log('[KAIZ Collection] Đã lưu cấu hình:', config);
         }
-    } catch (e) {
-        console.error('[KAIZ Collection] Lỗi lưu cấu hình:', e);
-    }
+    } catch (e) {}
 }
 
 // ==========================================
