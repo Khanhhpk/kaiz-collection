@@ -84,7 +84,7 @@ function setupConsoleInterception(targetConsole) {
     targetConsole.log = function(...args) {
         if (isKaizLog(args)) {
             logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'info');
-            return; // KHÔNG in ra console F12 của trình duyệt!
+            if (typeof getPhoneConfig === 'function' && getPhoneConfig().silent_f12) return;
         }
         origLog.apply(targetConsole, args);
     };
@@ -92,7 +92,7 @@ function setupConsoleInterception(targetConsole) {
     targetConsole.warn = function(...args) {
         if (isKaizLog(args)) {
             logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'warn');
-            return; // KHÔNG in ra console F12 của trình duyệt!
+            if (typeof getPhoneConfig === 'function' && getPhoneConfig().silent_f12) return;
         }
         origWarn.apply(targetConsole, args);
     };
@@ -100,7 +100,7 @@ function setupConsoleInterception(targetConsole) {
     targetConsole.error = function(...args) {
         if (isKaizLog(args)) {
             logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'error');
-            return; // KHÔNG in ra console F12 của trình duyệt! (đã chuyển hoàn toàn vào tab log)
+            if (typeof getPhoneConfig === 'function' && getPhoneConfig().silent_f12) return;
         }
         origError.apply(targetConsole, args);
     };
@@ -316,8 +316,14 @@ function renderExtensionSettings(targetWin, jq) {
 
             <!-- TAB 2: LOGS & CONSOLE -->
             <div id="kaiz_tab_content_logs" style="display: none; flex-direction: column; gap: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
-                    <span style="font-size: 0.85em; opacity: 0.85;">💡 Toàn bộ log từ console web đã được chuyển về đây cho gọn:</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="font-size: 0.85em; opacity: 0.85;">💡 Log được ưu tiên ánh xạ về tab này (và vẫn hiện ở F12):</span>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8em; color: #88c0d0; cursor: pointer;">
+                            <input type="checkbox" id="kaiz_silent_f12_cb" ${config.silent_f12 ? 'checked' : ''} style="cursor: pointer;">
+                            Ẩn log khỏi Console Web (F12) để giảm rác
+                        </label>
+                    </div>
                     <button id="kaiz_log_clear_btn" style="padding: 4px 10px; font-size: 0.8em; border-radius: 4px; border: 1px solid #bf616a; background: rgba(191,97,106,0.2); color: #bf616a; cursor: pointer; font-weight: bold; transition: all 0.2s;">
                         🗑️ Xóa Log
                     </button>
@@ -464,6 +470,14 @@ function renderExtensionSettings(targetWin, jq) {
     if (reloadBtn) {
         reloadBtn.addEventListener('click', () => {
             targetWin.location.reload();
+        });
+    }
+
+    const silentF12Cb = doc.getElementById('kaiz_silent_f12_cb');
+    if (silentF12Cb) {
+        silentF12Cb.addEventListener('change', (e) => {
+            config.silent_f12 = e.target.checked;
+            savePhoneConfig(config);
         });
     }
 
