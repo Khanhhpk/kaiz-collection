@@ -1,9 +1,96 @@
 /**
- * SillyTavern Extension: Phone Ecosystem & Helper Scripts
- * Entry point nạp tự động các module trong hệ sinh thái với cơ chế kiểm tra môi trường sẵn sàng (Ready Check).
+ * SillyTavern Extension: @KAIZ Collection
+ * Entry point nạp tự động các module trong hệ sinh thái với cơ chế kiểm tra môi trường sẵn sàng & thu thập log hệ thống.
  */
 
-console.log('[SillyTavern Extension - Phone Ecosystem] Đang chờ môi trường SillyTavern sẵn sàng...');
+// ==========================================
+// HỆ THỐNG QUẢN LÝ LOG (@KAIZ LOGGER)
+// ==========================================
+window._kaizLogs = window._kaizLogs || [];
+
+function logToKaiz(message, type = 'info') {
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+    const logItem = { time: timeStr, message: String(message), type: type };
+    
+    window._kaizLogs.push(logItem);
+    if (window._kaizLogs.length > 800) window._kaizLogs.shift(); // Giữ tối đa 800 dòng log
+
+    // Nếu UI log đang mở/tồn tại trong DOM, cập nhật ngay vào khung log
+    const logBox = document.getElementById('kaiz_log_box');
+    if (logBox) {
+        if (logBox.children.length === 1 && logBox.children[0].textContent.includes('Chưa có nhật ký')) {
+            logBox.innerHTML = '';
+        }
+        const div = document.createElement('div');
+        let badgeColor = '#88c0d0';
+        let badgeBg = 'rgba(136, 192, 208, 0.2)';
+        let badgeText = 'INFO';
+        
+        if (type === 'warn') {
+            badgeColor = '#ebcb8b';
+            badgeBg = 'rgba(235, 203, 139, 0.2)';
+            badgeText = 'WARN';
+        } else if (type === 'error') {
+            badgeColor = '#bf616a';
+            badgeBg = 'rgba(191, 97, 106, 0.2)';
+            badgeText = 'ERR ';
+        }
+        
+        div.style.cssText = "padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.03); border-left: 3px solid " + badgeColor + "; display: flex; gap: 8px; align-items: baseline; flex-shrink: 0;";
+        div.innerHTML = `
+            <span style="color: #888; font-size: 0.8em; white-space: nowrap;">[${logItem.time}]</span>
+            <span style="color: ${badgeColor}; background: ${badgeBg}; font-size: 0.75em; font-weight: bold; padding: 1px 5px; border-radius: 3px;">${badgeText}</span>
+            <span style="color: #fff; word-break: break-all; flex: 1;">${logItem.message}</span>
+        `;
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+}
+
+// Intercept (Chuyển hướng) console.log / warn / error của Web Console về bảng Log của Extension
+const originalConsoleLog = console.log;
+const originalConsoleWarn = console.warn;
+const originalConsoleError = console.error;
+
+const kaizPrefixes = [
+    '[PhoneEcosystem]', '[Phone Ecosystem]', '[SillyTavern Extension]', 
+    '[@KAIZ Collection]', '[PhoneCore]', '[Phone Core]', '[FloatingBall]', 
+    '[App ', '[Shimeji]', '[Vtuber]', '[VN Dialogue]', '[Storage Inspector]', '[Avar]'
+];
+
+function isKaizLog(args) {
+    if (!args || args.length === 0) return false;
+    const firstArg = String(args[0]);
+    return kaizPrefixes.some(prefix => firstArg.includes(prefix));
+}
+
+console.log = function(...args) {
+    if (isKaizLog(args)) {
+        logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'info');
+        return; // Không in ra console log của web cho gọn!
+    }
+    originalConsoleLog.apply(console, args);
+};
+
+console.warn = function(...args) {
+    if (isKaizLog(args)) {
+        logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'warn');
+        return;
+    }
+    originalConsoleWarn.apply(console, args);
+};
+
+console.error = function(...args) {
+    if (isKaizLog(args)) {
+        logToKaiz(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '), 'error');
+        originalConsoleError.apply(console, args); // Vẫn in error ra console web để debug khi cần
+        return;
+    }
+    originalConsoleError.apply(console, args);
+};
+
+console.log('[@KAIZ Collection] Đang chờ môi trường SillyTavern sẵn sàng...');
 
 function getTargetWindow() {
     return (typeof window !== 'undefined' && window.parent && window.parent.document) ? window.parent : window;
@@ -24,10 +111,10 @@ function waitForEnvironment(callback) {
             jq
         ) {
             clearInterval(checkInterval);
-            console.log(`[SillyTavern Extension] Môi trường đã sẵn sàng sau ${attempts * 100}ms!`);
+            console.log(`[@KAIZ Collection] Môi trường đã sẵn sàng sau ${attempts * 100}ms!`);
             callback(targetWin, jq);
         } else if (attempts >= 100) { // 10 giây
-            console.warn('[SillyTavern Extension] Quá thời gian chờ jQuery/DOM, tiến hành nạp ép buộc...');
+            console.warn('[@KAIZ Collection] Quá thời gian chờ jQuery/DOM, tiến hành nạp ép buộc...');
             clearInterval(checkInterval);
             callback(targetWin, jq || window.$ || null);
         }
@@ -83,7 +170,7 @@ function getPhoneConfig() {
             return JSON.parse(saved);
         }
     } catch (e) {
-        console.error('[Phone Ecosystem] Lỗi đọc cấu hình từ localStorage:', e);
+        console.error('[@KAIZ Collection] Lỗi đọc cấu hình từ localStorage:', e);
     }
     return {
         enabled: true,
@@ -96,12 +183,12 @@ function savePhoneConfig(config) {
         localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
         const win = getTargetWindow();
         if (win && win.toastr) {
-            win.toastr.success('Đã lưu cấu hình Phone Ecosystem! Nhấn F5 để áp dụng thay đổi.');
+            win.toastr.success('Đã lưu cấu hình @KAIZ Collection! Nhấn F5 để áp dụng thay đổi.');
         } else {
-            console.log('[Phone Ecosystem] Đã lưu cấu hình:', config);
+            console.log('[@KAIZ Collection] Đã lưu cấu hình:', config);
         }
     } catch (e) {
-        console.error('[Phone Ecosystem] Lỗi lưu cấu hình:', e);
+        console.error('[@KAIZ Collection] Lỗi lưu cấu hình:', e);
     }
 }
 
@@ -149,56 +236,163 @@ function renderExtensionSettings(targetWin, jq) {
     section.innerHTML = `
     <div class="inline-drawer">
         <div class="inline-drawer-toggle inline-drawer-header">
-            <b>📱 Phone Ecosystem (Quản lý Module & Ứng dụng)</b>
+            <b>✨ @KAIZ Collection (Hệ sinh thái & Tiện ích)</b>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content" style="display: none; padding: 12px; flex-direction: column; gap: 14px;">
-            <!-- Master Control Block -->
-            <div style="padding: 14px; background: var(--SmartThemeBlurTintColor, rgba(136, 192, 208, 0.1)); border: 1px solid var(--SmartThemeQuoteColor, #88c0d0); border-radius: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 1.05em; font-weight: bold; color: var(--SmartThemeQuoteColor, #88c0d0);">⚡ Công tắc Chính (Master Switch)</span>
-                    <label class="checkbox_label" style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="pe_master_toggle" ${config.enabled ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
-                        <span id="pe_master_status_text" style="font-weight: bold; font-size: 0.95em; color: ${config.enabled ? '#a3be8c' : '#bf616a'};">${config.enabled ? 'ĐANG BẬT' : 'ĐÃ TẮT'}</span>
-                    </label>
-                </div>
-                <div style="font-size: 0.85em; opacity: 0.85; margin-bottom: 12px; line-height: 1.4;">
-                    Bật hoặc tắt toàn bộ hệ sinh thái bong bóng mẹ và các ứng dụng. Khi tắt công tắc này, không có module nào được nạp vào bộ nhớ.
-                </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button id="pe_enable_all_btn" class="menu_button interactable" style="flex: 1; min-width: 120px; padding: 6px; font-size: 0.85em; background: rgba(163, 190, 140, 0.2); color: #a3be8c; border: 1px solid #a3be8c; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                        ✅ Bật tất cả
-                    </button>
-                    <button id="pe_disable_all_btn" class="menu_button interactable" style="flex: 1; min-width: 120px; padding: 6px; font-size: 0.85em; background: rgba(191, 97, 106, 0.2); color: #bf616a; border: 1px solid #bf616a; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                        ❌ Tắt tất cả
-                    </button>
-                </div>
-                <button id="pe_reload_btn" class="menu_button interactable" style="width: 100%; margin-top: 10px; padding: 8px; background: var(--SmartThemeQuoteColor, #88c0d0); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: opacity 0.2s;">
-                    🔄 Làm mới trang (F5) để áp dụng thay đổi
+            <!-- Tab Navigation Buttons -->
+            <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.15)); padding-bottom: 10px;">
+                <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; border: 1px solid var(--SmartThemeQuoteColor, #88c0d0); background: var(--SmartThemeQuoteColor, #88c0d0); color: #000; transition: all 0.2s;">
+                    📦 Quản lý Module (28)
+                </button>
+                <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.25); color: var(--SmartThemeBodyColor, #fff); transition: all 0.2s;">
+                    📋 Nhật ký & Console
                 </button>
             </div>
 
-            <!-- Core Modules Section -->
-            <div>
-                <h4 style="margin: 0 0 8px 0; font-size: 0.95em; color: #ebcb8b; border-bottom: 1px solid rgba(235, 203, 139, 0.3); padding-bottom: 4px;">👑 Lõi Hệ thống (Core Masters)</h4>
-                <div id="pe_core_list">${buildModuleListHtml(CORE_MODULES)}</div>
+            <!-- TAB 1: MODULES MANAGEMENT -->
+            <div id="kaiz_tab_content_modules" style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- Master Control Block -->
+                <div style="padding: 14px; background: var(--SmartThemeBlurTintColor, rgba(136, 192, 208, 0.1)); border: 1px solid var(--SmartThemeQuoteColor, #88c0d0); border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 1.05em; font-weight: bold; color: var(--SmartThemeQuoteColor, #88c0d0);">⚡ Công tắc Chính (Master Switch)</span>
+                        <label class="checkbox_label" style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="pe_master_toggle" ${config.enabled ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;">
+                            <span id="pe_master_status_text" style="font-weight: bold; font-size: 0.95em; color: ${config.enabled ? '#a3be8c' : '#bf616a'};">${config.enabled ? 'ĐANG BẬT' : 'ĐÃ TẮT'}</span>
+                        </label>
+                    </div>
+                    <div style="font-size: 0.85em; opacity: 0.85; margin-bottom: 12px; line-height: 1.4;">
+                        Bật hoặc tắt toàn bộ bộ sưu tập @KAIZ Collection. Khi tắt công tắc này, không có module nào được nạp vào bộ nhớ.
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button id="pe_enable_all_btn" class="menu_button interactable" style="flex: 1; min-width: 120px; padding: 6px; font-size: 0.85em; background: rgba(163, 190, 140, 0.2); color: #a3be8c; border: 1px solid #a3be8c; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            ✅ Bật tất cả
+                        </button>
+                        <button id="pe_disable_all_btn" class="menu_button interactable" style="flex: 1; min-width: 120px; padding: 6px; font-size: 0.85em; background: rgba(191, 97, 106, 0.2); color: #bf616a; border: 1px solid #bf616a; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            ❌ Tắt tất cả
+                        </button>
+                    </div>
+                    <button id="pe_reload_btn" class="menu_button interactable" style="width: 100%; margin-top: 10px; padding: 8px; background: var(--SmartThemeQuoteColor, #88c0d0); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: opacity 0.2s;">
+                        🔄 Làm mới trang (F5) để áp dụng thay đổi
+                    </button>
+                </div>
+
+                <!-- Core Modules Section -->
+                <div>
+                    <h4 style="margin: 0 0 8px 0; font-size: 0.95em; color: #ebcb8b; border-bottom: 1px solid rgba(235, 203, 139, 0.3); padding-bottom: 4px;">👑 Lõi Hệ thống (Core Masters)</h4>
+                    <div id="pe_core_list">${buildModuleListHtml(CORE_MODULES)}</div>
+                </div>
+
+                <!-- Phone Apps Section -->
+                <div>
+                    <h4 style="margin: 0 0 8px 0; font-size: 0.95em; color: #88c0d0; border-bottom: 1px solid rgba(136, 192, 208, 0.3); padding-bottom: 4px;">📱 Ứng dụng Điện thoại (Phone Apps)</h4>
+                    <div id="pe_apps_list">${buildModuleListHtml(PHONE_APPS)}</div>
+                </div>
+
+                <!-- Utilities Section -->
+                <div>
+                    <h4 style="margin: 0 0 8px 0; font-size: 0.95em; color: #b48ead; border-bottom: 1px solid rgba(180, 142, 173, 0.3); padding-bottom: 4px;">🛠️ Tiện ích Độc lập (Utilities & Assistants)</h4>
+                    <div id="pe_utils_list">${buildModuleListHtml(UTILITY_MODULES)}</div>
+                </div>
             </div>
 
-            <!-- Phone Apps Section -->
-            <div>
-                <h4 style="margin: 0 0 8px 0; font-size: 0.95em; color: #88c0d0; border-bottom: 1px solid rgba(136, 192, 208, 0.3); padding-bottom: 4px;">📱 Ứng dụng Điện thoại (Phone Apps)</h4>
-                <div id="pe_apps_list">${buildModuleListHtml(PHONE_APPS)}</div>
-            </div>
-
-            <!-- Utilities Section -->
-            <div>
-                <h4 style="margin: 0 0 8px 0; font-size: 0.95em; color: #b48ead; border-bottom: 1px solid rgba(180, 142, 173, 0.3); padding-bottom: 4px;">🛠️ Tiện ích Độc lập (Utilities & Assistants)</h4>
-                <div id="pe_utils_list">${buildModuleListHtml(UTILITY_MODULES)}</div>
+            <!-- TAB 2: LOGS & CONSOLE -->
+            <div id="kaiz_tab_content_logs" style="display: none; flex-direction: column; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                    <span style="font-size: 0.85em; opacity: 0.85;">💡 Toàn bộ log từ console web đã được chuyển về đây cho gọn:</span>
+                    <button id="kaiz_log_clear_btn" style="padding: 4px 10px; font-size: 0.8em; border-radius: 4px; border: 1px solid #bf616a; background: rgba(191,97,106,0.2); color: #bf616a; cursor: pointer; font-weight: bold; transition: all 0.2s;">
+                        🗑️ Xóa Log
+                    </button>
+                </div>
+                <div id="kaiz_log_box" style="height: 380px; overflow-y: auto; background: rgba(0,0,0,0.7); border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,0.15)); border-radius: 8px; padding: 10px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.85em; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);">
+                    <div style="color: #888; text-align: center; padding: 20px;">Chưa có nhật ký hoạt động nào.</div>
+                </div>
             </div>
         </div>
     </div>`;
 
     container.appendChild(section);
+
+    // Xử lý chuyển tab
+    const tabBtnModules = doc.getElementById('kaiz_tab_btn_modules');
+    const tabBtnLogs = doc.getElementById('kaiz_tab_btn_logs');
+    const contentModules = doc.getElementById('kaiz_tab_content_modules');
+    const contentLogs = doc.getElementById('kaiz_tab_content_logs');
+    const logBox = doc.getElementById('kaiz_log_box');
+    const logClearBtn = doc.getElementById('kaiz_log_clear_btn');
+
+    function renderAllLogsToUI() {
+        if (!logBox) return;
+        logBox.innerHTML = '';
+        const logs = window._kaizLogs || [];
+        if (logs.length === 0) {
+            logBox.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Chưa có nhật ký hoạt động nào.</div>';
+            return;
+        }
+        logs.forEach(item => {
+            const div = doc.createElement('div');
+            let badgeColor = '#88c0d0';
+            let badgeBg = 'rgba(136, 192, 208, 0.2)';
+            let badgeText = 'INFO';
+            
+            if (item.type === 'warn') {
+                badgeColor = '#ebcb8b';
+                badgeBg = 'rgba(235, 203, 139, 0.2)';
+                badgeText = 'WARN';
+            } else if (item.type === 'error') {
+                badgeColor = '#bf616a';
+                badgeBg = 'rgba(191, 97, 106, 0.2)';
+                badgeText = 'ERR ';
+            }
+            
+            div.style.cssText = "padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.03); border-left: 3px solid " + badgeColor + "; display: flex; gap: 8px; align-items: baseline; flex-shrink: 0;";
+            div.innerHTML = `
+                <span style="color: #888; font-size: 0.8em; white-space: nowrap;">[${item.time}]</span>
+                <span style="color: ${badgeColor}; background: ${badgeBg}; font-size: 0.75em; font-weight: bold; padding: 1px 5px; border-radius: 3px;">${badgeText}</span>
+                <span style="color: #fff; word-break: break-all; flex: 1;">${item.message}</span>
+            `;
+            logBox.appendChild(div);
+        });
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    if (tabBtnModules && tabBtnLogs) {
+        tabBtnModules.addEventListener('click', () => {
+            tabBtnModules.style.background = 'var(--SmartThemeQuoteColor, #88c0d0)';
+            tabBtnModules.style.color = '#000';
+            tabBtnModules.style.borderColor = 'var(--SmartThemeQuoteColor, #88c0d0)';
+            
+            tabBtnLogs.style.background = 'rgba(0,0,0,0.25)';
+            tabBtnLogs.style.color = 'var(--SmartThemeBodyColor, #fff)';
+            tabBtnLogs.style.borderColor = 'rgba(255,255,255,0.2)';
+            
+            contentModules.style.display = 'flex';
+            contentLogs.style.display = 'none';
+        });
+        
+        tabBtnLogs.addEventListener('click', () => {
+            tabBtnLogs.style.background = 'var(--SmartThemeQuoteColor, #88c0d0)';
+            tabBtnLogs.style.color = '#000';
+            tabBtnLogs.style.borderColor = 'var(--SmartThemeQuoteColor, #88c0d0)';
+            
+            tabBtnModules.style.background = 'rgba(0,0,0,0.25)';
+            tabBtnModules.style.color = 'var(--SmartThemeBodyColor, #fff)';
+            tabBtnModules.style.borderColor = 'rgba(255,255,255,0.2)';
+            
+            contentModules.style.display = 'none';
+            contentLogs.style.display = 'flex';
+            renderAllLogsToUI();
+        });
+    }
+
+    if (logClearBtn) {
+        logClearBtn.addEventListener('click', () => {
+            window._kaizLogs = [];
+            if (logBox) {
+                logBox.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Chưa có nhật ký hoạt động nào.</div>';
+            }
+        });
+    }
 
     // Gắn sự kiện cho các nút điều khiển
     const masterToggle = doc.getElementById('pe_master_toggle');
@@ -274,28 +468,28 @@ function renderExtensionSettings(targetWin, jq) {
 }
 
 waitForEnvironment(async (targetWin, jq) => {
-    console.log('[SillyTavern Extension] Đang khởi tạo giao diện quản lý Phone Ecosystem...');
+    console.log('[@KAIZ Collection] Đang khởi tạo giao diện quản lý...');
     renderExtensionSettings(targetWin, jq);
 
     const config = getPhoneConfig();
     if (config.enabled === false) {
-        console.log('[Phone Ecosystem] ⏸️ Toàn bộ hệ sinh thái đang bị TẮT trong cài đặt Extensions.');
+        console.log('[@KAIZ Collection] ⏸️ Toàn bộ hệ sinh thái đang bị TẮT trong cài đặt Extensions.');
         if (targetWin && targetWin.toastr) {
-            targetWin.toastr.info('Phone Ecosystem: Hệ sinh thái đang tắt. Bạn có thể bật lại trong tab Extensions.');
+            targetWin.toastr.info('@KAIZ Collection: Hệ sinh thái đang tắt. Bạn có thể bật lại trong tab Extensions.');
         }
         return;
     }
 
-    console.log('[SillyTavern Extension] Đang nạp hệ sinh thái...');
+    console.log('[@KAIZ Collection] Đang nạp hệ sinh thái & tiện ích...');
     
     // Hàm hỗ trợ load module an toàn độc lập
     async function safeImport(path, name) {
         try {
             await import(path);
-            console.log(`[PhoneEcosystem] Đã nạp thành công: ${name}`);
+            console.log(`[@KAIZ Collection] Đã nạp thành công: ${name}`);
             return true;
         } catch (err) {
-            console.error(`[PhoneEcosystem] ❌ Lỗi khi nạp module "${name}" (${path}):`, err);
+            console.error(`[@KAIZ Collection] ❌ Lỗi khi nạp module "${name}" (${path}):`, err);
             return false;
         }
     }
@@ -308,7 +502,7 @@ waitForEnvironment(async (targetWin, jq) => {
 
     for (const app of allModulesToLoad) {
         if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
-            console.log(`[Phone Ecosystem] ⏸️ Bỏ qua module đã tắt trong cài đặt: ${app.name}`);
+            console.log(`[@KAIZ Collection] ⏸️ Bỏ qua module đã tắt trong cài đặt: ${app.name}`);
             skipCount++;
             continue;
         }
@@ -316,5 +510,6 @@ waitForEnvironment(async (targetWin, jq) => {
         if (ok) successCount++; else failCount++;
     }
 
-    console.log(`[SillyTavern Extension] Hoàn tất nạp hệ sinh thái: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
+    console.log(`[@KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
 });
+
