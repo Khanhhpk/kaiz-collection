@@ -2830,11 +2830,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         re.lastIndex = 0;
         const hasUnrendered = re.test(raw);
 
-        // Nếu đã có block và không còn thẻ lời thoại nào chưa render và KHÔNG phải đang streaming -> Bỏ qua!
-        if (hasBlock && !needsVersionRerender && !hasUnrendered && mesEl.dataset.vnStyle === CFG.displayStyle && !actuallyStreaming) {
+        // Nếu đã có block và không còn thẻ lời thoại nào chưa render -> Bỏ qua!
+        if (hasBlock && !needsVersionRerender && !hasUnrendered && mesEl.dataset.vnStyle === CFG.displayStyle) {
             return;
         }
-        if (!hasUnrendered && !hasBlock && !actuallyStreaming) return;
+        if (!hasUnrendered && !hasBlock) return;
 
         const isAlreadyProcessed = mesEl.dataset.vnProcessed === '1';
         if (!hasBlock || (hasUnrendered && !actuallyStreaming)) {
@@ -2951,17 +2951,16 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         PD._vnObserver = new MutationObserver((mutations) => {
             if (!CFG.enabled || !CFG.renderMode) return;
+            const streamingSeen = new Set();
             for (const mut of mutations) {
                 for (const node of mut.addedNodes) {
                     if (node.nodeType !== 1) continue;
                     if (node.classList && node.classList.contains('mes')) {
                         clearTimeout(node._vnTimer);
                         if (isElementStreaming(node)) {
-                            if (!node._vnStreamingRaf) {
-                                node._vnStreamingRaf = requestAnimationFrame(() => {
-                                    node._vnStreamingRaf = 0;
-                                    processMessage(node, true);
-                                });
+                            if (!streamingSeen.has(node)) {
+                                streamingSeen.add(node);
+                                processMessage(node, true);
                             }
                         } else {
                             node._vnTimer = setTimeout(() => processMessage(node, false), 80);
@@ -2970,11 +2969,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     node.querySelectorAll && node.querySelectorAll('.mes').forEach(m => {
                         clearTimeout(m._vnTimer);
                         if (isElementStreaming(m)) {
-                            if (!m._vnStreamingRaf) {
-                                m._vnStreamingRaf = requestAnimationFrame(() => {
-                                    m._vnStreamingRaf = 0;
-                                    processMessage(m, true);
-                                });
+                            if (!streamingSeen.has(m)) {
+                                streamingSeen.add(m);
+                                processMessage(m, true);
                             }
                         } else {
                             m._vnTimer = setTimeout(() => processMessage(m, false), 80);
@@ -2986,11 +2983,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     if (mesEl) {
                         clearTimeout(mesEl._vnTimer);
                         if (isElementStreaming(mesEl)) {
-                            if (!mesEl._vnStreamingRaf) {
-                                mesEl._vnStreamingRaf = requestAnimationFrame(() => {
-                                    mesEl._vnStreamingRaf = 0;
-                                    processMessage(mesEl, true);
-                                });
+                            if (!streamingSeen.has(mesEl)) {
+                                streamingSeen.add(mesEl);
+                                processMessage(mesEl, true);
                             }
                         } else {
                             mesEl._vnTimer = setTimeout(() => processMessage(mesEl, false), 150);
