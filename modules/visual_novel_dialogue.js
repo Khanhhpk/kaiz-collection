@@ -2030,14 +2030,30 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 }
 
 /* --- BẢN VÁ TUYỆT ĐỐI CHỐNG RUNG VÀ CHỐNG NHẢY PIXEL KHI STREAMING & REFLOW --- */
-/* 1. Tối ưu GPU compositing cho ảnh trong chế độ always_full và expanded để tránh nhảy sub-pixel trên Windows */
+/* 1. Tối ưu GPU compositing & isolation cho ảnh trong chế độ always_full và expanded để tránh nhảy sub-pixel trên Windows */
 html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar,
 .vn-block.vn-expanded-img .vn-avatar {
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
     transform: translateZ(0) scale(1) !important;
+    decoding: sync !important;
+    contain: layout paint !important;
 }
-/* 2. Khi đang streaming (có lớp vn-streaming hoặc tin nhắn đang streaming): Khóa tuyệt đối mọi transition & animation trên toàn bộ block và avatar */
+/* 2. Khi đang streaming: Khóa tuyệt đối transition/animation & Giữ cố định con trỏ chuột ở chế độ text (I-beam) */
+.mes.is_streaming .vn-block,
+.mes[is_streaming="true"] .vn-block,
+.mes.streaming .vn-block,
+.vn-block.vn-streaming,
+.mes.is_streaming .vn-bubble,
+.mes[is_streaming="true"] .vn-bubble,
+.mes.streaming .vn-bubble,
+.vn-block.vn-streaming .vn-bubble,
+.vn-block.vn-streaming .vn-bubble-text,
+.vn-block.vn-streaming .vn-bubble-text * {
+    cursor: text !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
 .mes.is_streaming .vn-block *,
 .mes[is_streaming="true"] .vn-block *,
 .mes.streaming .vn-block *,
@@ -2779,7 +2795,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (safeAvatar) {
                 const fallbackSrc = buildInitialSvgData(name);
                 const optSrc = (CFG.inchatImgMode === 'always_full') ? resolveImageSrc(safeAvatar, fallbackSrc) : (AVATAR_CACHE[safeAvatar] || getSmoothAvatar(safeAvatar));
-                avatarPart = `<img class="vn-avatar" src="${escapeAttr(optSrc)}" data-orig-src="${escapeAttr(safeAvatar)}" data-vn-fallback-name="${escapeAttr(name)}" alt="${escapeAttr(name)}" data-vn-avatar-fit="${escapeAttr(getAvatarViewConfig(charCfg).avatarFit)}" style="${escapeAttr(getAvatarInlineStyle(charCfg))}">`;
+                avatarPart = `<img class="vn-avatar" decoding="sync" loading="eager" src="${escapeAttr(optSrc)}" data-orig-src="${escapeAttr(safeAvatar)}" data-vn-fallback-name="${escapeAttr(name)}" alt="${escapeAttr(name)}" data-vn-avatar-fit="${escapeAttr(getAvatarViewConfig(charCfg).avatarFit)}" style="${escapeAttr(getAvatarInlineStyle(charCfg))}">`;
             } else {
                 avatarPart = buildInitialHtml(name);
             }
@@ -2909,10 +2925,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         newHtml = newHtml.replace(/<p>\s*(?:<br\s*\/?>)?\s*<\/p>/gi, '');
 
         if (newHtml !== raw) {
+            mesEl._vnMutating = true;
             textEl.innerHTML = newHtml;
             textEl.querySelectorAll('img[data-orig-src]').forEach(img => {
                 if (isLocalImageRef(img.dataset.origSrc)) hydrateLocalImageEl(img, img.dataset.origSrc);
             });
+            setTimeout(() => { delete mesEl._vnMutating; }, 30);
         }
     }
 
@@ -2995,6 +3013,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (!CFG.enabled || !CFG.renderMode) return;
             const seen = new Set();
             for (const mut of mutations) {
+                const targetMes = mut.target && mut.target.closest && mut.target.closest('.mes');
+                if (targetMes && targetMes._vnMutating) continue;
                 for (const node of mut.addedNodes) {
                     if (node.nodeType !== 1) continue;
                     if (node.classList && node.classList.contains('mes')) {
@@ -3014,7 +3034,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 }
                 if (mut.type === 'childList' || mut.type === 'characterData') {
                     const mesEl = mut.target.closest && mut.target.closest('.mes');
-                    if (mesEl) {
+                    if (mesEl && !mesEl._vnMutating) {
                         clearTimeout(mesEl._vnTimer);
                         if (!seen.has(mesEl)) {
                             seen.add(mesEl);
