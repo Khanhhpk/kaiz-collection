@@ -2387,7 +2387,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         // Bọc khối luật theo cấu hình (Wrap Rule Block)
         let finalPrompt = customPrompt;
         if (CFG.wrapRuleBlock !== false) {
-            finalPrompt = `[START OF SYSTEM RULES - STRICT VISUAL NOVEL DIALOGUE FORMAT]\n${customPrompt}\n[END OF SYSTEM RULES]`;
+            finalPrompt = `<!-- vn_dialogue_format_marker_start -->\n${customPrompt}\n<!-- vn_dialogue_format_marker_end -->`;
         }
 
         const target = CFG.injectTarget || 'in_chat';
@@ -3955,7 +3955,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name">📦 Bọc khối luật bằng thẻ [START/END OF SYSTEM RULES]</div>
+        <div class="vn-toggle-name">📦 Bọc khối luật bằng marker <!-- vn_dialogue_format_marker --></div>
         <div class="vn-toggle-desc">Giúp AI phân định rõ ràng đâu là chỉ lệnh hệ thống, đâu là ngữ cảnh truyện, chống rò rỉ prompt ra lời thoại</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-wrap-rule" /><span class="vn-slider"></span></label>
@@ -4400,7 +4400,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             togWrap.addEventListener('change', e => {
                 CFG.wrapRuleBlock = e.target.checked;
                 saveConfig(CFG);
-                showToast(CFG.wrapRuleBlock ? '📦 Đã bật bọc khối luật bằng thẻ [START/END OF SYSTEM RULES]' : 'Đã tắt bọc thẻ khối luật', 'info');
+                showToast(CFG.wrapRuleBlock ? '📦 Đã bật bọc khối luật bằng marker cũ <!-- vn_dialogue_format_marker -->' : 'Đã tắt bọc thẻ khối luật', 'info');
             });
         }
         const injTarget = $('vn-inject-target');
