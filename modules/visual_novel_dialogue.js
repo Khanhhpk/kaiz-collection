@@ -2658,9 +2658,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function getCharCfg(name) {
+        if (!name) return null;
         if (CFG.characters[name]) return CFG.characters[name];
-        const key = Object.keys(CFG.characters).find(k => k.toLowerCase() === name.toLowerCase());
-        return key ? CFG.characters[key] : null;
+        const lower = name.toLowerCase();
+        const key = Object.keys(CFG.characters).find(k => k.toLowerCase() === lower);
+        if (key) {
+            CFG.characters[name] = CFG.characters[key];
+            return CFG.characters[name];
+        }
+        return null;
     }
 
     const GRADIENTS = [
