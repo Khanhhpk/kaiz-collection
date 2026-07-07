@@ -75,6 +75,8 @@ Bắt đầu tạo Input:`
             topP: 1.0,
             maxTokens: 500,
             customPersona: '',
+            tagInclude: '',
+            tagExclude: '',
             sysPromptTemplate: DEFAULT_PROMPTS.sysCore,
             layer1: DEFAULT_PROMPTS.layer1,
             layer2: DEFAULT_PROMPTS.layer2,
@@ -93,7 +95,11 @@ Bắt đầu tạo Input:`
     }
 
     // ============ TRÍCH XUẤT DỮ LIỆU SILLYTAVERN ============
-    function getChatHistory(limit) {
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function getChatHistory(limit, tagInclude = '', tagExclude = '') {
         try {
             const ctx = parentWindow.SillyTavern?.getContext?.();
             const chatArray = (ctx && ctx.chat) ? ctx.chat : parentWindow.chat;
@@ -102,11 +108,39 @@ Bắt đầu tạo Input:`
             const recentMessages = chatArray.slice(-limit);
             let historyText = "";
 
+            const excludeTags = tagExclude.split(',').map(t => t.trim()).filter(Boolean);
+            const includeTags = tagInclude.split(',').map(t => t.trim()).filter(Boolean);
+
             for (let i = 0; i < recentMessages.length; i++) {
                 const msg = recentMessages[i];
                 if (msg && msg.mes && !msg.is_system) {
-                    const cleanText = msg.mes
-                        .replace(new RegExp("\x3C!--[\\s\\S]*?--\x3E", "g"), '') 
+                    let text = msg.mes.replace(/<!--[\s\S]*?-->/g, '');
+
+                    // Chế độ 2: Lọc và bỏ (Exclude Tags - Xóa tag và toàn bộ nội dung bên trong)
+                    if (excludeTags.length > 0) {
+                        excludeTags.forEach(tag => {
+                            const regex = new RegExp("<" + escapeRegExp(tag) + "(?:\\s+[^>]*)?>(?:[\\s\\S]*?<\\/" + escapeRegExp(tag) + "\\s*>)?|<" + escapeRegExp(tag) + "(?:\\s+[^>]*)?\\/>", "gi");
+                            text = text.replace(regex, '');
+                        });
+                    }
+
+                    // Chế độ 1: Lọc và lấy (Include Tags - Chỉ giữ lại nội dung nằm bên trong tag)
+                    if (includeTags.length > 0) {
+                        const tagPattern = includeTags.map(t => escapeRegExp(t)).join('|');
+                        const regex = new RegExp("<(" + tagPattern + ")(?:\\s+[^>]*)?>([\\s\\S]*?)<\\/\\1\\s*>", "gi");
+                        let extractedParts = [];
+                        let match;
+                        while ((match = regex.exec(text)) !== null) {
+                            if (match[2] && match[2].trim()) {
+                                extractedParts.push(match[2].trim());
+                            }
+                        }
+                        if (extractedParts.length > 0) {
+                            text = extractedParts.join('\n\n');
+                        }
+                    }
+
+                    const cleanText = text
                         .replace(new RegExp("<[^>]*>", "g"), '')               
                         .replace(new RegExp("\\{\\{[^}]*\\}\\}", "g"), '')         
                         .replace(new RegExp("\\[\\[[^\\]]*\\]\\]", "g"), '')        
@@ -163,9 +197,9 @@ Bắt đầu tạo Input:`
         return "";
     }
 
-    function buildPrompts(limit, template, customPersona) {
+    function buildPrompts(limit, template, customPersona, tagInclude = '', tagExclude = '') {
         const names = getNames();
-        const historyText = getChatHistory(limit);
+        const historyText = getChatHistory(limit, tagInclude, tagExclude);
         
         let personaText = customPersona.trim();
         if (!personaText) {
@@ -387,6 +421,20 @@ Bắt đầu tạo Input:`
                                 <label>Lượt chat ngữ cảnh (History Size):</label>
                                 <input type="number" id="autorp-history" class="autorp-input" value="${settings.historyLimit}" min="1" max="100">
                             </div>
+                            
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+                                <label style="color: #10b981; font-weight: 600; font-size: 12.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                    🏷️ Lọc Tag Ngữ Cảnh (Làm sạch lịch sử gửi cho AI)
+                                </label>
+                                <div class="autorp-group" style="margin-bottom: 10px;">
+                                    <label style="color: #60a5fa; font-size: 11.5px;">Chế độ 1: Lọc và Lấy (Chỉ lấy nội dung trong tag):</label>
+                                    <input type="text" id="autorp-tag-include" class="autorp-input" value="${settings.tagInclude || ''}" placeholder="ví dụ: content, dialogue (phân cách bằng dấu phẩy)">
+                                </div>
+                                <div class="autorp-group" style="margin-bottom: 0;">
+                                    <label style="color: #f87171; font-size: 11.5px;">Chế độ 2: Lọc và Bỏ (Xóa tag và nội dung bên trong):</label>
+                                    <input type="text" id="autorp-tag-exclude" class="autorp-input" value="${settings.tagExclude || ''}" placeholder="ví dụ: thought, status, ooc (phân cách bằng dấu phẩy)">
+                                </div>
+                            </div>
                             <div class="autorp-group">
                                 <label>API URL (Chuẩn OpenAI / DeepSeek / Local):</label>
                                 <input type="text" id="autorp-url" class="autorp-input" value="${settings.apiUrl}">
@@ -534,6 +582,8 @@ Bắt đầu tạo Input:`
                 topP: parseFloat(parentDocument.getElementById('autorp-topp').value) || 1.0,
                 maxTokens: parseInt(parentDocument.getElementById('autorp-tokens').value) || 500,
                 customPersona: parentDocument.getElementById('autorp-custom-persona').value,
+                tagInclude: parentDocument.getElementById('autorp-tag-include').value.trim(),
+                tagExclude: parentDocument.getElementById('autorp-tag-exclude').value.trim(),
                 sysPromptTemplate: parentDocument.getElementById('autorp-sys-template').value.trim(),
                 layer1: parentDocument.getElementById('autorp-layer1').value.trim(),
                 layer2: parentDocument.getElementById('autorp-layer2').value.trim(),
@@ -560,7 +610,7 @@ Bắt đầu tạo Input:`
 
         parentDocument.getElementById('autorp-btn-open-debug').addEventListener('click', () => {
             const inputs = getCurrentInputs();
-            const prompts = buildPrompts(inputs.historyLimit, inputs.sysPromptTemplate, inputs.customPersona);
+            const prompts = buildPrompts(inputs.historyLimit, inputs.sysPromptTemplate, inputs.customPersona, inputs.tagInclude, inputs.tagExclude);
             
             parentDocument.getElementById('autorp-debug-sys').value = inputs.layer1 + "\n\n" + inputs.layer2 + "\n\n" + prompts.systemPrompt;
             parentDocument.getElementById('autorp-debug-usr').value = prompts.userPrompt;
@@ -603,7 +653,7 @@ Bắt đầu tạo Input:`
         currentAbortController = new AbortController();
         const signal = currentAbortController.signal;
 
-        const prompts = buildPrompts(config.historyLimit, config.sysPromptTemplate, config.customPersona);
+        const prompts = buildPrompts(config.historyLimit, config.sysPromptTemplate, config.customPersona, config.tagInclude, config.tagExclude);
 
         const apiMessages = [
             { role: 'system', content: config.layer1 },
