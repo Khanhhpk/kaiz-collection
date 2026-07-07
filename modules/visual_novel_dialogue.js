@@ -44,6 +44,10 @@
     const DEFAULT_CONFIG = {
         enabled: true,
         promptInjection: true,
+        wrapRuleBlock: true,
+        injectTarget: 'in_chat', // in_chat | in_prompt | after_prompt
+        injectRole: 'system', // system | user | assistant
+        injectDepth: 0, // Độ sâu khi chọn in_chat (0 = trước câu cuối)
         renderMode: true,
         showStandaloneIcon: true,
         standalonePos: { x: null, y: null },
@@ -338,9 +342,12 @@ Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đ�
         let startY = 0;
         let startCfg = null;
 
-        const stopDrag = () => {
+        const stopDrag = (e) => {
             dragging = false;
             stage.classList.remove('dragging');
+            if (e && e.pointerId !== undefined && stage.releasePointerCapture) {
+                try { stage.releasePointerCapture(e.pointerId); } catch (err) { }
+            }
         };
 
         stage.addEventListener('pointerdown', e => {
@@ -808,12 +815,10 @@ Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đ�
     box-shadow: 0 4px 14px rgba(0,0,0,0.4);
     background: #1e293b;
     flex-shrink: 0;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-radius 0.35s ease, width 0.35s ease, height 0.35s ease;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease;
 }
 .vn-avatar-viewport:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 18px rgba(99,102,241,0.5);
-    will-change: transform, box-shadow;
+    box-shadow: 0 6px 18px rgba(129,140,248,0.5);
 }
 .vn-avatar-viewport .vn-avatar {
     width: 100% !important;
@@ -823,11 +828,13 @@ Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đ�
     box-shadow: none !important;
     margin: 0 !important;
     display: block;
-    transform: scale(var(--vn-avatar-zoom, 1));
+    transform: none;
     transform-origin: center center;
 }
-.vn-avatar-viewport .vn-avatar:hover {
+.vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar {
     transform: scale(var(--vn-avatar-zoom, 1));
+}
+.vn-avatar-viewport .vn-avatar:hover {
     box-shadow: none !important;
 }
 .vn-avatar {
@@ -840,12 +847,10 @@ Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đ�
     background: #1e293b;
     flex-shrink: 0;
     image-rendering: auto;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease;
 }
 .vn-avatar:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 18px rgba(99,102,241,0.5);
-    will-change: transform, box-shadow;
+    box-shadow: 0 6px 18px rgba(129,140,248,0.5);
 }
 .vn-avatar[data-vn-avatar-fit="contain"],
 .vn-char-card img[data-vn-avatar-fit="contain"],
@@ -1031,21 +1036,18 @@ html[data-vn-img-quality="standard"] .vn-img-thumb img {
     display: none !important;
 }
 .vn-bubble {
-    background: rgba(30,41,59,0.88);
+    background: rgba(30,41,59,0.95);
     border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     border-radius: 18px;
     padding: 13px 18px;
     max-width: var(--vn-max-width, 78%) !important;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
     position: relative;
     font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     font-size: var(--vn-font-size, 14.5px) !important;
     line-height: 1.65;
     color: #f1f5f9;
     flex: 1;
-    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s;
 }
 .vn-bubble.vn-thought {
     background: rgba(15,23,42,0.8);
@@ -1183,10 +1185,8 @@ html[data-vn-img-quality="standard"] .vn-img-thumb img {
     gap: 10px;
 }
 .mes[data-vn-style="modern"] .vn-bubble {
-    background: rgba(51, 65, 85, 0.75);
+    background: rgba(51, 65, 85, 0.92);
     border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
     border-radius: 22px;
     padding: 12px 18px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.2);
@@ -1216,9 +1216,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     position:fixed; inset:0;
     width: 100vw; height: 100vh;
     width: 100dvw; height: 100dvh;
-    background:rgba(0,0,0,0.75);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
+    background:rgba(10,14,26,0.88);
     z-index:1999990;
     display:none;
     align-items:center;
@@ -1316,6 +1314,17 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     margin-bottom:6px;
     margin-top:4px;
 }
+.vn-icon {
+    width:16px;
+    height:16px;
+    vertical-align:middle;
+    margin-right:6px;
+    display:inline-block;
+    flex-shrink:0;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+.vn-btn .vn-icon { margin-right:6px; }
+.vn-section-label .vn-icon { margin-right:6px; width:16px; height:16px; }
 .vn-group { display:flex; flex-direction:column; gap:6px; }
 .vn-input {
     width:100%; box-sizing:border-box;
@@ -1508,9 +1517,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     position:fixed; inset:0;
     width: 100vw; height: 100vh;
     width: 100dvw; height: 100dvh;
-    background:rgba(0,0,0,0.8);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
+    background:rgba(10,14,26,0.92);
     z-index:2000000;
     display:none;
     align-items:center;
@@ -1651,7 +1658,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     border:2.5px solid rgba(99,102,241,0.6);
     transition:all 0.15s;
 }
-.vn-fav-thumb:hover { transform:scale(1.1); border-color:#6366f1; box-shadow:0 4px 10px rgba(0,0,0,0.4); }
+.vn-fav-thumb:hover { border-color:#6366f1; box-shadow:0 4px 10px rgba(0,0,0,0.4); }
 .vn-fav-empty {
     font-size:12px; color:#64748b; font-style:italic;
     display:flex; align-items:center; height:46px; padding:0 4px;
@@ -1686,7 +1693,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     align-items: center;
     justify-content: center;
 }
-.vn-img-thumb:hover { border-color:#6366f1; transform:scale(1.04); box-shadow:0 8px 20px rgba(0,0,0,0.5); z-index:10; }
+.vn-img-thumb:hover { border-color:#6366f1; box-shadow:0 8px 20px rgba(0,0,0,0.5); z-index:10; }
 .vn-img-thumb img {
     position: absolute;
     inset: 0;
@@ -1708,7 +1715,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
 }
 .vn-img-thumb:hover .vn-img-fav-btn { display:flex; }
 .vn-img-thumb .vn-img-fav-btn.starred { background:rgba(251,191,36,0.95); color:#78350f; display:flex; }
-.vn-img-thumb .vn-img-fav-btn.starred:hover { background:rgba(251,191,36,1); transform:scale(1.1); }
+.vn-img-thumb .vn-img-fav-btn.starred:hover { background:rgba(251,191,36,1); }
 .vn-img-thumb .vn-img-del-btn {
     position:absolute; top:6px; left:6px;
     width:26px; height:26px; border-radius:50%;
@@ -1718,7 +1725,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     transition:all 0.15s; line-height:1; z-index:5;
 }
 .vn-img-thumb:hover .vn-img-del-btn { display:flex; }
-.vn-img-thumb .vn-img-del-btn:hover { background:rgba(239,68,68,1); transform:scale(1.08); }
+.vn-img-thumb .vn-img-del-btn:hover { background:rgba(239,68,68,1); }
 .vn-img-thumb .vn-img-nsfw-badge {
     position:absolute; bottom:6px; left:6px;
     background:rgba(239,68,68,0.9); color:#fff;
@@ -1801,36 +1808,21 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     touch-action: none;
 }
 #vn-standalone-fab:hover {
-    transform: scale(1.1) rotate(5deg);
     box-shadow: 0 8px 25px rgba(236, 72, 153, 0.6), inset 0 2px 6px rgba(255,255,255,0.6);
 }
 #vn-standalone-fab:active {
-    transform: scale(0.95);
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4), inset 0 1px 3px rgba(255,255,255,0.4);
 }
 /* ===== ẢNH AVATAR MỞ RỘNG TRỰC TIẾP TRONG CHÍNH VĂN (IN-PLACE EXPANSION) ===== */
-@keyframes vn-img-expand-in {
-    0%   { opacity: 0; transform: scaleY(0.6) scaleX(0.9); }
-    60%  { opacity: 1; transform: scaleY(1.04) scaleX(1.01); }
-    100% { opacity: 1; transform: scaleY(1) scaleX(1); }
-}
-@keyframes vn-img-expand-fade {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
 .vn-avatar {
     cursor: pointer !important;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-                box-shadow 0.25s ease,
-                border-radius 0.35s ease,
-                width 0.35s ease,
-                height 0.35s ease !important;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease !important;
 }
 .vn-avatar:hover {
-    transform: scale(1.07) !important;
     box-shadow: 0 6px 20px rgba(129,140,248,0.5) !important;
 }
 .vn-block {
-    transition: flex-direction 0s, gap 0.3s ease, align-items 0.3s ease !important;
+    transition: gap 0.25s ease !important;
 }
 html[data-vn-img-mode="always_full"] .vn-block,
 .vn-block.vn-expanded-img {
@@ -1865,7 +1857,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     background: transparent !important;
     display: flex !important;
     justify-content: center !important;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-radius 0.35s ease, width 0.35s ease, height 0.35s ease !important;
+    transition: opacity 0.25s ease !important;
 }
 html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar-viewport:hover,
 .vn-block.vn-expanded-img .vn-avatar-viewport:hover {
@@ -1892,20 +1884,20 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     border: 2px solid rgba(129, 140, 248, 0.5) !important;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
     background: rgba(15, 23, 42, 0.8) !important;
-    animation: vn-img-expand-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+    animation: none !important;
 }
 html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-charname,
 .vn-block.vn-expanded-img .vn-charname {
     font-size: 15px !important;
     margin-top: 8px !important;
     color: #a78bfa !important;
-    animation: vn-img-expand-fade 0.3s ease both !important;
+    animation: none !important;
 }
 html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-bubble,
 .vn-block.vn-expanded-img .vn-bubble {
     width: 100% !important;
     box-sizing: border-box !important;
-    animation: vn-img-expand-fade 0.35s ease 0.1s both !important;
+    animation: none !important;
 }
 /* Khi ở chế độ luôn mở full, click vào ảnh sẽ thu gọn về bình thường (vn-collapsed-img) */
 html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img {
@@ -1945,6 +1937,11 @@ html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewp
     object-fit: cover !important;
     box-sizing: border-box !important;
     animation: none !important;
+    transform: none !important;
+    transform-origin: center center !important;
+}
+html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar,
+html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar {
     transform: scale(var(--vn-avatar-zoom, 1)) !important;
     transform-origin: center center !important;
 }
@@ -1977,7 +1974,7 @@ html[data-vn-img-mode="always_full"] .mes.streaming .vn-block .vn-bubble {
     opacity: 1 !important;
 }
 
-/* 2. SAU KHI STREAM XONG: Chỉ khóa hiệu ứng bung mở ban đầu, KHÔNG khóa transform để vẫn hover được */
+/* 2. SAU KHI STREAM XONG */
 html[data-vn-img-mode="always_full"] .vn-block.vn-no-anim .vn-avatar,
 html[data-vn-img-mode="always_full"] .vn-block.vn-no-anim .vn-charname,
 html[data-vn-img-mode="always_full"] .vn-block.vn-no-anim .vn-bubble {
@@ -1985,12 +1982,11 @@ html[data-vn-img-mode="always_full"] .vn-block.vn-no-anim .vn-bubble {
     opacity: 1 !important;
 }
 
-/* 3. SỬA LỖI CỦA SCRIPT GỐC: Trả lại Transition (Hiệu ứng mượt) cho avatar khi bấm thu nhỏ */
 .vn-block.vn-no-anim {
-    transition: flex-direction 0s, gap 0.3s ease, align-items 0.3s ease !important;
+    transition: gap 0.25s ease !important;
 }
 .vn-block.vn-no-anim .vn-avatar {
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-radius 0.35s ease, width 0.35s ease, height 0.35s ease !important;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease !important;
 }
 
 /* --- TỐI ƯU GPU: TẮT KÍNH MỜ KHI ĐANG STREAMING --- */
@@ -2004,10 +2000,8 @@ html[data-vn-img-mode="always_full"] .vn-block.vn-no-anim .vn-bubble {
 }
 
 /* --- BẢN VÁ ZOOM AVATAR: không để zoom ảnh phá hover/animation mở - thu ảnh --- */
-html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport .vn-avatar,
-html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport .vn-avatar:hover,
-html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport .vn-avatar,
-html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport .vn-avatar:hover {
+html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar,
+html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar {
     transform: scale(var(--vn-avatar-zoom, 1)) !important;
     transform-origin: center center !important;
     box-shadow: none !important;
@@ -2017,12 +2011,53 @@ html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewp
     cursor: pointer !important;
     overflow: hidden !important;
 }
-html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar-viewport .vn-avatar:hover,
+html[data-vn-img-mode="always_full"] .vn-block:not(.vn-expanded-img) .vn-avatar-viewport .vn-avatar:hover,
 .vn-block.vn-expanded-img .vn-avatar-viewport .vn-avatar:hover {
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
 }
 .vn-block.vn-no-anim .vn-avatar-viewport {
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-radius 0.35s ease, width 0.35s ease, height 0.35s ease !important;
+    transition: opacity 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease !important;
+}
+
+/* --- BẢN VÁ TUYỆT ĐỐI CHỐNG RUNG VÀ CHỐNG NHẢY PIXEL KHI STREAMING & REFLOW --- */
+/* 1. Tối ưu GPU compositing & isolation cho ảnh trong chế độ always_full và expanded để tránh nhảy sub-pixel trên Windows */
+html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar,
+.vn-block.vn-expanded-img .vn-avatar {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transform: none !important;
+    decoding: sync !important;
+    contain: layout paint !important;
+}
+/* 2. Khi đang streaming: Khóa tuyệt đối transition/animation & Giữ cố định con trỏ chuột ở chế độ text (I-beam) */
+.mes.is_streaming .vn-block,
+.mes[is_streaming="true"] .vn-block,
+.mes.streaming .vn-block,
+.vn-block.vn-streaming,
+.mes.is_streaming .vn-bubble,
+.mes[is_streaming="true"] .vn-bubble,
+.mes.streaming .vn-bubble,
+.vn-block.vn-streaming .vn-bubble,
+.vn-block.vn-streaming .vn-bubble-text,
+.vn-block.vn-streaming .vn-bubble-text * {
+    cursor: text !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+.mes.is_streaming .vn-block *,
+.mes[is_streaming="true"] .vn-block *,
+.mes.streaming .vn-block *,
+.vn-block.vn-streaming,
+.vn-block.vn-streaming *,
+.vn-block.vn-streaming .vn-avatar,
+.vn-block.vn-streaming .vn-avatar-viewport,
+.vn-block.vn-streaming .vn-avatar-wrap,
+.vn-block.vn-streaming .vn-bubble,
+.vn-block.vn-streaming .vn-charname {
+    animation: none !important;
+    transition: none !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
 }
 `;
         PD.head.appendChild(s);
@@ -2220,27 +2255,18 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
     };
 
-    // ========== MODULE 1: PROMPT INJECTION (SYSTEM & AUTHOR NOTE) ==========
+    // ========== MODULE 1: PROMPT INJECTION (EVENT HOOKS - KHÔNG XÂM LẤN AUTHOR'S NOTE) ==========
     function setupPromptInjection() {
         if (PD._vnClickHook) {
             PD.removeEventListener('click', PD._vnClickHook, true);
             PD.removeEventListener('keydown', PD._vnClickHook, true);
             delete PD._vnClickHook;
         }
+        // Luôn dọn dẹp sạch sẽ marker cũ khỏi Author's Note / extensionPrompts của người dùng
+        cleanUpLegacyAuthorNote();
         if (!CFG.enabled) return;
 
-        if (CFG.promptInjection) {
-            PD._vnClickHook = function (e) {
-                const btn = e.target.closest('#send_but, #send_textarea');
-                if (!btn) return;
-                if (e.type === 'keydown' && !(e.key === 'Enter' && !e.shiftKey)) return;
-                doInjectSystemPrompt();
-            };
-            PD.addEventListener('click', PD._vnClickHook, true);
-            PD.addEventListener('keydown', PD._vnClickHook, true);
-        }
-
-        // Đăng ký qua SillyTavern eventSource nếu có
+        // Đăng ký qua SillyTavern eventSource chuẩn (Event Hooks)
         try {
             const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
             if (ctx && ctx.eventSource && ctx.event_types) {
@@ -2258,29 +2284,35 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     }
                 };
 
-                if (ctx.event_types.CHAT_COMPLETION_PROMPT_READY) {
-                    addEv(ctx.event_types.CHAT_COMPLETION_PROMPT_READY, doInjectSystemPrompt);
-                }
+                // Lắng nghe tất cả các sự kiện dựng prompt để tiêm hướng dẫn vào luồng xử lý (In-Chat @ Depth 0)
+                const promptEvents = [
+                    ctx.event_types.CHAT_COMPLETION_PROMPT_READY,
+                    ctx.event_types.GENERATE_AFTER_COMBINE_PROMPTS,
+                    ctx.event_types.TEXT_COMPLETION_PROMPT_READY,
+                    ctx.event_types.PROMPT_READY,
+                    'chat_completion_prompt_ready',
+                    'generate_after_combine_prompts',
+                    'text_completion_prompt_ready',
+                    'prompt_ready'
+                ];
+                promptEvents.forEach(evt => {
+                    if (evt) {
+                        addEv(evt, (payload) => {
+                            injectVnDialoguePrompt(payload, typeof evt === 'string' ? evt : 'PROMPT_READY');
+                        });
+                    }
+                });
 
                 // --- TỐI ƯU STREAMING THỜI GIAN THỰC (TỚI ĐÂU RENDER TỚI ĐÓ, KHÔNG NHÁY) ---
-                let streamTickRaf = 0;
                 const scheduleApplyStreaming = () => {
-                    if (streamTickRaf) return;
-                    streamTickRaf = requestAnimationFrame(() => {
-                        streamTickRaf = 0;
-                        if (!CFG.enabled || !CFG.renderMode) return;
-                        const chat = PD.getElementById('chat');
-                        const mesList = chat ? chat.getElementsByClassName('mes') : null;
-                        if (!mesList || !mesList.length) return;
-                        const lastMes = mesList[mesList.length - 1];
-                        if (lastMes && !lastMes.classList.contains('is_user')) {
-                            if (lastMes._vnStreamingRaf) {
-                                cancelAnimationFrame(lastMes._vnStreamingRaf);
-                                lastMes._vnStreamingRaf = 0;
-                            }
-                            processMessage(lastMes, true);
-                        }
-                    });
+                    if (!CFG.enabled || !CFG.renderMode) return;
+                    const chat = PD.getElementById('chat');
+                    const mesList = chat ? chat.getElementsByClassName('mes') : null;
+                    if (!mesList || !mesList.length) return;
+                    const lastMes = mesList[mesList.length - 1];
+                    if (lastMes && !lastMes.classList.contains('is_user')) {
+                        scheduleStreamingRender(lastMes);
+                    }
                 };
 
                 const et = ctx.event_types;
@@ -2310,11 +2342,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 });
             }
         } catch (err) { }
-
-        doInjectSystemPrompt();
     }
 
-    function removeInjectedPrompt() {
+    function cleanUpLegacyAuthorNote() {
         try {
             const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
             if (ctx) {
@@ -2331,7 +2361,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const marker = 'vn_dialogue_format_marker';
             const startMark = `<!-- ${marker}_start -->`;
             const endMark = `<!-- ${marker}_end -->`;
-            // CHỈ target đúng ô Chat Author's Note (Unique to this chat), TRÁNH TUYỆT ĐỐI Character Author's Note & Default Author's Note
             const selectors = [
                 '#authors_note_textarea',
                 '#extension_floating_prompt',
@@ -2340,7 +2369,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             ];
             selectors.forEach(sel => {
                 PD.querySelectorAll(sel).forEach(el => {
-                    // Kiểm tra siêu nghiêm ngặt: TUYỆT ĐỐI KHÔNG chạm vào bất kỳ container nào liên quan đến character, default hay preset
                     if (el && el.value !== undefined && !el.closest('#character_popup, #character_edit_form, .character_edit, #character_editor, .character-edit-form, #character_author_note_popup, #char_author_note, .character-author-note, #default_author_note_popup, #default_author_note, [id*="char"], [class*="char"], [id*="default"], [class*="default"], [id*="preset"], [class*="preset"]')) {
                         let cur = el.value || '';
                         if (cur.includes(startMark) && cur.includes(endMark)) {
@@ -2368,67 +2396,80 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return base;
     }
 
-    function doInjectSystemPrompt() {
-        removeInjectedPrompt();
-        if (!CFG.enabled || !CFG.promptInjection || !CFG.customPrompt || !CFG.customPrompt.trim()) return;
+    function injectVnDialoguePrompt(payload, evtName) {
+        if (!CFG.enabled || !CFG.promptInjection) return;
+        if (!payload) return;
 
-        try {
-            const effectivePrompt = getEffectivePrompt();
-            const marker = 'vn_dialogue_format_marker';
-            const startMark = `<!-- ${marker}_start -->`;
-            const endMark = `<!-- ${marker}_end -->`;
-            // CHỈ target đúng ô Chat Author's Note (Unique to this chat), TRÁNH TUYỆT ĐỐI Character Author's Note & Default Author's Note
-            const selectors = [
-                '#authors_note_textarea',
-                '#extension_floating_prompt',
-                '#floatingPrompt textarea',
-                '#author_note_popup #authors_note_textarea'
-            ];
+        const customPrompt = getEffectivePrompt();
+        if (!customPrompt) return;
 
-            let injected = false;
-            selectors.forEach(sel => {
-                PD.querySelectorAll(sel).forEach(el => {
-                    if (el && el.value !== undefined && !el.closest('#character_popup, #character_edit_form, .character_edit, #character_editor, .character-edit-form, #character_author_note_popup, #char_author_note, .character-author-note, #default_author_note_popup, #default_author_note, [id*="char"], [class*="char"], [id*="default"], [class*="default"], [id*="preset"], [class*="preset"]') && !injected) {
-                        let cur = el.value || '';
-                        el.value = `${startMark}\n${effectivePrompt}\n${endMark}\n\n${cur}`.trim();
-                        el.dispatchEvent(new Event('input', { bubbles: true }));
-                        el.dispatchEvent(new Event('change', { bubbles: true }));
-                        injected = true;
-                    }
-                });
-            });
+        // Chống bơm kép (Anti-double injection)
+        if (payload._vnDialogueInjected || (Array.isArray(payload) && payload._vnDialogueInjected)) return;
 
-            // Ép đặt Depth của Chat Author's Note về 0 (chỉ target đúng depth của Chat Author Note)
-            const depthSelectors = [
-                '#authors_note_depth',
-                '#an_depth',
-                '#author_note_depth'
-            ];
-            depthSelectors.forEach(sel => {
-                PD.querySelectorAll(sel).forEach(el => {
-                    if (el && el.value !== undefined && !el.closest('#character_popup, #character_edit_form, .character_edit, #character_editor, .character-edit-form, #character_author_note_popup, #char_author_note, .character-author-note, #default_author_note_popup, #default_author_note, [id*="char"], [class*="char"], [id*="default"], [class*="default"], [id*="preset"], [class*="preset"]') && (el.value !== '0' && el.value !== 0)) {
-                        el.value = '0';
-                        el.dispatchEvent(new Event('input', { bubbles: true }));
-                        el.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                });
-            });
+        // Bọc khối luật theo cấu hình (Wrap Rule Block)
+        let finalPrompt = customPrompt;
+        if (CFG.wrapRuleBlock !== false) {
+            finalPrompt = `<!-- vn_dialogue_format_marker_start -->\n${customPrompt}\n<!-- vn_dialogue_format_marker_end -->`;
+        }
 
-            const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
-            if (ctx) {
-                if (typeof ctx.setExtensionPrompt === 'function') {
-                    ctx.setExtensionPrompt('vn_dialogue_format', effectivePrompt, 4, 0, false, 0);
+        const target = CFG.injectTarget || 'in_chat';
+        const role = CFG.injectRole || 'system';
+        const depth = parseInt(CFG.injectDepth, 10) || 0;
+
+        let targetArray = null;
+        if (Array.isArray(payload)) {
+            targetArray = payload;
+        } else if (payload && Array.isArray(payload.messages)) {
+            targetArray = payload.messages;
+        } else if (payload && Array.isArray(payload.chat)) {
+            targetArray = payload.chat;
+        }
+
+        if (targetArray) {
+            // Kiểm tra chống trùng lặp nội dung
+            if (targetArray.some(m => m && (m._vnDialogueInjected || (typeof m.content === 'string' && m.content.includes(customPrompt))))) {
+                return;
+            }
+
+            targetArray._vnDialogueInjected = true;
+            if (!payload._vnDialogueInjected) payload._vnDialogueInjected = true;
+
+            if (target === 'in_prompt') {
+                const sysMsg = targetArray.find(m => m && (m.role === 'system' || m.role === 0));
+                if (sysMsg) {
+                    sysMsg.content += `\n\n${finalPrompt}`;
+                    sysMsg._vnDialogueInjected = true;
                 } else {
-                    ctx.extensionPrompts = ctx.extensionPrompts || {};
-                    ctx.extensionPrompts['vn_dialogue_format'] = {
-                        value: effectivePrompt,
-                        position: 4,
-                        depth: 0,
-                        role: 0
-                    };
+                    targetArray.unshift({ role: role, content: finalPrompt, _vnDialogueInjected: true });
+                }
+            } else if (target === 'after_prompt') {
+                targetArray.push({ role: role, content: finalPrompt, _vnDialogueInjected: true });
+            } else if (target === 'in_chat') {
+                if (targetArray.length === 0) {
+                    targetArray.push({ role: role, content: finalPrompt, _vnDialogueInjected: true });
+                } else {
+                    let insertIdx = targetArray.length - 1 - depth;
+                    if (insertIdx < 0) insertIdx = 0;
+                    targetArray.splice(insertIdx, 0, { role: role, content: finalPrompt, _vnDialogueInjected: true });
                 }
             }
-        } catch (e) { }
+        } 
+        // Xử lý Text Completion (Chuỗi thô)
+        else if (payload && typeof payload.prompt === 'string') {
+            if (payload.prompt.includes(customPrompt)) return;
+            payload._vnDialogueInjected = true;
+            const formattedPrompt = `\n[${role.toUpperCase()}: ${finalPrompt}]\n`;
+            if (target === 'in_prompt') {
+                payload.prompt = formattedPrompt + payload.prompt;
+            } else {
+                payload.prompt = payload.prompt + formattedPrompt;
+            }
+        }
+    }
+
+    // Giữ hàm doInjectSystemPrompt để tương thích ngược nếu có sự kiện hay nút bấm nào gọi
+    function doInjectSystemPrompt() {
+        cleanUpLegacyAuthorNote();
     }
 
     // ========== MODULE 3: DIALOGUE PARSER & RENDERER (HTML-PRESERVING & MULTI-FORMAT) ==========
@@ -2613,9 +2654,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function getCharCfg(name) {
+        if (!name) return null;
         if (CFG.characters[name]) return CFG.characters[name];
-        const key = Object.keys(CFG.characters).find(k => k.toLowerCase() === name.toLowerCase());
-        return key ? CFG.characters[key] : null;
+        const lower = name.toLowerCase();
+        const key = Object.keys(CFG.characters).find(k => k.toLowerCase() === lower);
+        if (key) {
+            CFG.characters[name] = CFG.characters[key];
+            return CFG.characters[name];
+        }
+        return null;
     }
 
     const GRADIENTS = [
@@ -2728,7 +2775,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (safeAvatar) {
                 const fallbackSrc = buildInitialSvgData(name);
                 const optSrc = (CFG.inchatImgMode === 'always_full') ? resolveImageSrc(safeAvatar, fallbackSrc) : (AVATAR_CACHE[safeAvatar] || getSmoothAvatar(safeAvatar));
-                avatarPart = `<img class="vn-avatar" src="${escapeAttr(optSrc)}" data-orig-src="${escapeAttr(safeAvatar)}" data-vn-fallback-name="${escapeAttr(name)}" alt="${escapeAttr(name)}" data-vn-avatar-fit="${escapeAttr(getAvatarViewConfig(charCfg).avatarFit)}" style="${escapeAttr(getAvatarInlineStyle(charCfg))}">`;
+                avatarPart = `<img class="vn-avatar" decoding="sync" loading="eager" src="${escapeAttr(optSrc)}" data-orig-src="${escapeAttr(safeAvatar)}" data-vn-fallback-name="${escapeAttr(name)}" alt="${escapeAttr(name)}" data-vn-avatar-fit="${escapeAttr(getAvatarViewConfig(charCfg).avatarFit)}" style="${escapeAttr(getAvatarInlineStyle(charCfg))}">`;
             } else {
                 avatarPart = buildInitialHtml(name);
             }
@@ -2737,6 +2784,26 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
         const viewCfg = getAvatarViewConfig(charCfg || {});
         return `<div class="vn-avatar-wrap"><div class="vn-avatar-viewport" data-vn-avatar-fit="${escapeAttr(viewCfg.avatarFit)}" data-vn-avatar-zoom="${escapeAttr(viewCfg.avatarZoom)}">${avatarPart}</div></div>`;
+    }
+
+    let _blockHtmlCache = new Map();
+    let _cachedCleanPatternStr = null;
+    let _cachedCleanPatternRe = null;
+    let _streamingRafId = 0;
+    let _streamingTargetMes = null;
+
+    function scheduleStreamingRender(mesEl) {
+        if (!CFG.enabled || !CFG.renderMode) return;
+        if (mesEl) _streamingTargetMes = mesEl;
+        if (_streamingRafId) return;
+        _streamingRafId = requestAnimationFrame(() => {
+            _streamingRafId = 0;
+            const target = _streamingTargetMes || (PD.getElementById('chat')?.lastElementChild);
+            if (target && !target.classList.contains('is_user')) {
+                processMessage(target, true);
+            }
+            _streamingTargetMes = null;
+        });
     }
 
     function cleanBubbleText(text) {
@@ -2748,15 +2815,24 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
         try {
             let pattern = CFG.cleanPatterns.trim();
-            let parts = pattern.includes('|') ? pattern.split('|') : pattern.split('');
-            parts = parts.map(p => p.trim()).filter(Boolean);
-            if (parts.length === 0) return s;
-            const escaped = parts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-            const re = new RegExp(`^(?:${escaped})+|(?:${escaped})+$`, 'gi');
-            let prev = '';
-            while (s !== prev) {
-                prev = s;
-                s = s.replace(re, '').trim();
+            if (pattern !== _cachedCleanPatternStr) {
+                let parts = pattern.includes('|') ? pattern.split('|') : pattern.split('');
+                parts = parts.map(p => p.trim()).filter(Boolean);
+                if (parts.length === 0) {
+                    _cachedCleanPatternRe = null;
+                } else {
+                    const escaped = parts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+                    _cachedCleanPatternRe = new RegExp(`^(?:${escaped})+|(?:${escaped})+$`, 'gi');
+                }
+                _cachedCleanPatternStr = pattern;
+            }
+            if (_cachedCleanPatternRe) {
+                let prev = '';
+                while (s !== prev) {
+                    prev = s;
+                    _cachedCleanPatternRe.lastIndex = 0;
+                    s = s.replace(_cachedCleanPatternRe, '').trim();
+                }
             }
         } catch (err) {
             console.error('[VN Dialogue] Clean pattern error:', err);
@@ -2765,6 +2841,22 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function buildBlockHtml(name, content, isThought, noAnim = false, isStreaming = false) {
+        if (isStreaming) {
+            const cacheKey = `${name}///${content}///${isThought}///${noAnim}///${CFG.displayStyle}///${CFG.inchatImgMode}`;
+            if (_blockHtmlCache.has(cacheKey)) {
+                return _blockHtmlCache.get(cacheKey);
+            }
+            if (_blockHtmlCache.size > 500) _blockHtmlCache.clear();
+            const res = _buildBlockHtmlInternal(name, content, isThought, noAnim, true);
+            _blockHtmlCache.set(cacheKey, res);
+            return res;
+        } else {
+            if (_blockHtmlCache.size > 0) _blockHtmlCache.clear();
+        }
+        return _buildBlockHtmlInternal(name, content, isThought, noAnim, false);
+    }
+
+    function _buildBlockHtmlInternal(name, content, isThought, noAnim, isStreaming) {
         const isRight = isThought;
         const avatarHtml = buildAvatarHtml(name, isStreaming);
         const tagText = name + (isThought ? ' · ✦ Suy nghĩ' : '');
@@ -2778,17 +2870,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const safeTextColor = safeCssValue(charCfg.textColor, '');
             if (safeTextColor) customTextStyle = ` style="color:${escapeAttr(safeTextColor)} !important;"`;
         }
-        return `<div class="vn-block${isRight ? ' vn-right' : ''}${noAnim ? ' vn-no-anim' : ''}">${avatarHtml}<div class="vn-bubble${isThought ? ' vn-thought' : ''}"${customTextStyle}><div class="vn-bubble-tag" style="${escapeAttr(tagStyle)}">${escapeHtml(tagText)}</div><div class="vn-bubble-text"${customTextStyle}>${bubbleText}</div></div></div>`;
+        return `<div class="vn-block${isRight ? ' vn-right' : ''}${noAnim ? ' vn-no-anim' : ''}${isStreaming ? ' vn-streaming' : ''}">${avatarHtml}<div class="vn-bubble${isThought ? ' vn-thought' : ''}"${customTextStyle}><div class="vn-bubble-tag" style="${escapeAttr(tagStyle)}">${escapeHtml(tagText)}</div><div class="vn-bubble-text"${customTextStyle}>${bubbleText}</div></div></div>`;
     }
 
     function isElementStreaming(el) {
         if (!el) return false;
-        const mes = el.classList && el.classList.contains('mes') ? el : el.closest && el.closest('.mes');
+        const mes = el.classList && el.classList.contains('mes') ? el : (el.nodeType === 3 ? el.parentNode?.closest('.mes') : el.closest?.('.mes'));
         if (!mes) return false;
-        return mes.classList.contains('is_streaming') || 
-               mes.classList.contains('streaming') || 
-               mes.getAttribute('is_streaming') === 'true' ||
-               (mes.querySelector && mes.querySelector('.is_streaming, .streaming, [is_streaming="true"]') !== null);
+        if (mes.classList.contains('is_streaming') || 
+            mes.classList.contains('streaming') || 
+            mes.getAttribute('is_streaming') === 'true' ||
+            (mes.querySelector && mes.querySelector('.is_streaming, .streaming, [is_streaming="true"]') !== null)) {
+            return true;
+        }
+        const ctx = window.SillyTavern?.getContext?.() || window;
+        const isGen = ctx.is_generating || window.is_generating || document.body.classList.contains('generating') || document.body.classList.contains('is_generating');
+        if (isGen) {
+            let next = mes.nextElementSibling;
+            while (next && !next.classList?.contains('mes')) {
+                next = next.nextElementSibling;
+            }
+            if (!next) return true;
+        }
+        return false;
     }
 
     function processMessage(mesEl, isStreaming = false) {
@@ -2798,6 +2902,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (isUser) return;
 
         const actuallyStreaming = isStreaming || isElementStreaming(mesEl);
+        if (!actuallyStreaming && typeof _blockHtmlCache !== 'undefined') {
+            _blockHtmlCache.clear();
+        }
 
         const hasBlock = textEl.querySelector('.vn-block') !== null;
         let raw = (textEl.innerHTML || '').normalize('NFC');
@@ -2811,11 +2918,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         re.lastIndex = 0;
         const hasUnrendered = re.test(raw);
 
-        // Nếu đã có block và không còn thẻ lời thoại nào chưa render và KHÔNG phải đang streaming -> Bỏ qua!
-        if (hasBlock && !needsVersionRerender && !hasUnrendered && mesEl.dataset.vnStyle === CFG.displayStyle && !actuallyStreaming) {
+        // Nếu đã có block và không còn thẻ lời thoại nào chưa render -> Bỏ qua!
+        if (hasBlock && !needsVersionRerender && !hasUnrendered && mesEl.dataset.vnStyle === CFG.displayStyle) {
             return;
         }
-        if (!hasUnrendered && !hasBlock && !actuallyStreaming) return;
+        if (!hasUnrendered && !hasBlock) return;
 
         const isAlreadyProcessed = mesEl.dataset.vnProcessed === '1';
         if (!hasBlock || (hasUnrendered && !actuallyStreaming)) {
@@ -2848,10 +2955,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         newHtml = newHtml.replace(/<p>\s*(?:<br\s*\/?>)?\s*<\/p>/gi, '');
 
         if (newHtml !== raw) {
+            mesEl._vnMutating = true;
             textEl.innerHTML = newHtml;
             textEl.querySelectorAll('img[data-orig-src]').forEach(img => {
                 if (isLocalImageRef(img.dataset.origSrc)) hydrateLocalImageEl(img, img.dataset.origSrc);
             });
+            Promise.resolve().then(() => { delete mesEl._vnMutating; });
         }
     }
 
@@ -2930,51 +3039,57 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const chat = PD.getElementById('chat');
         if (!chat) { setTimeout(setupObserver, 800); return; }
 
+        const getMesEl = (node) => {
+            if (!node) return null;
+            const el = node.nodeType === 3 ? node.parentNode : node;
+            return el && el.closest ? el.closest('.mes') : null;
+        };
+
         PD._vnObserver = new MutationObserver((mutations) => {
             if (!CFG.enabled || !CFG.renderMode) return;
+            const seen = new Set();
             for (const mut of mutations) {
+                const targetMes = getMesEl(mut.target);
+                if (targetMes && targetMes._vnMutating) continue;
                 for (const node of mut.addedNodes) {
                     if (node.nodeType !== 1) continue;
                     if (node.classList && node.classList.contains('mes')) {
                         clearTimeout(node._vnTimer);
-                        if (isElementStreaming(node)) {
-                            if (!node._vnStreamingRaf) {
-                                node._vnStreamingRaf = requestAnimationFrame(() => {
-                                    node._vnStreamingRaf = 0;
-                                    processMessage(node, true);
-                                });
+                        if (!seen.has(node)) {
+                            seen.add(node);
+                            const isStr = isElementStreaming(node);
+                            if (isStr) {
+                                scheduleStreamingRender(node);
+                            } else {
+                                processMessage(node, false);
                             }
-                        } else {
-                            node._vnTimer = setTimeout(() => processMessage(node, false), 80);
                         }
                     }
                     node.querySelectorAll && node.querySelectorAll('.mes').forEach(m => {
                         clearTimeout(m._vnTimer);
-                        if (isElementStreaming(m)) {
-                            if (!m._vnStreamingRaf) {
-                                m._vnStreamingRaf = requestAnimationFrame(() => {
-                                    m._vnStreamingRaf = 0;
-                                    processMessage(m, true);
-                                });
+                        if (!seen.has(m)) {
+                            seen.add(m);
+                            const isStr = isElementStreaming(m);
+                            if (isStr) {
+                                scheduleStreamingRender(m);
+                            } else {
+                                processMessage(m, false);
                             }
-                        } else {
-                            m._vnTimer = setTimeout(() => processMessage(m, false), 80);
                         }
                     });
                 }
                 if (mut.type === 'childList' || mut.type === 'characterData') {
-                    const mesEl = mut.target.closest && mut.target.closest('.mes');
-                    if (mesEl) {
+                    const mesEl = getMesEl(mut.target);
+                    if (mesEl && !mesEl._vnMutating) {
                         clearTimeout(mesEl._vnTimer);
-                        if (isElementStreaming(mesEl)) {
-                            if (!mesEl._vnStreamingRaf) {
-                                mesEl._vnStreamingRaf = requestAnimationFrame(() => {
-                                    mesEl._vnStreamingRaf = 0;
-                                    processMessage(mesEl, true);
-                                });
+                        if (!seen.has(mesEl)) {
+                            seen.add(mesEl);
+                            const isStr = isElementStreaming(mesEl);
+                            if (isStr) {
+                                scheduleStreamingRender(mesEl);
+                            } else {
+                                processMessage(mesEl, false);
                             }
-                        } else {
-                            mesEl._vnTimer = setTimeout(() => processMessage(mesEl, false), 150);
                         }
                     }
                 }
@@ -3069,7 +3184,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function setupImgPickerEvents() {
-        const $ = id => PD.getElementById(id);
+        const $ = id => PD.getElementById(id) || {
+            addEventListener: () => {},
+            classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+            style: {},
+            value: '',
+            checked: false,
+            focus: () => {},
+            click: () => {},
+            querySelectorAll: () => [],
+            querySelector: () => null,
+            setAttribute: () => {},
+            getAttribute: () => null,
+            removeAttribute: () => {},
+            dataset: {},
+            scrollBy: () => {},
+            scrollTop: 0,
+            scrollHeight: 0,
+            innerHTML: '',
+            textContent: '',
+            appendChild: () => {},
+            removeChild: () => {},
+            remove: () => {}
+        };
         const overlay = $('vn-img-modal-overlay');
 
         const srcTabs = $('vn-ipm-srctabs');
@@ -3618,8 +3755,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const grid = PD.getElementById('vn-ipm-grid');
         if (grid) grid.innerHTML = '<div class="vn-img-placeholder">Nhấn nút "⚡ Tải ảnh" để duyệt kho ảnh anime miễn phí.</div>';
         renderFavBar();
-        PD.getElementById('vn-img-modal-overlay').classList.add('show');
+        const ov = PD.getElementById('vn-img-modal-overlay');
+        if (ov) ov.classList.add('show');
     }
+
+
 
     // ========== MODULE 4: MAIN MODAL & SETTINGS ==========
     function buildMainModal() {
@@ -3631,10 +3771,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
   <div class="vn-modal-header">
     <div class="vn-modal-title">🎭 Visual Novel Dialogue Beautifier <span style="font-size:12px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;">${SCRIPT_VERSION}</span></div>
     <div class="vn-tabs">
-      <button class="vn-tab active" data-tab="chars">👤 Nhân vật & Avatar</button>
-      <button class="vn-tab" data-tab="style">🎨 Giao diện & Style</button>
-      <button class="vn-tab" data-tab="prompt">✍️ Prompt Cấu trúc</button>
-      <button class="vn-tab" data-tab="settings">⚙️ Cài đặt & Dữ liệu</button>
+      <button class="vn-tab active" data-tab="chars"><img src="https://api.iconify.design/lucide:users.svg?color=%23818cf8" class="vn-icon">Nhân vật & Avatar</button>
+      <button class="vn-tab" data-tab="style"><img src="https://api.iconify.design/lucide:palette.svg?color=%23818cf8" class="vn-icon">Giao diện & Style</button>
+      <button class="vn-tab" data-tab="prompt"><img src="https://api.iconify.design/lucide:pen-tool.svg?color=%23818cf8" class="vn-icon">Prompt Cấu trúc</button>
+      <button class="vn-tab" data-tab="settings"><img src="https://api.iconify.design/lucide:settings.svg?color=%23818cf8" class="vn-icon">Cài đặt & Dữ liệu</button>
     </div>
   </div>
   <!-- TAB 1: NHÂN VẬT -->
@@ -3642,27 +3782,27 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     <!-- VIEW 1: DANH SÁCH NHÂN VẬT -->
     <div id="vn-char-list-view">
       <button class="vn-btn vn-btn-secondary" id="vn-scan-chars" style="margin-bottom:12px;width:100%;font-weight:700;border-color:rgba(99,102,241,0.5);color:#a78bfa;">
-        🔍 Quét tự động tất cả thẻ [Tên] trong khung chat hiện tại
+        <img src="https://api.iconify.design/lucide:search.svg?color=%23a78bfa" class="vn-icon">Quét tự động tất cả thẻ [Tên] trong khung chat hiện tại
       </button>
       <div class="vn-toggle-row" style="margin-bottom:10px;border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.1);">
         <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#818cf8;">🤖 Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
+          <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
           <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại chat</div>
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg-char" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
       </div>
       <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(244,63,94,0.4);background:rgba(244,63,94,0.1);">
         <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#f43f5e;">🌸 Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
+          <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
           <div class="vn-toggle-desc">Tự động nhận diện @Tên(Nữ/Nam)@ và gán ngẫu nhiên ảnh từ neko.best</div>
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign" /><span class="vn-slider"></span></label>
       </div>
       <div id="vn-add-char-wrap" style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:14px;">
-        <div class="vn-section-label" style="margin-top:0;">➕ Thêm nhanh nhân vật mới</div>
+        <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:user-plus.svg?color=%23818cf8" class="vn-icon">Thêm nhanh nhân vật mới</div>
         <div style="display:flex;gap:8px;">
           <input class="vn-input" id="vn-new-char-name" placeholder="Tên nhân vật (Ví dụ: Kazumi, Itsuki...)" style="flex:1;" />
-          <button class="vn-btn vn-btn-primary" id="vn-new-char-add">＋ Thêm</button>
+          <button class="vn-btn vn-btn-primary" id="vn-new-char-add"><img src="https://api.iconify.design/lucide:plus.svg?color=white" class="vn-icon">Thêm</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap;">
@@ -3671,110 +3811,116 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="vn-btn vn-btn-secondary" id="vn-bulk-select-all" style="padding:4px 10px;font-size:12px;">☑️ Chọn tất cả</button>
-          <button class="vn-btn vn-btn-secondary" id="vn-bulk-deselect-all" style="padding:4px 10px;font-size:12px;">☐ Hủy chọn</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-bulk-select-all" style="padding:4px 10px;font-size:12px;"><img src="https://api.iconify.design/lucide:check-square.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Chọn tất cả</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-bulk-deselect-all" style="padding:4px 10px;font-size:12px;"><img src="https://api.iconify.design/lucide:square.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Hủy chọn</button>
         </div>
-        <button class="vn-btn" id="vn-bulk-delete" style="padding:4px 12px;font-size:12px;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);display:none;">🗑️ Xóa đã chọn (0)</button>
+        <button class="vn-btn" id="vn-bulk-delete" style="padding:4px 12px;font-size:12px;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);display:none;"><img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (0)</button>
       </div>
       <div class="vn-char-grid" id="vn-char-grid"></div>
     </div>
     <!-- VIEW 2: CHI TIẾT NHÂN VẬT (Ẩn mặc định) -->
     <div id="vn-char-detail-wrap" style="display:none;">
-      <button class="vn-btn vn-btn-secondary" id="vn-char-det-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;">⬅️ Quay lại danh sách nhân vật</button>
-      <div class="vn-section-label">Tuỳ chỉnh chi tiết nhân vật</div>
+      <button class="vn-btn vn-btn-secondary" id="vn-char-det-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" class="vn-icon">Quay lại danh sách nhân vật</button>
+      <div class="vn-section-label"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tuỳ chỉnh chi tiết nhân vật</div>
       <div class="vn-char-detail" id="vn-char-detail">
-        <div class="vn-char-detail-header">
-          <img class="vn-char-detail-avatar" id="vn-char-det-avatar" src="" style="display:none;" title="Nhấn để đổi ảnh" />
-          <div id="vn-char-det-initial" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;"></div>
-          <div class="vn-char-detail-info">
-            <div class="vn-char-detail-name" id="vn-char-det-name"></div>
-            <div class="vn-char-btns" id="vn-char-det-btns"></div>
-          </div>
-        </div>
-        <div class="vn-group">
-          <div class="vn-section-label">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
-          <input class="vn-input" id="vn-char-det-rename" placeholder="Tên nhân vật..." />
-        </div>
-        <div class="vn-group">
-          <div class="vn-section-label">URL ảnh đại diện (Avatar)</div>
-          <div style="display:flex;gap:8px;">
-            <input class="vn-input" id="vn-char-det-avatar-url" placeholder="https://... hoặc data:image/..." style="flex:1;" />
-            <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img">🖼️ Chọn từ kho ảnh / Local</button>
-          </div>
-        </div>
-        <div class="vn-group vn-avatar-crop-editor" id="vn-char-avatar-adjust-group">
-          <div class="vn-section-label" style="margin-top:0;">📐 Cắt / căn khung Avatar</div>
-          <input type="hidden" id="vn-char-avatar-x" value="50" />
-          <input type="hidden" id="vn-char-avatar-y" value="50" />
-          <input type="hidden" id="vn-char-avatar-zoom" value="100" />
-          <div class="vn-avatar-crop-layout">
-            <div>
-              <div class="vn-avatar-crop-stage" id="vn-avatar-crop-stage" title="Kéo để căn ảnh, cuộn chuột để zoom in/out">
-                <img id="vn-char-avatar-adjust-preview" class="vn-avatar-crop-img" src="" draggable="false" />
-                <div class="vn-avatar-crop-frame"></div>
-                <div class="vn-avatar-crop-crosshair"></div>
-              </div>
-              <div style="font-size:11px;color:#94a3b8;line-height:1.45;text-align:center;margin-top:8px;">Kéo ảnh để căn vị trí. Cuộn chuột trong khung để zoom in/out.</div>
+        <div id="vn-char-detail-main">
+          <div class="vn-char-detail-header">
+            <img class="vn-char-detail-avatar" id="vn-char-det-avatar" src="" style="display:none;" title="Nhấn để đổi ảnh" />
+            <div id="vn-char-det-initial" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;"></div>
+            <div class="vn-char-detail-info">
+              <div class="vn-char-detail-name" id="vn-char-det-name"></div>
+              <div class="vn-char-btns" id="vn-char-det-btns"></div>
             </div>
-            <div class="vn-avatar-crop-tools">
-              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-                <div class="vn-avatar-live-preview-wrap"><img id="vn-char-avatar-live-preview" src="" draggable="false" /></div>
-                <div style="min-width:160px;flex:1;">
-                  <div style="font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:6px;">Preview avatar sau khi cắt</div>
-                  <div id="vn-avatar-crop-pos-hint" style="font-size:11px;color:#94a3b8;line-height:1.45;">Vị trí khung: ngang 50% · dọc 50% · zoom 100%</div>
+          </div>
+          <div class="vn-group">
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:tag.svg?color=%23818cf8" class="vn-icon">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
+            <input class="vn-input" id="vn-char-det-rename" placeholder="Tên nhân vật..." />
+          </div>
+          <div class="vn-group">
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:image.svg?color=%23818cf8" class="vn-icon">URL ảnh đại diện (Avatar)</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input class="vn-input" id="vn-char-det-avatar-url" placeholder="https://... hoặc data:image/..." style="flex:1;min-width:180px;" />
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img"><img src="https://api.iconify.design/lucide:folder-open.svg?color=white" class="vn-icon">Chọn ảnh...</button>
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-open-edit-view"><img src="https://api.iconify.design/lucide:crop.svg?color=white" class="vn-icon">Cắt / Zoom ảnh</button>
+            </div>
+          </div>
+          <div class="vn-group">
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:palette.svg?color=%23818cf8" class="vn-icon">Màu thẻ tên & khung thoại (Hex Color)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="vn-input" id="vn-char-det-color" placeholder="#6366f1 (để trống sẽ dùng màu gradient tự động)" style="flex:1;" />
+              <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu" />
+            </div>
+          </div>
+          <div class="vn-group" id="vn-char-det-textcolor-group">
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:type.svg?color=%23a78bfa" class="vn-icon">Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="vn-input" id="vn-char-det-textcolor" placeholder="#ffffff (để trống sẽ dùng theo theme/mặc định)" style="flex:1;" />
+              <input type="color" id="vn-char-det-textcolorpicker" value="#ffffff" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu chữ" />
+            </div>
+            <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab Giao diện & Style thì màu này mới có hiệu lực!</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;"><img src="https://api.iconify.design/lucide:save.svg?color=white" class="vn-icon">Lưu nhân vật này</button>
+            <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật"><img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon">Xoá</button>
+          </div>
+        </div>
+        <div id="vn-char-image-edit-view" style="display:none;">
+          <button class="vn-btn vn-btn-secondary" id="vn-img-edit-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" class="vn-icon">Xong / Quay lại cài đặt nhân vật</button>
+          <div class="vn-group vn-avatar-crop-editor" id="vn-char-avatar-adjust-group" style="margin-top:0;">
+            <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:crop.svg?color=%23818cf8" class="vn-icon">Cắt / căn khung Avatar</div>
+            <input type="hidden" id="vn-char-avatar-x" value="50" />
+            <input type="hidden" id="vn-char-avatar-y" value="50" />
+            <input type="hidden" id="vn-char-avatar-zoom" value="100" />
+            <div class="vn-avatar-crop-layout">
+              <div>
+                <div class="vn-avatar-crop-stage" id="vn-avatar-crop-stage" title="Kéo để căn ảnh, cuộn chuột để zoom in/out">
+                  <img id="vn-char-avatar-adjust-preview" class="vn-avatar-crop-img" src="" draggable="false" />
+                  <div class="vn-avatar-crop-frame"></div>
+                  <div class="vn-avatar-crop-crosshair"></div>
                 </div>
+                <div style="font-size:11px;color:#94a3b8;line-height:1.45;text-align:center;margin-top:8px;">Kéo ảnh để căn vị trí. Cuộn chuột trong khung để zoom in/out.</div>
               </div>
-              <label style="font-size:12px;color:#cbd5e1;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Kiểu ảnh
-                <select class="vn-input" id="vn-char-avatar-fit" style="padding:6px 8px;font-size:12px;max-width:220px;">
-                  <option value="cover">Cắt đầy khung avatar</option>
-                  <option value="contain">Hiện nguyên ảnh</option>
-                </select>
-              </label>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:#cbd5e1;font-weight:600;">Zoom
-                <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="-10">−</button>
-                <span id="vn-char-avatar-zoom-val" style="min-width:44px;text-align:center;color:#a5b4fc;">100%</span>
-                <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="10">+</button>
-                <span style="font-size:11px;color:#64748b;font-weight:500;">Cuộn chuột trong khung để zoom nhanh</span>
-              </div>
-              <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;">
-                <div>
-                  <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">Canh nhanh</div>
-                  <div class="vn-avatar-crop-preset-grid">
-                    <button type="button" data-vn-crop-pos="0,0" title="Trên trái">↖</button>
-                    <button type="button" data-vn-crop-pos="50,0" title="Trên">↑</button>
-                    <button type="button" data-vn-crop-pos="100,0" title="Trên phải">↗</button>
-                    <button type="button" data-vn-crop-pos="0,50" title="Trái">←</button>
-                    <button type="button" data-vn-crop-pos="50,50" title="Giữa">●</button>
-                    <button type="button" data-vn-crop-pos="100,50" title="Phải">→</button>
-                    <button type="button" data-vn-crop-pos="0,100" title="Dưới trái">↙</button>
-                    <button type="button" data-vn-crop-pos="50,100" title="Dưới">↓</button>
-                    <button type="button" data-vn-crop-pos="100,100" title="Dưới phải">↘</button>
+              <div class="vn-avatar-crop-tools">
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                  <div class="vn-avatar-live-preview-wrap"><img id="vn-char-avatar-live-preview" src="" draggable="false" /></div>
+                  <div style="min-width:160px;flex:1;">
+                    <div style="font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:6px;">Preview avatar sau khi cắt</div>
+                    <div id="vn-avatar-crop-pos-hint" style="font-size:11px;color:#94a3b8;line-height:1.45;">Vị trí khung: ngang 50% · dọc 50% · zoom 100%</div>
                   </div>
                 </div>
-                <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-avatar-reset" style="padding:8px 12px;font-size:12px;margin-top:18px;">↺ Về giữa</button>
+                <label style="font-size:12px;color:#cbd5e1;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Kiểu ảnh
+                  <select class="vn-input" id="vn-char-avatar-fit" style="padding:6px 8px;font-size:12px;max-width:220px;">
+                    <option value="cover">Cắt đầy khung avatar</option>
+                    <option value="contain">Hiện nguyên ảnh</option>
+                  </select>
+                </label>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:#cbd5e1;font-weight:600;">Zoom
+                  <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="-10">−</button>
+                  <span id="vn-char-avatar-zoom-val" style="min-width:44px;text-align:center;color:#a5b4fc;">100%</span>
+                  <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="10">+</button>
+                  <span style="font-size:11px;color:#64748b;font-weight:500;">Cuộn chuột trong khung để zoom nhanh</span>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+                  <div>
+                    <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">Canh nhanh</div>
+                    <div class="vn-avatar-crop-preset-grid">
+                      <button type="button" data-vn-crop-pos="0,0" title="Trên trái">↖</button>
+                      <button type="button" data-vn-crop-pos="50,0" title="Trên">↑</button>
+                      <button type="button" data-vn-crop-pos="100,0" title="Trên phải">↗</button>
+                      <button type="button" data-vn-crop-pos="0,50" title="Trái">←</button>
+                      <button type="button" data-vn-crop-pos="50,50" title="Giữa">●</button>
+                      <button type="button" data-vn-crop-pos="100,50" title="Phải">→</button>
+                      <button type="button" data-vn-crop-pos="0,100" title="Dưới trái">↙</button>
+                      <button type="button" data-vn-crop-pos="50,100" title="Dưới">↓</button>
+                      <button type="button" data-vn-crop-pos="100,100" title="Dưới phải">↘</button>
+                    </div>
+                  </div>
+                  <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-avatar-reset" style="padding:8px 12px;font-size:12px;margin-top:18px;">↺ Về giữa</button>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;line-height:1.45;">Nhấn <b>Xong</b> rồi <b>Lưu nhân vật này</b> để áp dụng khung cắt vào toàn bộ chat. Có thể dùng các nút canh nhanh nếu ảnh lệch quá nhiều.</div>
               </div>
-              <div style="font-size:11px;color:#94a3b8;line-height:1.45;">Nhấn <b>Lưu nhân vật này</b> để áp dụng khung cắt vào toàn bộ chat. Có thể dùng các nút canh nhanh nếu ảnh lệch quá nhiều.</div>
             </div>
           </div>
-        </div>
-        <div class="vn-group">
-          <div class="vn-section-label">Màu thẻ tên & khung thoại (Hex Color)</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input class="vn-input" id="vn-char-det-color" placeholder="#6366f1 (để trống sẽ dùng màu gradient tự động)" style="flex:1;" />
-            <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" />
-          </div>
-        </div>
-        <div class="vn-group" id="vn-char-det-textcolor-group">
-          <div class="vn-section-label">🎨 Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input class="vn-input" id="vn-char-det-textcolor" placeholder="#ffffff (để trống sẽ dùng theo theme/mặc định)" style="flex:1;" />
-            <input type="color" id="vn-char-det-textcolorpicker" value="#ffffff" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu chữ" />
-          </div>
-          <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;">💡 Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab 🎨 Giao diện & Style thì màu này mới có hiệu lực!</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;">💾 Lưu nhân vật này</button>
-          <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật">🗑️ Xoá</button>
         </div>
       </div>
     </div>
@@ -3829,23 +3975,23 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-top:4px;">
-      <div class="vn-section-label" style="margin-top:0;">📐 Tuỳ chỉnh Kích thước & Khung hiển thị (Resolution & Sizing)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:maximize-2.svg?color=%23818cf8" class="vn-icon">Tuỳ chỉnh Kích thước & Khung hiển thị (Resolution & Sizing)</div>
       <div class="vn-group" style="margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span>🖼️ Kích thước ảnh Avatar: <b id="vn-sz-avatar-val">52px</b></span>
+          <span><img src="https://api.iconify.design/lucide:image.svg?color=%2394a3b8" class="vn-icon">Kích thước ảnh Avatar: <b id="vn-sz-avatar-val">52px</b></span>
           <span style="color:#94a3b8;font-size:11px;">(20px - 250px)</span>
         </div>
         <input type="range" id="vn-sz-avatar-slider" min="20" max="250" value="52" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span>🔤 Cỡ chữ lời thoại & suy nghĩ: <b id="vn-sz-font-val">14.5px</b></span>
+          <span><img src="https://api.iconify.design/lucide:type.svg?color=%2394a3b8" class="vn-icon">Cỡ chữ lời thoại & suy nghĩ: <b id="vn-sz-font-val">14.5px</b></span>
           <span style="color:#94a3b8;font-size:11px;">(10px - 36px)</span>
         </div>
         <input type="range" id="vn-sz-font-slider" min="10" max="36" step="0.5" value="14.5" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">🔤 Phông chữ lời thoại & suy nghĩ (Font Family):</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:baseline.svg?color=%2394a3b8" class="vn-icon">Phông chữ lời thoại & suy nghĩ (Font Family):</div>
         <select id="vn-sz-fontfamily-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="default">🌟 Mặc định theo theme (Khuyên dùng)</option>
           <option value="serif">📖 Serif Hoàng Gia / Truyền thống (Palatino, Georgia, Cambria, Lora...)</option>
@@ -3858,7 +4004,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <input class="vn-input" id="vn-sz-fontfamily-custom" placeholder="Nhập tên font (VD: 'Times New Roman', 'Nunito', 'Verdana'...)" style="display:none;margin-top:8px;font-family:monospace;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">🎨 Chế độ chỉnh màu chữ lời thoại (Text Color Mode):</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:palette.svg?color=%23a78bfa" class="vn-icon">Chế độ chỉnh màu chữ lời thoại (Text Color Mode):</div>
         <select id="vn-sz-textcolormode-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;margin-bottom:8px;">
           <option value="global">🌐 Toàn cục (Tất cả nhân vật dùng chung 1 màu chữ dưới đây)</option>
           <option value="per_char">👤 Theo từng nhân vật (Chỉnh riêng màu chữ cho từng nhân vật ở Tab 1)</option>
@@ -3882,19 +4028,19 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
           </div>
         </div>
         <div id="vn-sz-textcolor-perchar-wrap" style="display:none;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);padding:10px 12px;border-radius:10px;font-size:12px;color:#c4b5fd;line-height:1.5;">
-          ✨ <b>Chế độ chỉnh màu chữ theo từng nhân vật đang bật!</b><br>
+          <img src="https://api.iconify.design/lucide:sparkles.svg?color=%23c4b5fd" class="vn-icon"><b>Chế độ chỉnh màu chữ theo từng nhân vật đang bật!</b><br>
           👉 Hãy sang tab <b>👤 Nhân vật & Avatar</b>, nhấp chọn nhân vật muốn chỉnh, và đổi mục <b>"Màu chữ lời thoại riêng"</b> cho nhân vật đó nhé!
         </div>
       </div>
       <div class="vn-group" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span>↔️ Độ rộng tối đa khung thoại: <b id="vn-sz-width-val">78%</b></span>
+          <span><img src="https://api.iconify.design/lucide:move-horizontal.svg?color=%2394a3b8" class="vn-icon">Độ rộng tối đa khung thoại: <b id="vn-sz-width-val">78%</b></span>
           <span style="color:#94a3b8;font-size:11px;">(30% - 100%)</span>
         </div>
         <input type="range" id="vn-sz-width-slider" min="30" max="100" value="78" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">💎 Chế độ Hiển thị & Khử răng cưa ảnh Avatar:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%2338bdf8" class="vn-icon">Chế độ Hiển thị & Khử răng cưa ảnh Avatar:</div>
         <select id="vn-sz-quality-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="smooth">🌟 Siêu mịn & Khử răng cưa GPU (Khuyên dùng cho Anime, Chân dung HD)</option>
           <option value="sharp">🔥 Tăng cường sắc nét & Tương phản (Làm viền sắc, tăng độ rực rỡ)</option>
@@ -3904,61 +4050,94 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <div style="font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5;">Chế độ <b>Siêu mịn</b> dùng thuật toán Bicubic/Lanczos của GPU làm mượt hoàn hảo. Chế độ <b>Tăng cường sắc nét</b> áp dụng bộ lọc tăng tương phản viền ảnh.</div>
       </div>
       <div class="vn-group" style="margin-bottom:14px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">⬆️⬇️ Vị trí mở rộng ảnh khi xem trong truyện:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:arrow-up-down.svg?color=%23818cf8" class="vn-icon">Vị trí mở rộng ảnh khi xem trong truyện:</div>
         <select id="vn-sz-imgpos-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="top">⬆️ Mở ảnh lên trên (Đẩy chữ xuống dưới - Mặc định)</option>
           <option value="bottom">⬇️ Mở ảnh xuống dưới (Chữ ở trên, ảnh bên dưới)</option>
         </select>
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">🖼️ Chế độ mở rộng ảnh tự động:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:expand.svg?color=%2338bdf8" class="vn-icon">Chế độ mở rộng ảnh tự động:</div>
         <select id="vn-sz-imgmode-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="normal">💡 Bình thường (Nhấn vào avatar 52px để mở rộng ảnh)</option>
           <option value="always_full">🌟 Luôn mở full ảnh tự động (Mặc định hiện ảnh chân dung lớn cho mọi thoại)</option>
         </select>
         <div style="font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5;">Khi chọn <b>Luôn mở full ảnh tự động</b>, mọi lời thoại sẽ lập tức hiển thị kèm ảnh khổ lớn rõ nét. Bạn có thể bấm vào ảnh để thu nhỏ lại nếu muốn.</div>
       </div>
-      <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-sz-reset" style="width:100%;">↺ Khôi phục kích thước & chất lượng mặc định</button>
+      <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-sz-reset" style="width:100%;"><img src="https://api.iconify.design/lucide:rotate-ccw.svg?color=%2394a3b8" class="vn-icon">Khôi phục kích thước & chất lượng mặc định</button>
     </div>
-    <button class="vn-btn vn-btn-secondary" id="vn-rerender-btn" style="width:100%;">🔄 Làm mới & Re-render tất cả tin nhắn ngay lập tức</button>
+    <button class="vn-btn vn-btn-secondary" id="vn-rerender-btn" style="width:100%;"><img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%2338bdf8" class="vn-icon">Làm mới & Re-render tất cả tin nhắn ngay lập tức</button>
     <div style="font-size:12px;color:#94a3b8;line-height:1.7;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;">
-      <b>💡 Mẹo nhỏ:</b> Khi bạn thay đổi avatar hoặc màu sắc nhân vật ở tab Nhân vật, nhấn nút <b>Re-render</b> bên trên để áp dụng ngay thay đổi vào toàn bộ lịch sử chat!
+      <img src="https://api.iconify.design/lucide:lightbulb.svg?color=%23fbbf24" class="vn-icon"><b>Mẹo nhỏ:</b> Khi bạn thay đổi avatar hoặc màu sắc nhân vật ở tab Nhân vật, nhấn nút <b>Re-render</b> bên trên để áp dụng ngay thay đổi vào toàn bộ lịch sử chat!
     </div>
   </div>
   <!-- TAB 3: PROMPT -->
   <div class="vn-tab-content" data-tab="prompt" id="vn-tab-prompt">
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name">Bật tự động tiêm Prompt vào Author's Note</div>
-        <div class="vn-toggle-desc">Tự động chèn hướng dẫn cấu trúc lời thoại [Tên] vào Author's Note / In-Chat cho AI trước mỗi lần gửi</div>
+        <div class="vn-toggle-name">Bật tự động tiêm Prompt hướng dẫn cấu trúc lời thoại</div>
+        <div class="vn-toggle-desc">Tự động chèn hướng dẫn cấu trúc lời thoại [Tên] vào luồng xử lý (In-Chat @ Depth 0) bằng Event Hooks chuẩn của SillyTavern</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-inject" /><span class="vn-slider"></span></label>
     </div>
+    <div class="vn-toggle-row">
+      <div class="vn-toggle-info">
+        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:package.svg?color=%23818cf8" class="vn-icon">Bọc khối luật bằng marker <!-- vn_dialogue_format_marker --></div>
+        <div class="vn-toggle-desc">Giúp AI phân định rõ ràng đâu là chỉ lệnh hệ thống, đâu là ngữ cảnh truyện, chống rò rỉ prompt ra lời thoại</div>
+      </div>
+      <label class="vn-switch"><input type="checkbox" id="vn-toggle-wrap-rule" /><span class="vn-slider"></span></label>
+    </div>
+    <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:locate.svg?color=%23818cf8" class="vn-icon">Tùy chỉnh vị trí & vai trò bơm Prompt (Injection Position)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px;">
+        <div>
+          <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Vị trí bơm (Target):</label>
+          <select class="vn-input" id="vn-inject-target" style="width:100%;padding:6px 10px;font-size:12.5px;">
+            <option value="in_chat">In-Chat (Trong luồng thoại)</option>
+            <option value="in_prompt">In-Prompt (Trước luồng thoại)</option>
+            <option value="after_prompt">After-Prompt (Sau cùng)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Vai trò (Role):</label>
+          <select class="vn-input" id="vn-inject-role" style="width:100%;padding:6px 10px;font-size:12.5px;">
+            <option value="system">System (Hệ thống)</option>
+            <option value="user">User (Người dùng)</option>
+            <option value="assistant">Assistant (AI)</option>
+          </select>
+        </div>
+        <div id="vn-inject-depth-wrap">
+          <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Độ sâu (Depth):</label>
+          <input type="number" class="vn-input" id="vn-inject-depth" min="0" max="50" value="0" style="width:100%;padding:6px 10px;font-size:12.5px;" title="0 = Ngay trước tin nhắn cuối cùng" />
+        </div>
+      </div>
+      <div style="font-size:11.5px;color:#94a3b8;margin-top:8px;"><img src="https://api.iconify.design/lucide:lightbulb.svg?color=%23fbbf24" class="vn-icon" style="width:14px;height:14px;"><b>Khuyên dùng:</b> In-Chat + Role System + Depth 0 (Bơm ngay sát câu cuối cùng để AI nhớ cấu trúc thoại tốt nhất).</div>
+    </div>
     <div class="vn-toggle-row" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);margin-bottom:8px;">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#f43f5e;">🌸 Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
+        <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
         <div class="vn-toggle-desc">Tự động bổ sung quy tắc trả về @Tên(Nữ/Nam)@ vào Prompt hướng dẫn bên dưới cho AI</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-prompt" /><span class="vn-slider"></span></label>
     </div>
     <div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="vn-section-label" style="color:#f43f5e;margin:0;">🌸 Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
+        <div class="vn-section-label" style="color:#f43f5e;margin:0;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%23f43f5e" class="vn-icon">Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
         <span id="vn-gender-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
       </div>
       <textarea class="vn-input vn-textarea" id="vn-gender-prompt-text" rows="4" style="border-color:rgba(244,63,94,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
-      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;">💡 Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào Author's Note để dạy AI trả về @Tên(Nữ/Nam)@.</div>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào luồng xử lý để dạy AI trả về @Tên(Nữ/Nam)@.</div>
     </div>
     <div class="vn-group">
-      <div class="vn-section-label">Nội dung Prompt hướng dẫn AI gốc (Author's Note / In-Chat)</div>
+      <div class="vn-section-label"><img src="https://api.iconify.design/lucide:terminal.svg?color=%23818cf8" class="vn-icon">Nội dung Prompt hướng dẫn AI gốc (In-Chat @ Depth 0 via Event Hooks)</div>
       <textarea class="vn-input vn-textarea" id="vn-prompt-text" rows="8"></textarea>
     </div>
     <div style="display:flex;gap:10px;">
-      <button class="vn-btn vn-btn-primary" id="vn-prompt-save" style="flex:1;">💾 Lưu thay đổi Prompt (Cả 2 bảng)</button>
-      <button class="vn-btn vn-btn-secondary" id="vn-prompt-reset">↺ Khôi phục mặc định</button>
+      <button class="vn-btn vn-btn-primary" id="vn-prompt-save" style="flex:1;"><img src="https://api.iconify.design/lucide:save.svg?color=white" class="vn-icon">Lưu thay đổi Prompt (Cả 2 bảng)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-prompt-reset"><img src="https://api.iconify.design/lucide:rotate-ccw.svg?color=%2394a3b8" class="vn-icon">Khôi phục mặc định</button>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-top:14px;margin-bottom:14px;">
-      <div class="vn-section-label" style="margin-top:0;">🔍 Cú pháp nhận diện lời thoại & tên nhân vật (Regex Mode)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:code.svg?color=%23818cf8" class="vn-icon">Cú pháp nhận diện lời thoại & tên nhân vật (Regex Mode)</div>
       <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px;">Chọn định dạng thẻ tên phù hợp với cách AI viết lời thoại trong prompt của bạn:</div>
       <div class="vn-style-picker" id="vn-regex-picker">
         <button class="vn-style-opt" data-regex="at">
@@ -3982,22 +4161,19 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
           <div>Định dạng dấu hai chấm (Roleplay)</div>
         </button>
         <button class="vn-style-opt" data-regex="custom">
-          <div class="vn-style-name">⚙️ Tùy chỉnh Regex</div>
+          <div class="vn-style-name"><img src="https://api.iconify.design/lucide:settings.svg?color=%23818cf8" class="vn-icon">Tùy chỉnh Regex</div>
           <div>Tự viết biểu thức chính quy riêng</div>
         </button>
       </div>
       <div id="vn-custom-regex-wrap" style="display:none;margin-top:12px;">
-        <div class="vn-section-label">Biểu thức chính quy (Custom Regex - Group 1: Tên, Group 2+: Thoại/Suy nghĩ)</div>
+        <div class="vn-section-label"><img src="https://api.iconify.design/lucide:regex.svg?color=%23818cf8" class="vn-icon">Biểu thức chính quy (Custom Regex - Group 1: Tên, Group 2+: Thoại/Suy nghĩ)</div>
         <input class="vn-input" id="vn-custom-regex-input" placeholder="Ví dụ: \\<([^>]+)\\>\\s*\"([^\"]+)\"" style="font-family:monospace;" />
       </div>
       <div style="margin-top:16px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.1);">
-        <div class="vn-section-label">🧹 Dọn dẹp ký tự thừa ở đầu/cuối lời thoại & suy nghĩ (Clean Bubble Text)</div>
+        <div class="vn-section-label"><img src="https://api.iconify.design/lucide:eraser.svg?color=%23f43f5e" class="vn-icon">Dọn dẹp ký tự thừa ở đầu/cuối lời thoại & suy nghĩ (Clean Bubble Text)</div>
         <input class="vn-input" id="vn-clean-patterns-input" placeholder="Ví dụ: &quot;|“|”|* (Để trống = giữ nguyên 100% theo regex)" style="font-family:monospace;" />
         <div style="font-size:11.5px;color:#94a3b8;margin-top:4px;">Nhập các ký tự bạn muốn xóa khỏi 2 đầu bong bóng thoại (cách nhau bởi dấu <code>|</code> hoặc viết liền như <code>&quot;*“”</code>). Nếu <b>để trống</b>, script sẽ tuân thủ tuyệt đối theo regex của bạn và không tự ý xóa gì cả!</div>
       </div>
-    </div>
-    <div style="font-size:12px;color:#94a3b8;line-height:1.7;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;">
-      <b>⚙️ Cơ chế hoạt động:</b> Script sẽ tự động chèn prompt hướng dẫn này vào khối <b>Author's Note Chung (In-Chat @ Depth 0)</b> của SillyTavern. Đây là phương thức hoạt động ổn định nhất, giúp AI tuân thủ cấu trúc lời thoại 100% mà không bị đè bởi thẻ nhân vật!
     </div>
   </div>
   <!-- TAB 4: CÀI ĐẶT -->
@@ -4011,37 +4187,30 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name">🔮 Hiển thị Icon Bóng Nổi riêng (Standalone Floating Icon)</div>
-        <div class="vn-toggle-desc">Luôn hiển thị icon 🎭 ở góc màn hình (kéo thả tự do) để mở cài đặt nhanh, không phụ thuộc Quản lý bóng nổi</div>
-      </div>
-      <label class="vn-switch"><input type="checkbox" id="vn-toggle-fab" /><span class="vn-slider"></span></label>
-    </div>
-    <div class="vn-toggle-row">
-      <div class="vn-toggle-info">
-        <div class="vn-toggle-name">🤖 Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
+        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
         <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại. Tắt đi để chỉ hiển thị lời thoại theo danh sách nhân vật tự điền ở Tab 1 (chống bắt nhầm rác/NPC).</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#f43f5e;">🌸 Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
+        <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
         <div class="vn-toggle-desc">Tự động bổ sung quy tắc @Tên(Nữ/Nam)@ vào Prompt và gán ngẫu nhiên ảnh từ neko.best</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-set" /><span class="vn-slider"></span></label>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;">🧹 Dọn dẹp Cache</button>
-        <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;">⚡ Test hiệu năng (200)</button>
+        <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:trash.svg?color=%23cbd5e1" class="vn-icon">Dọn dẹp Cache</button>
+        <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:zap.svg?color=%23fbbf24" class="vn-icon">Test hiệu năng (200)</button>
       </div>
-      <button class="vn-btn vn-btn-secondary" id="vn-export-cfg">📤 Sao lưu cấu hình ra file JSON (Export)</button>
-      <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn">📥 Nhập cấu hình từ file JSON (Import)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-export-cfg"><img src="https://api.iconify.design/lucide:download.svg?color=%23cbd5e1" class="vn-icon">Sao lưu cấu hình ra file JSON (Export)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn"><img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">Nhập cấu hình từ file JSON (Import)</button>
       <input type="file" id="vn-import-cfg-file" accept=".json" style="display:none;" />
-      <button class="vn-btn vn-btn-danger" id="vn-reset-all" style="margin-top:6px;">🗑️ Khôi phục toàn bộ về cài đặt gốc (Reset All)</button>
+      <button class="vn-btn vn-btn-danger" id="vn-reset-all" style="margin-top:6px;"><img src="https://api.iconify.design/lucide:alert-triangle.svg?color=%23f87171" class="vn-icon">Khôi phục toàn bộ về cài đặt gốc (Reset All)</button>
     </div>
     <div style="background:rgba(0,0,0,0.25);border-radius:12px;padding:14px;font-size:12.5px;color:#cbd5e1;line-height:1.8;margin-top:6px;">
-      <b>📖 Hướng dẫn sử dụng nhanh:</b><br>
+      <b><img src="https://api.iconify.design/lucide:book-open.svg?color=%23818cf8" class="vn-icon">Hướng dẫn sử dụng nhanh:</b><br>
       1️⃣ Bật <b>Tiêm Prompt</b> ở tab Prompt để AI hiểu và trả về lời thoại kèm thẻ <code>[TênNhânVật]</code>.<br>
       2️⃣ Sang tab <b>Nhân vật</b> → Nhấn <b>Quét tự động</b> để nhận diện tên nhân vật từ chat.<br>
       3️⃣ Nhấn vào từng nhân vật → Chọn avatar từ kho ảnh anime miễn phí, Kho Local đã import hoặc Kho Link đã lưu.<br>
@@ -4062,7 +4231,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const tog = PD.getElementById('vn-toggle-main');
         const togR = PD.getElementById('vn-toggle-render');
         const togI = PD.getElementById('vn-toggle-inject');
-        const togF = PD.getElementById('vn-toggle-fab');
         const togAuto = PD.getElementById('vn-toggle-autoreg');
         const togAutoAssign = PD.getElementById('vn-toggle-auto-assign');
         const togAutoAssignSet = PD.getElementById('vn-toggle-auto-assign-set');
@@ -4070,7 +4238,16 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (tog) tog.checked = CFG.enabled;
         if (togR) togR.checked = CFG.renderMode;
         if (togI) togI.checked = CFG.promptInjection;
-        if (togF) togF.checked = CFG.showStandaloneIcon !== false;
+        const togWrap = PD.getElementById('vn-toggle-wrap-rule');
+        if (togWrap) togWrap.checked = CFG.wrapRuleBlock !== false;
+        const injTarget = PD.getElementById('vn-inject-target');
+        if (injTarget) injTarget.value = CFG.injectTarget || 'in_chat';
+        const injRole = PD.getElementById('vn-inject-role');
+        if (injRole) injRole.value = CFG.injectRole || 'system';
+        const injDepth = PD.getElementById('vn-inject-depth');
+        if (injDepth) injDepth.value = CFG.injectDepth !== undefined ? CFG.injectDepth : 0;
+        const depthWrap = PD.getElementById('vn-inject-depth-wrap');
+        if (depthWrap) depthWrap.style.display = (CFG.injectTarget || 'in_chat') === 'in_chat' ? 'block' : 'none';
         PD.querySelectorAll('.vn-auto-reg-toggle, #vn-toggle-autoreg, #vn-toggle-autoreg-char').forEach(el => { el.checked = CFG.autoRegisterChars !== false; });
         if (togAutoAssign) togAutoAssign.checked = !!CFG.autoAssignAvatar;
         if (togAutoAssignSet) togAutoAssignSet.checked = !!CFG.autoAssignAvatar;
@@ -4113,7 +4290,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (!btn) return;
         if (_selectedChars.size > 0) {
             btn.style.display = 'inline-block';
-            btn.textContent = `🗑️ Xóa đã chọn (${_selectedChars.size})`;
+            btn.innerHTML = `<img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (${_selectedChars.size})`;
         } else {
             btn.style.display = 'none';
         }
@@ -4218,8 +4395,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (!ch) return;
         const listView = PD.getElementById('vn-char-list-view');
         const detailView = PD.getElementById('vn-char-detail-wrap');
+        const mainView = PD.getElementById('vn-char-detail-main');
+        const editView = PD.getElementById('vn-char-image-edit-view');
         if (listView) listView.style.display = 'none';
         if (detailView) detailView.style.display = 'block';
+        if (mainView) mainView.style.display = 'block';
+        if (editView) editView.style.display = 'none';
 
         PD.getElementById('vn-char-det-name').textContent = name;
         PD.getElementById('vn-char-det-rename').value = name;
@@ -4237,35 +4418,16 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (hintEl) {
             const isPerChar = CFG.customSizing && CFG.customSizing.textColorMode === 'per_char';
             if (isPerChar) {
-                hintEl.innerHTML = '✨ <b style="color:#a78bfa;">Chế độ màu chữ theo từng nhân vật đang BẬT!</b> Màu bạn chọn dưới đây sẽ áp dụng riêng cho lời thoại của nhân vật này.';
+                hintEl.innerHTML = '<img src="https://api.iconify.design/lucide:check-circle.svg?color=%23a78bfa" class="vn-icon"><b style="color:#a78bfa;">Chế độ màu chữ theo từng nhân vật đang BẬT!</b> Màu bạn chọn dưới đây sẽ áp dụng riêng cho lời thoại của nhân vật này.';
                 hintEl.style.color = '#c4b5fd';
             } else {
-                hintEl.innerHTML = '💡 <b>Lưu ý:</b> Bạn đang ở chế độ màu chữ Toàn Cục. Cần chọn chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab <b>🎨 Giao diện & Style</b> thì cài đặt màu riêng ở đây mới có hiệu lực!';
+                hintEl.innerHTML = '<img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon"><b>Lưu ý:</b> Bạn đang ở chế độ màu chữ Toàn Cục. Cần chọn chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab <b>Giao diện & Style</b> thì cài đặt màu riêng ở đây mới có hiệu lực!';
                 hintEl.style.color = '#94a3b8';
             }
         }
 
         const btnsWrap = PD.getElementById('vn-char-det-btns');
-        btnsWrap.innerHTML = '';
-        const pickBtn = PD.createElement('button');
-        pickBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
-        pickBtn.textContent = '🖼️ Chọn ảnh Anime / Local...';
-        pickBtn.addEventListener('click', () => {
-            openImgPicker(name, (url) => {
-                PD.getElementById('vn-char-det-avatar-url').value = url;
-                const avatarImg = PD.getElementById('vn-char-det-avatar');
-                const initialEl = PD.getElementById('vn-char-det-initial');
-                const safeUrl = safeImageUrl(url);
-                const optSrc = safeUrl ? (AVATAR_CACHE[safeUrl] || getSmoothAvatar(safeUrl)) : buildInitialSvgData(name);
-                avatarImg.src = optSrc;
-                avatarImg.dataset.origSrc = safeUrl || url;
-                if (isLocalImageRef(safeUrl)) hydrateLocalImageEl(avatarImg, safeUrl);
-                avatarImg.style.display = 'block';
-                initialEl.style.display = 'none';
-                updateAvatarAdjustPreview();
-            });
-        });
-        btnsWrap.appendChild(pickBtn);
+        if (btnsWrap) btnsWrap.innerHTML = '';
 
         const avatarImg = PD.getElementById('vn-char-det-avatar');
         const initialEl = PD.getElementById('vn-char-det-initial');
@@ -4294,12 +4456,38 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         _currentEditChar = null;
         const listView = PD.getElementById('vn-char-list-view');
         const detailView = PD.getElementById('vn-char-detail-wrap');
+        const mainView = PD.getElementById('vn-char-detail-main');
+        const editView = PD.getElementById('vn-char-image-edit-view');
         if (listView) listView.style.display = 'block';
         if (detailView) detailView.style.display = 'none';
+        if (mainView) mainView.style.display = 'block';
+        if (editView) editView.style.display = 'none';
     }
 
     function setupMainModalEvents() {
-        const $ = id => PD.getElementById(id);
+        const $ = id => PD.getElementById(id) || {
+            addEventListener: () => {},
+            classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+            style: {},
+            value: '',
+            checked: false,
+            focus: () => {},
+            click: () => {},
+            querySelectorAll: () => [],
+            querySelector: () => null,
+            setAttribute: () => {},
+            getAttribute: () => null,
+            removeAttribute: () => {},
+            dataset: {},
+            scrollBy: () => {},
+            scrollTop: 0,
+            scrollHeight: 0,
+            innerHTML: '',
+            textContent: '',
+            appendChild: () => {},
+            removeChild: () => {},
+            remove: () => {}
+        };
 
         PD.getElementById('vn-modal-overlay').querySelectorAll('.vn-tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -4331,14 +4519,42 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             CFG.promptInjection = e.target.checked;
             saveConfig(CFG);
             setupPromptInjection();
-            showToast(CFG.promptInjection ? 'Đã bật tiêm Prompt Author\'s Note ✓' : 'Đã tắt tiêm Prompt Author\'s Note', 'info');
+            showToast(CFG.promptInjection ? 'Đã bật tiêm Prompt hướng dẫn VN Dialogue ✓' : 'Đã tắt tiêm Prompt hướng dẫn VN Dialogue', 'info');
         });
-        $('vn-toggle-fab').addEventListener('change', e => {
-            CFG.showStandaloneIcon = e.target.checked;
-            saveConfig(CFG);
-            setupStandaloneFab();
-            showToast(CFG.showStandaloneIcon !== false ? 'Đã bật nút bóng nổi riêng 🎭' : 'Đã ẩn nút bóng nổi riêng', 'info');
-        });
+        const togWrap = $('vn-toggle-wrap-rule');
+        if (togWrap) {
+            togWrap.addEventListener('change', e => {
+                CFG.wrapRuleBlock = e.target.checked;
+                saveConfig(CFG);
+                showToast(CFG.wrapRuleBlock ? '📦 Đã bật bọc khối luật bằng marker cũ <!-- vn_dialogue_format_marker -->' : 'Đã tắt bọc thẻ khối luật', 'info');
+            });
+        }
+        const injTarget = $('vn-inject-target');
+        const depthWrap = $('vn-inject-depth-wrap');
+        if (injTarget) {
+            injTarget.addEventListener('change', e => {
+                CFG.injectTarget = e.target.value;
+                if (depthWrap) depthWrap.style.display = CFG.injectTarget === 'in_chat' ? 'block' : 'none';
+                saveConfig(CFG);
+                showToast(`📍 Đã đổi vị trí bơm: ${e.target.options[e.target.selectedIndex].text}`, 'success');
+            });
+        }
+        const injRole = $('vn-inject-role');
+        if (injRole) {
+            injRole.addEventListener('change', e => {
+                CFG.injectRole = e.target.value;
+                saveConfig(CFG);
+                showToast(`👤 Đã đổi vai trò bơm: ${e.target.options[e.target.selectedIndex].text}`, 'success');
+            });
+        }
+        const injDepth = $('vn-inject-depth');
+        if (injDepth) {
+            injDepth.addEventListener('change', e => {
+                CFG.injectDepth = parseInt(e.target.value, 10) || 0;
+                saveConfig(CFG);
+                showToast(`🔢 Đã đặt độ sâu bơm: Depth ${CFG.injectDepth}`, 'info');
+            });
+        }
         const handleAutoRegChange = (checked) => {
             CFG.autoRegisterChars = checked;
             saveConfig(CFG);
@@ -4436,7 +4652,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ($('vn-sz-textcolor-perchar-wrap')) $('vn-sz-textcolor-perchar-wrap').style.display = mode === 'per_char' ? 'block' : 'none';
             if ($('vn-sz-textcolor-select')) $('vn-sz-textcolor-select').value = sz.textColor || 'default';
             if ($('vn-sz-textcolor-picker')) {
-                $('vn-sz-textcolor-picker').style.display = sz.textColor === 'custom' ? 'inline-block' : 'none';
+                const isCustom = sz.textColor === 'custom';
+                $('vn-sz-textcolor-picker').style.display = isCustom ? 'inline-block' : 'none';
                 $('vn-sz-textcolor-picker').value = sz.textColorCustom || '#ffffff';
             }
             if ($('vn-sz-imgpos-select')) $('vn-sz-imgpos-select').value = CFG.inchatImgPos || 'top';
@@ -4523,7 +4740,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             textColorSelect.addEventListener('change', e => {
                 if (!CFG.customSizing) CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth' };
                 CFG.customSizing.textColor = e.target.value;
-                if (textColorPicker) textColorPicker.style.display = e.target.value === 'custom' ? 'inline-block' : 'none';
+                const isCustom = e.target.value === 'custom';
+                if (textColorPicker) textColorPicker.style.display = isCustom ? 'inline-block' : 'none';
                 saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
@@ -4592,17 +4810,26 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ($('vn-gender-prompt-text')) CFG.genderPrompt = $('vn-gender-prompt-text').value;
             saveConfig(CFG);
             doInjectSystemPrompt();
-            showToast('💾 Đã lưu và cập nhật cả 2 Prompt vào Author\'s Note!', 'success');
+            showToast('💾 Đã lưu và cập nhật cả 2 Prompt hướng dẫn cấu trúc lời thoại!', 'success');
         });
         $('vn-prompt-reset').addEventListener('click', () => {
-            if (!confirm('Khôi phục cả 2 prompt hướng dẫn về mặc định?')) return;
+            if (!confirm('Khôi phục prompt hướng dẫn & cấu hình bơm về mặc định?')) return;
             CFG.customPrompt = DEFAULT_CONFIG.customPrompt;
             CFG.genderPrompt = DEFAULT_CONFIG.genderPrompt;
+            CFG.wrapRuleBlock = DEFAULT_CONFIG.wrapRuleBlock;
+            CFG.injectTarget = DEFAULT_CONFIG.injectTarget;
+            CFG.injectRole = DEFAULT_CONFIG.injectRole;
+            CFG.injectDepth = DEFAULT_CONFIG.injectDepth;
             if ($('vn-prompt-text')) $('vn-prompt-text').value = CFG.customPrompt;
             if ($('vn-gender-prompt-text')) $('vn-gender-prompt-text').value = CFG.genderPrompt;
+            if ($('vn-toggle-wrap-rule')) $('vn-toggle-wrap-rule').checked = CFG.wrapRuleBlock;
+            if ($('vn-inject-target')) $('vn-inject-target').value = CFG.injectTarget;
+            if ($('vn-inject-role')) $('vn-inject-role').value = CFG.injectRole;
+            if ($('vn-inject-depth')) $('vn-inject-depth').value = CFG.injectDepth;
+            if ($('vn-inject-depth-wrap')) $('vn-inject-depth-wrap').style.display = 'block';
             saveConfig(CFG);
             doInjectSystemPrompt();
-            showToast('🔄 Đã khôi phục prompt mặc định và cập nhật Author\'s Note!', 'info');
+            showToast('🔄 Đã khôi phục prompt & vị trí bơm về mặc định!', 'info');
         });
 
         $('vn-new-char-add').addEventListener('click', () => {
@@ -4713,6 +4940,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
             else { avatarImg.style.display = 'none'; $('vn-char-det-initial').style.display = 'flex'; updateAvatarAdjustPreview(); }
         });
+        const fixColorLock = (pickerEl) => {
+            if (!pickerEl) return;
+            const release = () => {
+                setTimeout(() => {
+                    try {
+                        pickerEl.blur();
+                        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                        window.focus();
+                        if (window.parent && window.parent !== window) window.parent.focus();
+                    } catch (err) {}
+                }, 50);
+            };
+            pickerEl.addEventListener('input', release);
+            pickerEl.addEventListener('change', release);
+            pickerEl.addEventListener('blur', release);
+            pickerEl.addEventListener('click', () => {
+                window.addEventListener('focus', release, { once: true });
+            });
+        };
+        fixColorLock($('vn-char-det-colorpicker'));
+        fixColorLock($('vn-char-det-textcolorpicker'));
+        fixColorLock($('vn-sz-textcolor-picker'));
+
         $('vn-char-det-colorpicker').addEventListener('input', e => { $('vn-char-det-color').value = e.target.value; });
         $('vn-char-det-color').addEventListener('input', e => { $('vn-char-det-colorpicker').value = e.target.value; });
         if ($('vn-char-det-textcolorpicker') && $('vn-char-det-textcolor')) {
@@ -4729,28 +4979,56 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             setAvatarAdjustControls({ avatarPosX: 50, avatarPosY: 50, avatarZoom: 100, avatarFit: 'cover' });
         });
 
-        $('vn-char-pick-img').addEventListener('click', () => {
-            if (!_currentEditChar) return;
-            openImgPicker(_currentEditChar, url => {
-                $('vn-char-det-avatar-url').value = url;
-                const avatarImg = $('vn-char-det-avatar');
-                const safeUrl = safeImageUrl(url);
-                avatarImg.src = resolveImageSrc(safeUrl || url, buildInitialSvgData(_currentEditChar || '?'));
-                avatarImg.dataset.origSrc = safeUrl || url;
-                if (isLocalImageRef(safeUrl)) hydrateLocalImageEl(avatarImg, safeUrl);
-                avatarImg.style.display = 'block';
-                $('vn-char-det-initial').style.display = 'none';
+        const pickImgBtn = $('vn-char-pick-img');
+        if (pickImgBtn) {
+            pickImgBtn.addEventListener('click', () => {
+                if (!_currentEditChar) return;
+                openImgPicker(_currentEditChar, url => {
+                    $('vn-char-det-avatar-url').value = url;
+                    const avatarImg = $('vn-char-det-avatar');
+                    const safeUrl = safeImageUrl(url);
+                    avatarImg.src = resolveImageSrc(safeUrl || url, buildInitialSvgData(_currentEditChar || '?'));
+                    avatarImg.dataset.origSrc = safeUrl || url;
+                    if (isLocalImageRef(safeUrl)) hydrateLocalImageEl(avatarImg, safeUrl);
+                    avatarImg.style.display = 'block';
+                    $('vn-char-det-initial').style.display = 'none';
+                    updateAvatarAdjustPreview();
+                    if (CFG.characters[_currentEditChar]) {
+                        if (!safeUrl) { showToast('URL ảnh không hợp lệ hoặc không an toàn.', 'warning'); return; }
+                        Object.assign(CFG.characters[_currentEditChar], { avatar: safeUrl }, readAvatarAdjustControls());
+                        saveConfig(CFG);
+                        renderCharGrid();
+                        forceReRenderAll();
+                        showToast(`Đã áp dụng ảnh mới cho "${_currentEditChar}"! ✨`, 'success');
+                    }
+                });
+            });
+        }
+
+        const openEditViewBtn = $('vn-char-open-edit-view');
+        if (openEditViewBtn) {
+            openEditViewBtn.addEventListener('click', () => {
+                const mv = $('vn-char-detail-main');
+                const ev = $('vn-char-image-edit-view');
+                if (mv) mv.style.display = 'none';
+                if (ev) ev.style.display = 'block';
                 updateAvatarAdjustPreview();
-                if (CFG.characters[_currentEditChar]) {
-                    if (!safeUrl) { showToast('URL ảnh không hợp lệ hoặc không an toàn.', 'warning'); return; }
-                    Object.assign(CFG.characters[_currentEditChar], { avatar: safeUrl }, readAvatarAdjustControls());
-                    saveConfig(CFG);
-                    renderCharGrid();
-                    forceReRenderAll();
-                    showToast(`Đã áp dụng ảnh mới cho "${_currentEditChar}"! ✨`, 'success');
+                setupAvatarCropEditor();
+            });
+        }
+        const imgEditBackBtn = $('vn-img-edit-back');
+        if (imgEditBackBtn) {
+            imgEditBackBtn.addEventListener('click', () => {
+                const mv = $('vn-char-detail-main');
+                const ev = $('vn-char-image-edit-view');
+                if (mv) mv.style.display = 'block';
+                if (ev) ev.style.display = 'none';
+                const avatarImg = $('vn-char-det-avatar');
+                if (avatarImg && _currentEditChar && CFG.characters[_currentEditChar]) {
+                    applyAvatarViewToElement(avatarImg, readAvatarAdjustControls());
                 }
             });
-        });
+        }
 
         $('vn-char-det-save').addEventListener('click', async () => {
             if (!_currentEditChar) return;
@@ -4910,6 +5188,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
         try {
             PW.FloatingMenuManager.registerButton(fmmConfig);
+            const oldFab = PD.getElementById('vn-standalone-fab');
+            if (oldFab) oldFab.remove();
             return true;
         } catch (e) {
             console.error('[VN Dialogue] Lỗi đăng ký FloatingMenuManager:', e);
@@ -4920,7 +5200,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     function setupStandaloneFab() {
         let old = PD.getElementById('vn-standalone-fab');
         if (old) old.remove();
-        if (CFG.showStandaloneIcon === false) return;
+
+        // Tự động: Nếu đã có bóng mẹ (FloatingMenuManager) hoạt động thì không hiển thị bóng riêng
+        if (PW.FloatingMenuManager && typeof PW.FloatingMenuManager.registerButton === 'function') {
+            return;
+        }
 
         const fab = PD.createElement('div');
         fab.id = 'vn-standalone-fab';
@@ -5069,14 +5353,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     function openMainModal() {
         buildMainModal();
         refreshMainModal();
-        PD.getElementById('vn-modal-overlay').classList.add('show');
+        const overlay = PD.getElementById('vn-modal-overlay');
+        if (overlay) overlay.classList.add('show');
         if (PW.FloatingMenuManager && typeof PW.FloatingMenuManager.collapse === 'function') PW.FloatingMenuManager.collapse();
+    }
+
+    let _fmmWatchdogTimer = null;
+    function startFmmWatchdog() {
+        if (_fmmWatchdogTimer) clearInterval(_fmmWatchdogTimer);
+        let count = 0;
+        _fmmWatchdogTimer = setInterval(() => {
+            count++;
+            if (registerFMM() || count >= 40) {
+                clearInterval(_fmmWatchdogTimer);
+                _fmmWatchdogTimer = null;
+            }
+        }, 500);
     }
 
     // ========== KHỞI TẠO HỆ THỐNG ==========
     function init() {
         if (!PD.body) { setTimeout(init, 300); return; }
         try {
+            if (PD._fmmWatchdogTimer) { clearInterval(PD._fmmWatchdogTimer); delete PD._fmmWatchdogTimer; }
             injectStyles();
             buildMainModal();
             setupObserver();
@@ -5091,6 +5390,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 console.log('[VN Dialogue] Đã đăng ký thành công vào Menu Bóng Nổi Mẹ (FloatingMenuManager) ✓');
             } else {
                 console.log('[VN Dialogue] Đã thêm vào hàng đợi chờ Menu Bóng Nổi Mẹ (FloatingMenuManager)...');
+                startFmmWatchdog();
+                PD._fmmWatchdogTimer = _fmmWatchdogTimer;
             }
 
             console.log(`[VN Dialogue] Đã khởi tạo Visual Novel Dialogue Beautifier ${SCRIPT_VERSION} ✓`);
