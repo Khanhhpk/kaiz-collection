@@ -1216,9 +1216,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     position:fixed; inset:0;
     width: 100vw; height: 100vh;
     width: 100dvw; height: 100dvh;
-    background:rgba(0,0,0,0.75);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
+    background:rgba(10,14,26,0.88);
     z-index:1999990;
     display:none;
     align-items:center;
@@ -1508,9 +1506,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     position:fixed; inset:0;
     width: 100vw; height: 100vh;
     width: 100dvw; height: 100dvh;
-    background:rgba(0,0,0,0.8);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
+    background:rgba(10,14,26,0.92);
     z-index:2000000;
     display:none;
     align-items:center;
@@ -4884,6 +4880,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
             else { avatarImg.style.display = 'none'; $('vn-char-det-initial').style.display = 'flex'; updateAvatarAdjustPreview(); }
         });
+        const fixColorLock = (pickerEl) => {
+            if (!pickerEl) return;
+            const release = () => {
+                setTimeout(() => {
+                    try {
+                        pickerEl.blur();
+                        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                        window.focus();
+                        if (window.parent && window.parent !== window) window.parent.focus();
+                    } catch (err) {}
+                }, 50);
+            };
+            pickerEl.addEventListener('input', release);
+            pickerEl.addEventListener('change', release);
+            pickerEl.addEventListener('blur', release);
+            pickerEl.addEventListener('click', () => {
+                window.addEventListener('focus', release, { once: true });
+            });
+        };
+        fixColorLock($('vn-char-det-colorpicker'));
+        fixColorLock($('vn-char-det-textcolorpicker'));
+        fixColorLock($('vn-sz-textcolor-picker'));
+
         $('vn-char-det-colorpicker').addEventListener('input', e => { $('vn-char-det-color').value = e.target.value; });
         $('vn-char-det-color').addEventListener('input', e => { $('vn-char-det-colorpicker').value = e.target.value; });
         if ($('vn-char-det-textcolorpicker') && $('vn-char-det-textcolor')) {
