@@ -687,12 +687,47 @@ Bắt đầu tạo Input:`
                 max_completion_tokens: maxTokensVal,
                 max_output_tokens: maxTokensVal,
                 maxOutputTokens: maxTokensVal,
-                stream: false
+                max_new_tokens: maxTokensVal,
+                stream: false,
+                generationConfig: {
+                    maxOutputTokens: maxTokensVal,
+                    max_output_tokens: maxTokensVal,
+                    max_tokens: maxTokensVal,
+                    temperature: config.temperature,
+                    topP: config.topP,
+                    top_p: config.topP
+                },
+                generation_config: {
+                    max_output_tokens: maxTokensVal,
+                    maxOutputTokens: maxTokensVal,
+                    max_tokens: maxTokensVal,
+                    temperature: config.temperature,
+                    top_p: config.topP,
+                    topP: config.topP
+                },
+                options: {
+                    max_tokens: maxTokensVal,
+                    max_output_tokens: maxTokensVal,
+                    num_predict: maxTokensVal,
+                    temperature: config.temperature,
+                    top_p: config.topP
+                },
+                parameters: {
+                    max_new_tokens: maxTokensVal,
+                    max_tokens: maxTokensVal,
+                    max_output_tokens: maxTokensVal,
+                    temperature: config.temperature,
+                    top_p: config.topP
+                }
             };
 
             // OpenAI o1 và o3 không hỗ trợ max_tokens (gây lỗi 400), chỉ dùng max_completion_tokens
             if (/^(o1|o3)/i.test(config.model) || /-(o1|o3)/i.test(config.model)) {
                 delete requestBody.max_tokens;
+                if (requestBody.generationConfig) delete requestBody.generationConfig.max_tokens;
+                if (requestBody.generation_config) delete requestBody.generation_config.max_tokens;
+                if (requestBody.options) delete requestBody.options.max_tokens;
+                if (requestBody.parameters) delete requestBody.parameters.max_tokens;
             }
 
             const response = await fetch(endpoint, {
