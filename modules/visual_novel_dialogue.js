@@ -1314,6 +1314,17 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     margin-bottom:6px;
     margin-top:4px;
 }
+.vn-icon {
+    width:16px;
+    height:16px;
+    vertical-align:middle;
+    margin-right:6px;
+    display:inline-block;
+    flex-shrink:0;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+.vn-btn .vn-icon { margin-right:6px; }
+.vn-section-label .vn-icon { margin-right:6px; width:16px; height:16px; }
 .vn-group { display:flex; flex-direction:column; gap:6px; }
 .vn-input {
     width:100%; box-sizing:border-box;
@@ -3700,10 +3711,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
   <div class="vn-modal-header">
     <div class="vn-modal-title">🎭 Visual Novel Dialogue Beautifier <span style="font-size:12px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;">${SCRIPT_VERSION}</span></div>
     <div class="vn-tabs">
-      <button class="vn-tab active" data-tab="chars">👤 Nhân vật & Avatar</button>
-      <button class="vn-tab" data-tab="style">🎨 Giao diện & Style</button>
-      <button class="vn-tab" data-tab="prompt">✍️ Prompt Cấu trúc</button>
-      <button class="vn-tab" data-tab="settings">⚙️ Cài đặt & Dữ liệu</button>
+      <button class="vn-tab active" data-tab="chars"><img src="https://api.iconify.design/lucide:users.svg?color=%23818cf8" class="vn-icon">Nhân vật & Avatar</button>
+      <button class="vn-tab" data-tab="style"><img src="https://api.iconify.design/lucide:palette.svg?color=%23818cf8" class="vn-icon">Giao diện & Style</button>
+      <button class="vn-tab" data-tab="prompt"><img src="https://api.iconify.design/lucide:pen-tool.svg?color=%23818cf8" class="vn-icon">Prompt Cấu trúc</button>
+      <button class="vn-tab" data-tab="settings"><img src="https://api.iconify.design/lucide:settings.svg?color=%23818cf8" class="vn-icon">Cài đặt & Dữ liệu</button>
     </div>
   </div>
   <!-- TAB 1: NHÂN VẬT -->
@@ -3711,27 +3722,20 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     <!-- VIEW 1: DANH SÁCH NHÂN VẬT -->
     <div id="vn-char-list-view">
       <button class="vn-btn vn-btn-secondary" id="vn-scan-chars" style="margin-bottom:12px;width:100%;font-weight:700;border-color:rgba(99,102,241,0.5);color:#a78bfa;">
-        🔍 Quét tự động tất cả thẻ [Tên] trong khung chat hiện tại
+        <img src="https://api.iconify.design/lucide:search.svg?color=%23a78bfa" class="vn-icon">Quét tự động tất cả thẻ [Tên] trong khung chat hiện tại
       </button>
       <div class="vn-toggle-row" style="margin-bottom:10px;border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.1);">
         <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#818cf8;">🤖 Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
+          <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
           <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại chat</div>
         </div>
-        <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg-char" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
-      </div>
-      <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(244,63,94,0.4);background:rgba(244,63,94,0.1);">
-        <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#f43f5e;">🌸 Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
-          <div class="vn-toggle-desc">Tự động nhận diện @Tên(Nữ/Nam)@ và gán ngẫu nhiên ảnh từ neko.best</div>
-        </div>
-        <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign" /><span class="vn-slider"></span></label>
+        <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg-tab1" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
       </div>
       <div id="vn-add-char-wrap" style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:14px;">
-        <div class="vn-section-label" style="margin-top:0;">➕ Thêm nhanh nhân vật mới</div>
+        <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:user-plus.svg?color=%23818cf8" class="vn-icon">Thêm nhanh nhân vật mới</div>
         <div style="display:flex;gap:8px;">
           <input class="vn-input" id="vn-new-char-name" placeholder="Tên nhân vật (Ví dụ: Kazumi, Itsuki...)" style="flex:1;" />
-          <button class="vn-btn vn-btn-primary" id="vn-new-char-add">＋ Thêm</button>
+          <button class="vn-btn vn-btn-primary" id="vn-new-char-add"><img src="https://api.iconify.design/lucide:plus.svg?color=white" class="vn-icon">Thêm</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap;">
@@ -3740,17 +3744,17 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="vn-btn vn-btn-secondary" id="vn-bulk-select-all" style="padding:4px 10px;font-size:12px;">☑️ Chọn tất cả</button>
-          <button class="vn-btn vn-btn-secondary" id="vn-bulk-deselect-all" style="padding:4px 10px;font-size:12px;">☐ Hủy chọn</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-bulk-select-all" style="padding:4px 10px;font-size:12px;"><img src="https://api.iconify.design/lucide:check-square.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Chọn tất cả</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-bulk-deselect-all" style="padding:4px 10px;font-size:12px;"><img src="https://api.iconify.design/lucide:square.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Hủy chọn</button>
         </div>
-        <button class="vn-btn" id="vn-bulk-delete" style="padding:4px 12px;font-size:12px;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);display:none;">🗑️ Xóa đã chọn (0)</button>
+        <button class="vn-btn" id="vn-bulk-delete" style="padding:4px 12px;font-size:12px;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);display:none;"><img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (0)</button>
       </div>
       <div class="vn-char-grid" id="vn-char-grid"></div>
     </div>
     <!-- VIEW 2: CHI TIẾT NHÂN VẬT (Ẩn mặc định) -->
     <div id="vn-char-detail-wrap" style="display:none;">
-      <button class="vn-btn vn-btn-secondary" id="vn-char-det-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;">⬅️ Quay lại danh sách nhân vật</button>
-      <div class="vn-section-label">Tuỳ chỉnh chi tiết nhân vật</div>
+      <button class="vn-btn vn-btn-secondary" id="vn-char-det-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" class="vn-icon">Quay lại danh sách nhân vật</button>
+      <div class="vn-section-label"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tuỳ chỉnh chi tiết nhân vật</div>
       <div class="vn-char-detail" id="vn-char-detail">
         <div id="vn-char-detail-main">
           <div class="vn-char-detail-header">
@@ -3762,16 +3766,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             </div>
           </div>
           <div class="vn-group">
-            <div class="vn-section-label">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:tag.svg?color=%23818cf8" class="vn-icon">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
             <input class="vn-input" id="vn-char-det-rename" placeholder="Tên nhân vật..." />
           </div>
           <div class="vn-group">
-            <div class="vn-section-label">URL ảnh đại diện (Avatar)</div>
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:image.svg?color=%23818cf8" class="vn-icon">URL ảnh đại diện (Avatar)</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <input class="vn-input" id="vn-char-det-avatar-url" placeholder="https://... hoặc data:image/..." style="flex:1;min-width:180px;" />
-              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img">🖼️ Chọn ảnh</button>
-              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-open-edit-view">✂️ Cắt / Zoom ảnh</button>
-            </div>
           </div>
           <div class="vn-group">
             <div class="vn-section-label">Màu thẻ tên & khung thoại (Hex Color)</div>
@@ -3904,23 +3905,23 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-top:4px;">
-      <div class="vn-section-label" style="margin-top:0;">📐 Tuỳ chỉnh Kích thước & Khung hiển thị (Resolution & Sizing)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:maximize-2.svg?color=%23818cf8" class="vn-icon">Tuỳ chỉnh Kích thước & Khung hiển thị (Resolution & Sizing)</div>
       <div class="vn-group" style="margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span>🖼️ Kích thước ảnh Avatar: <b id="vn-sz-avatar-val">52px</b></span>
+          <span><img src="https://api.iconify.design/lucide:image.svg?color=%2394a3b8" class="vn-icon">Kích thước ảnh Avatar: <b id="vn-sz-avatar-val">52px</b></span>
           <span style="color:#94a3b8;font-size:11px;">(20px - 250px)</span>
         </div>
         <input type="range" id="vn-sz-avatar-slider" min="20" max="250" value="52" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span>🔤 Cỡ chữ lời thoại & suy nghĩ: <b id="vn-sz-font-val">14.5px</b></span>
+          <span><img src="https://api.iconify.design/lucide:type.svg?color=%2394a3b8" class="vn-icon">Cỡ chữ lời thoại & suy nghĩ: <b id="vn-sz-font-val">14.5px</b></span>
           <span style="color:#94a3b8;font-size:11px;">(10px - 36px)</span>
         </div>
         <input type="range" id="vn-sz-font-slider" min="10" max="36" step="0.5" value="14.5" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">🔤 Phông chữ lời thoại & suy nghĩ (Font Family):</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:baseline.svg?color=%2394a3b8" class="vn-icon">Phông chữ lời thoại & suy nghĩ (Font Family):</div>
         <select id="vn-sz-fontfamily-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="default">🌟 Mặc định theo theme (Khuyên dùng)</option>
           <option value="serif">📖 Serif Hoàng Gia / Truyền thống (Palatino, Georgia, Cambria, Lora...)</option>
@@ -3933,7 +3934,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <input class="vn-input" id="vn-sz-fontfamily-custom" placeholder="Nhập tên font (VD: 'Times New Roman', 'Nunito', 'Verdana'...)" style="display:none;margin-top:8px;font-family:monospace;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">🎨 Chế độ chỉnh màu chữ lời thoại (Text Color Mode):</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:palette.svg?color=%23a78bfa" class="vn-icon">Chế độ chỉnh màu chữ lời thoại (Text Color Mode):</div>
         <select id="vn-sz-textcolormode-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;margin-bottom:8px;">
           <option value="global">🌐 Toàn cục (Tất cả nhân vật dùng chung 1 màu chữ dưới đây)</option>
           <option value="per_char">👤 Theo từng nhân vật (Chỉnh riêng màu chữ cho từng nhân vật ở Tab 1)</option>
@@ -3957,19 +3958,19 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
           </div>
         </div>
         <div id="vn-sz-textcolor-perchar-wrap" style="display:none;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);padding:10px 12px;border-radius:10px;font-size:12px;color:#c4b5fd;line-height:1.5;">
-          ✨ <b>Chế độ chỉnh màu chữ theo từng nhân vật đang bật!</b><br>
+          <img src="https://api.iconify.design/lucide:sparkles.svg?color=%23c4b5fd" class="vn-icon"><b>Chế độ chỉnh màu chữ theo từng nhân vật đang bật!</b><br>
           👉 Hãy sang tab <b>👤 Nhân vật & Avatar</b>, nhấp chọn nhân vật muốn chỉnh, và đổi mục <b>"Màu chữ lời thoại riêng"</b> cho nhân vật đó nhé!
         </div>
       </div>
       <div class="vn-group" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span>↔️ Độ rộng tối đa khung thoại: <b id="vn-sz-width-val">78%</b></span>
+          <span><img src="https://api.iconify.design/lucide:move-horizontal.svg?color=%2394a3b8" class="vn-icon">Độ rộng tối đa khung thoại: <b id="vn-sz-width-val">78%</b></span>
           <span style="color:#94a3b8;font-size:11px;">(30% - 100%)</span>
         </div>
         <input type="range" id="vn-sz-width-slider" min="30" max="100" value="78" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">💎 Chế độ Hiển thị & Khử răng cưa ảnh Avatar:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%2338bdf8" class="vn-icon">Chế độ Hiển thị & Khử răng cưa ảnh Avatar:</div>
         <select id="vn-sz-quality-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="smooth">🌟 Siêu mịn & Khử răng cưa GPU (Khuyên dùng cho Anime, Chân dung HD)</option>
           <option value="sharp">🔥 Tăng cường sắc nét & Tương phản (Làm viền sắc, tăng độ rực rỡ)</option>
@@ -3979,25 +3980,25 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <div style="font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5;">Chế độ <b>Siêu mịn</b> dùng thuật toán Bicubic/Lanczos của GPU làm mượt hoàn hảo. Chế độ <b>Tăng cường sắc nét</b> áp dụng bộ lọc tăng tương phản viền ảnh.</div>
       </div>
       <div class="vn-group" style="margin-bottom:14px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">⬆️⬇️ Vị trí mở rộng ảnh khi xem trong truyện:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:arrow-up-down.svg?color=%23818cf8" class="vn-icon">Vị trí mở rộng ảnh khi xem trong truyện:</div>
         <select id="vn-sz-imgpos-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="top">⬆️ Mở ảnh lên trên (Đẩy chữ xuống dưới - Mặc định)</option>
           <option value="bottom">⬇️ Mở ảnh xuống dưới (Chữ ở trên, ảnh bên dưới)</option>
         </select>
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;">🖼️ Chế độ mở rộng ảnh tự động:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:expand.svg?color=%2338bdf8" class="vn-icon">Chế độ mở rộng ảnh tự động:</div>
         <select id="vn-sz-imgmode-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="normal">💡 Bình thường (Nhấn vào avatar 52px để mở rộng ảnh)</option>
           <option value="always_full">🌟 Luôn mở full ảnh tự động (Mặc định hiện ảnh chân dung lớn cho mọi thoại)</option>
         </select>
         <div style="font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5;">Khi chọn <b>Luôn mở full ảnh tự động</b>, mọi lời thoại sẽ lập tức hiển thị kèm ảnh khổ lớn rõ nét. Bạn có thể bấm vào ảnh để thu nhỏ lại nếu muốn.</div>
       </div>
-      <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-sz-reset" style="width:100%;">↺ Khôi phục kích thước & chất lượng mặc định</button>
+      <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-sz-reset" style="width:100%;"><img src="https://api.iconify.design/lucide:rotate-ccw.svg?color=%2394a3b8" class="vn-icon">Khôi phục kích thước & chất lượng mặc định</button>
     </div>
-    <button class="vn-btn vn-btn-secondary" id="vn-rerender-btn" style="width:100%;">🔄 Làm mới & Re-render tất cả tin nhắn ngay lập tức</button>
+    <button class="vn-btn vn-btn-secondary" id="vn-rerender-btn" style="width:100%;"><img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%2338bdf8" class="vn-icon">Làm mới & Re-render tất cả tin nhắn ngay lập tức</button>
     <div style="font-size:12px;color:#94a3b8;line-height:1.7;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;">
-      <b>💡 Mẹo nhỏ:</b> Khi bạn thay đổi avatar hoặc màu sắc nhân vật ở tab Nhân vật, nhấn nút <b>Re-render</b> bên trên để áp dụng ngay thay đổi vào toàn bộ lịch sử chat!
+      <img src="https://api.iconify.design/lucide:lightbulb.svg?color=%23fbbf24" class="vn-icon"><b>Mẹo nhỏ:</b> Khi bạn thay đổi avatar hoặc màu sắc nhân vật ở tab Nhân vật, nhấn nút <b>Re-render</b> bên trên để áp dụng ngay thay đổi vào toàn bộ lịch sử chat!
     </div>
   </div>
   <!-- TAB 3: PROMPT -->
@@ -4011,13 +4012,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name">📦 Bọc khối luật bằng marker <!-- vn_dialogue_format_marker --></div>
+        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:package.svg?color=%23818cf8" class="vn-icon">Bọc khối luật bằng marker <!-- vn_dialogue_format_marker --></div>
         <div class="vn-toggle-desc">Giúp AI phân định rõ ràng đâu là chỉ lệnh hệ thống, đâu là ngữ cảnh truyện, chống rò rỉ prompt ra lời thoại</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-wrap-rule" /><span class="vn-slider"></span></label>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:14px;">
-      <div class="vn-section-label" style="margin-top:0;">📍 Tùy chỉnh vị trí & vai trò bơm Prompt (Injection Position)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:locate.svg?color=%23818cf8" class="vn-icon">Tùy chỉnh vị trí & vai trò bơm Prompt (Injection Position)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px;">
         <div>
           <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Vị trí bơm (Target):</label>
@@ -4040,33 +4041,33 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
           <input type="number" class="vn-input" id="vn-inject-depth" min="0" max="50" value="0" style="width:100%;padding:6px 10px;font-size:12.5px;" title="0 = Ngay trước tin nhắn cuối cùng" />
         </div>
       </div>
-      <div style="font-size:11.5px;color:#94a3b8;margin-top:8px;">💡 <b>Khuyên dùng:</b> In-Chat + Role System + Depth 0 (Bơm ngay sát câu cuối cùng để AI nhớ cấu trúc thoại tốt nhất).</div>
+      <div style="font-size:11.5px;color:#94a3b8;margin-top:8px;"><img src="https://api.iconify.design/lucide:lightbulb.svg?color=%23fbbf24" class="vn-icon" style="width:14px;height:14px;"><b>Khuyên dùng:</b> In-Chat + Role System + Depth 0 (Bơm ngay sát câu cuối cùng để AI nhớ cấu trúc thoại tốt nhất).</div>
     </div>
     <div class="vn-toggle-row" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);margin-bottom:8px;">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#f43f5e;">🌸 Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
+        <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
         <div class="vn-toggle-desc">Tự động bổ sung quy tắc trả về @Tên(Nữ/Nam)@ vào Prompt hướng dẫn bên dưới cho AI</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-prompt" /><span class="vn-slider"></span></label>
     </div>
     <div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="vn-section-label" style="color:#f43f5e;margin:0;">🌸 Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
+        <div class="vn-section-label" style="color:#f43f5e;margin:0;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%23f43f5e" class="vn-icon">Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
         <span id="vn-gender-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
       </div>
       <textarea class="vn-input vn-textarea" id="vn-gender-prompt-text" rows="4" style="border-color:rgba(244,63,94,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
-      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;">💡 Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào luồng xử lý để dạy AI trả về @Tên(Nữ/Nam)@.</div>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào luồng xử lý để dạy AI trả về @Tên(Nữ/Nam)@.</div>
     </div>
     <div class="vn-group">
-      <div class="vn-section-label">Nội dung Prompt hướng dẫn AI gốc (In-Chat @ Depth 0 via Event Hooks)</div>
+      <div class="vn-section-label"><img src="https://api.iconify.design/lucide:terminal.svg?color=%23818cf8" class="vn-icon">Nội dung Prompt hướng dẫn AI gốc (In-Chat @ Depth 0 via Event Hooks)</div>
       <textarea class="vn-input vn-textarea" id="vn-prompt-text" rows="8"></textarea>
     </div>
     <div style="display:flex;gap:10px;">
-      <button class="vn-btn vn-btn-primary" id="vn-prompt-save" style="flex:1;">💾 Lưu thay đổi Prompt (Cả 2 bảng)</button>
-      <button class="vn-btn vn-btn-secondary" id="vn-prompt-reset">↺ Khôi phục mặc định</button>
+      <button class="vn-btn vn-btn-primary" id="vn-prompt-save" style="flex:1;"><img src="https://api.iconify.design/lucide:save.svg?color=white" class="vn-icon">Lưu thay đổi Prompt (Cả 2 bảng)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-prompt-reset"><img src="https://api.iconify.design/lucide:rotate-ccw.svg?color=%2394a3b8" class="vn-icon">Khôi phục mặc định</button>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-top:14px;margin-bottom:14px;">
-      <div class="vn-section-label" style="margin-top:0;">🔍 Cú pháp nhận diện lời thoại & tên nhân vật (Regex Mode)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:code.svg?color=%23818cf8" class="vn-icon">Cú pháp nhận diện lời thoại & tên nhân vật (Regex Mode)</div>
       <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px;">Chọn định dạng thẻ tên phù hợp với cách AI viết lời thoại trong prompt của bạn:</div>
       <div class="vn-style-picker" id="vn-regex-picker">
         <button class="vn-style-opt" data-regex="at">
@@ -4090,16 +4091,16 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
           <div>Định dạng dấu hai chấm (Roleplay)</div>
         </button>
         <button class="vn-style-opt" data-regex="custom">
-          <div class="vn-style-name">⚙️ Tùy chỉnh Regex</div>
+          <div class="vn-style-name"><img src="https://api.iconify.design/lucide:settings.svg?color=%23818cf8" class="vn-icon">Tùy chỉnh Regex</div>
           <div>Tự viết biểu thức chính quy riêng</div>
         </button>
       </div>
       <div id="vn-custom-regex-wrap" style="display:none;margin-top:12px;">
-        <div class="vn-section-label">Biểu thức chính quy (Custom Regex - Group 1: Tên, Group 2+: Thoại/Suy nghĩ)</div>
+        <div class="vn-section-label"><img src="https://api.iconify.design/lucide:regex.svg?color=%23818cf8" class="vn-icon">Biểu thức chính quy (Custom Regex - Group 1: Tên, Group 2+: Thoại/Suy nghĩ)</div>
         <input class="vn-input" id="vn-custom-regex-input" placeholder="Ví dụ: \\<([^>]+)\\>\\s*\"([^\"]+)\"" style="font-family:monospace;" />
       </div>
       <div style="margin-top:16px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.1);">
-        <div class="vn-section-label">🧹 Dọn dẹp ký tự thừa ở đầu/cuối lời thoại & suy nghĩ (Clean Bubble Text)</div>
+        <div class="vn-section-label"><img src="https://api.iconify.design/lucide:eraser.svg?color=%23f43f5e" class="vn-icon">Dọn dẹp ký tự thừa ở đầu/cuối lời thoại & suy nghĩ (Clean Bubble Text)</div>
         <input class="vn-input" id="vn-clean-patterns-input" placeholder="Ví dụ: &quot;|“|”|* (Để trống = giữ nguyên 100% theo regex)" style="font-family:monospace;" />
         <div style="font-size:11.5px;color:#94a3b8;margin-top:4px;">Nhập các ký tự bạn muốn xóa khỏi 2 đầu bong bóng thoại (cách nhau bởi dấu <code>|</code> hoặc viết liền như <code>&quot;*“”</code>). Nếu <b>để trống</b>, script sẽ tuân thủ tuyệt đối theo regex của bạn và không tự ý xóa gì cả!</div>
       </div>
@@ -4116,37 +4117,37 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name">🔮 Hiển thị Icon Bóng Nổi riêng (Standalone Floating Icon)</div>
-        <div class="vn-toggle-desc">Luôn hiển thị icon 🎭 ở góc màn hình (kéo thả tự do) để mở cài đặt nhanh, không phụ thuộc Quản lý bóng nổi</div>
+        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:circle-dot.svg?color=%23818cf8" class="vn-icon">Hiển thị Icon Bóng Nổi riêng (Standalone Floating Icon)</div>
+        <div class="vn-toggle-desc">Luôn hiển thị icon ở góc màn hình (kéo thả tự do) để mở cài đặt nhanh, không phụ thuộc Quản lý bóng nổi</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-fab" /><span class="vn-slider"></span></label>
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name">🤖 Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
+        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
         <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại. Tắt đi để chỉ hiển thị lời thoại theo danh sách nhân vật tự điền ở Tab 1 (chống bắt nhầm rác/NPC).</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#f43f5e;">🌸 Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
+        <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
         <div class="vn-toggle-desc">Tự động bổ sung quy tắc @Tên(Nữ/Nam)@ vào Prompt và gán ngẫu nhiên ảnh từ neko.best</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-set" /><span class="vn-slider"></span></label>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;">🧹 Dọn dẹp Cache</button>
-        <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;">⚡ Test hiệu năng (200)</button>
+        <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:trash.svg?color=%23cbd5e1" class="vn-icon">Dọn dẹp Cache</button>
+        <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:zap.svg?color=%23fbbf24" class="vn-icon">Test hiệu năng (200)</button>
       </div>
-      <button class="vn-btn vn-btn-secondary" id="vn-export-cfg">📤 Sao lưu cấu hình ra file JSON (Export)</button>
-      <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn">📥 Nhập cấu hình từ file JSON (Import)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-export-cfg"><img src="https://api.iconify.design/lucide:download.svg?color=%23cbd5e1" class="vn-icon">Sao lưu cấu hình ra file JSON (Export)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn"><img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">Nhập cấu hình từ file JSON (Import)</button>
       <input type="file" id="vn-import-cfg-file" accept=".json" style="display:none;" />
-      <button class="vn-btn vn-btn-danger" id="vn-reset-all" style="margin-top:6px;">🗑️ Khôi phục toàn bộ về cài đặt gốc (Reset All)</button>
+      <button class="vn-btn vn-btn-danger" id="vn-reset-all" style="margin-top:6px;"><img src="https://api.iconify.design/lucide:alert-triangle.svg?color=%23f87171" class="vn-icon">Khôi phục toàn bộ về cài đặt gốc (Reset All)</button>
     </div>
     <div style="background:rgba(0,0,0,0.25);border-radius:12px;padding:14px;font-size:12.5px;color:#cbd5e1;line-height:1.8;margin-top:6px;">
-      <b>📖 Hướng dẫn sử dụng nhanh:</b><br>
+      <b><img src="https://api.iconify.design/lucide:book-open.svg?color=%23818cf8" class="vn-icon">Hướng dẫn sử dụng nhanh:</b><br>
       1️⃣ Bật <b>Tiêm Prompt</b> ở tab Prompt để AI hiểu và trả về lời thoại kèm thẻ <code>[TênNhânVật]</code>.<br>
       2️⃣ Sang tab <b>Nhân vật</b> → Nhấn <b>Quét tự động</b> để nhận diện tên nhân vật từ chat.<br>
       3️⃣ Nhấn vào từng nhân vật → Chọn avatar từ kho ảnh anime miễn phí, Kho Local đã import hoặc Kho Link đã lưu.<br>
@@ -4228,7 +4229,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (!btn) return;
         if (_selectedChars.size > 0) {
             btn.style.display = 'inline-block';
-            btn.textContent = `🗑️ Xóa đã chọn (${_selectedChars.size})`;
+            btn.innerHTML = `<img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (${_selectedChars.size})`;
         } else {
             btn.style.display = 'none';
         }
@@ -4356,49 +4357,16 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (hintEl) {
             const isPerChar = CFG.customSizing && CFG.customSizing.textColorMode === 'per_char';
             if (isPerChar) {
-                hintEl.innerHTML = '✨ <b style="color:#a78bfa;">Chế độ màu chữ theo từng nhân vật đang BẬT!</b> Màu bạn chọn dưới đây sẽ áp dụng riêng cho lời thoại của nhân vật này.';
+                hintEl.innerHTML = '<img src="https://api.iconify.design/lucide:check-circle.svg?color=%23a78bfa" class="vn-icon"><b style="color:#a78bfa;">Chế độ màu chữ theo từng nhân vật đang BẬT!</b> Màu bạn chọn dưới đây sẽ áp dụng riêng cho lời thoại của nhân vật này.';
                 hintEl.style.color = '#c4b5fd';
             } else {
-                hintEl.innerHTML = '💡 <b>Lưu ý:</b> Bạn đang ở chế độ màu chữ Toàn Cục. Cần chọn chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab <b>🎨 Giao diện & Style</b> thì cài đặt màu riêng ở đây mới có hiệu lực!';
+                hintEl.innerHTML = '<img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon"><b>Lưu ý:</b> Bạn đang ở chế độ màu chữ Toàn Cục. Cần chọn chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab <b>Giao diện & Style</b> thì cài đặt màu riêng ở đây mới có hiệu lực!';
                 hintEl.style.color = '#94a3b8';
             }
         }
 
         const btnsWrap = PD.getElementById('vn-char-det-btns');
-        btnsWrap.innerHTML = '';
-        const pickBtn = PD.createElement('button');
-        pickBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
-        pickBtn.textContent = '🖼️ Chọn ảnh...';
-        pickBtn.addEventListener('click', () => {
-            openImgPicker(name, (url) => {
-                PD.getElementById('vn-char-det-avatar-url').value = url;
-                const avatarImg = PD.getElementById('vn-char-det-avatar');
-                const initialEl = PD.getElementById('vn-char-det-initial');
-                const safeUrl = safeImageUrl(url);
-                const optSrc = safeUrl ? (AVATAR_CACHE[safeUrl] || getSmoothAvatar(safeUrl)) : buildInitialSvgData(name);
-                avatarImg.src = optSrc;
-                avatarImg.dataset.origSrc = safeUrl || url;
-                if (isLocalImageRef(safeUrl)) hydrateLocalImageEl(avatarImg, safeUrl);
-                avatarImg.style.display = 'block';
-                initialEl.style.display = 'none';
-                updateAvatarAdjustPreview();
-            });
-        });
-        btnsWrap.appendChild(pickBtn);
-
-        const editImgBtn = PD.createElement('button');
-        editImgBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
-        editImgBtn.style.marginTop = '6px';
-        editImgBtn.textContent = '✂️ Cắt / Zoom / Căn chỉnh ảnh';
-        editImgBtn.addEventListener('click', () => {
-            const mv = PD.getElementById('vn-char-detail-main');
-            const ev = PD.getElementById('vn-char-image-edit-view');
-            if (mv) mv.style.display = 'none';
-            if (ev) ev.style.display = 'block';
-            updateAvatarAdjustPreview();
-            setupAvatarCropEditor();
-        });
-        btnsWrap.appendChild(editImgBtn);
+        if (btnsWrap) btnsWrap.innerHTML = '';
 
         const avatarImg = PD.getElementById('vn-char-det-avatar');
         const initialEl = PD.getElementById('vn-char-det-initial');
