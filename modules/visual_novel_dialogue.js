@@ -1031,21 +1031,18 @@ html[data-vn-img-quality="standard"] .vn-img-thumb img {
     display: none !important;
 }
 .vn-bubble {
-    background: rgba(30,41,59,0.88);
+    background: rgba(30,41,59,0.95);
     border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     border-radius: 18px;
     padding: 13px 18px;
     max-width: var(--vn-max-width, 78%) !important;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
     position: relative;
     font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     font-size: var(--vn-font-size, 14.5px) !important;
     line-height: 1.65;
     color: #f1f5f9;
     flex: 1;
-    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s;
 }
 .vn-bubble.vn-thought {
     background: rgba(15,23,42,0.8);
@@ -1183,10 +1180,8 @@ html[data-vn-img-quality="standard"] .vn-img-thumb img {
     gap: 10px;
 }
 .mes[data-vn-style="modern"] .vn-bubble {
-    background: rgba(51, 65, 85, 0.75);
+    background: rgba(51, 65, 85, 0.92);
     border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
     border-radius: 22px;
     padding: 12px 18px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.2);
@@ -3675,6 +3670,28 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         PD.getElementById('vn-img-modal-overlay').classList.add('show');
     }
 
+    // ========== FIX CHROMIUM EYEDROPPER & MODERN API ==========
+    function fixChromiumEyeDropperBug(el) {
+        if (!el) return;
+        const releaseCapture = () => {
+            try {
+                el.blur();
+                if (PD.activeElement && PD.activeElement !== PD.body) {
+                    PD.activeElement.blur();
+                }
+                if (PW.focus) PW.focus();
+                if (el.hasPointerCapture && el.hasPointerCapture(0)) {
+                    el.releasePointerCapture(0);
+                }
+            } catch (err) {}
+        };
+        el.addEventListener('change', releaseCapture);
+        el.addEventListener('blur', releaseCapture);
+        el.addEventListener('input', () => {
+            Promise.resolve().then(releaseCapture);
+        });
+    }
+
     // ========== MODULE 4: MAIN MODAL & SETTINGS ==========
     function buildMainModal() {
         if (PD.getElementById('vn-modal-overlay')) PD.getElementById('vn-modal-overlay').remove();
@@ -3815,7 +3832,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
           <div class="vn-section-label">Màu thẻ tên & khung thoại (Hex Color)</div>
           <div style="display:flex;gap:8px;align-items:center;">
             <input class="vn-input" id="vn-char-det-color" placeholder="#6366f1 (để trống sẽ dùng màu gradient tự động)" style="flex:1;" />
-            <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" />
+            <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu" />
           </div>
         </div>
         <div class="vn-group" id="vn-char-det-textcolor-group">
@@ -4564,7 +4581,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ($('vn-sz-textcolor-perchar-wrap')) $('vn-sz-textcolor-perchar-wrap').style.display = mode === 'per_char' ? 'block' : 'none';
             if ($('vn-sz-textcolor-select')) $('vn-sz-textcolor-select').value = sz.textColor || 'default';
             if ($('vn-sz-textcolor-picker')) {
-                $('vn-sz-textcolor-picker').style.display = sz.textColor === 'custom' ? 'inline-block' : 'none';
+                const isCustom = sz.textColor === 'custom';
+                $('vn-sz-textcolor-picker').style.display = isCustom ? 'inline-block' : 'none';
                 $('vn-sz-textcolor-picker').value = sz.textColorCustom || '#ffffff';
             }
             if ($('vn-sz-imgpos-select')) $('vn-sz-imgpos-select').value = CFG.inchatImgPos || 'top';
@@ -4651,7 +4669,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             textColorSelect.addEventListener('change', e => {
                 if (!CFG.customSizing) CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth' };
                 CFG.customSizing.textColor = e.target.value;
-                if (textColorPicker) textColorPicker.style.display = e.target.value === 'custom' ? 'inline-block' : 'none';
+                const isCustom = e.target.value === 'custom';
+                if (textColorPicker) textColorPicker.style.display = isCustom ? 'inline-block' : 'none';
                 saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
@@ -4672,6 +4691,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 forceReRenderAll();
                 showToast('Đã áp dụng màu chữ tùy chỉnh!', 'success');
             });
+            fixChromiumEyeDropperBug(textColorPicker);
         }
 
         const imgPosSelect = $('vn-sz-imgpos-select');
@@ -4856,6 +4876,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             $('vn-char-det-textcolorpicker').addEventListener('input', e => { $('vn-char-det-textcolor').value = e.target.value; });
             $('vn-char-det-textcolor').addEventListener('input', e => { if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) $('vn-char-det-textcolorpicker').value = e.target.value; });
         }
+        fixChromiumEyeDropperBug($('vn-char-det-colorpicker'));
+        fixChromiumEyeDropperBug($('vn-char-det-textcolorpicker'));
         ['vn-char-avatar-fit'].forEach(id => {
             const el = $(id);
             if (el) el.addEventListener('input', updateAvatarAdjustPreview);
