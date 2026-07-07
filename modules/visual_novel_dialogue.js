@@ -3009,14 +3009,24 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                         clearTimeout(node._vnTimer);
                         if (!seen.has(node)) {
                             seen.add(node);
-                            processMessage(node, isElementStreaming(node));
+                            const isStr = isElementStreaming(node);
+                            if (isStr) {
+                                node._vnTimer = setTimeout(() => processMessage(node, true), 80);
+                            } else {
+                                processMessage(node, false);
+                            }
                         }
                     }
                     node.querySelectorAll && node.querySelectorAll('.mes').forEach(m => {
                         clearTimeout(m._vnTimer);
                         if (!seen.has(m)) {
                             seen.add(m);
-                            processMessage(m, isElementStreaming(m));
+                            const isStr = isElementStreaming(m);
+                            if (isStr) {
+                                m._vnTimer = setTimeout(() => processMessage(m, true), 80);
+                            } else {
+                                processMessage(m, false);
+                            }
                         }
                     });
                 }
@@ -3026,7 +3036,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                         clearTimeout(mesEl._vnTimer);
                         if (!seen.has(mesEl)) {
                             seen.add(mesEl);
-                            processMessage(mesEl, isElementStreaming(mesEl));
+                            const isStr = isElementStreaming(mesEl);
+                            if (isStr) {
+                                mesEl._vnTimer = setTimeout(() => processMessage(mesEl, true), 80);
+                            } else {
+                                processMessage(mesEl, false);
+                            }
                         }
                     }
                 }
