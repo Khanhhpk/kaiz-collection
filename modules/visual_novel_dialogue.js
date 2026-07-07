@@ -4670,6 +4670,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã áp dụng màu chữ tùy chỉnh!', 'success');
+            });
         }
 
         const imgPosSelect = $('vn-sz-imgpos-select');
