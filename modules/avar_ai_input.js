@@ -94,6 +94,29 @@ Bắt đầu tạo Input:`
         localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(settings));
     }
 
+    function getActiveSettings() {
+        const tokensEl = parentDocument.getElementById('autorp-tokens');
+        if (tokensEl) {
+            return {
+                historyLimit: parseInt(parentDocument.getElementById('autorp-history').value) || 5,
+                apiUrl: parentDocument.getElementById('autorp-url').value.trim(),
+                apiKey: parentDocument.getElementById('autorp-key').value.trim(),
+                model: parentDocument.getElementById('autorp-model').value.trim(),
+                temperature: parseFloat(parentDocument.getElementById('autorp-temp').value) || 0.85,
+                topP: parseFloat(parentDocument.getElementById('autorp-topp').value) || 1.0,
+                maxTokens: parseInt(parentDocument.getElementById('autorp-tokens').value) || 500,
+                customPersona: parentDocument.getElementById('autorp-custom-persona').value,
+                tagInclude: parentDocument.getElementById('autorp-tag-include').value.trim(),
+                tagExclude: parentDocument.getElementById('autorp-tag-exclude').value.trim(),
+                sysPromptTemplate: parentDocument.getElementById('autorp-sys-template').value.trim(),
+                layer1: parentDocument.getElementById('autorp-layer1').value.trim(),
+                layer2: parentDocument.getElementById('autorp-layer2').value.trim(),
+                layer3: parentDocument.getElementById('autorp-layer3').value.trim()
+            };
+        }
+        return getSettings();
+    }
+
     // ============ TRÍCH XUẤT DỮ LIỆU SILLYTAVERN ============
     function escapeRegExp(string) {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -314,7 +337,9 @@ Bắt đầu tạo Input:`
             if (isGenerating) {
                 if (currentAbortController) currentAbortController.abort();
             } else {
-                executeAutoRP(getSettings());
+                const activeCfg = getActiveSettings();
+                saveSettings(activeCfg);
+                executeAutoRP(activeCfg);
             }
         });
         wrapper.appendChild(btn);
@@ -582,23 +607,13 @@ Bắt đầu tạo Input:`
         });
 
         function getCurrentInputs() {
-            return {
-                historyLimit: parseInt(parentDocument.getElementById('autorp-history').value) || 5,
-                apiUrl: parentDocument.getElementById('autorp-url').value.trim(),
-                apiKey: parentDocument.getElementById('autorp-key').value.trim(),
-                model: parentDocument.getElementById('autorp-model').value.trim(),
-                temperature: parseFloat(parentDocument.getElementById('autorp-temp').value) || 0.85,
-                topP: parseFloat(parentDocument.getElementById('autorp-topp').value) || 1.0,
-                maxTokens: parseInt(parentDocument.getElementById('autorp-tokens').value) || 500,
-                customPersona: parentDocument.getElementById('autorp-custom-persona').value,
-                tagInclude: parentDocument.getElementById('autorp-tag-include').value.trim(),
-                tagExclude: parentDocument.getElementById('autorp-tag-exclude').value.trim(),
-                sysPromptTemplate: parentDocument.getElementById('autorp-sys-template').value.trim(),
-                layer1: parentDocument.getElementById('autorp-layer1').value.trim(),
-                layer2: parentDocument.getElementById('autorp-layer2').value.trim(),
-                layer3: parentDocument.getElementById('autorp-layer3').value.trim()
-            };
+            return getActiveSettings();
         }
+
+        mainOverlay.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('change', () => saveSettings(getActiveSettings()));
+            el.addEventListener('input', () => saveSettings(getActiveSettings()));
+        });
 
         parentDocument.getElementById('autorp-btn-close').addEventListener('click', () => mainOverlay.classList.remove('show-modal'));
         parentDocument.getElementById('autorp-btn-close-debug').addEventListener('click', () => debugOverlay.classList.remove('show-modal'));
@@ -687,47 +702,17 @@ Bắt đầu tạo Input:`
                 max_completion_tokens: maxTokensVal,
                 max_output_tokens: maxTokensVal,
                 maxOutputTokens: maxTokensVal,
-                max_new_tokens: maxTokensVal,
                 stream: false,
                 generationConfig: {
                     maxOutputTokens: maxTokensVal,
-                    max_output_tokens: maxTokensVal,
-                    max_tokens: maxTokensVal,
                     temperature: config.temperature,
-                    topP: config.topP,
-                    top_p: config.topP
-                },
-                generation_config: {
-                    max_output_tokens: maxTokensVal,
-                    maxOutputTokens: maxTokensVal,
-                    max_tokens: maxTokensVal,
-                    temperature: config.temperature,
-                    top_p: config.topP,
                     topP: config.topP
-                },
-                options: {
-                    max_tokens: maxTokensVal,
-                    max_output_tokens: maxTokensVal,
-                    num_predict: maxTokensVal,
-                    temperature: config.temperature,
-                    top_p: config.topP
-                },
-                parameters: {
-                    max_new_tokens: maxTokensVal,
-                    max_tokens: maxTokensVal,
-                    max_output_tokens: maxTokensVal,
-                    temperature: config.temperature,
-                    top_p: config.topP
                 }
             };
 
             // OpenAI o1 và o3 không hỗ trợ max_tokens (gây lỗi 400), chỉ dùng max_completion_tokens
             if (/^(o1|o3)/i.test(config.model) || /-(o1|o3)/i.test(config.model)) {
                 delete requestBody.max_tokens;
-                if (requestBody.generationConfig) delete requestBody.generationConfig.max_tokens;
-                if (requestBody.generation_config) delete requestBody.generation_config.max_tokens;
-                if (requestBody.options) delete requestBody.options.max_tokens;
-                if (requestBody.parameters) delete requestBody.parameters.max_tokens;
             }
 
             const response = await fetch(endpoint, {
