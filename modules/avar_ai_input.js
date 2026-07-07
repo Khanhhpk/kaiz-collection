@@ -116,27 +116,30 @@ Bắt đầu tạo Input:`
                 if (msg && msg.mes && !msg.is_system) {
                     let text = msg.mes.replace(/<!--[\s\S]*?-->/g, '');
 
-                    // Chế độ 2: Lọc và bỏ (Exclude Tags - Xóa tag và toàn bộ nội dung bên trong)
-                    if (excludeTags.length > 0) {
-                        excludeTags.forEach(tag => {
-                            const regex = new RegExp("<" + escapeRegExp(tag) + "(?:\\s+[^>]*)?>(?:[\\s\\S]*?<\\/" + escapeRegExp(tag) + "\\s*>)?|<" + escapeRegExp(tag) + "(?:\\s+[^>]*)?\\/>", "gi");
-                            text = text.replace(regex, '');
-                        });
-                    }
-
-                    // Chế độ 1: Lọc và lấy (Include Tags - Chỉ giữ lại nội dung nằm bên trong tag)
-                    if (includeTags.length > 0) {
-                        const tagPattern = includeTags.map(t => escapeRegExp(t)).join('|');
-                        const regex = new RegExp("<(" + tagPattern + ")(?:\\s+[^>]*)?>([\\s\\S]*?)<\\/\\1\\s*>", "gi");
-                        let extractedParts = [];
-                        let match;
-                        while ((match = regex.exec(text)) !== null) {
-                            if (match[2] && match[2].trim()) {
-                                extractedParts.push(match[2].trim());
-                            }
+                    // Chỉ áp dụng lọc tag (Chế độ 1 và Chế độ 2) nếu tin nhắn thuộc vai AI (!msg.is_user)
+                    if (!msg.is_user) {
+                        // Chế độ 2: Lọc và bỏ (Exclude Tags - Xóa tag và toàn bộ nội dung bên trong)
+                        if (excludeTags.length > 0) {
+                            excludeTags.forEach(tag => {
+                                const regex = new RegExp("<" + escapeRegExp(tag) + "(?:\\s+[^>]*)?>(?:[\\s\\S]*?<\\/" + escapeRegExp(tag) + "\\s*>)?|<" + escapeRegExp(tag) + "(?:\\s+[^>]*)?\\/>", "gi");
+                                text = text.replace(regex, '');
+                            });
                         }
-                        if (extractedParts.length > 0) {
-                            text = extractedParts.join('\n\n');
+
+                        // Chế độ 1: Lọc và lấy (Include Tags - Chỉ giữ lại nội dung nằm bên trong tag)
+                        if (includeTags.length > 0) {
+                            const tagPattern = includeTags.map(t => escapeRegExp(t)).join('|');
+                            const regex = new RegExp("<(" + tagPattern + ")(?:\\s+[^>]*)?>([\\s\\S]*?)<\\/\\1\\s*>", "gi");
+                            let extractedParts = [];
+                            let match;
+                            while ((match = regex.exec(text)) !== null) {
+                                if (match[2] && match[2].trim()) {
+                                    extractedParts.push(match[2].trim());
+                                }
+                            }
+                            if (extractedParts.length > 0) {
+                                text = extractedParts.join('\n\n');
+                            }
                         }
                     }
 
