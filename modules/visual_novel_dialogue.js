@@ -2304,24 +2304,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 });
 
                 // --- TỐI ƯU STREAMING THỜI GIAN THỰC (TỚI ĐÂU RENDER TỚI ĐÓ, KHÔNG NHÁY) ---
-                let streamTickRaf = 0;
                 const scheduleApplyStreaming = () => {
-                    if (streamTickRaf) return;
-                    streamTickRaf = requestAnimationFrame(() => {
-                        streamTickRaf = 0;
-                        if (!CFG.enabled || !CFG.renderMode) return;
-                        const chat = PD.getElementById('chat');
-                        const mesList = chat ? chat.getElementsByClassName('mes') : null;
-                        if (!mesList || !mesList.length) return;
-                        const lastMes = mesList[mesList.length - 1];
-                        if (lastMes && !lastMes.classList.contains('is_user')) {
-                            if (lastMes._vnStreamingRaf) {
-                                cancelAnimationFrame(lastMes._vnStreamingRaf);
-                                lastMes._vnStreamingRaf = 0;
-                            }
-                            processMessage(lastMes, true);
-                        }
-                    });
+                    if (!CFG.enabled || !CFG.renderMode) return;
+                    const chat = PD.getElementById('chat');
+                    const mesList = chat ? chat.getElementsByClassName('mes') : null;
+                    if (!mesList || !mesList.length) return;
+                    const lastMes = mesList[mesList.length - 1];
+                    if (lastMes && !lastMes.classList.contains('is_user')) {
+                        scheduleStreamingRender(lastMes);
+                    }
                 };
 
                 const et = ctx.event_types;
@@ -2795,6 +2786,26 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return `<div class="vn-avatar-wrap"><div class="vn-avatar-viewport" data-vn-avatar-fit="${escapeAttr(viewCfg.avatarFit)}" data-vn-avatar-zoom="${escapeAttr(viewCfg.avatarZoom)}">${avatarPart}</div></div>`;
     }
 
+    let _blockHtmlCache = new Map();
+    let _cachedCleanPatternStr = null;
+    let _cachedCleanPatternRe = null;
+    let _streamingRafId = 0;
+    let _streamingTargetMes = null;
+
+    function scheduleStreamingRender(mesEl) {
+        if (!CFG.enabled || !CFG.renderMode) return;
+        if (mesEl) _streamingTargetMes = mesEl;
+        if (_streamingRafId) return;
+        _streamingRafId = requestAnimationFrame(() => {
+            _streamingRafId = 0;
+            const target = _streamingTargetMes || (PD.getElementById('chat')?.lastElementChild);
+            if (target && !target.classList.contains('is_user')) {
+                processMessage(target, true);
+            }
+            _streamingTargetMes = null;
+        });
+    }
+
     function cleanBubbleText(text) {
         if (!text) return '';
         let s = text.trim().normalize('NFC');
@@ -2804,15 +2815,24 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
         try {
             let pattern = CFG.cleanPatterns.trim();
-            let parts = pattern.includes('|') ? pattern.split('|') : pattern.split('');
-            parts = parts.map(p => p.trim()).filter(Boolean);
-            if (parts.length === 0) return s;
-            const escaped = parts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-            const re = new RegExp(`^(?:${escaped})+|(?:${escaped})+$`, 'gi');
-            let prev = '';
-            while (s !== prev) {
-                prev = s;
-                s = s.replace(re, '').trim();
+            if (pattern !== _cachedCleanPatternStr) {
+                let parts = pattern.includes('|') ? pattern.split('|') : pattern.split('');
+                parts = parts.map(p => p.trim()).filter(Boolean);
+                if (parts.length === 0) {
+                    _cachedCleanPatternRe = null;
+                } else {
+                    const escaped = parts.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+                    _cachedCleanPatternRe = new RegExp(`^(?:${escaped})+|(?:${escaped})+$`, 'gi');
+                }
+                _cachedCleanPatternStr = pattern;
+            }
+            if (_cachedCleanPatternRe) {
+                let prev = '';
+                while (s !== prev) {
+                    prev = s;
+                    _cachedCleanPatternRe.lastIndex = 0;
+                    s = s.replace(_cachedCleanPatternRe, '').trim();
+                }
             }
         } catch (err) {
             console.error('[VN Dialogue] Clean pattern error:', err);
@@ -2821,6 +2841,22 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function buildBlockHtml(name, content, isThought, noAnim = false, isStreaming = false) {
+        if (isStreaming) {
+            const cacheKey = `${name}///${content}///${isThought}///${noAnim}///${CFG.displayStyle}///${CFG.inchatImgMode}`;
+            if (_blockHtmlCache.has(cacheKey)) {
+                return _blockHtmlCache.get(cacheKey);
+            }
+            if (_blockHtmlCache.size > 500) _blockHtmlCache.clear();
+            const res = _buildBlockHtmlInternal(name, content, isThought, noAnim, true);
+            _blockHtmlCache.set(cacheKey, res);
+            return res;
+        } else {
+            if (_blockHtmlCache.size > 0) _blockHtmlCache.clear();
+        }
+        return _buildBlockHtmlInternal(name, content, isThought, noAnim, false);
+    }
+
+    function _buildBlockHtmlInternal(name, content, isThought, noAnim, isStreaming) {
         const isRight = isThought;
         const avatarHtml = buildAvatarHtml(name, isStreaming);
         const tagText = name + (isThought ? ' · ✦ Suy nghĩ' : '');
@@ -2850,13 +2886,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const ctx = window.SillyTavern?.getContext?.() || window;
         const isGen = ctx.is_generating || window.is_generating || document.body.classList.contains('generating') || document.body.classList.contains('is_generating');
         if (isGen) {
-            const chat = document.getElementById('chat');
-            if (chat) {
-                const mesList = chat.getElementsByClassName('mes');
-                if (mesList.length > 0 && mesList[mesList.length - 1] === mes) {
-                    return true;
-                }
+            let next = mes.nextElementSibling;
+            while (next && !next.classList?.contains('mes')) {
+                next = next.nextElementSibling;
             }
+            if (!next) return true;
         }
         return false;
     }
@@ -2868,6 +2902,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (isUser) return;
 
         const actuallyStreaming = isStreaming || isElementStreaming(mesEl);
+        if (!actuallyStreaming && typeof _blockHtmlCache !== 'undefined') {
+            _blockHtmlCache.clear();
+        }
 
         const hasBlock = textEl.querySelector('.vn-block') !== null;
         let raw = (textEl.innerHTML || '').normalize('NFC');
@@ -3022,7 +3059,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                             seen.add(node);
                             const isStr = isElementStreaming(node);
                             if (isStr) {
-                                node._vnTimer = setTimeout(() => processMessage(node, true), 80);
+                                scheduleStreamingRender(node);
                             } else {
                                 processMessage(node, false);
                             }
@@ -3034,7 +3071,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                             seen.add(m);
                             const isStr = isElementStreaming(m);
                             if (isStr) {
-                                m._vnTimer = setTimeout(() => processMessage(m, true), 80);
+                                scheduleStreamingRender(m);
                             } else {
                                 processMessage(m, false);
                             }
@@ -3049,7 +3086,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                             seen.add(mesEl);
                             const isStr = isElementStreaming(mesEl);
                             if (isStr) {
-                                mesEl._vnTimer = setTimeout(() => processMessage(mesEl, true), 80);
+                                scheduleStreamingRender(mesEl);
                             } else {
                                 processMessage(mesEl, false);
                             }
