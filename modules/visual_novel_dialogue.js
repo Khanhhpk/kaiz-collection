@@ -2047,7 +2047,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 .vn-block.vn-streaming .vn-charname {
     animation: none !important;
     transition: none !important;
-    transform: translateZ(0) scale(1) !important;
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
 }
@@ -2831,7 +2830,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
     function isElementStreaming(el) {
         if (!el) return false;
-        const mes = el.classList && el.classList.contains('mes') ? el : el.closest && el.closest('.mes');
+        const mes = el.classList && el.classList.contains('mes') ? el : (el.nodeType === 3 ? el.parentNode?.closest('.mes') : el.closest?.('.mes'));
         if (!mes) return false;
         if (mes.classList.contains('is_streaming') || 
             mes.classList.contains('streaming') || 
@@ -2840,10 +2839,14 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             return true;
         }
         const ctx = window.SillyTavern?.getContext?.() || window;
-        if (ctx.is_generating || window.is_generating || document.body.classList.contains('generating') || document.body.classList.contains('is_generating')) {
+        const isGen = ctx.is_generating || window.is_generating || document.body.classList.contains('generating') || document.body.classList.contains('is_generating');
+        if (isGen) {
             const chat = document.getElementById('chat');
-            if (chat && (chat.lastElementChild === mes || !mes.nextElementSibling)) {
-                return true;
+            if (chat) {
+                const mesList = chat.getElementsByClassName('mes');
+                if (mesList.length > 0 && mesList[mesList.length - 1] === mes) {
+                    return true;
+                }
             }
         }
         return false;
@@ -2911,7 +2914,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             textEl.querySelectorAll('img[data-orig-src]').forEach(img => {
                 if (isLocalImageRef(img.dataset.origSrc)) hydrateLocalImageEl(img, img.dataset.origSrc);
             });
-            setTimeout(() => { delete mesEl._vnMutating; }, 30);
+            Promise.resolve().then(() => { delete mesEl._vnMutating; });
         }
     }
 
@@ -2990,11 +2993,17 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const chat = PD.getElementById('chat');
         if (!chat) { setTimeout(setupObserver, 800); return; }
 
+        const getMesEl = (node) => {
+            if (!node) return null;
+            const el = node.nodeType === 3 ? node.parentNode : node;
+            return el && el.closest ? el.closest('.mes') : null;
+        };
+
         PD._vnObserver = new MutationObserver((mutations) => {
             if (!CFG.enabled || !CFG.renderMode) return;
             const seen = new Set();
             for (const mut of mutations) {
-                const targetMes = mut.target && mut.target.closest && mut.target.closest('.mes');
+                const targetMes = getMesEl(mut.target);
                 if (targetMes && targetMes._vnMutating) continue;
                 for (const node of mut.addedNodes) {
                     if (node.nodeType !== 1) continue;
@@ -3014,7 +3023,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     });
                 }
                 if (mut.type === 'childList' || mut.type === 'characterData') {
-                    const mesEl = mut.target.closest && mut.target.closest('.mes');
+                    const mesEl = getMesEl(mut.target);
                     if (mesEl && !mesEl._vnMutating) {
                         clearTimeout(mesEl._vnTimer);
                         if (!seen.has(mesEl)) {
