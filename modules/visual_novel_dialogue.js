@@ -3673,8 +3673,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     // ========== FIX CHROMIUM EYEDROPPER & MODERN API ==========
     function fixChromiumEyeDropperBug(el) {
         if (!el) return;
-        const releaseCapture = () => {
-            const unlock = () => {
+        let debounceTimer = null;
+        let isReattaching = false;
+        
+        const forceUnlockAndCloseOSDialog = () => {
+            if (isReattaching) return;
+            isReattaching = true;
+            if (debounceTimer) clearTimeout(debounceTimer);
+            
+            setTimeout(() => {
                 try {
                     el.blur();
                     if (PD.activeElement && PD.activeElement !== PD.body) {
@@ -3689,18 +3696,46 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                         try { if (PD.body.hasPointerCapture && PD.body.hasPointerCapture(i)) PD.body.releasePointerCapture(i); } catch(e){}
                     }
                     
-                    // Kích hoạt sự kiện resize để ép Chromium RenderWidgetHost xóa bỏ trạng thái khóa chuột (mouse capture lock) sau khi đóng EyeDropper
-                    try { PW.dispatchEvent(new Event('resize')); } catch(e){}
-                } catch (err) {}
-            };
-            
-            // Thực thi bất đồng bộ sau khi hộp thoại OS / EyeDropper đã hoàn tất đóng lại
-            setTimeout(unlock, 100);
-            setTimeout(unlock, 300);
-            setTimeout(unlock, 600);
+                    // Kỹ thuật then chốt: Đưa element ra khỏi DOM và gắn lại ngay lập tức sau 60ms.
+                    // Khi thẻ <input type="color"> bị đưa ra khỏi DOM, Chromium WebContents buộc phải gửi tín hiệu
+                    // ViewHostMsg_CloseColorChooser tới hệ điều hành, tiêu diệt triệt để vòng lặp modal OS (OS modal loop)
+                    // bị kẹt ngầm phía sau khi dùng EyeDropper, trả lại 100% khả năng click chuột cho toàn bộ trang web!
+                    const parent = el.parentNode;
+                    const next = el.nextSibling;
+                    if (parent) {
+                        el.disabled = true;
+                        el.style.pointerEvents = 'none';
+                        try { parent.removeChild(el); } catch(e){}
+                        
+                        setTimeout(() => {
+                            try {
+                                el.disabled = false;
+                                el.style.pointerEvents = 'auto';
+                                if (next && next.parentNode === parent) parent.insertBefore(el, next);
+                                else parent.appendChild(el);
+                            } catch(e){}
+                            isReattaching = false;
+                            
+                            // Ép Chromium RenderWidgetHost tính toán lại vùng hit-test và mở khóa chuột toàn cục
+                            try { PW.dispatchEvent(new Event('resize')); } catch(e){}
+                        }, 60);
+                    } else {
+                        isReattaching = false;
+                        try { PW.dispatchEvent(new Event('resize')); } catch(e){}
+                    }
+                } catch (err) {
+                    isReattaching = false;
+                }
+            }, 100);
         };
-        el.addEventListener('change', releaseCapture);
-        el.addEventListener('blur', releaseCapture);
+        
+        el.addEventListener('change', forceUnlockAndCloseOSDialog);
+        el.addEventListener('blur', forceUnlockAndCloseOSDialog);
+        el.addEventListener('input', () => {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            // Sau 400ms kể từ sự kiện input cuối cùng (khi vừa hút màu xong hoặc dừng kéo chuột trên bảng màu), ép đóng dialog OS
+            debounceTimer = setTimeout(forceUnlockAndCloseOSDialog, 400);
+        });
     }
 
     // ========== MODULE 4: MAIN MODAL & SETTINGS ==========
