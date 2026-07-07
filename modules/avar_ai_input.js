@@ -469,7 +469,7 @@ Bắt đầu tạo Input:`
                                 </div>
                                 <div class="autorp-group">
                                     <label>Max Tokens</label>
-                                    <input type="number" id="autorp-tokens" class="autorp-input" value="${settings.maxTokens}" step="50" min="50" max="8000">
+                                    <input type="number" id="autorp-tokens" class="autorp-input" value="${settings.maxTokens}" step="50" min="50" max="128000">
                                 </div>
                             </div>
                         </div>
@@ -671,17 +671,28 @@ Bắt đầu tạo Input:`
             while (endpoint.endsWith('/')) endpoint = endpoint.slice(0, -1);
             if (!endpoint.includes('/chat/completions')) endpoint += endpoint.includes('/v1') ? '/chat/completions' : '/v1/chat/completions';
 
+            const maxTokensVal = parseInt(config.maxTokens) || 500;
+            const requestBody = {
+                model: config.model,
+                messages: apiMessages,
+                temperature: config.temperature,
+                top_p: config.topP,
+                max_tokens: maxTokensVal,
+                max_completion_tokens: maxTokensVal,
+                max_output_tokens: maxTokensVal,
+                maxOutputTokens: maxTokensVal,
+                stream: false
+            };
+
+            // OpenAI o1 và o3 không hỗ trợ max_tokens (gây lỗi 400), chỉ dùng max_completion_tokens
+            if (/^(o1|o3)/i.test(config.model) || /-(o1|o3)/i.test(config.model)) {
+                delete requestBody.max_tokens;
+            }
+
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + config.apiKey },
-                body: JSON.stringify({
-                    model: config.model,
-                    messages: apiMessages,
-                    temperature: config.temperature,
-                    top_p: config.topP,
-                    max_tokens: config.maxTokens,
-                    stream: false
-                }),
+                body: JSON.stringify(requestBody),
                 signal: signal
             });
 
