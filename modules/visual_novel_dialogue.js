@@ -3147,7 +3147,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function setupImgPickerEvents() {
-        const $ = id => PD.getElementById(id);
+        const $ = id => PD.getElementById(id) || {
+            addEventListener: () => {},
+            classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+            style: {},
+            value: '',
+            checked: false,
+            focus: () => {},
+            click: () => {},
+            querySelectorAll: () => [],
+            querySelector: () => null,
+            setAttribute: () => {},
+            getAttribute: () => null,
+            removeAttribute: () => {},
+            dataset: {},
+            scrollBy: () => {},
+            scrollTop: 0,
+            scrollHeight: 0,
+            innerHTML: '',
+            textContent: '',
+            appendChild: () => {},
+            removeChild: () => {},
+            remove: () => {}
+        };
         const overlay = $('vn-img-modal-overlay');
 
         const srcTabs = $('vn-ipm-srctabs');
@@ -3696,7 +3718,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const grid = PD.getElementById('vn-ipm-grid');
         if (grid) grid.innerHTML = '<div class="vn-img-placeholder">Nhấn nút "⚡ Tải ảnh" để duyệt kho ảnh anime miễn phí.</div>';
         renderFavBar();
-        PD.getElementById('vn-img-modal-overlay').classList.add('show');
+        const ov = PD.getElementById('vn-img-modal-overlay');
+        if (ov) ov.classList.add('show');
     }
 
 
@@ -4127,13 +4150,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:circle-dot.svg?color=%23818cf8" class="vn-icon">Hiển thị Icon Bóng Nổi riêng (Standalone Floating Icon)</div>
-        <div class="vn-toggle-desc">Luôn hiển thị icon ở góc màn hình (kéo thả tự do) để mở cài đặt nhanh, không phụ thuộc Quản lý bóng nổi</div>
-      </div>
-      <label class="vn-switch"><input type="checkbox" id="vn-toggle-fab" /><span class="vn-slider"></span></label>
-    </div>
-    <div class="vn-toggle-row">
-      <div class="vn-toggle-info">
         <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
         <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại. Tắt đi để chỉ hiển thị lời thoại theo danh sách nhân vật tự điền ở Tab 1 (chống bắt nhầm rác/NPC).</div>
       </div>
@@ -4178,7 +4194,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const tog = PD.getElementById('vn-toggle-main');
         const togR = PD.getElementById('vn-toggle-render');
         const togI = PD.getElementById('vn-toggle-inject');
-        const togF = PD.getElementById('vn-toggle-fab');
         const togAuto = PD.getElementById('vn-toggle-autoreg');
         const togAutoAssign = PD.getElementById('vn-toggle-auto-assign');
         const togAutoAssignSet = PD.getElementById('vn-toggle-auto-assign-set');
@@ -4196,7 +4211,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (injDepth) injDepth.value = CFG.injectDepth !== undefined ? CFG.injectDepth : 0;
         const depthWrap = PD.getElementById('vn-inject-depth-wrap');
         if (depthWrap) depthWrap.style.display = (CFG.injectTarget || 'in_chat') === 'in_chat' ? 'block' : 'none';
-        if (togF) togF.checked = CFG.showStandaloneIcon !== false;
         PD.querySelectorAll('.vn-auto-reg-toggle, #vn-toggle-autoreg, #vn-toggle-autoreg-char').forEach(el => { el.checked = CFG.autoRegisterChars !== false; });
         if (togAutoAssign) togAutoAssign.checked = !!CFG.autoAssignAvatar;
         if (togAutoAssignSet) togAutoAssignSet.checked = !!CFG.autoAssignAvatar;
@@ -4414,7 +4428,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function setupMainModalEvents() {
-        const $ = id => PD.getElementById(id);
+        const $ = id => PD.getElementById(id) || {
+            addEventListener: () => {},
+            classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+            style: {},
+            value: '',
+            checked: false,
+            focus: () => {},
+            click: () => {},
+            querySelectorAll: () => [],
+            querySelector: () => null,
+            setAttribute: () => {},
+            getAttribute: () => null,
+            removeAttribute: () => {},
+            dataset: {},
+            scrollBy: () => {},
+            scrollTop: 0,
+            scrollHeight: 0,
+            innerHTML: '',
+            textContent: '',
+            appendChild: () => {},
+            removeChild: () => {},
+            remove: () => {}
+        };
 
         PD.getElementById('vn-modal-overlay').querySelectorAll('.vn-tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -4482,12 +4518,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 showToast(`🔢 Đã đặt độ sâu bơm: Depth ${CFG.injectDepth}`, 'info');
             });
         }
-        $('vn-toggle-fab').addEventListener('change', e => {
-            CFG.showStandaloneIcon = e.target.checked;
-            saveConfig(CFG);
-            setupStandaloneFab();
-            showToast(CFG.showStandaloneIcon !== false ? 'Đã bật nút bóng nổi riêng 🎭' : 'Đã ẩn nút bóng nổi riêng', 'info');
-        });
         const handleAutoRegChange = (checked) => {
             CFG.autoRegisterChars = checked;
             saveConfig(CFG);
@@ -5121,6 +5151,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
         try {
             PW.FloatingMenuManager.registerButton(fmmConfig);
+            const oldFab = PD.getElementById('vn-standalone-fab');
+            if (oldFab) oldFab.remove();
             return true;
         } catch (e) {
             console.error('[VN Dialogue] Lỗi đăng ký FloatingMenuManager:', e);
@@ -5131,7 +5163,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     function setupStandaloneFab() {
         let old = PD.getElementById('vn-standalone-fab');
         if (old) old.remove();
-        if (CFG.showStandaloneIcon === false) return;
+
+        // Tự động: Nếu đã có bóng mẹ (FloatingMenuManager) hoạt động thì không hiển thị bóng riêng
+        if (PW.FloatingMenuManager && typeof PW.FloatingMenuManager.registerButton === 'function') {
+            return;
+        }
 
         const fab = PD.createElement('div');
         fab.id = 'vn-standalone-fab';
@@ -5280,14 +5316,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     function openMainModal() {
         buildMainModal();
         refreshMainModal();
-        PD.getElementById('vn-modal-overlay').classList.add('show');
+        const overlay = PD.getElementById('vn-modal-overlay');
+        if (overlay) overlay.classList.add('show');
         if (PW.FloatingMenuManager && typeof PW.FloatingMenuManager.collapse === 'function') PW.FloatingMenuManager.collapse();
+    }
+
+    let _fmmWatchdogTimer = null;
+    function startFmmWatchdog() {
+        if (_fmmWatchdogTimer) clearInterval(_fmmWatchdogTimer);
+        let count = 0;
+        _fmmWatchdogTimer = setInterval(() => {
+            count++;
+            if (registerFMM() || count >= 40) {
+                clearInterval(_fmmWatchdogTimer);
+                _fmmWatchdogTimer = null;
+            }
+        }, 500);
     }
 
     // ========== KHỞI TẠO HỆ THỐNG ==========
     function init() {
         if (!PD.body) { setTimeout(init, 300); return; }
         try {
+            if (PD._fmmWatchdogTimer) { clearInterval(PD._fmmWatchdogTimer); delete PD._fmmWatchdogTimer; }
             injectStyles();
             buildMainModal();
             setupObserver();
@@ -5302,6 +5353,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 console.log('[VN Dialogue] Đã đăng ký thành công vào Menu Bóng Nổi Mẹ (FloatingMenuManager) ✓');
             } else {
                 console.log('[VN Dialogue] Đã thêm vào hàng đợi chờ Menu Bóng Nổi Mẹ (FloatingMenuManager)...');
+                startFmmWatchdog();
+                PD._fmmWatchdogTimer = _fmmWatchdogTimer;
             }
 
             console.log(`[VN Dialogue] Đã khởi tạo Visual Novel Dialogue Beautifier ${SCRIPT_VERSION} ✓`);
