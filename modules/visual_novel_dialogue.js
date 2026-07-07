@@ -3741,98 +3741,104 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <button class="vn-btn vn-btn-secondary" id="vn-char-det-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;">⬅️ Quay lại danh sách nhân vật</button>
       <div class="vn-section-label">Tuỳ chỉnh chi tiết nhân vật</div>
       <div class="vn-char-detail" id="vn-char-detail">
-        <div class="vn-char-detail-header">
-          <img class="vn-char-detail-avatar" id="vn-char-det-avatar" src="" style="display:none;" title="Nhấn để đổi ảnh" />
-          <div id="vn-char-det-initial" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;"></div>
-          <div class="vn-char-detail-info">
-            <div class="vn-char-detail-name" id="vn-char-det-name"></div>
-            <div class="vn-char-btns" id="vn-char-det-btns"></div>
-          </div>
-        </div>
-        <div class="vn-group">
-          <div class="vn-section-label">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
-          <input class="vn-input" id="vn-char-det-rename" placeholder="Tên nhân vật..." />
-        </div>
-        <div class="vn-group">
-          <div class="vn-section-label">URL ảnh đại diện (Avatar)</div>
-          <div style="display:flex;gap:8px;">
-            <input class="vn-input" id="vn-char-det-avatar-url" placeholder="https://... hoặc data:image/..." style="flex:1;" />
-            <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img">🖼️ Chọn từ kho ảnh / Local</button>
-          </div>
-        </div>
-        <div class="vn-group vn-avatar-crop-editor" id="vn-char-avatar-adjust-group">
-          <div class="vn-section-label" style="margin-top:0;">📐 Cắt / căn khung Avatar</div>
-          <input type="hidden" id="vn-char-avatar-x" value="50" />
-          <input type="hidden" id="vn-char-avatar-y" value="50" />
-          <input type="hidden" id="vn-char-avatar-zoom" value="100" />
-          <div class="vn-avatar-crop-layout">
-            <div>
-              <div class="vn-avatar-crop-stage" id="vn-avatar-crop-stage" title="Kéo để căn ảnh, cuộn chuột để zoom in/out">
-                <img id="vn-char-avatar-adjust-preview" class="vn-avatar-crop-img" src="" draggable="false" />
-                <div class="vn-avatar-crop-frame"></div>
-                <div class="vn-avatar-crop-crosshair"></div>
-              </div>
-              <div style="font-size:11px;color:#94a3b8;line-height:1.45;text-align:center;margin-top:8px;">Kéo ảnh để căn vị trí. Cuộn chuột trong khung để zoom in/out.</div>
+        <div id="vn-char-detail-main">
+          <div class="vn-char-detail-header">
+            <img class="vn-char-detail-avatar" id="vn-char-det-avatar" src="" style="display:none;" title="Nhấn để đổi ảnh" />
+            <div id="vn-char-det-initial" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;flex-shrink:0;"></div>
+            <div class="vn-char-detail-info">
+              <div class="vn-char-detail-name" id="vn-char-det-name"></div>
+              <div class="vn-char-btns" id="vn-char-det-btns"></div>
             </div>
-            <div class="vn-avatar-crop-tools">
-              <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-                <div class="vn-avatar-live-preview-wrap"><img id="vn-char-avatar-live-preview" src="" draggable="false" /></div>
-                <div style="min-width:160px;flex:1;">
-                  <div style="font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:6px;">Preview avatar sau khi cắt</div>
-                  <div id="vn-avatar-crop-pos-hint" style="font-size:11px;color:#94a3b8;line-height:1.45;">Vị trí khung: ngang 50% · dọc 50% · zoom 100%</div>
+          </div>
+          <div class="vn-group">
+            <div class="vn-section-label">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
+            <input class="vn-input" id="vn-char-det-rename" placeholder="Tên nhân vật..." />
+          </div>
+          <div class="vn-group">
+            <div class="vn-section-label">URL ảnh đại diện (Avatar)</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input class="vn-input" id="vn-char-det-avatar-url" placeholder="https://... hoặc data:image/..." style="flex:1;min-width:180px;" />
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img">🖼️ Chọn ảnh</button>
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-open-edit-view">✂️ Cắt / Zoom ảnh</button>
+            </div>
+          </div>
+          <div class="vn-group">
+            <div class="vn-section-label">Màu thẻ tên & khung thoại (Hex Color)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="vn-input" id="vn-char-det-color" placeholder="#6366f1 (để trống sẽ dùng màu gradient tự động)" style="flex:1;" />
+              <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu" />
+            </div>
+          </div>
+          <div class="vn-group" id="vn-char-det-textcolor-group">
+            <div class="vn-section-label">🎨 Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="vn-input" id="vn-char-det-textcolor" placeholder="#ffffff (để trống sẽ dùng theo theme/mặc định)" style="flex:1;" />
+              <input type="color" id="vn-char-det-textcolorpicker" value="#ffffff" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu chữ" />
+            </div>
+            <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;">💡 Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab 🎨 Giao diện & Style thì màu này mới có hiệu lực!</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;">💾 Lưu nhân vật này</button>
+            <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật">🗑️ Xoá</button>
+          </div>
+        </div>
+        <div id="vn-char-image-edit-view" style="display:none;">
+          <button class="vn-btn vn-btn-secondary" id="vn-img-edit-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;">⬅️ Xong / Quay lại cài đặt nhân vật</button>
+          <div class="vn-group vn-avatar-crop-editor" id="vn-char-avatar-adjust-group" style="margin-top:0;">
+            <div class="vn-section-label" style="margin-top:0;">📐 Cắt / căn khung Avatar</div>
+            <input type="hidden" id="vn-char-avatar-x" value="50" />
+            <input type="hidden" id="vn-char-avatar-y" value="50" />
+            <input type="hidden" id="vn-char-avatar-zoom" value="100" />
+            <div class="vn-avatar-crop-layout">
+              <div>
+                <div class="vn-avatar-crop-stage" id="vn-avatar-crop-stage" title="Kéo để căn ảnh, cuộn chuột để zoom in/out">
+                  <img id="vn-char-avatar-adjust-preview" class="vn-avatar-crop-img" src="" draggable="false" />
+                  <div class="vn-avatar-crop-frame"></div>
+                  <div class="vn-avatar-crop-crosshair"></div>
                 </div>
+                <div style="font-size:11px;color:#94a3b8;line-height:1.45;text-align:center;margin-top:8px;">Kéo ảnh để căn vị trí. Cuộn chuột trong khung để zoom in/out.</div>
               </div>
-              <label style="font-size:12px;color:#cbd5e1;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Kiểu ảnh
-                <select class="vn-input" id="vn-char-avatar-fit" style="padding:6px 8px;font-size:12px;max-width:220px;">
-                  <option value="cover">Cắt đầy khung avatar</option>
-                  <option value="contain">Hiện nguyên ảnh</option>
-                </select>
-              </label>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:#cbd5e1;font-weight:600;">Zoom
-                <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="-10">−</button>
-                <span id="vn-char-avatar-zoom-val" style="min-width:44px;text-align:center;color:#a5b4fc;">100%</span>
-                <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="10">+</button>
-                <span style="font-size:11px;color:#64748b;font-weight:500;">Cuộn chuột trong khung để zoom nhanh</span>
-              </div>
-              <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;">
-                <div>
-                  <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">Canh nhanh</div>
-                  <div class="vn-avatar-crop-preset-grid">
-                    <button type="button" data-vn-crop-pos="0,0" title="Trên trái">↖</button>
-                    <button type="button" data-vn-crop-pos="50,0" title="Trên">↑</button>
-                    <button type="button" data-vn-crop-pos="100,0" title="Trên phải">↗</button>
-                    <button type="button" data-vn-crop-pos="0,50" title="Trái">←</button>
-                    <button type="button" data-vn-crop-pos="50,50" title="Giữa">●</button>
-                    <button type="button" data-vn-crop-pos="100,50" title="Phải">→</button>
-                    <button type="button" data-vn-crop-pos="0,100" title="Dưới trái">↙</button>
-                    <button type="button" data-vn-crop-pos="50,100" title="Dưới">↓</button>
-                    <button type="button" data-vn-crop-pos="100,100" title="Dưới phải">↘</button>
+              <div class="vn-avatar-crop-tools">
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                  <div class="vn-avatar-live-preview-wrap"><img id="vn-char-avatar-live-preview" src="" draggable="false" /></div>
+                  <div style="min-width:160px;flex:1;">
+                    <div style="font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:6px;">Preview avatar sau khi cắt</div>
+                    <div id="vn-avatar-crop-pos-hint" style="font-size:11px;color:#94a3b8;line-height:1.45;">Vị trí khung: ngang 50% · dọc 50% · zoom 100%</div>
                   </div>
                 </div>
-                <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-avatar-reset" style="padding:8px 12px;font-size:12px;margin-top:18px;">↺ Về giữa</button>
+                <label style="font-size:12px;color:#cbd5e1;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">Kiểu ảnh
+                  <select class="vn-input" id="vn-char-avatar-fit" style="padding:6px 8px;font-size:12px;max-width:220px;">
+                    <option value="cover">Cắt đầy khung avatar</option>
+                    <option value="contain">Hiện nguyên ảnh</option>
+                  </select>
+                </label>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:#cbd5e1;font-weight:600;">Zoom
+                  <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="-10">−</button>
+                  <span id="vn-char-avatar-zoom-val" style="min-width:44px;text-align:center;color:#a5b4fc;">100%</span>
+                  <button class="vn-btn vn-btn-secondary vn-btn-sm" type="button" data-vn-crop-zoom="10">+</button>
+                  <span style="font-size:11px;color:#64748b;font-weight:500;">Cuộn chuột trong khung để zoom nhanh</span>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+                  <div>
+                    <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">Canh nhanh</div>
+                    <div class="vn-avatar-crop-preset-grid">
+                      <button type="button" data-vn-crop-pos="0,0" title="Trên trái">↖</button>
+                      <button type="button" data-vn-crop-pos="50,0" title="Trên">↑</button>
+                      <button type="button" data-vn-crop-pos="100,0" title="Trên phải">↗</button>
+                      <button type="button" data-vn-crop-pos="0,50" title="Trái">←</button>
+                      <button type="button" data-vn-crop-pos="50,50" title="Giữa">●</button>
+                      <button type="button" data-vn-crop-pos="100,50" title="Phải">→</button>
+                      <button type="button" data-vn-crop-pos="0,100" title="Dưới trái">↙</button>
+                      <button type="button" data-vn-crop-pos="50,100" title="Dưới">↓</button>
+                      <button type="button" data-vn-crop-pos="100,100" title="Dưới phải">↘</button>
+                    </div>
+                  </div>
+                  <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-avatar-reset" style="padding:8px 12px;font-size:12px;margin-top:18px;">↺ Về giữa</button>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;line-height:1.45;">Nhấn <b>Xong</b> rồi <b>Lưu nhân vật này</b> để áp dụng khung cắt vào toàn bộ chat. Có thể dùng các nút canh nhanh nếu ảnh lệch quá nhiều.</div>
               </div>
-              <div style="font-size:11px;color:#94a3b8;line-height:1.45;">Nhấn <b>Lưu nhân vật này</b> để áp dụng khung cắt vào toàn bộ chat. Có thể dùng các nút canh nhanh nếu ảnh lệch quá nhiều.</div>
             </div>
           </div>
-        </div>
-        <div class="vn-group">
-          <div class="vn-section-label">Màu thẻ tên & khung thoại (Hex Color)</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input class="vn-input" id="vn-char-det-color" placeholder="#6366f1 (để trống sẽ dùng màu gradient tự động)" style="flex:1;" />
-            <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu" />
-          </div>
-        </div>
-        <div class="vn-group" id="vn-char-det-textcolor-group">
-          <div class="vn-section-label">🎨 Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input class="vn-input" id="vn-char-det-textcolor" placeholder="#ffffff (để trống sẽ dùng theo theme/mặc định)" style="flex:1;" />
-            <input type="color" id="vn-char-det-textcolorpicker" value="#ffffff" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu chữ" />
-          </div>
-          <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;">💡 Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab 🎨 Giao diện & Style thì màu này mới có hiệu lực!</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;">💾 Lưu nhân vật này</button>
-          <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật">🗑️ Xoá</button>
         </div>
       </div>
     </div>
@@ -4316,8 +4322,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (!ch) return;
         const listView = PD.getElementById('vn-char-list-view');
         const detailView = PD.getElementById('vn-char-detail-wrap');
+        const mainView = PD.getElementById('vn-char-detail-main');
+        const editView = PD.getElementById('vn-char-image-edit-view');
         if (listView) listView.style.display = 'none';
         if (detailView) detailView.style.display = 'block';
+        if (mainView) mainView.style.display = 'block';
+        if (editView) editView.style.display = 'none';
 
         PD.getElementById('vn-char-det-name').textContent = name;
         PD.getElementById('vn-char-det-rename').value = name;
@@ -4347,7 +4357,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         btnsWrap.innerHTML = '';
         const pickBtn = PD.createElement('button');
         pickBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
-        pickBtn.textContent = '🖼️ Chọn ảnh Anime / Local...';
+        pickBtn.textContent = '🖼️ Chọn ảnh...';
         pickBtn.addEventListener('click', () => {
             openImgPicker(name, (url) => {
                 PD.getElementById('vn-char-det-avatar-url').value = url;
@@ -4364,6 +4374,20 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             });
         });
         btnsWrap.appendChild(pickBtn);
+
+        const editImgBtn = PD.createElement('button');
+        editImgBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
+        editImgBtn.style.marginTop = '6px';
+        editImgBtn.textContent = '✂️ Cắt / Zoom / Căn chỉnh ảnh';
+        editImgBtn.addEventListener('click', () => {
+            const mv = PD.getElementById('vn-char-detail-main');
+            const ev = PD.getElementById('vn-char-image-edit-view');
+            if (mv) mv.style.display = 'none';
+            if (ev) ev.style.display = 'block';
+            updateAvatarAdjustPreview();
+            setupAvatarCropEditor();
+        });
+        btnsWrap.appendChild(editImgBtn);
 
         const avatarImg = PD.getElementById('vn-char-det-avatar');
         const initialEl = PD.getElementById('vn-char-det-initial');
@@ -4392,8 +4416,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         _currentEditChar = null;
         const listView = PD.getElementById('vn-char-list-view');
         const detailView = PD.getElementById('vn-char-detail-wrap');
+        const mainView = PD.getElementById('vn-char-detail-main');
+        const editView = PD.getElementById('vn-char-image-edit-view');
         if (listView) listView.style.display = 'block';
         if (detailView) detailView.style.display = 'none';
+        if (mainView) mainView.style.display = 'block';
+        if (editView) editView.style.display = 'none';
     }
 
     function setupMainModalEvents() {
@@ -4894,6 +4922,31 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 }
             });
         });
+
+        const openEditViewBtn = $('vn-char-open-edit-view');
+        if (openEditViewBtn) {
+            openEditViewBtn.addEventListener('click', () => {
+                const mv = $('vn-char-detail-main');
+                const ev = $('vn-char-image-edit-view');
+                if (mv) mv.style.display = 'none';
+                if (ev) ev.style.display = 'block';
+                updateAvatarAdjustPreview();
+                setupAvatarCropEditor();
+            });
+        }
+        const imgEditBackBtn = $('vn-img-edit-back');
+        if (imgEditBackBtn) {
+            imgEditBackBtn.addEventListener('click', () => {
+                const mv = $('vn-char-detail-main');
+                const ev = $('vn-char-image-edit-view');
+                if (mv) mv.style.display = 'block';
+                if (ev) ev.style.display = 'none';
+                const avatarImg = $('vn-char-det-avatar');
+                if (avatarImg && _currentEditChar && CFG.characters[_currentEditChar]) {
+                    applyAvatarViewToElement(avatarImg, readAvatarAdjustControls());
+                }
+            });
+        }
 
         $('vn-char-det-save').addEventListener('click', async () => {
             if (!_currentEditChar) return;
