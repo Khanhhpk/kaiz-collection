@@ -307,7 +307,7 @@ Bắt đầu tạo Input:`
         const btn = parentDocument.createElement('button');
         btn.id = 'autorp-quick-btn';
         btn.innerHTML = `${ICONS.sparkles} Tạo Input`;
-        btn.title = "AI Input";
+        btn.title = "AI Input v0.1";
 
         btn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -411,6 +411,12 @@ Bắt đầu tạo Input:`
         const modalHTML = `
             <div id="autorp-modal-overlay">
                 <div class="autorp-modal">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: #f8fafc;">
+                            ${ICONS.sparkles} Auto AI Input
+                        </div>
+                        <span style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">v0.1</span>
+                    </div>
                     <div class="autorp-tab-nav">
                         <button class="autorp-tab-btn active" data-tab="general">${icServer} KẾT NỐI</button>
                         <button class="autorp-tab-btn" data-tab="prompt">${icPen} PROMPT</button>
@@ -735,7 +741,7 @@ Bắt đầu tạo Input:`
     var _rpConfig = {
         id: 'auto_user_rp',
         icon: '<img src="https://api.iconify.design/lucide:venetian-mask.svg?color=white" style="width:24px;height:24px;">',
-        label: 'Tự Nhập Vai',
+        label: 'Tự Nhập Vai v0.1',
         color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         order: 2,
         onClick: function() {
