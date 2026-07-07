@@ -212,7 +212,6 @@ const PHONE_APPS = [
 
 const UTILITY_MODULES = [
     { file: 'avar_ai_input.js', path: './modules/avar_ai_input.js', name: 'Avar AI Input', desc: 'Hỗ trợ nhập liệu thông minh cho AI' },
-    { file: 'prompt_booster.js', path: './modules/prompt_booster.js', name: 'Trạm Bơm Prompt', desc: 'Thử nghiệm bơm chỉ lệnh (Bong bóng riêng)' },
     { file: 'shimeji.js', path: './modules/shimeji.js', name: 'Shimeji v14.21', desc: 'Thú cưng tương tác chạy nhảy trên màn hình' },
     { file: 'storage_inspector.js', path: './modules/storage_inspector.js', name: 'Storage Inspector', desc: 'Kiểm tra và quản lý dung lượng lưu trữ' },
     { file: 'visual_novel_dialogue.js', path: './modules/visual_novel_dialogue.js', name: 'Visual Novel Dialogue', desc: 'Hiển thị hội thoại phong cách Visual Novel' },

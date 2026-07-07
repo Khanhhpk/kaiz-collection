@@ -53,7 +53,7 @@ kaiz-collection/
     ├── phone_core.js
     ├── app_weather.js
     ├── app_wechat.js
-    ... (28 file module JS)
+    ... (27 file module JS)
 ```
 
 
