@@ -3729,7 +3729,14 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
           <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
           <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại chat</div>
         </div>
-        <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg-tab1" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
+        <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg-char" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
+      </div>
+      <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(244,63,94,0.4);background:rgba(244,63,94,0.1);">
+        <div class="vn-toggle-info">
+          <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
+          <div class="vn-toggle-desc">Tự động nhận diện @Tên(Nữ/Nam)@ và gán ngẫu nhiên ảnh từ neko.best</div>
+        </div>
+        <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign" /><span class="vn-slider"></span></label>
       </div>
       <div id="vn-add-char-wrap" style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:14px;">
         <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:user-plus.svg?color=%23818cf8" class="vn-icon">Thêm nhanh nhân vật mới</div>
@@ -3773,31 +3780,34 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             <div class="vn-section-label"><img src="https://api.iconify.design/lucide:image.svg?color=%23818cf8" class="vn-icon">URL ảnh đại diện (Avatar)</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <input class="vn-input" id="vn-char-det-avatar-url" placeholder="https://... hoặc data:image/..." style="flex:1;min-width:180px;" />
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img"><img src="https://api.iconify.design/lucide:folder-open.svg?color=white" class="vn-icon">Chọn ảnh...</button>
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-open-edit-view"><img src="https://api.iconify.design/lucide:crop.svg?color=white" class="vn-icon">Cắt / Zoom ảnh</button>
+            </div>
           </div>
           <div class="vn-group">
-            <div class="vn-section-label">Màu thẻ tên & khung thoại (Hex Color)</div>
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:palette.svg?color=%23818cf8" class="vn-icon">Màu thẻ tên & khung thoại (Hex Color)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input class="vn-input" id="vn-char-det-color" placeholder="#6366f1 (để trống sẽ dùng màu gradient tự động)" style="flex:1;" />
               <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu" />
             </div>
           </div>
           <div class="vn-group" id="vn-char-det-textcolor-group">
-            <div class="vn-section-label">🎨 Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
+            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:type.svg?color=%23a78bfa" class="vn-icon">Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input class="vn-input" id="vn-char-det-textcolor" placeholder="#ffffff (để trống sẽ dùng theo theme/mặc định)" style="flex:1;" />
               <input type="color" id="vn-char-det-textcolorpicker" value="#ffffff" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu chữ" />
             </div>
-            <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;">💡 Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab 🎨 Giao diện & Style thì màu này mới có hiệu lực!</div>
+            <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab Giao diện & Style thì màu này mới có hiệu lực!</div>
           </div>
           <div style="display:flex;gap:8px;margin-top:4px;">
-            <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;">💾 Lưu nhân vật này</button>
-            <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật">🗑️ Xoá</button>
+            <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;"><img src="https://api.iconify.design/lucide:save.svg?color=white" class="vn-icon">Lưu nhân vật này</button>
+            <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật"><img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon">Xoá</button>
           </div>
         </div>
         <div id="vn-char-image-edit-view" style="display:none;">
-          <button class="vn-btn vn-btn-secondary" id="vn-img-edit-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;">⬅️ Xong / Quay lại cài đặt nhân vật</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-img-edit-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" class="vn-icon">Xong / Quay lại cài đặt nhân vật</button>
           <div class="vn-group vn-avatar-crop-editor" id="vn-char-avatar-adjust-group" style="margin-top:0;">
-            <div class="vn-section-label" style="margin-top:0;">📐 Cắt / căn khung Avatar</div>
+            <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:crop.svg?color=%23818cf8" class="vn-icon">Cắt / căn khung Avatar</div>
             <input type="hidden" id="vn-char-avatar-x" value="50" />
             <input type="hidden" id="vn-char-avatar-y" value="50" />
             <input type="hidden" id="vn-char-avatar-zoom" value="100" />
@@ -4902,28 +4912,31 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             setAvatarAdjustControls({ avatarPosX: 50, avatarPosY: 50, avatarZoom: 100, avatarFit: 'cover' });
         });
 
-        $('vn-char-pick-img').addEventListener('click', () => {
-            if (!_currentEditChar) return;
-            openImgPicker(_currentEditChar, url => {
-                $('vn-char-det-avatar-url').value = url;
-                const avatarImg = $('vn-char-det-avatar');
-                const safeUrl = safeImageUrl(url);
-                avatarImg.src = resolveImageSrc(safeUrl || url, buildInitialSvgData(_currentEditChar || '?'));
-                avatarImg.dataset.origSrc = safeUrl || url;
-                if (isLocalImageRef(safeUrl)) hydrateLocalImageEl(avatarImg, safeUrl);
-                avatarImg.style.display = 'block';
-                $('vn-char-det-initial').style.display = 'none';
-                updateAvatarAdjustPreview();
-                if (CFG.characters[_currentEditChar]) {
-                    if (!safeUrl) { showToast('URL ảnh không hợp lệ hoặc không an toàn.', 'warning'); return; }
-                    Object.assign(CFG.characters[_currentEditChar], { avatar: safeUrl }, readAvatarAdjustControls());
-                    saveConfig(CFG);
-                    renderCharGrid();
-                    forceReRenderAll();
-                    showToast(`Đã áp dụng ảnh mới cho "${_currentEditChar}"! ✨`, 'success');
-                }
+        const pickImgBtn = $('vn-char-pick-img');
+        if (pickImgBtn) {
+            pickImgBtn.addEventListener('click', () => {
+                if (!_currentEditChar) return;
+                openImgPicker(_currentEditChar, url => {
+                    $('vn-char-det-avatar-url').value = url;
+                    const avatarImg = $('vn-char-det-avatar');
+                    const safeUrl = safeImageUrl(url);
+                    avatarImg.src = resolveImageSrc(safeUrl || url, buildInitialSvgData(_currentEditChar || '?'));
+                    avatarImg.dataset.origSrc = safeUrl || url;
+                    if (isLocalImageRef(safeUrl)) hydrateLocalImageEl(avatarImg, safeUrl);
+                    avatarImg.style.display = 'block';
+                    $('vn-char-det-initial').style.display = 'none';
+                    updateAvatarAdjustPreview();
+                    if (CFG.characters[_currentEditChar]) {
+                        if (!safeUrl) { showToast('URL ảnh không hợp lệ hoặc không an toàn.', 'warning'); return; }
+                        Object.assign(CFG.characters[_currentEditChar], { avatar: safeUrl }, readAvatarAdjustControls());
+                        saveConfig(CFG);
+                        renderCharGrid();
+                        forceReRenderAll();
+                        showToast(`Đã áp dụng ảnh mới cho "${_currentEditChar}"! ✨`, 'success');
+                    }
+                });
             });
-        });
+        }
 
         const openEditViewBtn = $('vn-char-open-edit-view');
         if (openEditViewBtn) {
