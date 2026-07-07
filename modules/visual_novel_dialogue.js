@@ -342,9 +342,12 @@ Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đ�
         let startY = 0;
         let startCfg = null;
 
-        const stopDrag = () => {
+        const stopDrag = (e) => {
             dragging = false;
             stage.classList.remove('dragging');
+            if (e && e.pointerId !== undefined && stage.releasePointerCapture) {
+                try { stage.releasePointerCapture(e.pointerId); } catch (err) { }
+            }
         };
 
         stage.addEventListener('pointerdown', e => {
@@ -825,11 +828,13 @@ Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đ�
     box-shadow: none !important;
     margin: 0 !important;
     display: block;
-    transform: scale(var(--vn-avatar-zoom, 1));
+    transform: none;
     transform-origin: center center;
 }
-.vn-avatar-viewport .vn-avatar:hover {
+.vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar {
     transform: scale(var(--vn-avatar-zoom, 1));
+}
+.vn-avatar-viewport .vn-avatar:hover {
     box-shadow: none !important;
 }
 .vn-avatar {
@@ -1646,7 +1651,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     border:2.5px solid rgba(99,102,241,0.6);
     transition:all 0.15s;
 }
-.vn-fav-thumb:hover { transform:scale(1.1); border-color:#6366f1; box-shadow:0 4px 10px rgba(0,0,0,0.4); }
+.vn-fav-thumb:hover { border-color:#6366f1; box-shadow:0 4px 10px rgba(0,0,0,0.4); }
 .vn-fav-empty {
     font-size:12px; color:#64748b; font-style:italic;
     display:flex; align-items:center; height:46px; padding:0 4px;
@@ -1681,7 +1686,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     align-items: center;
     justify-content: center;
 }
-.vn-img-thumb:hover { border-color:#6366f1; transform:scale(1.04); box-shadow:0 8px 20px rgba(0,0,0,0.5); z-index:10; }
+.vn-img-thumb:hover { border-color:#6366f1; box-shadow:0 8px 20px rgba(0,0,0,0.5); z-index:10; }
 .vn-img-thumb img {
     position: absolute;
     inset: 0;
@@ -1703,7 +1708,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
 }
 .vn-img-thumb:hover .vn-img-fav-btn { display:flex; }
 .vn-img-thumb .vn-img-fav-btn.starred { background:rgba(251,191,36,0.95); color:#78350f; display:flex; }
-.vn-img-thumb .vn-img-fav-btn.starred:hover { background:rgba(251,191,36,1); transform:scale(1.1); }
+.vn-img-thumb .vn-img-fav-btn.starred:hover { background:rgba(251,191,36,1); }
 .vn-img-thumb .vn-img-del-btn {
     position:absolute; top:6px; left:6px;
     width:26px; height:26px; border-radius:50%;
@@ -1713,7 +1718,7 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     transition:all 0.15s; line-height:1; z-index:5;
 }
 .vn-img-thumb:hover .vn-img-del-btn { display:flex; }
-.vn-img-thumb .vn-img-del-btn:hover { background:rgba(239,68,68,1); transform:scale(1.08); }
+.vn-img-thumb .vn-img-del-btn:hover { background:rgba(239,68,68,1); }
 .vn-img-thumb .vn-img-nsfw-badge {
     position:absolute; bottom:6px; left:6px;
     background:rgba(239,68,68,0.9); color:#fff;
@@ -1796,11 +1801,10 @@ html[data-vn-custom-color="1"] .vn-bubble-text {
     touch-action: none;
 }
 #vn-standalone-fab:hover {
-    transform: scale(1.1) rotate(5deg);
     box-shadow: 0 8px 25px rgba(236, 72, 153, 0.6), inset 0 2px 6px rgba(255,255,255,0.6);
 }
 #vn-standalone-fab:active {
-    transform: scale(0.95);
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4), inset 0 1px 3px rgba(255,255,255,0.4);
 }
 /* ===== ẢNH AVATAR MỞ RỘNG TRỰC TIẾP TRONG CHÍNH VĂN (IN-PLACE EXPANSION) ===== */
 .vn-avatar {
@@ -1926,6 +1930,11 @@ html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewp
     object-fit: cover !important;
     box-sizing: border-box !important;
     animation: none !important;
+    transform: none !important;
+    transform-origin: center center !important;
+}
+html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar,
+html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar {
     transform: scale(var(--vn-avatar-zoom, 1)) !important;
     transform-origin: center center !important;
 }
@@ -1984,10 +1993,8 @@ html[data-vn-img-mode="always_full"] .vn-block.vn-no-anim .vn-bubble {
 }
 
 /* --- BẢN VÁ ZOOM AVATAR: không để zoom ảnh phá hover/animation mở - thu ảnh --- */
-html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport .vn-avatar,
-html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport .vn-avatar:hover,
-html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport .vn-avatar,
-html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport .vn-avatar:hover {
+html:not([data-vn-img-mode="always_full"]) .vn-block:not(.vn-expanded-img) .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar,
+html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewport:not([data-vn-avatar-zoom="100"]) .vn-avatar {
     transform: scale(var(--vn-avatar-zoom, 1)) !important;
     transform-origin: center center !important;
     box-shadow: none !important;
@@ -1997,7 +2004,7 @@ html[data-vn-img-mode="always_full"] .vn-block.vn-collapsed-img .vn-avatar-viewp
     cursor: pointer !important;
     overflow: hidden !important;
 }
-html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar-viewport .vn-avatar:hover,
+html[data-vn-img-mode="always_full"] .vn-block:not(.vn-expanded-img) .vn-avatar-viewport .vn-avatar:hover,
 .vn-block.vn-expanded-img .vn-avatar-viewport .vn-avatar:hover {
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
 }
@@ -2011,7 +2018,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 .vn-block.vn-expanded-img .vn-avatar {
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
-    transform: translateZ(0) scale(1) !important;
+    transform: none !important;
     decoding: sync !important;
     contain: layout paint !important;
 }
