@@ -3674,22 +3674,33 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     function fixChromiumEyeDropperBug(el) {
         if (!el) return;
         const releaseCapture = () => {
-            try {
-                el.blur();
-                if (PD.activeElement && PD.activeElement !== PD.body) {
-                    PD.activeElement.blur();
-                }
-                if (PW.focus) PW.focus();
-                if (el.hasPointerCapture && el.hasPointerCapture(0)) {
-                    el.releasePointerCapture(0);
-                }
-            } catch (err) {}
+            const unlock = () => {
+                try {
+                    el.blur();
+                    if (PD.activeElement && PD.activeElement !== PD.body) {
+                        PD.activeElement.blur();
+                    }
+                    if (PW.focus) PW.focus();
+                    if (PD.body && PD.body.focus) PD.body.focus();
+                    
+                    // Giải phóng toàn bộ pointer capture bị kẹt trong Webview
+                    for (let i = 0; i < 10; i++) {
+                        try { if (el.hasPointerCapture && el.hasPointerCapture(i)) el.releasePointerCapture(i); } catch(e){}
+                        try { if (PD.body.hasPointerCapture && PD.body.hasPointerCapture(i)) PD.body.releasePointerCapture(i); } catch(e){}
+                    }
+                    
+                    // Kích hoạt sự kiện resize để ép Chromium RenderWidgetHost xóa bỏ trạng thái khóa chuột (mouse capture lock) sau khi đóng EyeDropper
+                    try { PW.dispatchEvent(new Event('resize')); } catch(e){}
+                } catch (err) {}
+            };
+            
+            // Thực thi bất đồng bộ sau khi hộp thoại OS / EyeDropper đã hoàn tất đóng lại
+            setTimeout(unlock, 100);
+            setTimeout(unlock, 300);
+            setTimeout(unlock, 600);
         };
         el.addEventListener('change', releaseCapture);
         el.addEventListener('blur', releaseCapture);
-        el.addEventListener('input', () => {
-            Promise.resolve().then(releaseCapture);
-        });
     }
 
     // ========== MODULE 4: MAIN MODAL & SETTINGS ==========
