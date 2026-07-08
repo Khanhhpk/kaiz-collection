@@ -118,60 +118,7 @@
                 } catch (e) {}
             }
 
-            mapData = {
-                locations: [
-                    {
-                        id: 'loc_start',
-                        name: 'Thị Trấn Khởi Đầu',
-                        icon: 'fa-building',
-                        category: 'major_hub',
-                        context_type: 'Khu vực chính',
-                        danger_level: 'An toàn bình thường',
-                        controlled_by: 'Chung / Người dân',
-                        status: 'Tự do ra vào',
-                        description: 'Địa điểm khởi đầu của câu chuyện. Một thị trấn bình yên với nhiều tòa nhà và ngõ ngách bên trong.',
-                        characters: ['Tôi', 'Nhân vật chính'],
-                        atmosphere: 'Thời tiết mát mẻ, tiếng chim hót ríu rít ngoài đường phố, nhịp sống yên ả.',
-                        secrets: 'Một bức thư cũ kĩ giấu trong hòm thư trước cổng chung cư chính.',
-                        events: 'Mọi người đang chuẩn bị cho lễ hội mùa hè sắp tới vào cuối tuần.',
-                        subLocations: [
-                            {
-                                id: 'sub_house_1',
-                                name: 'Nhà Ông Bà Itsuki',
-                                icon: 'fa-house-chimney',
-                                category: 'sub_location',
-                                context_type: 'Nhà ở dân sự',
-                                danger_level: 'An toàn tuyệt đối',
-                                controlled_by: 'Itsuki & Gia đình',
-                                status: 'Quyền riêng tư / Khóa cửa về đêm',
-                                description: 'Nơi ở hiện tại của Itsuki sau khi cậu chuyển đến thị trấn này do hoàn cảnh gia đình.',
-                                characters: ['Itsuki', 'Tôi'],
-                                atmosphere: 'Mùi trà xanh thơm nhẹ lảng vảng trong hiên nhà, ánh nắng ấm áp chiếu rọi qua rèm cửa.',
-                                secrets: 'Chìa khóa phòng áp mái bí mật nằm dưới chậu hoa cúc bên hiên.',
-                                events: 'Bữa tối ấm cúng sắp được chuẩn bị dưới gian bếp.',
-                                subLocations: [
-                                    {
-                                        id: 'sub_sub_room_1',
-                                        name: 'Phòng Ngủ Của Itsuki',
-                                        icon: 'fa-bed',
-                                        category: 'sub_location',
-                                        context_type: 'Căn phòng cá nhân',
-                                        danger_level: 'An toàn',
-                                        controlled_by: 'Itsuki',
-                                        status: 'Khóa riêng tư',
-                                        description: 'Căn phòng nhỏ ngăn nắp trên tầng hai, nơi Itsuki học tập và nghỉ ngơi mỗi ngày.',
-                                        characters: ['Itsuki'],
-                                        atmosphere: 'Yên tĩnh, có tiếng gió lùa nhẹ qua ô cửa sổ hướng ra sân sau.',
-                                        secrets: 'Cuốn sổ tay ghi chép những suy nghĩ thầm kín đặt bên dưới gối ngủ.',
-                                        events: 'Itsuki đang ngồi bên bàn học suy nghĩ về những chuyện vừa xảy ra.',
-                                        subLocations: []
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            };
+            mapData = { locations: [] };
             saveMapData();
         }
         updateUI();
