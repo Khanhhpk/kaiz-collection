@@ -1,5 +1,5 @@
 /**
- * Visual Novel Dialogue Beautifier v0.6.4.7
+ * Visual Novel Dialogue Beautifier v0.7.0.0
  * - Tiêm system prompt cấu trúc lời thoại @Tên@ vào SillyTavern (In-chat Depth 0)
  * - Tự động nhận diện giới tính @Tên(Nữ/Nam)@ và gán ảnh Waifu/Husbando từ neko.best
  * - Quản lý ảnh nhân vật từ 9 free Anime API + Local Upload + Kho Link + Crop Avatar + kho Local/URL lưu lại
@@ -12,7 +12,7 @@
     const PW = window.parent || window;
     const PD = PW.document;
     const SCRIPT_ID = 'vn-dialogue';
-    const SCRIPT_VERSION = 'v0.6.4.7';
+    const SCRIPT_VERSION = 'v0.7.0.0';
     const STORE_KEY = 'VNDialogue_Config_v2';
 
     // ========== DỌN DẸP TRƯỚC KHI KHỞI TẠO ==========
@@ -696,6 +696,8 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
     }
     function saveConfig(cfg) {
         try {
+            if (typeof _blockHtmlCache !== 'undefined' && _blockHtmlCache && _blockHtmlCache.clear) _blockHtmlCache.clear();
+            if (typeof _parsedNameCache !== 'undefined' && _parsedNameCache && _parsedNameCache.clear) _parsedNameCache.clear();
             localStorage.setItem(STORE_KEY, JSON.stringify(cfg));
         } catch (e) {
             console.error('[VN Dialogue] Lỗi lưu config:', e);
@@ -2621,14 +2623,25 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return res;
     }
 
+    const GENDER_PARSE_RE = /^(.*?)\s*\((Nữ|Nam|Waifu|Husbando|Female|Male|F|M|Girl|Boy|nữ|nam)\)\s*(.*?)$/i;
+    const TAG_BRACKET_RE = /^(.*?)\s*\[([^\]]+)\]\s*(.*?)$/;
+    const TAG_ANGLE_RE = /^(.*?)\s*<([^>]+)>\s*(.*?)$/;
+    const TAG_DASH_RE = /^(.*?)\s*-\s*([^\-]+)$/;
+    const TAG_PAREN_RE = /^(.*?)\s*\(([^)]+)\)\s*(.*?)$/;
+    const _parsedNameCache = new Map();
+
     function parseNameGenderAndTag(rawName) {
         if (!rawName || typeof rawName !== 'string') return { cleanName: '', gender: null, tag: null };
-        let name = rawName.trim();
+        const key = rawName.trim();
+        if (_parsedNameCache.has(key)) return _parsedNameCache.get(key);
+        if (_parsedNameCache.size > 1000) _parsedNameCache.clear();
+
+        let name = key;
         let gender = null;
         let tag = null;
 
         // 1. Tách giới tính (Nữ/Nam/Waifu/Husbando/...) TRƯỚC để tránh xung đột với thẻ ngữ cảnh
-        const genderMatch = name.match(/^(.*?)\s*\((Nữ|Nam|Waifu|Husbando|Female|Male|F|M|Girl|Boy|nữ|nam)\)\s*(.*?)$/i);
+        const genderMatch = name.match(GENDER_PARSE_RE);
         if (genderMatch) {
             const g = genderMatch[2].toLowerCase();
             if (['nữ', 'waifu', 'female', 'f', 'girl'].includes(g)) {
@@ -2640,17 +2653,17 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
 
         // 2. Tách nhãn trong ngoặc vuông [Tag] hoặc <Tag> hoặc - Tag
-        const tagBracketMatch = name.match(/^(.*?)\s*\[([^\]]+)\]\s*(.*?)$/);
+        const tagBracketMatch = name.match(TAG_BRACKET_RE);
         if (tagBracketMatch) {
             tag = tagBracketMatch[2].trim();
             name = (tagBracketMatch[1] + ' ' + tagBracketMatch[3]).trim();
         } else {
-            const tagAngleMatch = name.match(/^(.*?)\s*<([^>]+)>\s*(.*?)$/);
+            const tagAngleMatch = name.match(TAG_ANGLE_RE);
             if (tagAngleMatch) {
                 tag = tagAngleMatch[2].trim();
                 name = (tagAngleMatch[1] + ' ' + tagAngleMatch[3]).trim();
             } else {
-                const tagDashMatch = name.match(/^(.*?)\s*-\s*([^\-]+)$/);
+                const tagDashMatch = name.match(TAG_DASH_RE);
                 if (tagDashMatch) {
                     const potentialName = tagDashMatch[1].trim();
                     const potentialTag = tagDashMatch[2].trim();
@@ -2665,7 +2678,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         // 3. Nếu vẫn còn ngoặc tròn (...), kiểm tra xem có phải là Tag trong ngoặc tròn không (ví dụ Kazumi (Ăn kem))
         if (!tag) {
-            const parenMatch = name.match(/^(.*?)\s*\(([^)]+)\)\s*(.*?)$/);
+            const parenMatch = name.match(TAG_PAREN_RE);
             if (parenMatch) {
                 const parenVal = parenMatch[2].trim();
                 const potentialName = (parenMatch[1] + ' ' + parenMatch[3]).trim();
@@ -2680,7 +2693,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
         }
 
-        return { cleanName: name.trim(), gender: gender, tag: tag };
+        const res = { cleanName: name.trim(), gender: gender, tag: tag };
+        _parsedNameCache.set(key, res);
+        return res;
     }
 
     function parseNameAndGender(rawName) {
@@ -3019,6 +3034,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return false;
     }
 
+    const SPAN_STYLE_RE = /<span\b[^>]*style=["']([^"']*)["']/i;
+    const ITALIC_STYLE_RE = /font-style\s*:\s*italic/i;
+    const EMPTY_P_BR_RE = /<p>\s*(?:<br\s*\/?>)?\s*<\/p>/gi;
+
     function processMessage(mesEl, isStreaming = false) {
         const textEl = mesEl.querySelector('.mes_text');
         if (!textEl) return;
@@ -3069,15 +3088,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             registerCharIfNew(rawName);
             // Lấy nội dung từ các group (g2: ngoặc kép, g3: nháy đơn, g4: span, g5: em, g6: i, g7: hoa thị)
             const content = (g2 || g3 || g4 || g5 || g6 || g7 || '').trim();
-            const spanStyle = (match.match(/<span\b[^>]*style=["']([^"']*)["']/i) || [])[1] || '';
+            const spanStyle = (match.match(SPAN_STYLE_RE) || [])[1] || '';
             // Đánh dấu suy nghĩ nội tâm (em/i/hoa thị, hoặc span có font-style: italic)
             const isThought = (g5 !== undefined || g6 !== undefined || g7 !== undefined) ||
-                /font-style\s*:\s*italic/i.test(spanStyle) ||
+                ITALIC_STYLE_RE.test(spanStyle) ||
                 (CFG.regexMode === 'custom' && (match.includes('*') || match.includes('<em>') || match.includes('<i>')));
             return buildBlockHtml(name, content, isThought, actuallyStreaming || isAlreadyProcessed, actuallyStreaming, tag);
         });
 
-        newHtml = newHtml.replace(/<p>\s*(?:<br\s*\/?>)?\s*<\/p>/gi, '');
+        newHtml = newHtml.replace(EMPTY_P_BR_RE, '');
 
         if (newHtml !== raw) {
             mesEl._vnMutating = true;
