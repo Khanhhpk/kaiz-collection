@@ -367,19 +367,59 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
         btnUpdate.style.opacity = '0.6';
         statusBox.innerHTML = '<div style="color: #38bdf8; padding: 8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> Đang yêu cầu máy chủ SillyTavern tự động kéo bản cập nhật...</div>';
         try {
-            let res = await fetch('/api/extensions/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ extensionName: 'kaiz-collection' })
-            });
-            if (!res.ok) {
-                res = await fetch('/api/extensions/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'kaiz-collection' })
-                });
+            // Lấy header chuẩn từ SillyTavern (bao gồm X-CSRF-Token bắt buộc cho POST API)
+            const win = targetWin || window;
+            let reqHeaders = { 'Content-Type': 'application/json' };
+            try {
+                if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
+                    const ctx = win.SillyTavern.getContext();
+                    if (ctx && typeof ctx.getRequestHeaders === 'function') {
+                        reqHeaders = Object.assign(reqHeaders, ctx.getRequestHeaders());
+                    }
+                } else if (typeof win.getRequestHeaders === 'function') {
+                    reqHeaders = Object.assign(reqHeaders, win.getRequestHeaders());
+                } else {
+                    let token = win.token || win.SillyTavern?.token;
+                    if (!token) {
+                        const meta = (win.document || document).querySelector('meta[name="csrf-token"]');
+                        if (meta) token = meta.content;
+                    }
+                    if (token) reqHeaders['X-CSRF-Token'] = token;
+                }
+            } catch (e) {}
+
+            // Tự động nhận diện thư mục cài đặt hiện tại của Extension
+            let selfFolder = 'kaiz-collection';
+            try {
+                if (typeof import.meta !== 'undefined' && import.meta.url) {
+                    const parts = import.meta.url.split('/');
+                    const folder = parts[parts.length - 2];
+                    if (folder && !['third-party', 'extensions', 'scripts'].includes(folder)) {
+                        selfFolder = decodeURIComponent(folder);
+                    }
+                }
+            } catch (e) {}
+
+            const namesToTry = [selfFolder, 'kaiz-collection', 'kaiz_collection', 'kaiz-collection-master', 'kaiz-collection-beta'].filter((v, i, a) => v && a.indexOf(v) === i);
+            let updatedOk = false;
+
+            for (const extName of namesToTry) {
+                try {
+                    let res = await fetch('/api/extensions/update', {
+                        method: 'POST',
+                        headers: reqHeaders,
+                        body: JSON.stringify({ extensionName: extName, global: false })
+                    });
+                    if (res.ok) {
+                        updatedOk = true;
+                        break;
+                    }
+                } catch (e) {
+                    console.warn(`[KAIZ Collection] Thử cập nhật folder "${extName}" thất bại:`, e);
+                }
             }
-            if (res.ok) {
+
+            if (updatedOk) {
                 statusBox.innerHTML = '<div style="color: #34d399; font-weight: bold; padding: 8px 0;"><i class="fa-solid fa-circle-check"></i> 🎉 Đã cập nhật thành công lên v' + remoteVersion + '! Đang tải lại web...</div>';
                 if (targetWin.toastr) targetWin.toastr.success(`🎉 Đã cập nhật KAIZ Collection thành công lên v${remoteVersion}!`);
                 setTimeout(() => targetWin.location.reload(), 1600);
