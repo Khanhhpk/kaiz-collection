@@ -1,17 +1,17 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Graph) - v4.0 Universal Masterpiece
- * - KHÔNG bám theo mô típ hay thể loại Fantasy cố định. Tự động tương ứng 100% với BẤT KỲ bối cảnh nào
- *   (Hiện đại học đường, Sci-Fi vũ trụ, Kiếm hiệp tu tiên, Kinh dị thám tử, Đời thường Slice-of-Life...).
- * - Hệ thống thuộc tính phổ quát (Universal Lore): Trung tâm lớn, Phân khu cụ thể, Vùng cấm/Nguy hiểm, Không gian chung, Mật thất...
- * - Cài đặt AI thông minh: Bổ sung tính năng [🔄 Fetch Danh Sách Model] trực tiếp từ Custom API Endpoint (Chế độ 2).
- * - Bố cục siêu thích ứng (Responsive): Tự động chuyển đổi layout cho web dọc, chia đôi màn hình hoặc mobile.
- * - 1 Theme chính duy nhất: 🌌 Đêm Huyền Bí (Glassmorphism Dark Mode) sang trọng tinh tế cho mọi thể loại.
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Graph) - v5.0 True Responsive Masterpiece
+ * - Khắc phục triệt để lỗi bị ẩn/mất thông tin (Inspector bị đẩy ra ngoài) khi màn hình web ở dạng dọc/hẹp (< 860px).
+ * - Tối ưu Flexbox 100% chuẩn xác: Trên màn hình dọc, chia tỷ lệ Khung bản đồ (55%) và Khung thông tin (45%) độc lập có cuộn riêng, không bao giờ đè hay đẩy nhau.
+ * - Header Toolbar siêu thông minh cho màn hình hẹp: Tự động xếp chồng ngăn nắp, thanh tìm kiếm tràn viền rõ ràng, nút bấm dàn đều gọn gàng.
+ * - Sửa lỗi Modal Cài đặt AI bị khuất đỉnh trên màn dọc/nhỏ: Có thanh cuộn mượt mà từ trên xuống dưới.
+ * - Đa Thể Loại Bối Cảnh (Universal): Không áp đặt Fantasy, tự động tương ứng mọi thể loại truyện/game.
+ * - Bổ sung nút [🔄 Tải danh sách model] cho Chế độ 2 (Custom API).
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Đa Thể Loại Universal v4.0...');
+    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Đa Thể Loại v5.0 True Responsive...');
 
     const MODULE_ID = 'lore_world_map_graph';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (Graph AI)';
@@ -46,7 +46,6 @@
         text: '#f8fafc',
         edgeText: '#e2e8f0',
         edgeLabelBg: 'rgba(15, 23, 42, 0.88)',
-        // Phân loại phổ quát cho mọi bối cảnh game/truyện
         nodeCategories: {
             major_hub: { label: '🏢 Trung tâm / Khu vực lớn', bg: '#4c1d95', border: '#c084fc', highlight: '#7c3aed', icon: '🏢' },
             sub_location: { label: '📍 Phân khu / Phòng / Điểm cụ thể', bg: '#1e3a8a', border: '#60a5fa', highlight: '#2563eb', icon: '📍' },
@@ -112,7 +111,6 @@
                 mapData = { nodes: [], edges: [] };
             }
         } else {
-            // Dữ liệu khởi tạo trung tính (Đa bối cảnh)
             mapData = {
                 nodes: [
                     {
@@ -121,7 +119,7 @@
                         category: 'major_hub',
                         context_type: 'Khu vực chính',
                         danger_level: 'An toàn bình thường',
-                        controlled_by: 'Không rõ / Chung',
+                        controlled_by: 'Chung / Không rõ',
                         features: 'Nơi câu chuyện và các nhân vật bắt đầu hội thoại.',
                         status: 'Hoạt động bình thường',
                         description: 'Địa điểm khởi điểm của cuộc trò chuyện trong phòng chat này.'
@@ -142,9 +140,9 @@
     const doc = (window.parent && window.parent.document) || document;
 
     function injectStyles() {
-        if (doc.getElementById('lore-world-map-styles-v4')) return;
+        if (doc.getElementById('lore-world-map-styles-v5')) return;
         const style = doc.createElement('style');
-        style.id = 'lore-world-map-styles-v4';
+        style.id = 'lore-world-map-styles-v5';
         style.innerHTML = `
             #lore_graph_modal_overlay {
                 position: fixed;
@@ -157,15 +155,15 @@
                 display: none;
                 align-items: center;
                 justify-content: center;
-                padding: 12px;
+                padding: 10px;
                 box-sizing: border-box;
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
             }
             #lore_graph_modal_content {
                 width: 100%;
-                max-width: 1400px;
-                height: 92vh;
-                border-radius: 22px;
+                max-width: 1420px;
+                height: 94vh;
+                border-radius: 20px;
                 box-shadow: 0 25px 65px rgba(0,0,0,0.85);
                 display: flex;
                 flex-direction: column;
@@ -175,38 +173,140 @@
                 border: 1px solid ${THEME.border};
                 color: ${THEME.text};
             }
+            
+            /* ============ HEADER TOOLBAR RESPONSIVE ============ */
             #lore_graph_header {
-                min-height: 64px;
-                border-bottom: 1px solid rgba(255,255,255,0.12);
+                min-height: 60px;
+                border-bottom: 1px solid rgba(255,255,255,0.15);
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 8px 18px;
+                padding: 8px 16px;
                 flex-shrink: 0;
-                background: rgba(0,0,0,0.55);
+                background: rgba(0,0,0,0.65);
                 gap: 12px;
-                flex-wrap: wrap;
+                z-index: 10;
             }
-            .lore-header-left { display: flex; align-items: center; gap: 12px; }
-            .lore-header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-            
+            .lore-header-left {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .lore-header-actions {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .lore-search-box {
+                display: flex;
+                align-items: center;
+                background: rgba(0,0,0,0.45);
+                border: 1px solid rgba(255,255,255,0.22);
+                border-radius: 10px;
+                padding: 4px 10px;
+            }
+            .lore-search-box input {
+                background: transparent;
+                border: none;
+                color: #fff;
+                font-size: 0.88em;
+                width: 140px;
+                outline: none;
+                padding: 2px 0;
+            }
+
+            /* ============ MAIN CONTAINER FLEXBOX CHUẨN XÁC ============ */
             #lore_main_container {
-                flex: 1;
+                flex: 1 1 0%;
                 display: flex;
                 flex-direction: row;
                 overflow: hidden;
                 position: relative;
+                width: 100%;
             }
-            @media (max-width: 860px) {
-                #lore_main_container { flex-direction: column !important; }
-                #lore_graph_inspector {
-                    width: 100% !important;
-                    max-height: 45% !important;
-                    border-left: none !important;
-                    border-top: 1px solid rgba(255,255,255,0.18) !important;
+            #lore_graph_viewport {
+                flex: 1 1 0%;
+                height: 100%;
+                position: relative;
+                min-width: 0;
+                min-height: 0;
+            }
+            #lore_graph_inspector {
+                width: 400px;
+                height: 100%;
+                background: rgba(15, 23, 42, 0.96);
+                border-left: 1px solid rgba(255,255,255,0.15);
+                padding: 16px;
+                box-sizing: border-box;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                flex-shrink: 0;
+                z-index: 5;
+            }
+
+            /* ============ CSS MEDIA QUERY CHO MÀN HÌNH DỌC / HẸP (< 880px) ============ */
+            @media (max-width: 880px) {
+                #lore_graph_header {
+                    flex-direction: column;
+                    align-items: stretch;
+                    padding: 10px 12px;
+                    gap: 10px;
+                    max-height: 38vh;
+                    overflow-y: auto;
                 }
-                #lore_graph_header { justify-content: center; }
+                .lore-header-left {
+                    width: 100%;
+                    justify-content: space-between;
+                }
+                .lore-header-actions {
+                    width: 100%;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                }
+                .lore-search-box {
+                    flex: 1 1 100%;
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+                .lore-search-box input {
+                    width: 100%;
+                }
+                .lore-header-actions .lore-btn {
+                    flex: 1 1 auto;
+                    justify-content: center;
+                    padding: 7px 10px;
+                    font-size: 0.82em;
+                }
+
+                /* Khi màn hình dọc, chia chiều cao Container: 54% Bản đồ phía trên, 46% Inspector phía dưới */
+                #lore_main_container {
+                    flex-direction: column !important;
+                }
+                #lore_graph_viewport {
+                    flex: 0 0 54% !important;
+                    height: 54% !important;
+                    width: 100% !important;
+                    border-bottom: 2px solid rgba(56, 189, 248, 0.4);
+                }
+                #lore_graph_inspector {
+                    flex: 1 1 auto !important;
+                    height: 46% !important;
+                    width: 100% !important;
+                    max-height: 46% !important;
+                    border-left: none !important;
+                    padding: 14px !important;
+                }
+                .lore-control-dock {
+                    bottom: 10px !important;
+                    right: 10px !important;
+                    transform: scale(0.9);
+                    transform-origin: bottom right;
+                }
             }
+
             .lore-btn {
                 padding: 8px 13px;
                 border-radius: 10px;
@@ -226,7 +326,8 @@
             .lore-btn-success { background: linear-gradient(135deg, #059669, #10b981); }
             .lore-btn-danger { background: linear-gradient(135deg, #e11d48, #f43f5e); }
             .lore-btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); color: #e2e8f0; }
-            .lore-btn-secondary:hover { background: rgba(255, 255, 255, 0.16); border-color: rgba(255,255,255,0.3); }
+            .lore-btn-secondary:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255,255,255,0.35); }
+            
             .lore-input {
                 padding: 8px 11px;
                 border-radius: 8px;
@@ -237,17 +338,7 @@
                 outline: none;
             }
             .lore-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
-            #lore_graph_inspector {
-                width: 390px;
-                background: rgba(15, 23, 42, 0.96);
-                border-left: 1px solid rgba(255,255,255,0.12);
-                padding: 18px;
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-                gap: 14px;
-                flex-shrink: 0;
-            }
+            
             .lore-control-dock {
                 position: absolute;
                 bottom: 18px;
@@ -255,7 +346,7 @@
                 z-index: 100;
                 display: flex;
                 gap: 6px;
-                background: rgba(15, 23, 42, 0.9);
+                background: rgba(15, 23, 42, 0.92);
                 padding: 6px;
                 border-radius: 14px;
                 border: 1px solid rgba(255, 255, 255, 0.18);
@@ -277,6 +368,7 @@
                 transition: all 0.15s;
             }
             .lore-dock-btn:hover { background: rgba(56, 189, 248, 0.25); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); transform: scale(1.06); }
+            
             .lore-badge {
                 padding: 3px 8px;
                 border-radius: 6px;
@@ -295,16 +387,18 @@
             }
             .lore-ai-loading { animation: lorePulse 1.2s infinite ease-in-out; }
             
-            /* Modal Cài đặt AI v4.0 */
+            /* ============ MODAL CÀI ĐẶT AI (AI CONFIG MODAL v5.0) ============ */
+            /* Sửa lỗi bị che mất phần đầu khi màn hình nhỏ bằng cách cho phép cuộn từ đỉnh flex-start */
             #lore_ai_config_modal {
                 position: fixed;
                 inset: 0;
-                background: rgba(0,0,0,0.8);
+                background: rgba(0,0,0,0.85);
                 z-index: 100000000;
                 display: none;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
-                padding: 16px;
+                padding: 24px 12px;
+                overflow-y: auto;
             }
             #lore_ai_config_box {
                 width: 100%;
@@ -314,12 +408,11 @@
                 border-radius: 18px;
                 padding: 22px;
                 color: #fff;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+                box-shadow: 0 20px 50px rgba(0,0,0,0.85);
                 display: flex;
                 flex-direction: column;
                 gap: 14px;
-                max-height: 90vh;
-                overflow-y: auto;
+                margin: auto 0;
             }
         `;
         doc.head.appendChild(style);
@@ -346,7 +439,6 @@
         }
     }
 
-    // ============ TẠO MODAL ============
     function createGraphModal() {
         if (doc.getElementById('lore_graph_modal_overlay')) return;
         loadAiConfig();
@@ -358,27 +450,26 @@
                 <!-- Header Toolbar Responsive -->
                 <div id="lore_graph_header">
                     <div class="lore-header-left">
-                        <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 10px rgba(56,189,248,0.4); flex-shrink: 0;">
+                        <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 10px rgba(56,189,248,0.4); flex-shrink: 0;">
                             ${SVG_GLOBE_ICON}
                         </div>
                         <div>
-                            <div style="font-weight: 800; font-size: 1.08em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <div style="font-weight: 800; font-size: 1.05em; color: #f8fafc; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                 <span>BẢN ĐỒ THẾ GIỚI (UNIVERSAL)</span>
-                                <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.72em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 địa điểm</span>
-                                <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.72em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để xem/đổi nguồn kết nối AI">🤖 Nguồn AI</span>
+                                <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 địa điểm</span>
+                                <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
-                            <div id="lore_chat_status" style="font-size: 0.8em; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px;">Chat ID: <span style="color: #c084fc;">...</span></div>
+                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">Chat ID: <span style="color: #c084fc;">...</span></div>
                         </div>
                     </div>
 
                     <div class="lore-header-actions">
-                        <!-- Ô tìm kiếm ngay trên toolbar -->
-                        <div style="display: flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 2px 8px;">
+                        <div class="lore-search-box">
                             <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 0.85em; margin-right: 6px;"></i>
-                            <input id="lore_search_input" type="text" placeholder="Tìm địa điểm..." style="background: transparent; border: none; color: #fff; font-size: 0.88em; width: 130px; outline: none; padding: 4px 0;">
+                            <input id="lore_search_input" type="text" placeholder="Tìm địa điểm...">
                         </div>
 
-                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="Bắt AI phân tích lịch sử chat để tự động thêm địa điểm & kết nối tương ứng đúng bối cảnh truyện">
+                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat để tự động thêm địa điểm & đường đi tương ứng đúng bối cảnh truyện">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map
                         </button>
 
@@ -390,7 +481,7 @@
                             <i class="fa-solid fa-route"></i> + Nối Đường
                         </button>
 
-                        <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình nguồn AI (SillyTavern hoặc Custom API kèm tải danh sách Model)">
+                        <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI (SillyTavern hoặc Custom API kèm tải danh sách Model)">
                             <i class="fa-solid fa-gear"></i> Cấu hình AI
                         </button>
 
@@ -400,9 +491,9 @@
                     </div>
                 </div>
 
-                <!-- Main Viewport + Inspector -->
+                <!-- Main Container (Ngang khi web rộng > 880px, Dọc 54/46 khi web hẹp <= 880px) -->
                 <div id="lore_main_container">
-                    <div id="lore_graph_viewport" style="flex: 1; height: 100%; position: relative;">
+                    <div id="lore_graph_viewport">
                         <div class="lore-control-dock">
                             <button id="dock_btn_zoomin" class="lore-dock-btn" title="Phóng to">+</button>
                             <button id="dock_btn_zoomout" class="lore-dock-btn" title="Thu nhỏ">-</button>
@@ -412,18 +503,18 @@
                     </div>
 
                     <div id="lore_graph_inspector">
-                        <div style="font-weight: 800; font-size: 1em; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 800; font-size: 0.98em; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                             <span>🏷️ THÔNG TIN ĐỊA ĐIỂM</span>
                             <span id="inspector_close_btn" style="cursor: pointer; color: #94a3b8; font-size: 1.1em;" title="Bỏ chọn">✕</span>
                         </div>
-                        <div id="inspector_content" style="font-size: 0.9em; color: #cbd5e1; line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
+                        <div id="inspector_content" style="font-size: 0.9em; color: #cbd5e1; line-height: 1.6; display: flex; flex-direction: column; gap: 12px; flex: 1;">
                             <!-- Nội dung nạp tự động -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- MODAL CÀI ĐẶT AI v4.0 -->
+            <!-- MODAL CÀI ĐẶT AI v5.0 -->
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
                     <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
@@ -432,8 +523,8 @@
                     </div>
 
                     <div style="font-size: 0.85em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.25);">
-                        ℹ️ <b>Thiết kế Đa Thể Loại (Universal):</b> Bản đồ tương thích mọi bối cảnh (Học đường, Sci-Fi, Tu tiên, Horror...).<br>
-                        Mặc định dùng model đang kích hoạt trong SillyTavern. Bạn có thể tự đổi sang Custom API (OpenAI/OpenRouter/Kobold/Ollama...) và nhấn nút tải model!
+                        ℹ️ <b>Thiết kế Đa Thể Loại (Universal):</b> Bản đồ tự tương ứng 100% mọi bối cảnh truyện (Học đường, Sci-Fi, Tu tiên, Horror...).<br>
+                        Mặc định dùng model của SillyTavern. Bạn có thể chuyển sang Custom API và bấm nút tải danh sách Model bên dưới!
                     </div>
 
                     <div>
@@ -451,18 +542,18 @@
                         </div>
                         <div>
                             <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">API Key</label>
-                            <input id="cfg_key" type="password" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" placeholder="sk-....... (Để trống nếu dùng Ollama/Kobold local)">
+                            <input id="cfg_key" type="password" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" placeholder="sk-....... (Để trống nếu dùng local Ollama/Kobold)">
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                                 <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">Tên Model (Model Name)</label>
-                                <button id="cfg_btn_fetch_models" class="lore-btn" style="background: rgba(56,189,248,0.2); border: 1px solid #38bdf8; color: #38bdf8; padding: 4px 8px; font-size: 0.75em;">
+                                <button id="cfg_btn_fetch_models" class="lore-btn" style="background: rgba(56,189,248,0.2); border: 1px solid #38bdf8; color: #38bdf8; padding: 4px 10px; font-size: 0.78em;">
                                     <i class="fa-solid fa-arrows-rotate"></i> Tải danh sách Model
                                 </button>
                             </div>
-                            <div style="display: flex; gap: 6px; margin-top: 4px;">
-                                <input id="cfg_model" type="text" class="lore-input" style="flex: 1; box-sizing: border-box;" placeholder="Nhập model hoặc nhấn Tải danh sách bên phải ->">
-                                <select id="cfg_model_select" class="lore-input" style="width: 160px; display: none;"></select>
+                            <div style="display: flex; gap: 6px; margin-top: 6px;">
+                                <input id="cfg_model" type="text" class="lore-input" style="flex: 1; box-sizing: border-box;" placeholder="Nhập tên model hoặc chọn bên phải ->">
+                                <select id="cfg_model_select" class="lore-input" style="width: 170px; display: none;"></select>
                             </div>
                         </div>
                     </div>
@@ -522,7 +613,7 @@
 
         overlay.querySelector('#ai_cfg_close').addEventListener('click', () => aiModal.style.display = 'none');
 
-        // Logic Fetch Models cho Chế độ 2
+        // Logic Fetch Models
         const btnFetchModels = overlay.querySelector('#cfg_btn_fetch_models');
         const modelInput = overlay.querySelector('#cfg_model');
         const modelSelect = overlay.querySelector('#cfg_model_select');
@@ -539,7 +630,6 @@
             btnFetchModels.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang tải...`;
 
             try {
-                // Tự động suy luận đường dẫn /models từ endpoint /chat/completions
                 let modelsUrl = url;
                 if (modelsUrl.endsWith('/chat/completions')) {
                     modelsUrl = modelsUrl.replace('/chat/completions', '/models');
@@ -571,7 +661,7 @@
                 if (list[0] && !modelInput.value) modelInput.value = list[0];
 
                 modelSelect.onchange = () => { modelInput.value = modelSelect.value; };
-                alert(`🎉 Đã tải thành công ${list.length} model từ máy chủ! Bạn có thể chọn ở ô bên cạnh.`);
+                alert(`🎉 Đã tải thành công ${list.length} model! Bạn có thể chọn ngay ở danh sách bên cạnh.`);
             } catch (err) {
                 alert('⚠️ Lỗi khi tải danh sách Model: ' + err.message + '\nBạn vẫn có thể gõ trực tiếp tên model vào ô.');
             } finally {
@@ -615,12 +705,11 @@
             }
         });
 
-        // Thêm node thủ công phổ quát
         overlay.querySelector('#lore_btn_add_node').addEventListener('click', () => {
-            const name = prompt('Nhập tên địa điểm mới:', 'Khu Vực / Phòng / Điểm Mới');
+            const name = prompt('Nhập tên địa điểm mới:', 'Khu Vực / Điểm Mới');
             if (!name || !name.trim()) return;
             const category = prompt('Phân loại (major_hub / sub_location / danger_zone / nature_or_open / secret_or_special):', 'sub_location') || 'sub_location';
-            const contextType = prompt('Loại địa điểm theo bối cảnh game (VD: Phòng học, Trạm vũ trụ, Quán cà phê, Cấm địa...):', 'Khu vực') || 'Khu vực';
+            const contextType = prompt('Loại địa điểm theo bối cảnh (VD: Phòng học, Trạm vũ trụ, Quán ăn, Cấm địa...):', 'Khu vực') || 'Khu vực';
             const danger = prompt('Mức độ an toàn / rủi ro tại đây:', 'An toàn bình thường') || 'An toàn bình thường';
             const controlled = prompt('Ai hoặc tổ chức nào kiểm soát nơi này?', 'Chung / Không rõ') || 'Chung';
             const features = prompt('Đặc điểm nổi bật / Tài nguyên / Chức năng tại đây:', 'Không có') || '';
@@ -643,7 +732,6 @@
             selectNode(id);
         });
 
-        // Nối đường thủ công phổ quát
         overlay.querySelector('#lore_btn_add_edge').addEventListener('click', () => {
             if (mapData.nodes.length < 2) {
                 alert('Bạn cần có ít nhất 2 địa điểm trên bản đồ để tạo kết nối!');
@@ -663,7 +751,7 @@
             }
 
             const relType = prompt('Loại liên kết (physical_path: Đường bộ/hành lang / transit_fast: Thang máy/phương tiện / restricted: Cần thẻ/bị khóa / connection: Kế bên):', 'physical_path') || 'physical_path';
-            const label = prompt('Mô tả kết nối (VD: Cầu thang bộ, Thang máy số 2, Cánh cửa gỗ...):', 'Đường nối');
+            const label = prompt('Mô tả kết nối (VD: Cầu thang bộ, Thang máy số 2, Cánh cửa...):', 'Đường nối');
             const dist = prompt('Khoảng cách hoặc thời gian (VD: 2 phút đi bộ, Kế bên, 10km...):', 'Gần') || '';
 
             mapData.edges.push({
@@ -711,7 +799,6 @@
         }
     }
 
-    // ============ RENDER ĐỒ THỊ VIS.JS PHỔ QUÁT SANG TRỌNG ============
     function renderNetwork() {
         updateUI();
         const container = doc.getElementById('lore_graph_viewport');
@@ -731,12 +818,12 @@
     function initVisNetwork(container) {
         const nodesArray = mapData.nodes.map(n => {
             const cat = THEME.nodeCategories[n.category] || THEME.nodeCategories.other;
-            const isDanger = n.danger_level && (n.danger_level.toLowerCase().includes('nguy') || n.danger_level.toLowerCase().includes('cấm') || n.danger_level.toLowerCase().includes('tử'));
+            const isDanger = n.danger_level && (n.danger_level.toLowerCase().includes('nguy') || n.danger_level.toLowerCase().includes('cấm') || n.danger_level.toLowerCase().includes('tử') || n.danger_level.toLowerCase().includes('hỗn loạn'));
 
             return {
                 id: n.id,
                 label: `${cat.icon} ${n.label}\n[${n.danger_level || 'An toàn'}]`,
-                title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Không rõ'}\n• Đặc điểm/Chức năng: ${n.features || 'Không có'}\n• Trạng thái: ${n.status || 'Bình thường'}`,
+                title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}\n• Đặc điểm/Chức năng: ${n.features || 'Không có'}\n• Trạng thái: ${n.status || 'Bình thường'}`,
                 color: {
                     background: cat.bg,
                     border: isDanger ? '#ef4444' : cat.border,
@@ -829,7 +916,6 @@
         renderInspector();
     }
 
-    // ============ RENDER BẢNG INSPECTOR CHI TIẾT ĐA THỂ LOẠI ============
     function renderInspector() {
         const contentDiv = doc.getElementById('inspector_content');
         if (!contentDiv) return;
@@ -837,11 +923,11 @@
         if (!selectedNodeId) {
             const listNodesHTML = mapData.nodes.map(n => {
                 let badgeClass = 'badge-safe';
-                if (n.danger_level && (n.danger_level.toLowerCase().includes('nguy') || n.danger_level.toLowerCase().includes('cấm') || n.danger_level.toLowerCase().includes('tử'))) badgeClass = 'badge-danger';
+                if (n.danger_level && (n.danger_level.toLowerCase().includes('nguy') || n.danger_level.toLowerCase().includes('cấm') || n.danger_level.toLowerCase().includes('tử') || n.danger_level.toLowerCase().includes('hỗn loạn'))) badgeClass = 'badge-danger';
                 else if (n.danger_level && n.danger_level.toLowerCase().includes('thận')) badgeClass = 'badge-warn';
 
                 return `
-                    <div onclick="window._loreJumpToNode('${n.id}')" style="padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 4px;">
+                    <div onclick="window._loreJumpToNode('${n.id}')" style="padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-weight: 700; color: #38bdf8; font-size: 0.96em;">📍 ${n.label}</span>
                             <span class="lore-badge ${badgeClass}">${n.danger_level || 'An toàn'}</span>
@@ -854,16 +940,16 @@
             }).join('') || '<div style="color: #64748b; text-align: center;">Bản đồ chưa có địa điểm nào.</div>';
 
             contentDiv.innerHTML = `
-                <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 12px; font-size: 0.86em; color: #e0f2fe;">
-                        💡 <b>Mẹo thao tác:</b> Nhấp chuột giữ và kéo để di chuyển địa điểm. Cuộn chuột để zoom. Nhấp vào bất kỳ địa điểm nào để sửa chi tiết về Quản lý, Chức năng và Kết nối!
+                <div style="display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0;">
+                    <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px; font-size: 0.84em; color: #e0f2fe; flex-shrink: 0;">
+                        💡 <b>Mẹo:</b> Kéo chuột để di chuyển địa điểm. Cuộn chuột zoom. Nhấp vào một địa điểm để sửa Quản lý, Chức năng và Kết nối!
                     </div>
 
-                    <div>
-                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+                    <div style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; flex-shrink: 0;">
                             📋 TẤT CẢ ĐỊA ĐIỂM (${mapData.nodes.length})
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 4px;">
+                        <div style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; padding-right: 4px;">
                             ${listNodesHTML}
                         </div>
                     </div>
@@ -884,8 +970,8 @@
             const relInfo = THEME.edgeRelations[e.relation_type] || THEME.edgeRelations.physical_path;
 
             return `
-                <div style="padding: 10px 12px; background: rgba(255,255,255,0.05); border-radius: 10px; font-size: 0.88em; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08);">
-                    <div style="overflow: hidden; max-width: 210px;">
+                <div style="padding: 8px 10px; background: rgba(255,255,255,0.05); border-radius: 10px; font-size: 0.86em; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;">
+                    <div style="overflow: hidden; max-width: 200px;">
                         <div style="font-weight: 700; color: #38bdf8;">${arrow}: ${targetName}</div>
                         <div style="font-size: 0.8em; color: ${relInfo.color}; font-weight: bold; margin-top: 2px;">${relInfo.label}</div>
                         <div style="font-size: 0.82em; color: #94a3b8; margin-top: 1px;">${e.label || 'Kết nối'} ${e.distance ? `(${e.distance})` : ''}</div>
@@ -896,16 +982,16 @@
         }).join('') || '<div style="color:#64748b; font-size: 0.85em;">Chưa có kết nối nào tới địa điểm này.</div>';
 
         contentDiv.innerHTML = `
-            <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div>
-                    <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Tên Địa Điểm</label>
-                    <input id="insp_label" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px; font-weight: bold; font-size: 1.05em;" value="${node.label}">
+                    <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Tên Địa Điểm</label>
+                    <input id="insp_label" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px; font-weight: bold; font-size: 1.02em;" value="${node.label}">
                 </div>
 
                 <div style="display: flex; gap: 8px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Phân loại phổ quát</label>
-                        <select id="insp_category" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px;">
+                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Phân loại</label>
+                        <select id="insp_category" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;">
                             <option value="major_hub" ${node.category === 'major_hub' ? 'selected' : ''}>🏢 Trung tâm / Khu vực lớn</option>
                             <option value="sub_location" ${node.category === 'sub_location' ? 'selected' : ''}>📍 Phân khu / Phòng / Điểm cụ thể</option>
                             <option value="danger_zone" ${node.category === 'danger_zone' ? 'selected' : ''}>⚠️ Vùng nguy hiểm / Cấm địa</option>
@@ -915,36 +1001,36 @@
                         </select>
                     </div>
                     <div style="flex: 1;">
-                        <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Kiểu địa điểm (Game context)</label>
-                        <input id="insp_context_type" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="${node.context_type || 'Khu vực'}" placeholder="VD: Phòng học, Trạm vũ trụ...">
+                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Kiểu địa điểm</label>
+                        <input id="insp_context_type" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.context_type || 'Khu vực'}" placeholder="Phòng học, Trạm vũ trụ...">
                     </div>
                 </div>
 
                 <div style="display: flex; gap: 8px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Kiểm soát bởi</label>
-                        <input id="insp_controlled" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="${node.controlled_by || 'Chung'}" placeholder="Ai quản lý/sở hữu?">
+                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Kiểm soát bởi</label>
+                        <input id="insp_controlled" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.controlled_by || 'Chung'}" placeholder="Ai sở hữu?">
                     </div>
                     <div style="flex: 1;">
-                        <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mức an toàn / rủi ro</label>
-                        <input id="insp_danger" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="${node.danger_level || 'An toàn'}" placeholder="An toàn / Nguy hiểm...">
+                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mức an toàn / rủi ro</label>
+                        <input id="insp_danger" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.danger_level || 'An toàn'}" placeholder="An toàn / Nguy hiểm...">
                     </div>
                 </div>
 
                 <div style="display: flex; gap: 8px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Đặc điểm / Tài nguyên</label>
-                        <input id="insp_features" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="${node.features || ''}" placeholder="Tài nguyên, chức năng đặc biệt...">
+                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Đặc điểm / Chức năng</label>
+                        <input id="insp_features" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.features || ''}" placeholder="Tài nguyên, chức năng...">
                     </div>
                     <div style="flex: 1;">
-                        <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Trạng thái hiện tại</label>
-                        <input id="insp_status" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="${node.status || 'Bình thường'}" placeholder="Bình thường / Phong tỏa...">
+                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Trạng thái</label>
+                        <input id="insp_status" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.status || 'Bình thường'}" placeholder="Bình thường / Phong tỏa...">
                     </div>
                 </div>
 
                 <div>
-                    <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mô tả chi tiết & Sự Kiện</label>
-                    <textarea id="insp_desc" class="lore-input" style="width: 100%; height: 85px; box-sizing: border-box; margin-top: 4px; resize: vertical; line-height: 1.5;">${node.description || ''}</textarea>
+                    <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mô tả chi tiết & Sự Kiện</label>
+                    <textarea id="insp_desc" class="lore-input" style="width: 100%; height: 75px; box-sizing: border-box; margin-top: 2px; resize: vertical; line-height: 1.5;">${node.description || ''}</textarea>
                 </div>
 
                 <div style="display: flex; gap: 8px; margin-top: 2px;">
@@ -956,9 +1042,9 @@
                     </button>
                 </div>
 
-                <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 12px;">
-                    <label style="font-size: 0.78em; color: #38bdf8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 8px;">🔗 Các Địa Điểm Kết Nối (${connectedEdges.length})</label>
-                    <div style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
+                <div style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 10px;">
+                    <label style="font-size: 0.76em; color: #38bdf8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 6px;">🔗 Các Địa Điểm Kết Nối (${connectedEdges.length})</label>
+                    <div style="display: flex; flex-direction: column; gap: 8px; max-height: 160px; overflow-y: auto;">
                         ${linksHTML}
                     </div>
                 </div>
@@ -997,7 +1083,6 @@
         }
     };
 
-    // ============ AI PHÂN TÍCH VÀ XÂY DỰNG BẢN ĐỒ PHỔ QUÁT ĐA THỂ LOẠI ============
     async function triggerAiWorldScan() {
         loadAiConfig();
         const btnScan = doc.getElementById('lore_btn_ai_scan');
