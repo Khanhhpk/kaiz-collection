@@ -43,7 +43,7 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU:
    - "events": Sự kiện lịch sử, xung đột hay biến cố đang diễn ra ngay lúc này tại địa điểm.
    - "connections": LỐI ĐI & LIÊN KẾT GIAO THÔNG (Mô tả rõ địa điểm này có cổng, thang máy, hành lang, hay đường hầm thông thẳng tới những địa điểm nào khác trong truyện).
    - "status": Trạng thái truy cập ("Tự do ra vào", "Khóa mật mã / Cửa khóa", "Cấm địa / Tuyệt mật", "Hạn chế").
-3. KHÔNG TẠO TRÙNG LẶP: Nếu địa điểm đã có trong danh sách hiện có, hãy bổ sung thông tin cho phong phú hơn hoặc thêm các phân khu con (`subLocations`) bên trong nó.
+3. KHÔNG TẠO TRÙNG LẶP: Nếu địa điểm đã có trong danh sách hiện có, hãy bổ sung thông tin cho phong phú hơn hoặc thêm các phân khu con (subLocations) bên trong nó.
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không markdown ngoài JSON block) theo đúng định dạng sau:
 {
