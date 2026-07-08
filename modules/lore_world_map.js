@@ -484,22 +484,24 @@
                 border-radius: 4px;
             }
 
-            /* MODAL CHI TIẾT ĐỊA ĐIỂM (Popup) */
-            #lore_location_detail_modal {
+            /* MODAL CHI TIẾT ĐỊA ĐIỂM & CÀI ĐẶT AI (Đã sửa lỗi không bị khuất phần đầu) */
+            #lore_location_detail_modal, #lore_ai_config_modal {
                 position: fixed;
-                inset: 0;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
                 background: rgba(0,0,0,0.85);
                 backdrop-filter: blur(10px);
-                z-index: 100000000;
+                z-index: 100000000 !important;
                 display: none;
-                align-items: center;
-                justify-content: center;
-                padding: 16px;
+                overflow-y: auto;
+                padding: 30px 16px;
+                box-sizing: border-box;
             }
-            #lore_location_detail_box {
+            #lore_location_detail_box, #lore_ai_config_box {
                 width: 100%;
                 max-width: 600px;
-                max-height: 88vh;
                 background: #0f172a;
                 border: 2px solid #38bdf8;
                 border-radius: 20px;
@@ -509,36 +511,9 @@
                 display: flex;
                 flex-direction: column;
                 gap: 14px;
-                overflow-y: auto;
+                margin: auto;
+                flex-shrink: 0;
                 position: relative;
-            }
-
-            /* MODAL CÀI ĐẶT AI v8.0 */
-            #lore_ai_config_modal {
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.88);
-                backdrop-filter: blur(12px);
-                z-index: 1000000000 !important;
-                display: none;
-                align-items: center;
-                justify-content: center;
-                padding: 16px;
-            }
-            #lore_ai_config_box {
-                width: 100%;
-                max-width: 540px;
-                max-height: 88vh;
-                background: #0f172a;
-                border: 1px solid #38bdf8;
-                border-radius: 18px;
-                padding: 22px;
-                color: #fff;
-                box-shadow: 0 25px 60px rgba(0,0,0,0.95);
-                display: flex;
-                flex-direction: column;
-                gap: 14px;
-                overflow-y: auto;
             }
             .lore-input {
                 padding: 8px 11px;
@@ -1003,31 +978,42 @@
                             ${subCount > 0 ? `<span class="loc-sub-count">📁 ${subCount} phân khu con</span>` : `<span style="font-size:0.75em; color:#94a3b8; margin-top:4px;">🏷️ ${loc.context_type || 'Khu vực'}</span>`}
                         </div>
                     `;
+                } else if (idx === currentList.length) {
+                    html += `
+                        <div class="location-button empty-location" style="cursor: pointer; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.08);" onclick="document.getElementById('lore_btn_add_location').click()" title="Nhấp để thêm địa điểm vào ô trống này">
+                            <i class="fas fa-plus" style="color: #38bdf8; font-size: 22px;"></i>
+                            <span style="font-size: 0.92em; font-weight: bold; color: #38bdf8;">+ Thêm địa điểm</span>
+                        </div>
+                    `;
                 } else {
                     html += `
-                        <div class="location-button empty-location">
-                            <i class="fas fa-question"></i>
-                            <span style="font-size: 0.9em; font-weight: bold;">Tạm thời trống</span>
+                        <div class="location-button empty-location" style="opacity: 0.35; border: 1px dashed rgba(148,163,184,0.15);">
+                            <i class="fas fa-question" style="font-size: 18px;"></i>
+                            <span style="font-size: 0.85em;">Trống</span>
                         </div>
                     `;
                 }
 
-                // Đường đi dọc giữa các ô trong cùng 1 hàng (trừ ô cuối cùng)
+                // Đường đi dọc giữa các ô trong cùng 1 hàng (chỉ nối khi CẢ 2 bên đều là địa điểm có thật)
                 if (c < COLS - 1 && currentList[idx] && currentList[idx + 1]) {
                     html += `<div class="road-vertical" style="position: absolute; right: -17px; top: 50%; transform: translateY(-50%); height: 32px; width: 16px;"></div>`;
                 }
             }
             html += `</div>`;
 
-            // Đường nối ngang giữa các hàng (trừ hàng cuối cùng)
+            // Đường nối ngang giữa các hàng (trừ hàng cuối cùng, chỉ nối khi có địa điểm tương ứng ở hàng tiếp theo)
             if (r < rowsCount - 1) {
-                html += `
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">
-                        <div class="road-horizontal">⦙ NỐI LIỀN ⦙</div>
-                        <div class="road-horizontal">⦙ HÀNH LANG ⦙</div>
-                        <div class="road-horizontal">⦙ NỐI LIỀN ⦙</div>
-                    </div>
-                `;
+                html += `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">`;
+                for (let c = 0; c < COLS; c++) {
+                    const topLoc = currentList[r * COLS + c];
+                    const bottomLoc = currentList[(r + 1) * COLS + c];
+                    if (topLoc && bottomLoc) {
+                        html += `<div class="road-horizontal">⦙ NỐI LIỀN ⦙</div>`;
+                    } else {
+                        html += `<div></div>`;
+                    }
+                }
+                html += `</div>`;
             }
         }
 
