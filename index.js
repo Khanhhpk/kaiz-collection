@@ -247,6 +247,173 @@ function savePhoneConfig(config) {
 }
 
 // ==========================================
+// HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
+// ==========================================
+const KAIZ_CURRENT_VERSION = '1.2.0';
+
+function compareVersions(vA, vB) {
+    const partsA = String(vA || '0').split('.').map(Number);
+    const partsB = String(vB || '0').split('.').map(Number);
+    const len = Math.max(partsA.length, partsB.length);
+    for (let i = 0; i < len; i++) {
+        const numA = partsA[i] || 0;
+        const numB = partsB[i] || 0;
+        if (numA > numB) return 1;
+        if (numA < numB) return -1;
+    }
+    return 0;
+}
+
+async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
+    const doc = targetWin.document || document;
+    if (!manualCheck && sessionStorage.getItem('kaiz_update_checked_session') === 'true') {
+        return; // Chỉ tự động kiểm tra/hỏi 1 lần mỗi phiên làm việc web (lần đầu mở web)
+    }
+    if (!manualCheck) {
+        sessionStorage.setItem('kaiz_update_checked_session', 'true');
+    }
+
+    try {
+        if (manualCheck && targetWin.toastr) {
+            targetWin.toastr.info('Đang kiểm tra bản cập nhật từ GitHub...');
+        }
+        // Kiểm tra manifest mới nhất từ GitHub master branch
+        const res = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/master/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const remoteManifest = await res.json();
+        const remoteVersion = remoteManifest.version || KAIZ_CURRENT_VERSION;
+
+        if (compareVersions(remoteVersion, KAIZ_CURRENT_VERSION) > 0) {
+            const skippedVer = localStorage.getItem('kaiz_skip_update_version');
+            if (!manualCheck && skippedVer === remoteVersion) {
+                console.log(`[KAIZ Collection] Bỏ qua thông báo cập nhật v${remoteVersion} do người dùng đã chọn bỏ qua trước đó.`);
+                return;
+            }
+            showKaizUpdateModal(targetWin, remoteVersion, remoteManifest.description || '');
+        } else if (manualCheck) {
+            if (targetWin.toastr) {
+                targetWin.toastr.success(`✅ KAIZ Collection đang ở phiên bản mới nhất (v${KAIZ_CURRENT_VERSION})!`);
+            }
+        }
+    } catch (err) {
+        console.warn('[KAIZ Collection] Lỗi kiểm tra bản cập nhật:', err);
+        if (manualCheck && targetWin.toastr) {
+            targetWin.toastr.error('❌ Không thể kết nối tới GitHub để kiểm tra cập nhật!');
+        }
+    }
+}
+
+function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
+    const doc = targetWin.document || document;
+    if (doc.getElementById('kaiz_update_modal_overlay')) {
+        doc.getElementById('kaiz_update_modal_overlay').remove();
+    }
+
+    const overlay = doc.createElement('div');
+    overlay.id = 'kaiz_update_modal_overlay';
+    overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(0, 0, 0, 0.78); z-index: 999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);';
+
+    const modal = doc.createElement('div');
+    modal.style.cssText = 'background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 20px; width: 90%; max-width: 480px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); color: #f8fafc; font-family: sans-serif; display: flex; flex-direction: column; gap: 16px;';
+    
+    modal.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+            <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.5em; flex-shrink: 0;">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <div>
+                <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; letter-spacing: 0.3px;">PHÁT HIỆN BẢN CẬP NHẬT MỚI</div>
+                <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">KAIZ Collection Extension</div>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+            <div>
+                <span style="font-size: 0.78em; color: #64748b; display: block; text-transform: uppercase; font-weight: bold;">Phiên bản hiện tại</span>
+                <span style="font-size: 1.1em; font-weight: 700; color: #cbd5e1;">v${KAIZ_CURRENT_VERSION}</span>
+            </div>
+            <i class="fa-solid fa-arrow-right-long" style="color: #38bdf8; font-size: 1.2em;"></i>
+            <div style="text-align: right;">
+                <span style="font-size: 0.78em; color: #64748b; display: block; text-transform: uppercase; font-weight: bold;">Phiên bản mới</span>
+                <span style="font-size: 1.1em; font-weight: 800; color: #34d399;">v${remoteVersion}</span>
+            </div>
+        </div>
+        <div style="font-size: 0.9em; color: #cbd5e1; line-height: 1.6;">
+            Đã có bản cập nhật mới trên GitHub với nhiều nâng cấp tính năng và tối ưu hóa hiệu năng toàn diện. Bạn có muốn tự động cập nhật ngay lúc này không?
+        </div>
+        <div id="kaiz_update_status_box" style="font-size: 0.88em;"></div>
+        <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
+            <button id="kaiz_btn_do_update" style="flex: 1; min-width: 140px; padding: 12px 18px; background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; font-weight: 700; font-size: 0.94em; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s;">
+                <i class="fa-solid fa-bolt"></i> CẬP NHẬT NGAY
+            </button>
+            <button id="kaiz_btn_skip_update" style="padding: 12px 16px; background: rgba(255,255,255,0.05); color: #f87171; font-weight: 600; font-size: 0.9em; border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 12px; cursor: pointer; transition: all 0.15s;">
+                Bỏ qua bản này
+            </button>
+            <button id="kaiz_btn_close_modal" style="padding: 12px 16px; background: rgba(255,255,255,0.05); color: #94a3b8; font-weight: 600; font-size: 0.9em; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: all 0.15s;">
+                Để sau
+            </button>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    doc.body.appendChild(overlay);
+
+    const statusBox = modal.querySelector('#kaiz_update_status_box');
+    const btnUpdate = modal.querySelector('#kaiz_btn_do_update');
+    const btnSkip = modal.querySelector('#kaiz_btn_skip_update');
+    const btnClose = modal.querySelector('#kaiz_btn_close_modal');
+
+    btnUpdate.addEventListener('click', async () => {
+        btnUpdate.disabled = true;
+        btnUpdate.style.opacity = '0.6';
+        statusBox.innerHTML = '<div style="color: #38bdf8; padding: 8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> Đang yêu cầu máy chủ SillyTavern tự động kéo bản cập nhật...</div>';
+        try {
+            let res = await fetch('/api/extensions/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ extensionName: 'kaiz-collection' })
+            });
+            if (!res.ok) {
+                res = await fetch('/api/extensions/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'kaiz-collection' })
+                });
+            }
+            if (res.ok) {
+                statusBox.innerHTML = '<div style="color: #34d399; font-weight: bold; padding: 8px 0;"><i class="fa-solid fa-circle-check"></i> 🎉 Đã cập nhật thành công lên v' + remoteVersion + '! Đang tải lại web...</div>';
+                if (targetWin.toastr) targetWin.toastr.success(`🎉 Đã cập nhật KAIZ Collection thành công lên v${remoteVersion}!`);
+                setTimeout(() => targetWin.location.reload(), 1600);
+                return;
+            }
+        } catch (err) {
+            console.warn('[KAIZ Collection] Lỗi gọi API update:', err);
+        }
+        statusBox.innerHTML = `
+            <div style="color: #fbbf24; font-size: 0.92em; line-height: 1.5; background: rgba(251, 191, 36, 0.12); padding: 12px; border-radius: 10px; border: 1px solid rgba(251, 191, 36, 0.35);">
+                <b>⚠️ Chưa thể cập nhật tự động qua máy chủ SillyTavern.</b><br>
+                Vui lòng cập nhật trực tiếp trong tab Extensions của SillyTavern hoặc bấm nút bên dưới để tải bản mới nhất từ GitHub!
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center;">
+                <a href="https://github.com/Khanhhpk/kaiz-collection" target="_blank" style="padding: 8px 16px; background: #38bdf8; color: #0f172a; font-weight: bold; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-brands fa-github"></i> Mở GitHub tải về
+                </a>
+                <button onclick="window.location.reload()" style="padding: 8px 16px; background: #475569; color: #fff; border-radius: 8px; border: none; cursor: pointer; font-weight: bold;">Làm mới trang</button>
+            </div>
+        `;
+    });
+
+    btnSkip.addEventListener('click', () => {
+        localStorage.setItem('kaiz_skip_update_version', remoteVersion);
+        overlay.remove();
+        if (targetWin.toastr) targetWin.toastr.info(`Đã bỏ qua thông báo cập nhật v${remoteVersion}. Bạn có thể kiểm tra lại trong cài đặt.`);
+    });
+
+    btnClose.addEventListener('click', () => {
+        overlay.remove();
+    });
+}
+
+// ==========================================
 // HÀM TẠO GIAO DIỆN QUẢN LÝ TRONG TAB EXTENSIONS
 // ==========================================
 function renderExtensionSettings(targetWin, jq) {
@@ -372,10 +539,16 @@ function renderExtensionSettings(targetWin, jq) {
                             <i class="fa-solid fa-power-off"></i><span>Tắt tất cả</span>
                         </button>
                     </div>
-                    <button id="pe_reload_btn" style="width: 100%; margin-top: 14px; padding: 12px 16px; background: rgba(30, 41, 59, 0.85) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.94em; letter-spacing: 0.4px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <i class="fa-solid fa-rotate-right" style="font-size: 1.1em;"></i>
-                        <span>LÀM MỚI TRANG (F5) ĐỂ ÁP DỤNG THAY ĐỔI</span>
-                    </button>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px;">
+                        <button id="pe_reload_btn" style="flex: 1; min-width: 140px; padding: 12px 16px; background: rgba(30, 41, 59, 0.85) !important; color: #38bdf8 !important; border: 1px solid rgba(56, 189, 248, 0.4) !important; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9em; letter-spacing: 0.3px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-rotate-right" style="font-size: 1.1em;"></i>
+                            <span>LÀM MỚI TRANG (F5)</span>
+                        </button>
+                        <button id="pe_check_update_btn" style="flex: 1; min-width: 160px; padding: 12px 16px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)) !important; color: #c084fc !important; border: 1px solid rgba(192, 132, 252, 0.4) !important; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9em; letter-spacing: 0.3px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-cloud-arrow-down" style="font-size: 1.1em;"></i>
+                            <span>KIỂM TRA CẬP NHẬT</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Accordion Section 1: Core Modules -->
@@ -560,6 +733,13 @@ function renderExtensionSettings(targetWin, jq) {
         });
     }
 
+    const checkUpdateBtn = doc.getElementById('pe_check_update_btn');
+    if (checkUpdateBtn) {
+        checkUpdateBtn.addEventListener('click', () => {
+            checkKaizCollectionUpdate(targetWin, true);
+        });
+    }
+
     const silentF12Cb = doc.getElementById('kaiz_silent_f12_cb');
     if (silentF12Cb) {
         silentF12Cb.addEventListener('change', (e) => {
@@ -590,6 +770,7 @@ function renderExtensionSettings(targetWin, jq) {
 waitForEnvironment(async (targetWin, jq) => {
     console.log('[KAIZ Collection] Đang khởi tạo giao diện quản lý...');
     renderExtensionSettings(targetWin, jq);
+    checkKaizCollectionUpdate(targetWin, false);
 
     const config = getPhoneConfig();
     if (config.enabled === false) {
