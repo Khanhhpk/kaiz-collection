@@ -124,7 +124,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         customKey: '',
         customModel: 'gpt-4o-mini',
         historyCount: 30,
-        historyMaxChars: 65000, // 65,000 chars ~ 16,000 tokens (Sửa lỗi cắt lẹm 8,800 chars cũ)
+        historyMaxChars: 0, // 0 = Không giới hạn theo token/ký tự, chỉ giới hạn theo số tin nhắn (mặc định 30)
         customPromptWorldScan: DEFAULT_WORLD_SCAN_PROMPT,
         customPromptDeepDrill: DEFAULT_DEEP_DRILL_PROMPT
     };
@@ -137,7 +137,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 Object.assign(aiConfig, parsed);
                 if (!aiConfig.customPromptWorldScan || !aiConfig.customPromptWorldScan.trim()) aiConfig.customPromptWorldScan = DEFAULT_WORLD_SCAN_PROMPT;
                 if (!aiConfig.customPromptDeepDrill || !aiConfig.customPromptDeepDrill.trim()) aiConfig.customPromptDeepDrill = DEFAULT_DEEP_DRILL_PROMPT;
-                if (!aiConfig.historyMaxChars) aiConfig.historyMaxChars = 65000;
+                if (aiConfig.historyMaxChars === undefined) aiConfig.historyMaxChars = 0;
             } catch (e) {}
         }
     }
@@ -992,23 +992,24 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                             <div>
-                                <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Số tin nhắn quét gần nhất</label>
+                                <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Số tin nhắn quét gần nhất (Mặc định 30)</label>
                                 <select id="cfg_history_count" class="lore-input" style="width: 100%; margin-top: 4px;">
+                                    <option value="10">10 tin nhắn</option>
                                     <option value="15">15 tin nhắn</option>
-                                    <option value="30">30 tin nhắn (Khuyên dùng)</option>
+                                    <option value="30">30 tin nhắn (Mặc định - Khuyên dùng)</option>
                                     <option value="50">50 tin nhắn (Sâu & Chi tiết)</option>
                                     <option value="100">100 tin nhắn (Toàn cảnh)</option>
                                     <option value="200">200 tin nhắn (Cực dài)</option>
                                 </select>
                             </div>
                             <div>
-                                <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Giới hạn ký tự History tối đa</label>
+                                <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Giới hạn cắt theo Ký tự / Token</label>
                                 <select id="cfg_history_max_chars" class="lore-input" style="width: 100%; margin-top: 4px;">
-                                    <option value="30000">30,000 ký tự (~7,500 tokens)</option>
-                                    <option value="65000">65,000 ký tự (~16,000 tokens - Khuyên dùng)</option>
+                                    <option value="0">Không giới hạn (Mặc định - Chỉ theo số tin nhắn)</option>
+                                    <option value="65000">65,000 ký tự (~16,000 tokens)</option>
                                     <option value="100000">100,000 ký tự (~25,000 tokens)</option>
                                     <option value="200000">200,000 ký tự (~50,000 tokens)</option>
-                                    <option value="0">Không giới hạn (Gửi toàn bộ)</option>
+                                    <option value="30000">30,000 ký tự (~7,500 tokens)</option>
                                 </select>
                             </div>
                         </div>
