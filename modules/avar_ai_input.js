@@ -94,6 +94,29 @@ Bắt đầu tạo Input:`
         localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(settings));
     }
 
+    function getActiveSettings() {
+        const tokensEl = parentDocument.getElementById('autorp-tokens');
+        if (tokensEl) {
+            return {
+                historyLimit: parseInt(parentDocument.getElementById('autorp-history').value) || 5,
+                apiUrl: parentDocument.getElementById('autorp-url').value.trim(),
+                apiKey: parentDocument.getElementById('autorp-key').value.trim(),
+                model: parentDocument.getElementById('autorp-model').value.trim(),
+                temperature: parseFloat(parentDocument.getElementById('autorp-temp').value) || 0.85,
+                topP: parseFloat(parentDocument.getElementById('autorp-topp').value) || 1.0,
+                maxTokens: parseInt(parentDocument.getElementById('autorp-tokens').value) || 500,
+                customPersona: parentDocument.getElementById('autorp-custom-persona').value,
+                tagInclude: parentDocument.getElementById('autorp-tag-include').value.trim(),
+                tagExclude: parentDocument.getElementById('autorp-tag-exclude').value.trim(),
+                sysPromptTemplate: parentDocument.getElementById('autorp-sys-template').value.trim(),
+                layer1: parentDocument.getElementById('autorp-layer1').value.trim(),
+                layer2: parentDocument.getElementById('autorp-layer2').value.trim(),
+                layer3: parentDocument.getElementById('autorp-layer3').value.trim()
+            };
+        }
+        return getSettings();
+    }
+
     // ============ TRÍCH XUẤT DỮ LIỆU SILLYTAVERN ============
     function escapeRegExp(string) {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -307,14 +330,16 @@ Bắt đầu tạo Input:`
         const btn = parentDocument.createElement('button');
         btn.id = 'autorp-quick-btn';
         btn.innerHTML = `${ICONS.sparkles} Tạo Input`;
-        btn.title = "AI Input";
+        btn.title = "AI Input v0.1";
 
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             if (isGenerating) {
                 if (currentAbortController) currentAbortController.abort();
             } else {
-                executeAutoRP(getSettings());
+                const activeCfg = getActiveSettings();
+                saveSettings(activeCfg);
+                executeAutoRP(activeCfg);
             }
         });
         wrapper.appendChild(btn);
@@ -411,6 +436,12 @@ Bắt đầu tạo Input:`
         const modalHTML = `
             <div id="autorp-modal-overlay">
                 <div class="autorp-modal">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                        <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; color: #f8fafc;">
+                            ${ICONS.sparkles} Auto AI Input
+                        </div>
+                        <span style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(16,185,129,0.3);">v0.1</span>
+                    </div>
                     <div class="autorp-tab-nav">
                         <button class="autorp-tab-btn active" data-tab="general">${icServer} KẾT NỐI</button>
                         <button class="autorp-tab-btn" data-tab="prompt">${icPen} PROMPT</button>
@@ -469,7 +500,7 @@ Bắt đầu tạo Input:`
                                 </div>
                                 <div class="autorp-group">
                                     <label>Max Tokens</label>
-                                    <input type="number" id="autorp-tokens" class="autorp-input" value="${settings.maxTokens}" step="50" min="50" max="8000">
+                                    <input type="number" id="autorp-tokens" class="autorp-input" value="${settings.maxTokens}" step="50" min="50" max="128000">
                                 </div>
                             </div>
                         </div>
@@ -576,23 +607,13 @@ Bắt đầu tạo Input:`
         });
 
         function getCurrentInputs() {
-            return {
-                historyLimit: parseInt(parentDocument.getElementById('autorp-history').value) || 5,
-                apiUrl: parentDocument.getElementById('autorp-url').value.trim(),
-                apiKey: parentDocument.getElementById('autorp-key').value.trim(),
-                model: parentDocument.getElementById('autorp-model').value.trim(),
-                temperature: parseFloat(parentDocument.getElementById('autorp-temp').value) || 0.85,
-                topP: parseFloat(parentDocument.getElementById('autorp-topp').value) || 1.0,
-                maxTokens: parseInt(parentDocument.getElementById('autorp-tokens').value) || 500,
-                customPersona: parentDocument.getElementById('autorp-custom-persona').value,
-                tagInclude: parentDocument.getElementById('autorp-tag-include').value.trim(),
-                tagExclude: parentDocument.getElementById('autorp-tag-exclude').value.trim(),
-                sysPromptTemplate: parentDocument.getElementById('autorp-sys-template').value.trim(),
-                layer1: parentDocument.getElementById('autorp-layer1').value.trim(),
-                layer2: parentDocument.getElementById('autorp-layer2').value.trim(),
-                layer3: parentDocument.getElementById('autorp-layer3').value.trim()
-            };
+            return getActiveSettings();
         }
+
+        mainOverlay.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('change', () => saveSettings(getActiveSettings()));
+            el.addEventListener('input', () => saveSettings(getActiveSettings()));
+        });
 
         parentDocument.getElementById('autorp-btn-close').addEventListener('click', () => mainOverlay.classList.remove('show-modal'));
         parentDocument.getElementById('autorp-btn-close-debug').addEventListener('click', () => debugOverlay.classList.remove('show-modal'));
@@ -671,17 +692,33 @@ Bắt đầu tạo Input:`
             while (endpoint.endsWith('/')) endpoint = endpoint.slice(0, -1);
             if (!endpoint.includes('/chat/completions')) endpoint += endpoint.includes('/v1') ? '/chat/completions' : '/v1/chat/completions';
 
+            const maxTokensVal = parseInt(config.maxTokens) || 500;
+            const requestBody = {
+                model: config.model,
+                messages: apiMessages,
+                temperature: config.temperature,
+                top_p: config.topP,
+                max_tokens: maxTokensVal,
+                max_completion_tokens: maxTokensVal,
+                max_output_tokens: maxTokensVal,
+                maxOutputTokens: maxTokensVal,
+                stream: false,
+                generationConfig: {
+                    maxOutputTokens: maxTokensVal,
+                    temperature: config.temperature,
+                    topP: config.topP
+                }
+            };
+
+            // OpenAI o1 và o3 không hỗ trợ max_tokens (gây lỗi 400), chỉ dùng max_completion_tokens
+            if (/^(o1|o3)/i.test(config.model) || /-(o1|o3)/i.test(config.model)) {
+                delete requestBody.max_tokens;
+            }
+
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + config.apiKey },
-                body: JSON.stringify({
-                    model: config.model,
-                    messages: apiMessages,
-                    temperature: config.temperature,
-                    top_p: config.topP,
-                    max_tokens: config.maxTokens,
-                    stream: false
-                }),
+                body: JSON.stringify(requestBody),
                 signal: signal
             });
 
@@ -724,7 +761,7 @@ Bắt đầu tạo Input:`
     var _rpConfig = {
         id: 'auto_user_rp',
         icon: '<img src="https://api.iconify.design/lucide:venetian-mask.svg?color=white" style="width:24px;height:24px;">',
-        label: 'Tự Nhập Vai',
+        label: 'Tự Nhập Vai v0.1',
         color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         order: 2,
         onClick: function() {
