@@ -1,15 +1,15 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Lore World Graph)
- * - Có bóng con riêng độc lập, đồng thời tự động ghi vào bóng mẹ (FloatingMenuManager).
- * - Quét lịch sử trò chuyện (Game History) bằng AI để tự động dựng và mở rộng đồ thị thế giới.
- * - Lưu bản đồ riêng rẽ theo từng Chat ID trong SillyTavern.
- * - Sử dụng Graph (Vis.js Network + Canvas Force-Directed fallback) với giao diện Premium mượt mà.
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Lore World Graph) - v2.0 Premium Overhaul
+ * - Giao diện Glassmorphism đỉnh cao, khắc phục hoàn toàn lỗi chồng chữ & font nhãn Vis.js.
+ * - Thay thế bộ điều hướng xấu xí mặc định bằng Custom Control Dock sang trọng.
+ * - Tích hợp tìm kiếm thẳng lên Header Toolbar gọn gàng, ẩn bong bóng con khi mở Modal.
+ * - Bảng Inspector thông minh với chế độ Tổng quan (Overview Quick Jump) & Thẻ kết nối trực quan.
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Thế Giới AI...');
+    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Thế Giới AI v2.0...');
 
     const MODULE_ID = 'lore_world_map_graph';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (Graph AI)';
@@ -18,52 +18,61 @@
     // ============ BỘ THEME MÀU SẮC PREMIUM ============
     const GRAPH_THEMES = {
         mystic: {
-            name: '🌌 Đêm Huyền Bí (Mystic Night)',
+            name: '🌌 Đêm Huyền Bí',
             bg: 'radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%)',
-            panelBg: 'rgba(15, 23, 42, 0.88)',
+            panelBg: 'rgba(15, 23, 42, 0.92)',
             border: 'rgba(192, 132, 252, 0.35)',
             text: '#f8fafc',
+            subText: '#94a3b8',
+            edgeText: '#e2e8f0',
+            edgeLabelBg: 'rgba(15, 23, 42, 0.85)',
+            edgeColor: '#818cf8',
             nodeColors: {
-                kingdom: { background: '#9333ea', border: '#d8b4fe', highlight: '#c084fc' },
-                city: { background: '#2563eb', border: '#93c5fd', highlight: '#60a5fa' },
-                dungeon: { background: '#e11d48', border: '#fda4af', highlight: '#fb7185' },
-                forest: { background: '#16a34a', border: '#86efac', highlight: '#4ade80' },
-                ruin: { background: '#d97706', border: '#fde68a', highlight: '#fbbf24' },
-                other: { background: '#475569', border: '#cbd5e1', highlight: '#94a3b8' }
-            },
-            edgeColor: '#818cf8'
+                kingdom: { bg: '#6b21a8', border: '#d8b4fe', highlight: '#a855f7' },
+                city: { bg: '#1d4ed8', border: '#93c5fd', highlight: '#3b82f6' },
+                dungeon: { bg: '#9f1239', border: '#fda4af', highlight: '#f43f5e' },
+                forest: { bg: '#15803d', border: '#86efac', highlight: '#22c55e' },
+                ruin: { bg: '#b45309', border: '#fde68a', highlight: '#f59e0b' },
+                other: { bg: '#334155', border: '#cbd5e1', highlight: '#64748b' }
+            }
         },
         parchment: {
-            name: '📜 Bản Đồ Cổ (Old Parchment)',
+            name: '📜 Bản Đồ Cổ',
             bg: 'radial-gradient(circle at 50% 50%, #fef3c7 0%, #d97706 100%)',
-            panelBg: 'rgba(254, 243, 199, 0.94)',
+            panelBg: 'rgba(254, 243, 199, 0.95)',
             border: 'rgba(180, 83, 9, 0.45)',
             text: '#451a03',
+            subText: '#78350f',
+            edgeText: '#451a03',
+            edgeLabelBg: 'rgba(254, 243, 199, 0.9)',
+            edgeColor: '#9a3412',
             nodeColors: {
-                kingdom: { background: '#b45309', border: '#fef3c7', highlight: '#d97706' },
-                city: { background: '#1d4ed8', border: '#dbeafe', highlight: '#3b82f6' },
-                dungeon: { background: '#991b1b', border: '#fee2e2', highlight: '#dc2626' },
-                forest: { background: '#15803d', border: '#dcfce7', highlight: '#22c55e' },
-                ruin: { background: '#a16207', border: '#fef9c3', highlight: '#ca8a04' },
-                other: { background: '#57534e', border: '#f5f5f4', highlight: '#78716c' }
-            },
-            edgeColor: '#9a3412'
+                kingdom: { bg: '#b45309', border: '#fef3c7', highlight: '#d97706' },
+                city: { bg: '#1e40af', border: '#dbeafe', highlight: '#3b82f6' },
+                dungeon: { bg: '#991b1b', border: '#fee2e2', highlight: '#dc2626' },
+                forest: { bg: '#166534', border: '#dcfce7', highlight: '#22c55e' },
+                ruin: { bg: '#854d0e', border: '#fef9c3', highlight: '#ca8a04' },
+                other: { bg: '#57534e', border: '#f5f5f4', highlight: '#78716c' }
+            }
         },
         cyberpunk: {
             name: '⚡ Cyberpunk Neon',
-            bg: 'linear-gradient(135deg, #090d16 0%, #100624 100%)',
-            panelBg: 'rgba(15, 10, 30, 0.9)',
-            border: 'rgba(0, 240, 255, 0.4)',
+            bg: 'linear-gradient(135deg, #070a13 0%, #120726 100%)',
+            panelBg: 'rgba(11, 10, 26, 0.94)',
+            border: 'rgba(0, 240, 255, 0.45)',
             text: '#e0f7ff',
+            subText: '#88ccff',
+            edgeText: '#00f0ff',
+            edgeLabelBg: 'rgba(7, 10, 19, 0.9)',
+            edgeColor: '#00f0ff',
             nodeColors: {
-                kingdom: { background: '#ff0055', border: '#ff88bb', highlight: '#ff007f' },
-                city: { background: '#00f0ff', border: '#b3fbff', highlight: '#00c3ff' },
-                dungeon: { background: '#7000ff', border: '#d4b3ff', highlight: '#9e00ff' },
-                forest: { background: '#00ff66', border: '#aaffcc', highlight: '#00e65c' },
-                ruin: { background: '#ffaa00', border: '#ffdd99', highlight: '#ffbb00' },
-                other: { background: '#666688', border: '#ccccdd', highlight: '#8888aa' }
-            },
-            edgeColor: '#00f0ff'
+                kingdom: { bg: '#ff0055', border: '#ff88bb', highlight: '#ff007f' },
+                city: { bg: '#00c3ff', border: '#b3fbff', highlight: '#00e5ff' },
+                dungeon: { bg: '#7000ff', border: '#d4b3ff', highlight: '#9e00ff' },
+                forest: { bg: '#00ff66', border: '#aaffcc', highlight: '#00e65c' },
+                ruin: { bg: '#ffaa00', border: '#ffdd99', highlight: '#ffbb00' },
+                other: { bg: '#4e4e6a', border: '#ccccdd', highlight: '#707090' }
+            }
         }
     };
 
@@ -74,9 +83,27 @@
     let selectedNodeId = null;
 
     // ============ BIỂU TƯỢNG SVG ============
-    const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
+    const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
 
-    // ============ HÀM LẤY CHAT ID HIỆN TẠI TỪ SILLYTAVERN ============
+    // ============ HÀM NGẮT DÒNG NHÃN (WORD WRAP FOR VIS.JS) ============
+    function wrapText(text, maxLen = 22) {
+        if (!text || text.length <= maxLen) return text;
+        const words = text.split(' ');
+        let lines = [];
+        let curLine = '';
+        words.forEach(w => {
+            if ((curLine + w).length > maxLen) {
+                if (curLine) lines.push(curLine.trim());
+                curLine = w + ' ';
+            } else {
+                curLine += w + ' ';
+            }
+        });
+        if (curLine.trim()) lines.push(curLine.trim());
+        return lines.join('\n');
+    }
+
+    // ============ LẤY CHAT ID TỪ SILLYTAVERN ============
     function getActiveChatId() {
         try {
             const win = window.parent || window;
@@ -87,29 +114,27 @@
             if (win.chatId) return String(win.chatId);
             if (win.selected_chat) return String(win.selected_chat);
         } catch (e) {
-            console.warn('[Lore World Map] Không thể lấy chatId từ SillyTavern, dùng mặc định:', e);
+            console.warn('[Lore World Map] Không lấy được chatId, dùng mặc định.');
         }
         return 'default_global_chat';
     }
 
-    // ============ LƯU VÀ TẢI DỮ LIỆU BẢN ĐỒ ============
+    // ============ LƯU / TẢI DỮ LIỆU ============
     function loadMapDataForCurrentChat() {
         activeChatId = getActiveChatId();
         const raw = localStorage.getItem(STORAGE_PREFIX + activeChatId);
         if (raw) {
             try {
                 mapData = JSON.parse(raw);
-                if (!mapData.nodes || !Array.isArray(mapData.nodes)) mapData.nodes = [];
-                if (!mapData.edges || !Array.isArray(mapData.edges)) mapData.edges = [];
+                if (!Array.isArray(mapData.nodes)) mapData.nodes = [];
+                if (!Array.isArray(mapData.edges)) mapData.edges = [];
             } catch (e) {
-                console.error('[Lore World Map] Lỗi parse dữ liệu bản đồ:', e);
                 mapData = { nodes: [], edges: [] };
             }
         } else {
-            // Khởi tạo địa điểm ban đầu nếu chưa có
             mapData = {
                 nodes: [
-                    { id: 'start_node', label: 'Vùng Đất Khởi Đầu', category: 'city', danger: 'Bình yên', description: 'Nơi câu chuyện của bạn bắt đầu trong thế giới này.' }
+                    { id: 'start_node', label: 'Thành phố Khởi Đầu', category: 'city', danger: 'Bình yên', description: 'Nơi câu chuyện của bạn bắt đầu tại thế giới này.' }
                 ],
                 edges: []
             };
@@ -122,18 +147,16 @@
         activeChatId = getActiveChatId();
         try {
             localStorage.setItem(STORAGE_PREFIX + activeChatId, JSON.stringify(mapData));
-        } catch (e) {
-            console.warn('[Lore World Map] Lỗi lưu trữ vào localStorage:', e);
-        }
+        } catch (e) {}
     }
 
-    // ============ TẠO GIAO DIỆN BÓNG CON & MODAL BẢN ĐỒ ============
+    // ============ CHÈN CSS STYLES ============
     const doc = (window.parent && window.parent.document) || document;
 
     function injectStyles() {
-        if (doc.getElementById('lore-world-map-styles')) return;
+        if (doc.getElementById('lore-world-map-styles-v2')) return;
         const style = doc.createElement('style');
-        style.id = 'lore-world-map-styles';
+        style.id = 'lore-world-map-styles-v2';
         style.innerHTML = `
             #lore_graph_standalone_bubble {
                 position: fixed;
@@ -162,21 +185,22 @@
                 inset: 0;
                 width: 100vw;
                 height: 100vh;
-                background: rgba(0, 0, 0, 0.82);
-                backdrop-filter: blur(10px);
+                background: rgba(0, 0, 0, 0.84);
+                backdrop-filter: blur(12px);
                 z-index: 99999999;
                 display: none;
                 align-items: center;
                 justify-content: center;
-                padding: 16px;
+                padding: 14px;
                 box-sizing: border-box;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
             }
             #lore_graph_modal_content {
                 width: 100%;
-                max-width: 1200px;
-                height: 88vh;
+                max-width: 1300px;
+                height: 90vh;
                 border-radius: 24px;
-                box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+                box-shadow: 0 25px 60px rgba(0,0,0,0.8);
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
@@ -184,37 +208,37 @@
                 transition: all 0.3s ease;
             }
             .lore-btn {
-                padding: 9px 15px;
+                padding: 8px 14px;
                 border-radius: 10px;
                 border: none;
                 font-weight: 700;
-                font-size: 0.88em;
+                font-size: 0.86em;
                 cursor: pointer;
                 display: inline-flex;
                 align-items: center;
-                gap: 7px;
+                gap: 6px;
                 transition: all 0.15s;
                 color: #fff;
+                white-space: nowrap;
             }
-            .lore-btn-primary { background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35); }
-            .lore-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(124, 58, 237, 0.5); }
+            .lore-btn-primary { background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4); }
+            .lore-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124, 58, 237, 0.6); }
             .lore-btn-success { background: linear-gradient(135deg, #059669, #10b981); }
-            .lore-btn-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
-            .lore-btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; }
-            .lore-btn-secondary:hover { background: rgba(255, 255, 255, 0.14); }
+            .lore-btn-danger { background: linear-gradient(135deg, #e11d48, #f43f5e); }
+            .lore-btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); color: #e2e8f0; }
+            .lore-btn-secondary:hover { background: rgba(255, 255, 255, 0.16); border-color: rgba(255,255,255,0.3); }
             .lore-input {
                 padding: 8px 12px;
                 border-radius: 8px;
                 border: 1px solid rgba(255,255,255,0.18);
-                background: rgba(0,0,0,0.35);
+                background: rgba(0,0,0,0.4);
                 color: #fff;
                 font-size: 0.9em;
                 outline: none;
             }
-            .lore-input:focus { border-color: #38bdf8; }
+            .lore-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
             #lore_graph_inspector {
-                width: 320px;
-                background: rgba(15, 23, 42, 0.95);
+                width: 350px;
                 border-left: 1px solid rgba(255,255,255,0.12);
                 padding: 20px;
                 overflow-y: auto;
@@ -223,9 +247,50 @@
                 gap: 14px;
                 flex-shrink: 0;
             }
+            /* Custom Dock cho Vis.js */
+            .lore-control-dock {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                z-index: 100;
+                display: flex;
+                gap: 6px;
+                background: rgba(15, 23, 42, 0.88);
+                padding: 6px;
+                border-radius: 14px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(8px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            }
+            .lore-dock-btn {
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(255,255,255,0.08);
+                color: #e2e8f0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 1.1em;
+                transition: all 0.15s;
+            }
+            .lore-dock-btn:hover { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); transform: scale(1.06); }
+            .lore-badge {
+                padding: 3px 8px;
+                border-radius: 6px;
+                font-size: 0.78em;
+                font-weight: 800;
+                text-transform: uppercase;
+                display: inline-block;
+            }
+            .badge-safe { background: rgba(34, 197, 94, 0.18); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+            .badge-warn { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+            .badge-danger { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
             @keyframes lorePulse {
                 0% { transform: scale(1); }
-                50% { transform: scale(1.08); }
+                50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(168, 85, 247, 0.8); }
                 100% { transform: scale(1); }
             }
             .lore-ai-loading { animation: lorePulse 1.2s infinite ease-in-out; }
@@ -233,6 +298,7 @@
         doc.head.appendChild(style);
     }
 
+    // ============ BONG BÓNG NỔI ĐỘC LẬP ============
     function createStandaloneBubble() {
         if (doc.getElementById('lore_graph_standalone_bubble')) return;
         const bubble = doc.createElement('div');
@@ -244,7 +310,7 @@
         });
         doc.body.appendChild(bubble);
 
-        // Hỗ trợ kéo thả bong bóng độc lập
+        // Kéo thả bong bóng
         let isDragging = false;
         let startX, startY, origX, origY;
         bubble.addEventListener('mousedown', e => {
@@ -274,7 +340,6 @@
         });
     }
 
-    // ============ ĐĂNG KÝ VÀO BÓNG MẸ (FloatingMenuManager) ============
     function registerToMasterBall() {
         const win = window.parent || window;
         const fmmConfig = {
@@ -283,14 +348,11 @@
             icon: SVG_GLOBE_ICON,
             color: 'linear-gradient(135deg, #0284c7 0%, #7c3aed 100%)',
             order: 18,
-            onClick: function () {
-                toggleGraphModal();
-            }
+            onClick: () => toggleGraphModal()
         };
 
         if (win.FloatingMenuManager && typeof win.FloatingMenuManager.registerButton === 'function') {
             win.FloatingMenuManager.registerButton(fmmConfig);
-            console.log('[Lore World Map] Đã đăng ký thành công vào Bóng Mẹ (FloatingMenuManager)');
         } else {
             win._fmmPendingRegistrations = win._fmmPendingRegistrations || [];
             if (!win._fmmPendingRegistrations.some(b => b.id === fmmConfig.id)) {
@@ -299,67 +361,81 @@
         }
     }
 
-    // ============ TẠO MODAL GIAO DIỆN CHÍNH ============
+    // ============ TẠO MODAL BẢN ĐỒ ============
     function createGraphModal() {
         if (doc.getElementById('lore_graph_modal_overlay')) return;
         const overlay = doc.createElement('div');
         overlay.id = 'lore_graph_modal_overlay';
         overlay.innerHTML = `
             <div id="lore_graph_modal_content">
-                <!-- Header Toolbar -->
-                <div id="lore_graph_header" style="height: 64px; border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; background: rgba(0,0,0,0.4);">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 10px rgba(56,189,248,0.4);">
+                <!-- Header Toolbar Siêu Gọn & Tích hợp Search -->
+                <div id="lore_graph_header" style="height: 64px; border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; background: rgba(0,0,0,0.5);">
+                    <div style="display: flex; align-items: center; gap: 14px; min-width: 260px;">
+                        <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 10px rgba(56,189,248,0.4); flex-shrink: 0;">
                             ${SVG_GLOBE_ICON}
                         </div>
                         <div>
-                            <div style="font-weight: 800; font-size: 1.1em; color: #f8fafc; letter-spacing: 0.3px;">BẢN ĐỒ THẾ GIỚI AI (LORE GRAPH)</div>
-                            <div id="lore_chat_status" style="font-size: 0.82em; color: #94a3b8; margin-top: 2px;">Chat ID: <span style="color: #38bdf8; font-weight: bold;">...</span> | <span id="lore_stats_text">0 địa điểm, 0 liên kết</span></div>
+                            <div style="font-weight: 800; font-size: 1.08em; color: #f8fafc; letter-spacing: 0.3px; display: flex; align-items: center; gap: 8px;">
+                                <span>BẢN ĐỒ THẾ GIỚI AI</span>
+                                <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.72em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 địa điểm</span>
+                            </div>
+                            <div id="lore_chat_status" style="font-size: 0.8em; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">Chat ID: <span style="color: #c084fc;">...</span></div>
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="Bắt AI phân tích lịch sử chat để tự động thêm địa điểm & đường đi">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét Lịch Sử & Xây Map
+                    <!-- Actions & Search Box trên Header -->
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;">
+                        <!-- Tìm kiếm trực tiếp trên thanh toolbar -->
+                        <div style="display: flex; align-items: center; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 2px 8px;">
+                            <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 0.85em; margin-right: 6px;"></i>
+                            <input id="lore_search_input" type="text" placeholder="Tìm nhanh địa điểm..." style="background: transparent; border: none; color: #fff; font-size: 0.88em; width: 140px; outline: none; padding: 4px 0;">
+                        </div>
+
+                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="Bắt AI quét 25 tin nhắn gần nhất để tự động phát hiện & dựng thêm địa điểm vào bản đồ">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map
                         </button>
-                        <button id="lore_btn_add_node" class="lore-btn lore-btn-secondary">
-                            <i class="fa-solid fa-location-dot"></i> + Thêm Địa Điểm
+
+                        <button id="lore_btn_add_node" class="lore-btn lore-btn-secondary" title="Thêm địa điểm thủ công">
+                            <i class="fa-solid fa-location-dot"></i> + Địa Điểm
                         </button>
-                        <button id="lore_btn_add_edge" class="lore-btn lore-btn-secondary">
+
+                        <button id="lore_btn_add_edge" class="lore-btn lore-btn-secondary" title="Nối đường giữa 2 địa điểm">
                             <i class="fa-solid fa-route"></i> + Nối Đường
                         </button>
-                        <select id="lore_theme_selector" class="lore-input" style="padding: 8px 10px; cursor: pointer;">
+
+                        <select id="lore_theme_selector" class="lore-input" style="padding: 7px 10px; cursor: pointer; font-size: 0.86em;">
                             <option value="mystic">🌌 Đêm Huyền Bí</option>
                             <option value="parchment">📜 Bản Đồ Cổ</option>
                             <option value="cyberpunk">⚡ Cyberpunk Neon</option>
                         </select>
-                        <button id="lore_btn_close_modal" class="lore-btn lore-btn-secondary" style="padding: 8px 12px; font-size: 1.1em; color: #f87171;">
+
+                        <button id="lore_btn_close_modal" class="lore-btn" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 8px 12px; font-size: 1.05em;" title="Đóng bản đồ">
                             ✕
                         </button>
                     </div>
                 </div>
 
-                <!-- Main Container -->
+                <!-- Main Viewport + Inspector -->
                 <div style="flex: 1; display: flex; overflow: hidden; position: relative;">
                     <!-- Graph Viewport -->
                     <div id="lore_graph_viewport" style="flex: 1; height: 100%; position: relative;">
-                        <!-- Thẻ tìm kiếm nhanh góc trái trên -->
-                        <div style="position: absolute; top: 16px; left: 16px; z-index: 10; display: flex; gap: 6px; background: rgba(15,23,42,0.85); padding: 6px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(6px);">
-                            <input id="lore_search_input" type="text" placeholder="🔍 Tìm địa điểm..." class="lore-input" style="width: 180px; border: none; background: transparent;">
-                            <button id="lore_btn_search" class="lore-btn lore-btn-primary" style="padding: 6px 12px;">Tìm</button>
+                        <!-- Custom Control Dock (Thay thế bộ nút xanh lá xấu xí của Vis.js) -->
+                        <div class="lore-control-dock">
+                            <button id="dock_btn_zoomin" class="lore-dock-btn" title="Phóng to">+</button>
+                            <button id="dock_btn_zoomout" class="lore-dock-btn" title="Thu nhỏ">-</button>
+                            <button id="dock_btn_fit" class="lore-dock-btn" title="Xem toàn cảnh bản đồ"><i class="fa-solid fa-compress"></i></button>
+                            <button id="dock_btn_relayout" class="lore-dock-btn" title="Sắp xếp lại lực hấp dẫn đồ thị"><i class="fa-solid fa-rotate-right"></i></button>
                         </div>
                     </div>
 
                     <!-- Inspector Sidebar Panel -->
                     <div id="lore_graph_inspector">
-                        <div style="font-weight: 800; font-size: 1.05em; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 800; font-size: 1em; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                             <span>🏷️ THÔNG TIN CHI TIẾT</span>
-                            <span id="inspector_close_btn" style="cursor: pointer; color: #94a3b8; font-size: 1.1em;">✕</span>
+                            <span id="inspector_close_btn" style="cursor: pointer; color: #94a3b8; font-size: 1.1em;" title="Bỏ chọn">✕</span>
                         </div>
                         <div id="inspector_content" style="font-size: 0.9em; color: #cbd5e1; line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
-                            <div style="color: #64748b; font-style: italic; text-align: center; margin-top: 30px;">
-                                Nhấp vào bất kỳ địa điểm (Node) hoặc đường đi (Edge) nào trên bản đồ để xem và chỉnh sửa thông tin chi tiết.
-                            </div>
+                            <!-- Nội dung nạp tự động -->
                         </div>
                     </div>
                 </div>
@@ -367,13 +443,19 @@
         `;
         doc.body.appendChild(overlay);
 
-        // Sự kiện đóng mở modal
+        // Đóng modal & hiển thị lại bong bóng con
         overlay.querySelector('#lore_btn_close_modal').addEventListener('click', () => {
             overlay.style.display = 'none';
+            const bubble = doc.getElementById('lore_graph_standalone_bubble');
+            if (bubble) bubble.style.display = 'flex';
         });
+
         overlay.querySelector('#inspector_close_btn').addEventListener('click', () => {
             selectedNodeId = null;
             renderInspector();
+            if (networkInstance && typeof networkInstance.unselectAll === 'function') {
+                networkInstance.unselectAll();
+            }
         });
 
         // Đổi theme
@@ -384,13 +466,38 @@
             renderNetwork();
         });
 
-        // Thêm địa điểm thủ công
+        // Các nút Custom Control Dock
+        overlay.querySelector('#dock_btn_zoomin').addEventListener('click', () => {
+            if (networkInstance && typeof networkInstance.getScale === 'function') {
+                const scale = networkInstance.getScale() * 1.3;
+                networkInstance.moveTo({ scale: scale, animation: { duration: 300 } });
+            }
+        });
+        overlay.querySelector('#dock_btn_zoomout').addEventListener('click', () => {
+            if (networkInstance && typeof networkInstance.getScale === 'function') {
+                const scale = networkInstance.getScale() * 0.75;
+                networkInstance.moveTo({ scale: scale, animation: { duration: 300 } });
+            }
+        });
+        overlay.querySelector('#dock_btn_fit').addEventListener('click', () => {
+            if (networkInstance && typeof networkInstance.fit === 'function') {
+                networkInstance.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+            }
+        });
+        overlay.querySelector('#dock_btn_relayout').addEventListener('click', () => {
+            if (networkInstance && typeof networkInstance.stabilize === 'function') {
+                networkInstance.stabilize(100);
+                networkInstance.fit({ animation: { duration: 500 } });
+            }
+        });
+
+        // Thêm node & edge thủ công
         overlay.querySelector('#lore_btn_add_node').addEventListener('click', () => {
-            const name = prompt('Nhập tên địa điểm mới:', 'Thành Phố Mới');
+            const name = prompt('Nhập tên địa điểm mới:', 'Khu Vực Mới');
             if (!name || !name.trim()) return;
             const category = prompt('Phân loại (kingdom / city / dungeon / forest / ruin / other):', 'city') || 'city';
             const danger = prompt('Mức độ nguy hiểm (Bình yên / Nguy hiểm / Tử địa...):', 'Bình yên') || 'Bình yên';
-            const desc = prompt('Mô tả ngắn gọn về địa điểm này:', 'Một địa điểm vừa được khám phá.') || '';
+            const desc = prompt('Mô tả ngắn gọn về địa điểm này:', 'Một địa điểm mới được khám phá.') || '';
 
             const id = 'node_' + Date.now();
             mapData.nodes.push({ id, label: name.trim(), category: category.trim(), danger: danger.trim(), description: desc.trim() });
@@ -399,7 +506,6 @@
             selectNode(id);
         });
 
-        // Nối đường thủ công
         overlay.querySelector('#lore_btn_add_edge').addEventListener('click', () => {
             if (mapData.nodes.length < 2) {
                 alert('Bạn cần có ít nhất 2 địa điểm trên bản đồ để tạo kết nối!');
@@ -411,7 +517,6 @@
             const toId = prompt(`Nhập ID hoặc tên địa điểm ĐÍCH ĐẾN:\n${nodeListStr}`, mapData.nodes[1].id);
             if (!toId || fromId === toId) return;
 
-            // Tìm node
             const nFrom = mapData.nodes.find(n => n.id === fromId || n.label.toLowerCase() === fromId.toLowerCase());
             const nTo = mapData.nodes.find(n => n.id === toId || n.label.toLowerCase() === toId.toLowerCase());
             if (!nFrom || !nTo) {
@@ -419,20 +524,18 @@
                 return;
             }
 
-            const label = prompt('Mô tả đường đi/liên kết (VD: Đường mòn, Cổng dịch chuyển, Chiến tuyến):', 'Đường nối');
+            const label = prompt('Mô tả đường đi (VD: Cổng dịch chuyển, Hành lang nối liền...):', 'Đường nối');
             mapData.edges.push({ from: nFrom.id, to: nTo.id, label: label || '' });
             saveMapData();
             renderNetwork();
         });
 
-        // Quét AI
         overlay.querySelector('#lore_btn_ai_scan').addEventListener('click', async () => {
             await triggerAiWorldScan();
         });
 
-        // Tìm kiếm địa điểm
+        // Tìm kiếm nhanh trên Header
         const searchInput = overlay.querySelector('#lore_search_input');
-        const btnSearch = overlay.querySelector('#lore_btn_search');
         function doSearch() {
             const kw = searchInput.value.trim().toLowerCase();
             if (!kw) return;
@@ -440,13 +543,12 @@
             if (found) {
                 selectNode(found.id);
                 if (networkInstance && typeof networkInstance.focus === 'function') {
-                    networkInstance.focus(found.id, { scale: 1.3, animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
+                    networkInstance.focus(found.id, { scale: 1.35, animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
                 }
             } else {
                 alert(`Không tìm thấy địa điểm nào khớp với "${kw}"!`);
             }
         }
-        btnSearch.addEventListener('click', doSearch);
         searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
     }
 
@@ -464,33 +566,24 @@
         }
     }
 
-    // ============ HÀM HIỂN THỊ CẬP NHẬT GIAO DIỆN ============
     function updateUI() {
         const statusBox = doc.getElementById('lore_chat_status');
-        if (statusBox) {
-            statusBox.innerHTML = `Chat ID: <span style="color: #38bdf8; font-weight: bold;">${activeChatId}</span> | <span id="lore_stats_text">${mapData.nodes.length} địa điểm, ${mapData.edges.length} liên kết</span>`;
-        }
+        const badge = doc.getElementById('lore_stats_badge');
+        if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span>`;
+        if (badge) badge.innerText = `${mapData.nodes.length} địa điểm, ${mapData.edges.length} liên kết`;
     }
 
-    // ============ RENDER ĐỒ THỊ VỚI VIS.JS HOẶC CANVAS FALLBACK ============
+    // ============ RENDER ĐỒ THỊ VIS.JS CHUẨN XÁC, SẠCH CHỮ ============
     function renderNetwork() {
         updateUI();
         const container = doc.getElementById('lore_graph_viewport');
         if (!container) return;
 
-        // Đảm bảo Vis.js đã tải, nếu chưa thì tải CDN
         if (typeof window.vis === 'undefined' || !window.vis.Network) {
-            console.log('[Lore World Map] Đang tải thư viện Vis.js Network...');
+            console.log('[Lore World Map] Đang nạp thư viện Vis.js...');
             const script = doc.createElement('script');
             script.src = 'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js';
-            script.onload = () => {
-                console.log('[Lore World Map] Tải Vis.js thành công!');
-                initVisNetwork(container);
-            };
-            script.onerror = () => {
-                console.warn('[Lore World Map] Không tải được Vis.js, sử dụng bộ dựng Canvas nôi bộ...');
-                initCanvasFallback(container);
-            };
+            script.onload = () => initVisNetwork(container);
             doc.head.appendChild(script);
         } else {
             initVisNetwork(container);
@@ -502,8 +595,8 @@
 
         const nodesArray = mapData.nodes.map(n => {
             const cat = theme.nodeColors[n.category] || theme.nodeColors.other;
-            const isDanger = n.danger && n.danger.toLowerCase().includes('nguy') || n.danger && n.danger.toLowerCase().includes('tử');
-            let iconEmoji = '📍';
+            const isDanger = n.danger && (n.danger.toLowerCase().includes('nguy') || n.danger.toLowerCase().includes('tử'));
+            let iconEmoji = '📍 ';
             if (n.category === 'kingdom') iconEmoji = '👑 ';
             else if (n.category === 'city') iconEmoji = '🏙️ ';
             else if (n.category === 'dungeon') iconEmoji = '💀 ';
@@ -512,31 +605,43 @@
 
             return {
                 id: n.id,
-                label: `${iconEmoji}${n.label}\n(${n.danger || 'Bình yên'})`,
-                title: `${n.label} - ${n.description || 'Chưa có thông tin'}`,
+                label: `${iconEmoji}${n.label}\n[${n.danger || 'Bình yên'}]`,
+                title: `${n.label} \n• Phân loại: ${n.category.toUpperCase()} \n• Mô tả: ${n.description || 'Chưa có mô tả'}`,
                 color: {
-                    background: cat.background,
+                    background: cat.bg,
                     border: isDanger ? '#ef4444' : cat.border,
                     highlight: { background: cat.highlight, border: '#ffffff' }
                 },
-                font: { color: theme.text, size: 14, face: 'sans-serif', bold: true },
+                font: { color: theme.text, size: 14, face: '-apple-system, Inter, sans-serif', bold: true },
                 borderWidth: isDanger ? 3 : 2,
-                shadow: true,
+                shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 0, y: 4 },
                 shape: 'box',
-                margin: 10
+                margin: 12
             };
         });
 
-        const edgesArray = mapData.edges.map(e => ({
-            from: e.from,
-            to: e.to,
-            label: e.label || '',
-            color: { color: theme.edgeColor, highlight: '#38bdf8' },
-            font: { color: theme.text, size: 12, align: 'horizontal' },
-            arrows: 'to',
-            smooth: { type: 'continuous' },
-            width: 2
-        }));
+        // Xử lý Edge mượt mà, không bị stroke trắng đè nát và ngắt nhãn gọn gàng
+        const edgesArray = mapData.edges.map(e => {
+            const wrappedLabel = wrapText(e.label || '', 24);
+            return {
+                from: e.from,
+                to: e.to,
+                label: wrappedLabel,
+                title: e.label || 'Kết nối địa điểm',
+                color: { color: theme.edgeColor, highlight: '#38bdf8' },
+                font: {
+                    color: theme.edgeText,
+                    size: 11.5,
+                    face: '-apple-system, Inter, sans-serif',
+                    background: theme.edgeLabelBg,
+                    strokeWidth: 0, // TẮT HOÀN TOÀN stroke viền trắng thô bỉ!
+                    align: 'horizontal'
+                },
+                arrows: { to: { enabled: true, scaleFactor: 0.8 } },
+                smooth: { type: 'continuous', roundness: 0.2 },
+                width: 2.2
+            };
+        });
 
         const data = {
             nodes: new window.vis.DataSet(nodesArray),
@@ -546,32 +651,32 @@
         const options = {
             physics: {
                 forceAtlas2Based: {
-                    gravitationalConstant: -70,
-                    centralGravity: 0.01,
-                    springLength: 150,
+                    gravitationalConstant: -85,
+                    centralGravity: 0.012,
+                    springLength: 220, // Tăng khoảng cách để nhãn chữ không bao giờ bị đè lên nhau
                     springConstant: 0.08
                 },
-                maxVelocity: 50,
+                maxVelocity: 45,
                 solver: 'forceAtlas2Based',
                 timestep: 0.35,
                 stabilization: { iterations: 180 }
             },
             interaction: {
                 hover: true,
-                tooltipDelay: 200,
-                navigationButtons: true,
+                tooltipDelay: 150,
+                navigationButtons: false, // TẮT bộ nút xanh lá xấu xí mặc định!
                 keyboard: true
             }
         };
 
-        // Dọn dẹp canvas cũ nếu có
-        const searchBox = container.firstElementChild;
+        // Giữ lại custom control dock
+        const dock = container.querySelector('.lore-control-dock');
         container.innerHTML = '';
-        if (searchBox) container.appendChild(searchBox);
+        if (dock) container.appendChild(dock);
 
         const graphDiv = doc.createElement('div');
         graphDiv.style.cssText = 'width: 100%; height: 100%;';
-        container.appendChild(graphDiv);
+        container.insertBefore(graphDiv, dock || null);
 
         networkInstance = new window.vis.Network(graphDiv, data, options);
 
@@ -583,66 +688,82 @@
                 renderInspector();
             }
         });
+
+        renderInspector();
     }
 
-    function initCanvasFallback(container) {
-        const searchBox = container.firstElementChild;
-        container.innerHTML = '';
-        if (searchBox) container.appendChild(searchBox);
-
-        const canvas = doc.createElement('canvas');
-        canvas.style.cssText = 'width: 100%; height: 100%; background: transparent;';
-        container.appendChild(canvas);
-
-        const ctx = canvas.getContext('2d');
-        const rect = container.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '16px sans-serif';
-        ctx.fillText('Bản đồ thế giới (Chế độ Canvas dựng sẵn) - Có ' + mapData.nodes.length + ' địa điểm.', 40, canvas.height / 2);
-    }
-
-    // ============ CHI TIẾT ĐỊA ĐIỂM (NODE INSPECTOR) ============
     function selectNode(id) {
         selectedNodeId = id;
         renderInspector();
     }
 
+    // ============ RENDER BẢNG INSPECTOR THÔNG MINH ============
     function renderInspector() {
         const contentDiv = doc.getElementById('inspector_content');
         if (!contentDiv) return;
 
+        // Nếu chưa chọn Node: Hiển thị Bảng Tổng Quan (Overview Quick Jump)
         if (!selectedNodeId) {
+            const listNodesHTML = mapData.nodes.map(n => {
+                let badgeClass = 'badge-safe';
+                if (n.danger && (n.danger.toLowerCase().includes('nguy') || n.danger.toLowerCase().includes('tử'))) badgeClass = 'badge-danger';
+                else if (n.danger && n.danger.toLowerCase().includes('thận')) badgeClass = 'badge-warn';
+
+                return `
+                    <div onclick="window._loreJumpToNode('${n.id}')" style="padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 700; color: #38bdf8; font-size: 0.96em;">📍 ${n.label}</span>
+                            <span class="lore-badge ${badgeClass}">${n.danger || 'Bình yên'}</span>
+                        </div>
+                        <div style="font-size: 0.82em; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${n.description || 'Chưa có mô tả'}
+                        </div>
+                    </div>
+                `;
+            }).join('') || '<div style="color: #64748b; text-align: center;">Bản đồ chưa có địa điểm nào.</div>';
+
             contentDiv.innerHTML = `
-                <div style="color: #64748b; font-style: italic; text-align: center; margin-top: 30px;">
-                    Nhấp vào bất kỳ địa điểm (Node) nào trên bản đồ để xem và chỉnh sửa thông tin chi tiết.
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 12px; font-size: 0.86em; color: #e0f2fe;">
+                        💡 <b>Mẹo thao tác:</b> Nhấp chuột giữ và kéo để di chuyển địa điểm. Cuộn chuột để phóng to/thu nhỏ. Nhấp vào bất kỳ địa điểm nào dưới đây để đến nhanh!
+                    </div>
+
+                    <div>
+                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">
+                            📋 TẤT CẢ ĐỊA ĐIỂM (${mapData.nodes.length})
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; max-height: 560px; overflow-y: auto; padding-right: 4px;">
+                            ${listNodesHTML}
+                        </div>
+                    </div>
                 </div>
             `;
             return;
         }
 
+        // Khi đã chọn 1 Node cụ thể
         const node = mapData.nodes.find(n => n.id === selectedNodeId);
         if (!node) return;
 
-        // Các đường nối liên quan
         const connectedEdges = mapData.edges.filter(e => e.from === node.id || e.to === node.id);
         let linksHTML = connectedEdges.map(e => {
             const targetId = e.from === node.id ? e.to : e.from;
             const targetNode = mapData.nodes.find(n => n.id === targetId);
             const targetName = targetNode ? targetNode.label : targetId;
-            const arrow = e.from === node.id ? '➔' : '🡄';
+            const arrow = e.from === node.id ? '➔ ĐẾN' : '🡄 TỪ';
             return `
-                <div style="padding: 6px 10px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08);">
-                    <span><b style="color:#38bdf8;">${arrow} ${targetName}</b> (${e.label || 'Đường đi'})</span>
-                    <button onclick="window._loreSelectNode('${targetId}')" style="background:transparent; border:none; color:#c084fc; cursor:pointer; font-weight:bold;">Đến 🎯</button>
+                <div style="padding: 10px 12px; background: rgba(255,255,255,0.05); border-radius: 10px; font-size: 0.88em; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="overflow: hidden; max-width: 210px;">
+                        <div style="font-weight: 700; color: #38bdf8;">${arrow}: ${targetName}</div>
+                        <div style="font-size: 0.82em; color: #94a3b8; margin-top: 2px;">${e.label || 'Đường nối'}</div>
+                    </div>
+                    <button onclick="window._loreJumpToNode('${targetId}')" class="lore-btn" style="background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.4); color: #c084fc; padding: 6px 10px; font-size: 0.85em;" title="Chuyển sang địa điểm này">🎯</button>
                 </div>
             `;
-        }).join('') || '<div style="color:#64748b; font-size: 0.85em;">Chưa có đường nối nào tới địa điểm này.</div>';
+        }).join('') || '<div style="color:#64748b; font-size: 0.85em;">Chưa có kết nối nào tới địa điểm này.</div>';
 
         contentDiv.innerHTML = `
-            <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
                 <div>
                     <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Tên Địa Điểm</label>
                     <input id="insp_label" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px; font-weight: bold; font-size: 1.05em;" value="${node.label}">
@@ -667,11 +788,11 @@
                 </div>
 
                 <div>
-                    <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mô tả & Lịch sử trong Game</label>
-                    <textarea id="insp_desc" class="lore-input" style="width: 100%; height: 110px; box-sizing: border-box; margin-top: 4px; resize: vertical; line-height: 1.5;">${node.description || ''}</textarea>
+                    <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mô tả & Sự Kiện</label>
+                    <textarea id="insp_desc" class="lore-input" style="width: 100%; height: 120px; box-sizing: border-box; margin-top: 4px; resize: vertical; line-height: 1.5;">${node.description || ''}</textarea>
                 </div>
 
-                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <div style="display: flex; gap: 8px; margin-top: 2px;">
                     <button id="insp_btn_save" class="lore-btn lore-btn-success" style="flex: 2; justify-content: center;">
                         <i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi
                     </button>
@@ -680,24 +801,15 @@
                     </button>
                 </div>
 
-                <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 12px;">
-                    <label style="font-size: 0.78em; color: #38bdf8; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 8px;">🔗 Các Địa Điểm Kết Nối (${connectedEdges.length})</label>
-                    <div style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+                <div style="margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px;">
+                    <label style="font-size: 0.78em; color: #38bdf8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 8px;">🔗 Các Địa Điểm Kết Nối (${connectedEdges.length})</label>
+                    <div style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;">
                         ${linksHTML}
                     </div>
                 </div>
             </div>
         `;
 
-        // Hàm nhảy node toàn cầu
-        window._loreSelectNode = function (targetId) {
-            selectNode(targetId);
-            if (networkInstance && typeof networkInstance.focus === 'function') {
-                networkInstance.focus(targetId, { scale: 1.3, animation: { duration: 500 } });
-            }
-        };
-
-        // Sự kiện lưu & xóa
         contentDiv.querySelector('#insp_btn_save').addEventListener('click', () => {
             node.label = contentDiv.querySelector('#insp_label').value.trim() || node.label;
             node.category = contentDiv.querySelector('#insp_category').value;
@@ -705,11 +817,11 @@
             node.description = contentDiv.querySelector('#insp_desc').value.trim();
             saveMapData();
             renderNetwork();
-            alert('Đã cập nhật thông tin địa điểm!');
+            selectNode(node.id);
         });
 
         contentDiv.querySelector('#insp_btn_delete').addEventListener('click', () => {
-            if (!confirm(`Bạn có chắc muốn xóa địa điểm "${node.label}" và tất cả đường đi liên quan?`)) return;
+            if (!confirm(`Bạn có chắc muốn xóa địa điểm "${node.label}" khỏi bản đồ?`)) return;
             mapData.nodes = mapData.nodes.filter(n => n.id !== node.id);
             mapData.edges = mapData.edges.filter(e => e.from !== node.id && e.to !== node.id);
             selectedNodeId = null;
@@ -718,20 +830,27 @@
         });
     }
 
-    // ============ AI PHÂN TÍCH VÀ XÂY DỰNG BẢN ĐỒ TỪ LỊCH SỬ CHAT ============
+    // Hàm global để nhảy node nhanh từ Inspector
+    window._loreJumpToNode = function (targetId) {
+        selectNode(targetId);
+        if (networkInstance && typeof networkInstance.focus === 'function') {
+            networkInstance.focus(targetId, { scale: 1.35, animation: { duration: 550, easingFunction: 'easeInOutQuad' } });
+            networkInstance.selectNodes([targetId]);
+        }
+    };
+
+    // ============ QUÉT AI VÀ XÂY BẢN ĐỒ ============
     async function triggerAiWorldScan() {
         const btnScan = doc.getElementById('lore_btn_ai_scan');
         if (btnScan) {
             btnScan.disabled = true;
             btnScan.classList.add('lore-ai-loading');
-            btnScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang đọc lịch sử & dựng map...`;
+            btnScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang dựng map từ chat...`;
         }
 
         try {
             const win = window.parent || window;
-            let historyText = '';
             let chatArray = [];
-
             if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
                 const ctx = win.SillyTavern.getContext();
                 if (ctx && Array.isArray(ctx.chat)) chatArray = ctx.chat;
@@ -739,69 +858,59 @@
                 chatArray = win.chat;
             }
 
-            // Lấy 25 tin nhắn gần nhất
-            const recentChat = chatArray.slice(-25);
-            historyText = recentChat.map(m => `${m.is_user ? 'Tôi' : (m.name || 'AI')}: ${m.mes || m.content || ''}`).join('\n---\n');
+            const recentChat = chatArray.slice(-30);
+            const historyText = recentChat.map(m => `${m.is_user ? 'Tôi' : (m.name || 'AI')}: ${m.mes || m.content || ''}`).join('\n---\n');
 
             if (!historyText || historyText.trim().length < 20) {
-                alert('Lịch sử cuộc trò chuyện hiện tại quá ngắn để AI phân tích bản đồ!');
+                alert('Lịch sử cuộc trò chuyện quá ngắn để AI phân tích bản đồ!');
                 return;
             }
 
             const existingNodesStr = mapData.nodes.map(n => `- ${n.label} (${n.category})`).join('\n');
-
-            const prompt = `Bạn là Bậc Thầy Kiến Trúc Sư Địa Lý và Lịch Sử Thế Giới Game (World Lore Architect).
-Dưới đây là Lịch sử trò chơi gần đây trong phòng chat:
+            const prompt = `Bạn là Bậc Thầy Kiến Trúc Sư Địa Lý Game (World Lore Architect).
+Dưới đây là Lịch sử trò chơi gần đây:
 === LỊCH SỬ CHAT ===
-${historyText.slice(0, 7000)}
+${historyText.slice(0, 7500)}
 ====================
 
-Các địa điểm hiện đã có trên bản đồ:
-${existingNodesStr || '(Chưa có nhiều địa điểm)'}
+Các địa điểm đã có trên bản đồ:
+${existingNodesStr || '(Chưa có)'}
 
-NHIỆM VỤ CỦA BẠN:
-1. Trích xuất tất cả các Địa Điểm, Vương Quốc, Thành Phố, Khu Rừng, Hầm Ngục, Căn Cứ, hoặc Di Tích xuất hiện, được nhắc đến, hoặc đi qua trong lịch sử trên.
-2. Xác định mối liên kết giữa các địa điểm đó (Đường đi, Cổng dịch chuyển, Thuộc vùng quản lý, hay Thù địch...).
-3. BẮT BUỘC trả về duy nhất 1 JSON hợp lệ (không kèm lời dẫn) theo mẫu sau:
+NHIỆM VỤ:
+1. Trích xuất các Địa Điểm, Vương Quốc, Thành Phố, Hầm Ngục, Khu Rừng, hoặc Di Tích xuất hiện/được nhắc đến.
+2. Xác định mối liên kết và nhãn kết nối NGẮN GỌN (DƯỚI 20 KÝ TỰ, VD: Cánh cửa tràm, Cổng dịch chuyển, Hành lang phía Bắc).
+3. TRẢ VỀ DUY NHẤT 1 JSON HỢP LỆ (không kèm lời dẫn):
 {
   "nodes": [
-    { "label": "Tên Địa Điểm rõ ràng", "category": "kingdom | city | dungeon | forest | ruin | other", "danger": "Bình yên | Nguy hiểm | Tử địa | Thù địch", "description": "Mô tả vai trò hoặc sự kiện tại đây" }
+    { "label": "Tên địa điểm ngắn gọn", "category": "kingdom | city | dungeon | forest | ruin | other", "danger": "Bình yên | Nguy hiểm | Tử địa | Thù địch", "description": "Mô tả vai trò chi tiết" }
   ],
   "edges": [
-    { "from_label": "Tên địa điểm xuất phát", "to_label": "Tên địa điểm đích đến", "label": "Mô tả đường đi hoặc mối quan hệ" }
+    { "from_label": "Tên địa điểm xuất phát", "to_label": "Tên địa điểm đích đến", "label": "Nhãn ngắn gọn dưới 20 ký tự" }
   ]
 }`;
 
             let responseJson = null;
-
-            // Thử gọi AI qua generateRaw của SillyTavern trước (dùng backend đang kích hoạt của user)
             if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
                 try {
                     const rawRes = await win.SillyTavern.getContext().generateRaw(prompt);
                     responseJson = parseJsonFromText(rawRes);
-                } catch (e) {
-                    console.warn('[Lore World Map] Gọi generateRaw thất bại, chuyển sang PhoneSystem:', e);
-                }
+                } catch (e) {}
             }
 
-            // Fallback sang PhoneSystem.callExternalAPI
             if (!responseJson && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
                 try {
                     const rawRes = await win.PhoneSystem.callExternalAPI([
-                        { role: 'system', content: 'Bạn là chuyên gia phân tích dữ liệu địa lý trò chơi và xuất JSON hợp lệ 100%.' },
+                        { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ game hợp lệ 100%.' },
                         { role: 'user', content: prompt }
                     ], { maxTokens: 4000, temperature: 0.7 });
                     responseJson = parseJsonFromText(rawRes);
-                } catch (e) {
-                    console.warn('[Lore World Map] Gọi PhoneSystem thất bại:', e);
-                }
+                } catch (e) {}
             }
 
             if (!responseJson || !Array.isArray(responseJson.nodes)) {
-                throw new Error('AI không trả về JSON bản đồ hợp lệ hoặc bạn chưa kết nối AI trong SillyTavern!');
+                throw new Error('AI không trả về JSON hợp lệ hoặc chưa kết nối AI!');
             }
 
-            // MERGE (GỘP) DỮ LIỆU AI VÀO BẢN ĐỒ HIỆN TẠI
             let newNodesCount = 0;
             let newEdgesCount = 0;
 
@@ -810,7 +919,6 @@ NHIỆM VỤ CỦA BẠN:
                 const cleanLabel = item.label.trim();
                 let existing = mapData.nodes.find(n => n.label.toLowerCase() === cleanLabel.toLowerCase());
                 if (existing) {
-                    // Cập nhật mô tả nếu có thêm chi tiết
                     if (item.description && (!existing.description || existing.description.length < item.description.length)) {
                         existing.description = item.description;
                     }
@@ -845,20 +953,14 @@ NHIỆM VỤ CỦA BẠN:
 
             saveMapData();
             renderNetwork();
-
-            if (win.toastr) {
-                win.toastr.success(`🎉 AI đã phân tích xong! Thêm mới ${newNodesCount} địa điểm và ${newEdgesCount} liên kết vào bản đồ.`);
-            } else {
-                alert(`🎉 AI đã dựng xong bản đồ cho chat này!\n+ ${newNodesCount} địa điểm mới\n+ ${newEdgesCount} đường nối mới`);
-            }
+            if (win.toastr) win.toastr.success(`🎉 AI đã phân tích xong! +${newNodesCount} địa điểm, +${newEdgesCount} liên kết.`);
         } catch (err) {
-            console.error('[Lore World Map] Lỗi AI Scan:', err);
             alert('⚠️ Lỗi khi dựng bản đồ AI: ' + err.message);
         } finally {
             if (btnScan) {
                 btnScan.disabled = false;
                 btnScan.classList.remove('lore-ai-loading');
-                btnScan.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét Lịch Sử & Xây Map`;
+                btnScan.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map`;
             }
         }
     }
@@ -868,14 +970,11 @@ NHIỆM VỤ CỦA BẠN:
         let str = text.replace(/```json/gi, '').replace(/```/gi, '').trim();
         const start = str.indexOf('{');
         const end = str.lastIndexOf('}');
-        if (start !== -1 && end !== -1) {
-            str = str.substring(start, end + 1);
-            return JSON.parse(str);
-        }
+        if (start !== -1 && end !== -1) str = str.substring(start, end + 1);
         return JSON.parse(str);
     }
 
-    // ============ MỞ / ĐÓNG MODAL ============
+    // ============ TOGGLE MODAL & BONG BÓNG ============
     function toggleGraphModal() {
         injectStyles();
         createGraphModal();
@@ -883,30 +982,29 @@ NHIỆM VỤ CỦA BẠN:
         loadMapDataForCurrentChat();
 
         const overlay = doc.getElementById('lore_graph_modal_overlay');
+        const bubble = doc.getElementById('lore_graph_standalone_bubble');
         if (overlay) {
             if (overlay.style.display === 'flex') {
                 overlay.style.display = 'none';
+                if (bubble) bubble.style.display = 'flex';
             } else {
                 overlay.style.display = 'flex';
+                if (bubble) bubble.style.display = 'none'; // Ẩn bong bóng con để không che Header!
                 renderNetwork();
             }
         }
     }
 
-    // ============ KHỞI TẠO HỆ THỐNG KHI TẢI XONG ============
+    // ============ KHỞI TẠO ============
     function init() {
         injectStyles();
         createStandaloneBubble();
         registerToMasterBall();
 
-        // Lắng nghe sự kiện đổi chat trong SillyTavern để tự tải lại bản đồ tương ứng
         try {
             const win = window.parent || window;
             if (win.eventSource && typeof win.eventSource.on === 'function') {
-                win.eventSource.on('chatLoaded', () => {
-                    console.log('[Lore World Map] Phát hiện chuyển chat, đang tải bản đồ chat mới...');
-                    loadMapDataForCurrentChat();
-                });
+                win.eventSource.on('chatLoaded', () => loadMapDataForCurrentChat());
             }
         } catch (e) {}
     }
