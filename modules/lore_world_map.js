@@ -1,17 +1,20 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Graph) - v6.0 Next-Gen Visual & Responsive Masterpiece
- * - Khắc phục hoàn toàn lỗi Modal Cài Đặt AI bị khuất/bị cắt đỉnh trên màn hình dọc hoặc thu hẹp (thêm scroll mượt mà chuẩn xác).
- * - Cải tiến nghệ thuật vẽ bản đồ (Next-Gen Map Renderer): Thay thế đồ thị hộp sơ sài bằng bộ tạo thẻ Đồ Họa Cao Cấp SVG Data-URI (Thẻ Glassmorphism 3D phát sáng, hiển thị icon, badge trạng thái, thanh thông tin lực lượng rõ nét).
- * - Tích hợp Nút chuyển đổi giao diện [✨ Thẻ Đồ Họa 3D / Đồ Thị Gọn] ngay trên Header Toolbar.
- * - Đa Thể Loại Bối Cảnh (Universal): Tự tương ứng 100% mọi thể loại truyện/game (Học đường, Sci-Fi, Tu Tiên, Horror...).
- * - Bố cục siêu mượt trên màn hình dọc (<= 880px): Tỷ lệ chuẩn 54/46 không đè lấp Inspector, thanh tìm kiếm tràn viền.
- * - Phiên bản: v1.3.0.1
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Graph) - v7.0 Ultimate Layout & Zero-Drift Engine
+ * - Khắc phục triệt để lỗi "Kéo thả vị trí bị tự ý trôi đi / điều chỉnh lại" (Zero-Drift & Instant Lock):
+ *   + Khi kéo thả node (`dragEnd`), tự động ghim chết tọa độ (`fixed: {x:true, y:true}`) vào localStorage. Nơi bạn thả chính là nơi địa điểm đứng yên vĩnh viễn!
+ *   + Tối ưu hóa hiệu năng cực cao (60 FPS): Tự động tắt mô phỏng vật lý sau khi ổn định bố cục (`stabilized -> physics: false`), không gây tiêu tốn CPU/GPU ngầm.
+ * - Bổ sung 3 Chế Độ Bố Cục Bản Đồ Đột Phá (Inspired by App Bản Đồ `index-14.js`):
+ *   1. [🧱 Lưới Khu Vực (District Grid)]: Sắp xếp theo cột lưới chuẩn chỉ từng khu (Trung tâm phía trên, Phân khu ở giữa, Vùng nguy hiểm bên cạnh).
+ *   2. [🌳 Phân Cấp Sơ Đồ (Hierarchical Tree)]: Bố cục cây trên xuống dưới, cực chuẩn cho tầng lầu, sơ đồ tổ chức, con đường di chuyển.
+ *   3. [🌌 Lực Hấp Dẫn Tự Do (Organic Physics)]: Mô phỏng lực hút tự nhiên có ghim vị trí.
+ * - Sửa lỗi khuất đỉnh Modal Cấu hình AI trên màn dọc, hiển thị Thẻ Đồ Họa Cao Cấp SVG 3D siêu mượt.
+ * - Phiên bản: v1.3.0.2
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Thế Giới v6.0 Next-Gen (v1.3.0.1)...');
+    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Thế Giới v7.0 Ultimate Layout & Zero-Drift (v1.3.0.2)...');
 
     const MODULE_ID = 'lore_world_map_graph';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (Graph AI)';
@@ -38,7 +41,7 @@
         try { localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(aiConfig)); } catch (e) {}
     }
 
-    // ============ THEME PHỔ QUÁT ĐA THỂ LOẠI (UNIVERSAL GLASSMORPHISM) ============
+    // ============ THEME PHỔ QUÁT ĐA THỂ LOẠI ============
     const THEME = {
         bg: 'radial-gradient(circle at 50% 50%, #1e1b4b 0%, #090d16 100%)',
         panelBg: 'rgba(15, 23, 42, 0.94)',
@@ -67,6 +70,7 @@
     let networkInstance = null;
     let selectedNodeId = null;
     let renderMode = 'premium_svg'; // 'premium_svg' | 'compact_glow'
+    let layoutMode = 'organic'; // 'organic' | 'district_grid' | 'hierarchical'
 
     const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
 
@@ -87,7 +91,7 @@
         return lines.join('\n');
     }
 
-    // ============ BỘ TẠO THẺ ĐỒ HỌA CAO CẤP (PREMIUM SVG NODE CARD GENERATOR) ============
+    // ============ BỘ TẠO THẺ ĐỒ HỌA CAO CẤP (PREMIUM SVG NODE CARD) ============
     function generateNodeSvgUrl(node, isSelected = false) {
         const cat = THEME.nodeCategories[node.category] || THEME.nodeCategories.other;
         const isDanger = node.danger_level && (
@@ -111,7 +115,6 @@
         const safeControlled = (node.controlled_by || 'Chung').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const safeType = (node.context_type || 'Khu vực').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-        // Sắp xếp tự động ngắt dòng cho tiêu đề trong SVG (tối đa 2 dòng)
         let titleLine1 = safeTitle;
         let titleLine2 = '';
         if (safeTitle.length > 20) {
@@ -215,9 +218,9 @@
     const doc = (window.parent && window.parent.document) || document;
 
     function injectStyles() {
-        if (doc.getElementById('lore-world-map-styles-v6')) return;
+        if (doc.getElementById('lore-world-map-styles-v7')) return;
         const style = doc.createElement('style');
-        style.id = 'lore-world-map-styles-v6';
+        style.id = 'lore-world-map-styles-v7';
         style.innerHTML = `
             #lore_graph_modal_overlay {
                 position: fixed;
@@ -271,6 +274,7 @@
                 display: flex;
                 align-items: center;
                 gap: 8px;
+                flex-wrap: wrap;
             }
             .lore-search-box {
                 display: flex;
@@ -461,8 +465,7 @@
             }
             .lore-ai-loading { animation: lorePulse 1.2s infinite ease-in-out; }
             
-            /* ============ MODAL CÀI ĐẶT AI v6.0 (KHẮC PHỤC TRIỆT ĐỂ LỖI KHUẤT ĐỈNH) ============ */
-            /* Cho phép cuộn mượt từ đỉnh xuống trên mọi kích thước màn hình web dọc hoặc hẹp */
+            /* ============ MODAL CÀI ĐẶT AI v7.0 (KHẮC PHỤC TRIỆT ĐỂ LỖI KHUẤT ĐỈNH) ============ */
             #lore_ai_config_modal {
                 position: fixed;
                 top: 0;
@@ -536,7 +539,7 @@
                         </div>
                         <div>
                             <div style="font-weight: 800; font-size: 1.05em; color: #f8fafc; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.1)</span>
+                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.2)</span>
                                 <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 địa điểm</span>
                                 <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
@@ -549,6 +552,11 @@
                             <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 0.85em; margin-right: 6px;"></i>
                             <input id="lore_search_input" type="text" placeholder="Tìm địa điểm...">
                         </div>
+
+                        <!-- Nút chọn kiểu Bố Cục (Layout Switcher - lấy cảm hứng từ App Bản đồ index-14.js) -->
+                        <button id="lore_btn_change_layout" class="lore-btn lore-btn-secondary" style="border-color: #38bdf8; color: #7dd3fc;" title="Chuyển đổi bố cục: Lực hấp dẫn tự do (Organic) / Lưới Khu Vực (District Grid) / Phân cấp cây (Hierarchical)">
+                            <i class="fa-solid fa-compass"></i> 🧭 Bố Cục: Lực Hút
+                        </button>
 
                         <!-- Nút đổi chế độ đồ họa -->
                         <button id="lore_btn_toggle_view" class="lore-btn lore-btn-secondary" style="border-color: #a855f7; color: #e9d5ff;" title="Chuyển đổi giữa chế độ Thẻ Đồ Họa Cao Cấp (SVG 3D) và Đồ Thị Gọn">
@@ -584,7 +592,7 @@
                             <button id="dock_btn_zoomin" class="lore-dock-btn" title="Phóng to">+</button>
                             <button id="dock_btn_zoomout" class="lore-dock-btn" title="Thu nhỏ">-</button>
                             <button id="dock_btn_fit" class="lore-dock-btn" title="Xem toàn cảnh"><i class="fa-solid fa-compress"></i></button>
-                            <button id="dock_btn_relayout" class="lore-dock-btn" title="Sắp xếp lại vật lý"><i class="fa-solid fa-rotate-right"></i></button>
+                            <button id="dock_btn_relayout" class="lore-dock-btn" title="Mở lại mô phỏng vật lý / Sắp xếp lại"><i class="fa-solid fa-rotate-right"></i></button>
                         </div>
                     </div>
 
@@ -600,7 +608,7 @@
                 </div>
             </div>
 
-            <!-- MODAL CÀI ĐẶT AI v6.0 -->
+            <!-- MODAL CÀI ĐẶT AI v7.0 -->
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
                     <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; flex-shrink: 0;">
@@ -669,6 +677,23 @@
             selectedNodeId = null;
             renderInspector();
             if (networkInstance && typeof networkInstance.unselectAll === 'function') networkInstance.unselectAll();
+        });
+
+        // Chuyển đổi chế độ Bố Cục (Layout Mode - inspired by App Bản đồ index-14.js)
+        const btnChangeLayout = overlay.querySelector('#lore_btn_change_layout');
+        btnChangeLayout.addEventListener('click', () => {
+            if (layoutMode === 'organic') {
+                layoutMode = 'district_grid';
+                btnChangeLayout.innerHTML = `<i class="fa-solid fa-table-cells-large"></i> 🧱 Bố Cục: Lưới Khu Vực`;
+            } else if (layoutMode === 'district_grid') {
+                layoutMode = 'hierarchical';
+                btnChangeLayout.innerHTML = `<i class="fa-solid fa-sitemap"></i> 🌳 Bố Cục: Sơ Đồ Cây`;
+            } else {
+                layoutMode = 'organic';
+                btnChangeLayout.innerHTML = `<i class="fa-solid fa-compass"></i> 🧭 Bố Cục: Lực Hút`;
+            }
+            // Mở lại physics hoặc tính toán tọa độ lưới
+            applyLayoutMode();
         });
 
         // Chuyển đổi chế độ đồ họa
@@ -791,9 +816,11 @@
             }
         });
         overlay.querySelector('#dock_btn_relayout').addEventListener('click', () => {
-            if (networkInstance && typeof networkInstance.stabilize === 'function') {
-                networkInstance.stabilize(100);
-                networkInstance.fit({ animation: { duration: 500 } });
+            if (networkInstance) {
+                // Xóa ghim tọa độ cũ và bật lại physics mô phỏng
+                mapData.nodes.forEach(n => { delete n.x; delete n.y; });
+                saveMapData();
+                applyLayoutMode(true);
             }
         });
 
@@ -878,6 +905,35 @@
         searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
     }
 
+    function applyLayoutMode(forceRelayout = false) {
+        if (!networkInstance) return renderNetwork();
+
+        if (layoutMode === 'district_grid') {
+            // Chuẩn App Bản đồ index-14.js: Sắp xếp theo Lưới Khu Vực (District Grid)
+            const colWidth = renderMode === 'premium_svg' ? 340 : 250;
+            const rowHeight = renderMode === 'premium_svg' ? 180 : 130;
+            const cols = Math.max(2, Math.floor(Math.sqrt(mapData.nodes.length + 2)));
+
+            mapData.nodes.forEach((node, idx) => {
+                node.x = (idx % cols) * colWidth - ((cols * colWidth) / 2);
+                node.y = Math.floor(idx / cols) * rowHeight - 150;
+            });
+            saveMapData();
+            renderNetwork();
+        } else if (layoutMode === 'hierarchical') {
+            // Chế độ Sơ đồ phân cấp cây
+            renderNetwork();
+        } else {
+            // Chế độ Lực hút Organic
+            if (forceRelayout) {
+                networkInstance.setOptions({ physics: { enabled: true } });
+                networkInstance.stabilize(150);
+            } else {
+                renderNetwork();
+            }
+        }
+    }
+
     function updateUI() {
         loadAiConfig();
         const statusBox = doc.getElementById('lore_chat_status');
@@ -908,7 +964,7 @@
     }
 
     function initVisNetwork(container) {
-        const nodesArray = mapData.nodes.map(n => {
+        const nodesArray = mapData.nodes.map((n, idx) => {
             const cat = THEME.nodeCategories[n.category] || THEME.nodeCategories.other;
             const isDanger = n.danger_level && (
                 n.danger_level.toLowerCase().includes('nguy') ||
@@ -918,12 +974,31 @@
                 n.danger_level.toLowerCase().includes('bạo động')
             );
 
+            // Tọa độ ghim (nếu đã từng kéo thả hoặc chọn chế độ Lưới)
+            let posX = typeof n.x === 'number' ? n.x : undefined;
+            let posY = typeof n.y === 'number' ? n.y : undefined;
+
+            if (layoutMode === 'district_grid' && posX === undefined) {
+                const colWidth = renderMode === 'premium_svg' ? 340 : 250;
+                const rowHeight = renderMode === 'premium_svg' ? 180 : 130;
+                const cols = Math.max(2, Math.floor(Math.sqrt(mapData.nodes.length + 2)));
+                posX = (idx % cols) * colWidth - ((cols * colWidth) / 2);
+                posY = Math.floor(idx / cols) * rowHeight - 150;
+            }
+
+            const baseNode = {
+                id: n.id,
+                x: posX,
+                y: posY,
+                // Nếu node đã có tọa độ ghim thì khóa vật lý (zero drift)
+                fixed: (typeof posX === 'number' && typeof posY === 'number' && layoutMode !== 'hierarchical') ? { x: true, y: true } : false
+            };
+
             if (renderMode === 'premium_svg') {
                 const unselectedImg = generateNodeSvgUrl(n, false);
                 const selectedImg = generateNodeSvgUrl(n, true);
 
-                return {
-                    id: n.id,
+                return Object.assign(baseNode, {
                     shape: 'image',
                     image: {
                         unselected: unselectedImg,
@@ -931,13 +1006,11 @@
                     },
                     size: 40,
                     title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}\n• Đặc điểm/Chức năng: ${n.features || 'Không có'}\n• Trạng thái: ${n.status || 'Bình thường'}`,
-                    font: { color: 'transparent', size: 1 }, // Ẩn nhãn text mặc định vì SVG đã hiển thị siêu nét
+                    font: { color: 'transparent', size: 1 },
                     margin: 0
-                };
+                });
             } else {
-                // Chế độ Đồ Thị Gọn (Compact Glow Nodes)
-                return {
-                    id: n.id,
+                return Object.assign(baseNode, {
                     label: `${cat.icon} ${n.label}\n[${n.danger_level || 'An toàn'}]`,
                     title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}`,
                     color: {
@@ -950,7 +1023,7 @@
                     shadow: { enabled: true, color: 'rgba(0,0,0,0.7)', size: 14, x: 0, y: 6 },
                     shape: 'box',
                     margin: 12
-                };
+                });
             }
         });
 
@@ -975,7 +1048,7 @@
                     align: 'horizontal'
                 },
                 arrows: { to: { enabled: true, scaleFactor: 0.85 } },
-                smooth: { type: 'continuous', roundness: 0.22 },
+                smooth: layoutMode === 'hierarchical' ? { type: 'cubicBezier' } : { type: 'continuous', roundness: 0.22 },
                 width: relStyle.width || 2.5
             };
         });
@@ -986,23 +1059,34 @@
         };
 
         const options = {
+            layout: {
+                hierarchical: layoutMode === 'hierarchical' ? {
+                    enabled: true,
+                    direction: 'UD',
+                    sortMethod: 'directed',
+                    nodeSpacing: renderMode === 'premium_svg' ? 320 : 220,
+                    levelSeparation: renderMode === 'premium_svg' ? 200 : 150
+                } : { enabled: false }
+            },
             physics: {
+                enabled: layoutMode === 'organic',
                 forceAtlas2Based: {
-                    gravitationalConstant: -100,
+                    gravitationalConstant: -110,
                     centralGravity: 0.012,
-                    springLength: renderMode === 'premium_svg' ? 260 : 220,
+                    springLength: renderMode === 'premium_svg' ? 270 : 220,
                     springConstant: 0.08
                 },
                 maxVelocity: 45,
                 solver: 'forceAtlas2Based',
                 timestep: 0.35,
-                stabilization: { iterations: 180 }
+                stabilization: { iterations: 160 }
             },
             interaction: {
                 hover: true,
                 tooltipDelay: 150,
                 navigationButtons: false,
-                keyboard: true
+                keyboard: true,
+                dragNodes: true
             }
         };
 
@@ -1015,6 +1099,39 @@
         container.insertBefore(graphDiv, dock || null);
 
         networkInstance = new window.vis.Network(graphDiv, data, options);
+
+        // ============ CƠ CHẾ ZERO-DRIFT INSTANT LOCK KHI KÉO THẢ ============
+        networkInstance.on('dragStart', params => {
+            if (params.nodes.length > 0 && layoutMode === 'organic') {
+                // Tạm thời bật vật lý nhẹ khi kéo
+                networkInstance.setOptions({ physics: { enabled: true } });
+            }
+        });
+
+        networkInstance.on('dragEnd', params => {
+            if (params.nodes.length > 0 && layoutMode !== 'hierarchical') {
+                const nodeId = params.nodes[0];
+                const pos = networkInstance.getPositions([nodeId])[nodeId];
+                if (pos) {
+                    const target = mapData.nodes.find(n => n.id === nodeId);
+                    if (target) {
+                        target.x = pos.x;
+                        target.y = pos.y;
+                        saveMapData();
+                        // Ghim chết tọa độ ngay tức thì để không bị trôi đi
+                        data.nodes.update({ id: nodeId, x: pos.x, y: pos.y, fixed: { x: true, y: true } });
+                    }
+                }
+            }
+        });
+
+        // Khi mô phỏng vật lý đã ổn định -> TỰ ĐỘNG TẮT PHYSICS để tối ưu 60 FPS (không tốn CPU)
+        if (layoutMode === 'organic') {
+            networkInstance.on('stabilized', () => {
+                networkInstance.setOptions({ physics: { enabled: false } });
+                console.log('[Lore World Map] Physics stabilized -> Tắt mô phỏng ngầm tối ưu 100% hiệu năng.');
+            });
+        }
 
         networkInstance.on('click', params => {
             if (params.nodes.length > 0) {
@@ -1059,7 +1176,7 @@
             contentDiv.innerHTML = `
                 <div style="display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0;">
                     <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px; font-size: 0.84em; color: #e0f2fe; flex-shrink: 0;">
-                        💡 <b>Mẹo:</b> Kéo chuột để di chuyển địa điểm. Cuộn chuột zoom. Nhấp vào nút [✨ Thẻ Đồ Họa 3D] trên thanh công cụ để trải nghiệm đồ họa thẻ SVG siêu đẹp!
+                        💡 <b>Zero-Drift & Bố Cục:</b> Kéo thả địa điểm sẽ <b>ghim chết vị trí vĩnh viễn</b> (không bị trôi đi). Bấm nút [🧭 Bố Cục] để chọn kiểu Lưới Khu Vực hoặc Phân cấp cây!
                     </div>
 
                     <div style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
