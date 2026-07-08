@@ -4526,7 +4526,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (!listEl) return;
         const row = PD.createElement('div');
         row.className = 'vn-expression-row';
-        row.style.cssText = 'display:flex;gap:8px;align-items:center;background:rgba(0,0,0,0.25);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);';
+        row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:rgba(0,0,0,0.25);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);';
         
         const labelInput = PD.createElement('input');
         labelInput.type = 'text';
@@ -4538,10 +4538,26 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const urlInput = PD.createElement('input');
         urlInput.type = 'text';
         urlInput.className = 'vn-input vn-exp-url';
-        urlInput.placeholder = 'URL ảnh hoặc chọn ảnh local ->';
+        urlInput.placeholder = 'URL ảnh hoặc chọn kho / tải lên ->';
         urlInput.value = url;
         urlInput.style.cssText = 'flex:2;min-width:160px;padding:6px 10px;font-size:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;';
         
+        const pickBtn = PD.createElement('button');
+        pickBtn.type = 'button';
+        pickBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
+        pickBtn.title = 'Chọn ảnh từ kho anime miễn phí, kho local hoặc link đã lưu';
+        pickBtn.innerHTML = '<img src="https://api.iconify.design/lucide:folder-open.svg?color=%23cbd5e1" class="vn-icon">Kho ảnh';
+        pickBtn.style.cssText = 'padding:6px 10px;border-color:rgba(255,255,255,0.15);white-space:nowrap;';
+        pickBtn.onclick = () => {
+            if (typeof openImgPicker === 'function') {
+                openImgPicker(_currentEditChar || 'char', (pickedUrl) => {
+                    urlInput.value = pickedUrl;
+                    if (typeof updatePreview === 'function') updatePreview();
+                    showToast('Đã chọn ảnh cho nhãn ngữ cảnh!', 'success');
+                });
+            }
+        };
+
         const fileInput = PD.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = 'image/*';
@@ -4550,9 +4566,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const uploadBtn = PD.createElement('button');
         uploadBtn.type = 'button';
         uploadBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
-        uploadBtn.title = 'Tải ảnh từ máy lên';
-        uploadBtn.innerHTML = '<img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">';
-        uploadBtn.style.cssText = 'padding:6px 10px;border-color:rgba(255,255,255,0.15);';
+        uploadBtn.title = 'Tải ảnh từ máy tính lên';
+        uploadBtn.innerHTML = '<img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">Tải lên';
+        uploadBtn.style.cssText = 'padding:6px 10px;border-color:rgba(255,255,255,0.15);white-space:nowrap;';
         uploadBtn.onclick = () => fileInput.click();
         
         fileInput.onchange = async (e) => {
@@ -4598,6 +4614,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         
         row.appendChild(labelInput);
         row.appendChild(urlInput);
+        row.appendChild(pickBtn);
         row.appendChild(uploadBtn);
         row.appendChild(fileInput);
         row.appendChild(previewImg);
