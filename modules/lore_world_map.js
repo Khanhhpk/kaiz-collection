@@ -1,22 +1,21 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Map) - v8.1 Deep Info & Infinite N-Layers Overhaul (v1.3.0.5)
- * - Khắc phục lỗi hiển thị lặp 2 dấu cộng (+ + Thêm Địa Điểm).
- * - [♾️ Hệ Thống Truy Cập Vô Hạn Lớp (`Infinite N-Layer Navigation Stack`)]:
- *   - Không giới hạn ở 2 lớp (Cha -> Con) như trước. Giờ đây bạn có thể đi sâu vô hạn lớp:
- *     `Thế Giới / Vùng Đất -> Thành Phố -> Khu Vực Lớn -> Tòa Nhà -> Tầng Lầu -> Căn Phòng -> Hầm Bí Mật -> Lối Đi Ngầm...`
- *   - Thanh Breadcrumb thông minh (`Breadcrumb Navigation Bar`) cho phép bấm nhảy ngược về bất kỳ lớp cha nào ở phía trên hoặc lùi từng bước (`[⬅️ Lùi 1 lớp]`).
- * - [🔬 Deep Lore Info (`Cải thiện chi tiết sâu thông tin bản đồ`)]:
- *   - Bổ sung hệ thống dữ liệu chuyên sâu cho từng địa điểm (`Atmosphere`, `Secrets/Loot`, `Active Events`, `Access Status`).
- *   - Hộp thoại chi tiết hiển thị đầy đủ: Môi trường & Bầu không khí, Vật phẩm & Bí mật ẩn giấu, Sự kiện đang diễn ra và Quyền truy cập.
- * - [⚡ AI Khám Phá Sâu Từng Lớp (`AI Deep Drill-Down Scan`)]:
- *   - Ngay trong hộp thoại chi tiết của bất kỳ địa điểm nào ở bất kỳ tầng lớp nào, bạn có thể bấm **[⚡ AI Khám Phá & Dựng Phân Khu Con Tại Đây]** để AI tạo thêm lớp địa điểm con bên trong khu vực đó!
- * - Phiên bản: v1.3.0.5
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Map) - v8.2 Left/Right Click & Saved Maps Manager (v1.3.0.6)
+ * - [🖱️ Điều Khiển Chuột Trái vs Chuột Phải Chuẩn Xác]:
+ *   - Chuột Trái (`Left-Click`): Vào sâu bên trong Phân Khu / Tập Con (`subLocations`). Nếu chưa có tập con sẽ đi vào tầng trống để bạn thêm mới hoặc cho AI khám phá.
+ *   - Chuột Phải (`Right-Click` hoặc Nhấn Giữ trên ĐT): Mở ngay hộp thoại Đọc Thông Tin Chi Tiết (`Deep Lore Info`) để xem Môi trường, Bí mật, Sự kiện...
+ * - [💾 Khắc Phục Lỗi Lưu Theo Chat (`Chat-Specific Storage Exact Mapping`)]:
+ *   - Nhận diện cực nhạy Chat ID của SillyTavern qua nhiều lớp (`ctx.chatId`, `selected_chat`, `this_ptid`, `chatLoaded`, `chat_changed`...).
+ *   - Tự động nạp đúng bản đồ khi chuyển đổi chat hoặc khi làm mới trang.
+ * - [🗂️ Quản Lý Bản Đồ Đã Lưu (`Saved Maps Manager & Quick Delete`)]:
+ *   - Bổ sung nút **[ 🗂️ Quản Lý Map Đã Lưu ]** ngay trên thanh công cụ.
+ *   - Hộp thoại hiển thị danh sách toàn bộ các bản đồ/chat đang được lưu trong hệ thống, kèm Số lượng địa điểm, Dung lượng KB, và nút **[ 🗑️ Xóa Nhanh ]** / **[ 📂 Xem Thử ]** / **[ 🧹 Xóa Tất Cả Rác ]**.
+ * - Phiên bản: v1.3.0.6
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.1 Deep Info & Infinite N-Layers Overhaul (v1.3.0.5)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.2 Left/Right Click & Saved Maps Manager (v1.3.0.6)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -46,31 +45,49 @@
     // ============ DỮ LIỆU BẢN ĐỒ & INFINITE NAVIGATION STACK ============
     let activeChatId = 'default_global_chat';
     let mapData = { locations: [] };
-    
-    // navStack: Mảng chứa đường dẫn các địa điểm đang truy cập sâu.
-    // VD: [] = Lớp gốc (danh sách mapData.locations)
-    // [locA] = Đang ở bên trong subLocations của locA
-    // [locA, subLocB] = Đang ở bên trong subLocations của subLocB (thuộc locA)
     let navStack = [];
     let selectedDetailLocation = null;
 
     const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
 
+    // ============ NHẬN DIỆN CHAT ID SIÊU CHÍNH XÁC ============
     function getActiveChatId() {
         try {
             const win = window.parent || window;
+            // 1. Kiểm tra SillyTavern context
             if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
                 const ctx = win.SillyTavern.getContext();
-                if (ctx && ctx.chatId) return String(ctx.chatId);
+                if (ctx) {
+                    if (ctx.chatId !== undefined && ctx.chatId !== null && String(ctx.chatId).trim() !== '') {
+                        if (ctx.characterId !== undefined && ctx.characterId !== null) {
+                            return `char_${ctx.characterId}_chat_${ctx.chatId}`;
+                        }
+                        return String(ctx.chatId);
+                    }
+                    if (ctx.saveName) return String(ctx.saveName);
+                }
             }
+            // 2. Kiểm tra win.selected_chat (của SillyTavern UI core)
+            if (win.selected_chat) {
+                if (win.this_ptid !== undefined && win.this_ptid !== null) {
+                    return `char_${win.this_ptid}_chat_${win.selected_chat}`;
+                }
+                return String(win.selected_chat);
+            }
+            // 3. Kiểm tra metadata chat
+            if (win.chat_metadata && win.chat_metadata.chat_id) return String(win.chat_metadata.chat_id);
             if (win.chatId) return String(win.chatId);
-            if (win.selected_chat) return String(win.selected_chat);
         } catch (e) {}
         return 'default_global_chat';
     }
 
     function loadMapDataForCurrentChat() {
-        activeChatId = getActiveChatId();
+        const newChatId = getActiveChatId();
+        if (newChatId !== activeChatId) {
+            navStack = []; // Reset breadcrumb stack khi sang chat mới
+        }
+        activeChatId = newChatId;
+
         const raw = localStorage.getItem(STORAGE_PREFIX + activeChatId);
         if (raw) {
             try {
@@ -87,6 +104,7 @@
                 mapData = { locations: [] };
             }
         } else {
+            // Kiểm tra key cũ nếu có
             const oldRaw = localStorage.getItem('kaiz_lore_graph_map_' + activeChatId);
             if (oldRaw) {
                 try {
@@ -260,9 +278,9 @@
     const doc = (window.parent && window.parent.document) || document;
 
     function injectStyles() {
-        if (doc.getElementById('lore-world-map-app-styles-v81')) return;
+        if (doc.getElementById('lore-world-map-app-styles-v82')) return;
         const style = doc.createElement('style');
-        style.id = 'lore-world-map-app-styles-v81';
+        style.id = 'lore-world-map-app-styles-v82';
         style.innerHTML = `
             #lore_app_modal_overlay {
                 position: fixed;
@@ -403,7 +421,7 @@
                 position: relative;
             }
             @media (max-width: 880px) {
-                #lore_app_header { flex-direction: column; align-items: stretch; max-height: 38vh; overflow-y: auto; gap: 10px; }
+                #lore_app_header { flex-direction: column; align-items: stretch; max-height: 40vh; overflow-y: auto; gap: 10px; }
                 .lore-header-left { justify-content: space-between; width: 100%; }
                 .lore-header-actions { width: 100%; display: flex; flex-wrap: wrap; gap: 6px; }
                 .lore-header-actions .lore-btn { flex: 1 1 auto; justify-content: center; }
@@ -430,6 +448,7 @@
                 text-align: center;
                 box-shadow: 0 10px 25px rgba(0,0,0,0.5);
                 overflow: visible;
+                user-select: none;
             }
             .location-button:hover {
                 transform: translateY(-4px) scale(1.02);
@@ -456,8 +475,8 @@
             .location-button.danger-button > i { color: #fb7185; }
             .location-button:hover > i { transform: scale(1.15); }
             
-            .location-button > .loc-name { font-weight: 800; font-size: 1.08em; z-index: 1; line-height: 1.3; max-width: 100%; word-break: break-word; color: #f8fafc; }
-            .location-button > .loc-sub-count { font-size: 0.8em; color: #93c5fd; background: rgba(59, 130, 246, 0.22); padding: 3px 10px; border-radius: 8px; margin-top: 8px; border: 1px solid rgba(59, 130, 246, 0.45); font-weight: bold; }
+            .location-button > .loc-name { font-weight: 800; font-size: 1.08em; z-index: 1; line-height: 1.3; max-width: 100%; word-break: break-word; color: #f8fafc; pointer-events: none; }
+            .location-button > .loc-sub-count { font-size: 0.8em; color: #93c5fd; background: rgba(59, 130, 246, 0.22); padding: 3px 10px; border-radius: 8px; margin-top: 8px; border: 1px solid rgba(59, 130, 246, 0.45); font-weight: bold; pointer-events: none; }
 
             /* MARKER NHÂN VẬT STANDING TRÊN ĐỊA ĐIỂM */
             .character-markers {
@@ -528,8 +547,8 @@
                 border-radius: 4px;
             }
 
-            /* MODAL CHI TIẾT ĐỊA ĐIỂM & CÀI ĐẶT AI (Sửa lỗi không bị cắt đỉnh) */
-            #lore_location_detail_modal, #lore_ai_config_modal {
+            /* MODAL CHI TIẾT ĐỊA ĐIỂM, CÀI ĐẶT AI, VÀ QUẢN LÝ MAP ĐÃ LƯU */
+            #lore_location_detail_modal, #lore_ai_config_modal, #lore_saved_maps_modal {
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -543,9 +562,9 @@
                 padding: 30px 16px;
                 box-sizing: border-box;
             }
-            #lore_location_detail_box, #lore_ai_config_box {
+            #lore_location_detail_box, #lore_ai_config_box, #lore_saved_maps_box {
                 width: 100%;
-                max-width: 650px;
+                max-width: 680px;
                 background: #0f172a;
                 border: 2px solid #38bdf8;
                 border-radius: 22px;
@@ -584,6 +603,19 @@
                 color: #e2e8f0;
                 line-height: 1.55;
             }
+
+            .saved-map-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 14px;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.14);
+                border-radius: 12px;
+                gap: 12px;
+                transition: background 0.15s;
+            }
+            .saved-map-item:hover { background: rgba(255,255,255,0.1); }
 
             .lore-input {
                 padding: 8px 11px;
@@ -642,11 +674,11 @@
                         </div>
                         <div>
                             <div style="font-weight: 800; font-size: 1.12em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.5)</span>
+                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.6)</span>
                                 <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 khu vực</span>
                                 <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
-                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px;">Chat ID: <span style="color: #c084fc;">...</span> | Chế độ Lưới & Truy Cập Vô Hạn Lớp N-Layers</div>
+                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px;">Chat ID: <span style="color: #c084fc;">...</span> | Chuột Trái: Vào Phân Khu | Chuột Phải: Xem Thông Tin</div>
                         </div>
                     </div>
 
@@ -657,6 +689,10 @@
 
                         <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Thêm địa điểm vào lớp hiện tại">
                             <i class="fa-solid fa-plus"></i> Thêm Địa Điểm
+                        </button>
+
+                        <button id="lore_btn_saved_maps" class="lore-btn lore-btn-secondary" title="Kiểm tra & Xóa nhanh các bản đồ / chat đang lưu">
+                            <i class="fa-solid fa-folder-tree"></i> Quản lý Map Lưu
                         </button>
 
                         <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI & Tải danh sách Model">
@@ -671,6 +707,12 @@
 
                 <!-- Viewport & Infinite N-Layer Breadcrumb -->
                 <div id="lore_app_viewport">
+                    <!-- Instruction Banner Chuột Trái / Chuột Phải -->
+                    <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 8px 14px; margin-bottom: 14px; font-size: 0.86em; color: #bae6fd; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap;">
+                        <span>💡 <b>Hướng dẫn điều khiển:</b> Nhấp <b>Chuột Trái</b> vào địa điểm để đi sâu vào tập con/phân khu bên trong $\\rightarrow$ Nhấp <b>Chuột Phải</b> (hoặc Nhấn Giữ) để xem & đọc Thông Tin Chi Tiết (Deep Info).</span>
+                        <span style="font-size: 0.9em; color: #38bdf8; font-weight: bold;">[ Lưu tự động theo Chat ]</span>
+                    </div>
+
                     <!-- Dynamic Infinite Breadcrumb Bar -->
                     <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none;">
                         <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Lùi 1 lớp</button>
@@ -684,7 +726,7 @@
                 </div>
             </div>
 
-            <!-- MODAL CHI TIẾT ĐỊA ĐIỂM (DEEP INFO POPUP) -->
+            <!-- MODAL CHI TIẾT ĐỊA ĐIỂM (DEEP INFO POPUP - Mở bằng Chuột Phải) -->
             <div id="lore_location_detail_modal">
                 <div id="lore_location_detail_box">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
@@ -731,8 +773,8 @@
                     <!-- ACTIONS & INFINITE DRILL-DOWN -->
                     <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center;">
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button id="det_btn_enter_sub" class="lore-btn lore-btn-success" style="padding: 10px 18px; font-size: 0.95em;">
-                                <i class="fa-solid fa-door-open"></i> Vào Phân Khu Con
+                            <button id="det_btn_enter_sub" class="lore-btn lore-btn-success" style="padding: 10px 18px; font-size: 0.95em;" title="Đi vào tập con / phân khu bên trong của địa điểm này">
+                                <i class="fa-solid fa-door-open"></i> Vào Tập Con / Phân Khu
                             </button>
                             <button id="det_btn_ai_drill" class="lore-btn lore-btn-primary" style="padding: 10px 16px; font-size: 0.9em; background: linear-gradient(135deg, #0284c7, #9333ea);" title="Dùng AI khám phá & tạo tự động các phân khu nhỏ/hầm ngầm bên trong địa điểm này">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i> AI Khám Phá Sâu
@@ -751,6 +793,33 @@
                 </div>
             </div>
 
+            <!-- MODAL QUẢN LÝ MAP ĐÃ LƯU (SAVED MAPS MANAGER v8.2) -->
+            <div id="lore_saved_maps_modal">
+                <div id="lore_saved_maps_box">
+                    <div style="font-weight: 800; font-size: 1.18em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
+                        <span>🗂️ QUẢN LÝ BẢN ĐỒ LƯU THEO CHAT</span>
+                        <span id="saved_maps_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;">✕</span>
+                    </div>
+
+                    <div style="font-size: 0.88em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25);">
+                        ℹ️ Tất cả bản đồ thế giới đều được **tự động lưu riêng biệt theo từng Chat ID** của bạn. Dưới đây là danh sách các bản đồ hiện có trong hệ thống:
+                    </div>
+
+                    <div id="saved_maps_list" style="display: flex; flex-direction: column; gap: 10px; max-height: 52vh; overflow-y: auto; padding-right: 4px;">
+                        <!-- Nạp danh sách các map đã lưu từ localStorage -->
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px; margin-top: 6px; flex-wrap: wrap; gap: 10px;">
+                        <button id="btn_delete_all_inactive" class="lore-btn lore-btn-danger" style="padding: 10px 16px;">
+                            <i class="fa-solid fa-broom"></i> Xóa Tất Cả Map Cũ (Giữ lại Chat hiện tại)
+                        </button>
+                        <button id="btn_refresh_saved_list" class="lore-btn lore-btn-secondary" style="padding: 10px 18px;">
+                            <i class="fa-solid fa-rotate"></i> Làm Mới Danh Sách
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- MODAL CÀI ĐẶT AI v8.1 -->
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
@@ -760,7 +829,7 @@
                     </div>
 
                     <div style="font-size: 0.85em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.25);">
-                        ℹ️ <b>App Lưới Đa Thể Loại & Vô Hạn Lớp:</b> Tự động nhận diện bối cảnh truyện để xây dựng lưới khu vực và phân khu chính xác sâu vô tận (Học đường, Tu tiên, Sci-Fi, Horror...).
+                        ℹ️ <b>App Lưới Đa Thể Loại & Vô Hạn Lớp:</b> Tự động nhận diện bối cảnh truyện để xây dựng lưới khu vực và phân khu chính xác sâu vô tận.
                     </div>
 
                     <div>
@@ -822,7 +891,7 @@
             }
         });
 
-        // Xử lý nút Thêm Địa Điểm (Đã sửa lỗi không lặp + + Thêm Địa Điểm)
+        // Xử lý nút Thêm Địa Điểm
         overlay.querySelector('#lore_btn_add_location').addEventListener('click', () => {
             const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
             const name = prompt('Nhập tên địa điểm/phân khu mới:', 'Khu Vực / Căn Phòng Mới');
@@ -864,6 +933,31 @@
         // Xử lý AI Quét Map
         overlay.querySelector('#lore_btn_ai_scan').addEventListener('click', async () => {
             await triggerAiWorldScan();
+        });
+
+        // Xử lý Quản lý Bản đồ đã lưu (Saved Maps Manager v8.2)
+        const savedModal = overlay.querySelector('#lore_saved_maps_modal');
+        const btnSavedMaps = overlay.querySelector('#lore_btn_saved_maps');
+        
+        btnSavedMaps.addEventListener('click', () => {
+            renderSavedMapsList();
+            savedModal.style.display = 'flex';
+        });
+
+        overlay.querySelector('#saved_maps_close').addEventListener('click', () => savedModal.style.display = 'none');
+        overlay.querySelector('#btn_refresh_saved_list').addEventListener('click', () => renderSavedMapsList());
+        overlay.querySelector('#btn_delete_all_inactive').addEventListener('click', () => {
+            if (!confirm('⚠️ Bạn có chắc chắn muốn xóa toàn bộ các bản đồ cũ của các chat khác không? (Bản đồ của Chat hiện tại sẽ được giữ lại an toàn)')) return;
+            let count = 0;
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith(STORAGE_PREFIX) && k !== STORAGE_PREFIX + activeChatId) {
+                    localStorage.removeItem(k);
+                    count++;
+                }
+            }
+            alert(`✅ Đã xóa dọn dẹp ${count} bản đồ chat cũ thành công!`);
+            renderSavedMapsList();
         });
 
         // Xử lý Cài đặt AI & Fetch Model
@@ -1003,6 +1097,86 @@
         });
     }
 
+    function renderSavedMapsList() {
+        const listContainer = doc.getElementById('saved_maps_list');
+        if (!listContainer) return;
+
+        let items = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith(STORAGE_PREFIX)) {
+                const chatId = k.replace(STORAGE_PREFIX, '');
+                let count = 0;
+                let sizeBytes = 0;
+                try {
+                    const val = localStorage.getItem(k);
+                    sizeBytes = new Blob([val || '']).size;
+                    const parsed = JSON.parse(val || '{}');
+                    if (Array.isArray(parsed.locations)) count = countAllLocations(parsed.locations);
+                } catch (e) {}
+                items.push({ key: k, chatId, count, sizeKB: (sizeBytes / 1024).toFixed(1) });
+            }
+        }
+
+        if (items.length === 0) {
+            listContainer.innerHTML = `<div style="text-align: center; color: #64748b; padding: 30px;">Chưa có bản đồ nào được lưu trong bộ nhớ.</div>`;
+            return;
+        }
+
+        listContainer.innerHTML = items.map(item => {
+            const isCurrent = item.chatId === activeChatId;
+            return `
+                <div class="saved-map-item" style="${isCurrent ? 'border-color: #38bdf8; background: rgba(56,189,248,0.12);' : ''}">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <div style="font-weight: 800; color: #f8fafc; font-size: 0.98em;">
+                            💬 Chat ID: <span style="color: #c084fc;">${item.chatId}</span>
+                            ${isCurrent ? `<span style="background: #38bdf8; color: #000; font-size: 0.72em; padding: 2px 6px; border-radius: 6px; margin-left: 6px;">⭐ Đang mở</span>` : ''}
+                        </div>
+                        <div style="font-size: 0.82em; color: #94a3b8;">
+                            📍 <b>${item.count}</b> khu vực / phân khu | 📦 <b>${item.sizeKB} KB</b>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        ${!isCurrent ? `
+                            <button class="lore-btn lore-btn-secondary" style="padding: 6px 12px; font-size: 0.82em;" onclick="window._loreLoadSavedMap('${item.chatId}')" title="Chuyển sang xem/sửa bản đồ này">
+                                <i class="fa-solid fa-folder-open"></i> Xem Thử
+                            </button>
+                            <button class="lore-btn lore-btn-danger" style="padding: 6px 10px; font-size: 0.82em;" onclick="window._loreDeleteSavedMap('${item.key}', '${item.chatId}')" title="Xóa bản đồ chat này">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                        ` : `
+                            <span style="font-size: 0.82em; color: #38bdf8; font-weight: bold; padding: 6px 10px;">(Bản đồ hiện tại)</span>
+                        `}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window._loreLoadSavedMap = function (chatId) {
+        activeChatId = chatId;
+        navStack = [];
+        const raw = localStorage.getItem(STORAGE_PREFIX + activeChatId);
+        if (raw) {
+            try { mapData = JSON.parse(raw); } catch (e) { mapData = { locations: [] }; }
+        } else {
+            mapData = { locations: [] };
+        }
+        doc.getElementById('lore_saved_maps_modal').style.display = 'none';
+        renderAppGrid();
+        alert(`📂 Đã chuyển sang xem bản đồ của Chat ID: ${chatId}`);
+    };
+
+    window._loreDeleteSavedMap = function (storageKey, chatId) {
+        if (!confirm(`Bạn có chắc muốn xóa bản đồ đã lưu của Chat ID "${chatId}" không?`)) return;
+        try { localStorage.removeItem(storageKey); } catch (e) {}
+        renderSavedMapsList();
+        if (chatId === activeChatId) {
+            mapData = { locations: [] };
+            renderAppGrid();
+        }
+    };
+
     function countAllLocations(locList) {
         let count = 0;
         if (!Array.isArray(locList)) return 0;
@@ -1019,10 +1193,10 @@
         const badgeStats = doc.getElementById('lore_stats_badge');
         const badgeAi = doc.getElementById('lore_ai_badge');
 
-        if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span> | Chế độ Lưới & Truy Cập Vô Hạn Lớp N-Layers`;
+        if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span> | Chuột Trái: Vào Phân Khu | Chuột Phải: Xem Thông Tin`;
         if (badgeStats) {
             const total = countAllLocations(mapData.locations);
-            badgeStats.innerText = `${total} địa điểm / phân khu sâu`;
+            badgeStats.innerText = `${total} khu vực`;
         }
         if (badgeAi) {
             badgeAi.innerText = aiConfig.source === 'custom' ? `⚡ Custom AI (${aiConfig.customModel || 'model'})` : `⭐ SillyTavern AI`;
@@ -1077,7 +1251,7 @@
                 <div style="text-align: center; padding: 60px 20px; color: #64748b; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px dashed rgba(255,255,255,0.12);">
                     <i class="fa-solid fa-map-location-dot" style="font-size: 3.5em; color: #38bdf8; opacity: 0.5; margin-bottom: 12px;"></i>
                     <div style="font-size: 1.1em; font-weight: bold; color: #cbd5e1;">Lớp phân khu này hiện chưa có địa điểm nào</div>
-                    <div style="font-size: 0.88em; margin-top: 6px;">Bấm nút <b>[ Thêm Địa Điểm ]</b> ở trên hoặc bấm <b>[ ⚡ AI Khám Phá Sâu ]</b> từ lớp cha để tạo mới!</div>
+                    <div style="font-size: 0.88em; margin-top: 6px;">Nhấp <b>Chuột Phải</b> vào lớp cha để dùng <b>[ ⚡ AI Khám Phá Sâu ]</b> hoặc bấm nút <b>[ Thêm Địa Điểm ]</b> ở trên!</div>
                 </div>
             `;
             return;
@@ -1112,24 +1286,25 @@
                             inner = `<span>${charName.substring(0,2).toUpperCase()}</span>`;
                         }
                         return `
-                            <div class="character-marker" title="Nhân vật hiện diện: ${charName}" onclick="event.stopPropagation(); window._loreShowDetail('${loc.id}')">
+                            <div class="character-marker" title="Nhân vật hiện diện: ${charName} (Nhấp để mở Deep Info)" onclick="event.stopPropagation(); window._loreShowDetail('${loc.id}')">
                                 <div class="character-marker-avatar">${inner}</div>
                                 <div class="marker-pin"></div>
                             </div>
                         `;
                     }).join('');
 
+                    // Chuột trái -> vào tập con (_loreOnLocationLeftClick) | Chuột phải -> đọc thông tin (_loreOnLocationRightClick)
                     html += `
-                        <div class="${btnClass}" onclick="window._loreOnLocationClick('${loc.id}')">
+                        <div class="${btnClass}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem Thông Tin Chi Tiết (Deep Info)">
                             <div class="character-markers">${charPinsHTML}</div>
                             <i class="fas ${loc.icon || 'fa-location-dot'}"></i>
                             <span class="loc-name">${loc.name}</span>
-                            ${subCount > 0 ? `<span class="loc-sub-count">📁 ${subCount} phân khu bên trong</span>` : `<span style="font-size:0.75em; color:#94a3b8; margin-top:4px;">🏷️ ${loc.context_type || 'Phân khu'}</span>`}
+                            ${subCount > 0 ? `<span class="loc-sub-count">📁 ${subCount} tập con bên trong</span>` : `<span style="font-size:0.75em; color:#94a3b8; margin-top:4px;">🏷️ ${loc.context_type || 'Phân khu'}</span>`}
                         </div>
                     `;
                 } else if (idx === currentList.length) {
                     html += `
-                        <div class="location-button empty-location" style="cursor: pointer; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.08);" onclick="document.getElementById('lore_btn_add_location').click()" title="Nhấp để thêm địa điểm vào ô trống này">
+                        <div class="location-button empty-location" style="cursor: pointer; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.08);" onclick="document.getElementById('lore_btn_add_location').click()" title="Nhấp chuột trái để thêm địa điểm vào ô trống này">
                             <i class="fas fa-plus" style="color: #38bdf8; font-size: 24px;"></i>
                             <span style="font-size: 0.94em; font-weight: bold; color: #38bdf8;">Thêm Địa Điểm</span>
                         </div>
@@ -1143,7 +1318,7 @@
                     `;
                 }
 
-                // Đường đi dọc giữa các ô trong cùng 1 hàng (chỉ nối khi CẢ 2 bên đều là địa điểm có thật)
+                // Đường đi dọc giữa các ô trong cùng 1 hàng
                 if (c < COLS - 1 && currentList[idx] && currentList[idx + 1]) {
                     html += `<div class="road-vertical" style="position: absolute; right: -17px; top: 50%; transform: translateY(-50%); height: 32px; width: 16px;"></div>`;
                 }
@@ -1169,19 +1344,34 @@
         gridContainer.innerHTML = html;
     }
 
-    window._loreOnLocationClick = function (locId) {
+    // CHUỘT TRÁI: Vào xem tập con / drill-down
+    window._loreOnLocationLeftClick = function (event, locId) {
+        if (event && event.stopPropagation) event.stopPropagation();
         const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
         let list = currentParent ? (currentParent.subLocations || []) : mapData.locations;
         const found = list.find(l => l.id === locId);
         if (!found) return;
 
-        // Nếu địa điểm có subLocations -> Đi sâu vào tầng lớp con ngay lập tức (vô hạn lớp N-Layers)
+        // Nếu có tập con -> Đi thẳng vào tầng lớp bên trong
         if (Array.isArray(found.subLocations) && found.subLocations.length > 0) {
             navStack.push(found);
             renderAppGrid();
         } else {
-            window._loreShowDetail(locId);
+            // Nếu chưa có tập con -> Đi vào tầng con (sẽ hiện bảng trống kèm hướng dẫn Thêm hoặc AI Khám Phá)
+            found.subLocations = found.subLocations || [];
+            navStack.push(found);
+            renderAppGrid();
         }
+    };
+
+    // CHUỘT PHẢI: Mở xem thông tin chi tiết (Deep Lore Info)
+    window._loreOnLocationRightClick = function (event, locId) {
+        if (event) {
+            if (event.preventDefault) event.preventDefault();
+            if (event.stopPropagation) event.stopPropagation();
+        }
+        window._loreShowDetail(locId);
+        return false;
     };
 
     window._loreShowDetail = function (locId) {
@@ -1189,7 +1379,6 @@
         let list = currentParent ? (currentParent.subLocations || []) : mapData.locations;
         let found = list.find(l => l.id === locId);
         if (!found) {
-            // Tìm đệ quy trong toàn bộ mapData để đảm bảo hiển thị đúng dù ở tầng nào
             found = findLocationRecursive(mapData.locations, locId);
         }
         if (!found) return;
@@ -1226,12 +1415,11 @@
         doc.getElementById('det_events').innerText = found.events || 'Tình hình ổn định, không có sự kiện căng thẳng nào.';
 
         const btnEnterSub = doc.getElementById('det_btn_enter_sub');
-        // Luôn cho phép bấm Vào Phân Khu Con để đi sâu hoặc tạo mới nếu chưa có
         btnEnterSub.style.display = 'inline-flex';
         if (Array.isArray(found.subLocations) && found.subLocations.length > 0) {
-            btnEnterSub.innerHTML = `<i class="fa-solid fa-door-open"></i> Vào Phân Khu Con (${found.subLocations.length})`;
+            btnEnterSub.innerHTML = `<i class="fa-solid fa-door-open"></i> Vào Tập Con (${found.subLocations.length})`;
         } else {
-            btnEnterSub.innerHTML = `<i class="fa-solid fa-folder-plus"></i> Mở & Tạo Phân Khu Con`;
+            btnEnterSub.innerHTML = `<i class="fa-solid fa-folder-plus"></i> Vào Tập Con (Tạo mới)`;
         }
 
         detModal.style.display = 'flex';
@@ -1382,7 +1570,6 @@ TRẢ VỀ DUY NHẤT 1 JSON HỢP LỆ theo định dạng:
 
             saveMapData();
             doc.getElementById('lore_location_detail_modal').style.display = 'none';
-            // Tự động lặn vào tầng sâu vừa được AI tạo mới
             navStack.push(targetLoc);
             renderAppGrid();
             alert(`🎉 AI đã khám phá thành công +${added} phân khu tầng sâu bên trong "${targetLoc.name}"!`);
@@ -1626,6 +1813,8 @@ NHIỆM VỤ:
             const win = window.parent || window;
             if (win.eventSource && typeof win.eventSource.on === 'function') {
                 win.eventSource.on('chatLoaded', () => loadMapDataForCurrentChat());
+                win.eventSource.on('chat_changed', () => loadMapDataForCurrentChat());
+                win.eventSource.on('character_selected', () => loadMapDataForCurrentChat());
             }
         } catch (e) {}
     }
