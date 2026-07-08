@@ -212,6 +212,7 @@ const PHONE_APPS = [
 
 const UTILITY_MODULES = [
     { file: 'avar_ai_input.js', path: './modules/avar_ai_input.js', name: 'Avar AI Input', desc: 'Hỗ trợ nhập liệu thông minh cho AI' },
+    { file: 'lore_world_map.js', path: './modules/lore_world_map.js', name: 'Bản Đồ Thế Giới (Graph AI)', desc: 'AI tự động dựng đồ thị bản đồ từ lịch sử chat, có bóng con riêng' },
     { file: 'shimeji.js', path: './modules/shimeji.js', name: 'Shimeji v14.21', desc: 'Thú cưng tương tác chạy nhảy trên màn hình' },
     { file: 'storage_inspector.js', path: './modules/storage_inspector.js', name: 'Storage Inspector', desc: 'Kiểm tra và quản lý dung lượng lưu trữ' },
     { file: 'visual_novel_dialogue.js', path: './modules/visual_novel_dialogue.js', name: 'Visual Novel Dialogue', desc: 'Hiển thị hội thoại phong cách Visual Novel' },
@@ -252,7 +253,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '1.2.5';
+const KAIZ_CURRENT_VERSION = '1.2.6';
 
 function compareVersions(vA, vB) {
     const clean = v => String(v || '0').replace(/[^0-9.]/g, '').split('.').map(x => parseInt(x, 10) || 0);
