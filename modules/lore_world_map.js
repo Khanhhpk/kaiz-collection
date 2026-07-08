@@ -1,19 +1,22 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Map) - v8.0 Native App-Style Overhaul (v1.3.0.3)
- * - Xóa bỏ hoàn toàn đồ thị vật lý trôi nổi (Vis.js Graph) gây khó chịu khi kéo thả & tối ưu kém.
- * - Chuyển đổi 100% sang dạng trình bày chuẩn App Bản Đồ Điện Thoại (`index-14.js` Style):
- *   1. [📱 Bố Cục Lưới & Đường Đi (`Interactive Grid & Roads`)]: Sắp xếp theo ô lưới gọn gàng (3x3 / 4x4) xen kẽ các đường giao thông (`road-horizontal`, `road-vertical`), 0% độ trễ, 60 FPS mượt mà.
- *   2. [👥 Biểu Tượng Nhân Vật Tại Địa Điểm (`Character Avatar Pins`)]: Hiển thị avatar tròn thu nhỏ (`24x24px`) kèm ghim nhọn (`marker-pin`) ngay trên đầu ô địa điểm nơi nhân vật đang đứng/kiểm soát.
- *   3. [🏢 Điều Hướng Phân Cấp Sâu (`Drill-down SubLocations`)]: Nhấp vào Khu Vực Lớn sẽ đi sâu vào các Phân Khu / Phòng nhỏ bên trong (`subLocations`). Có nút Trở về (`[⬅️ Trở lại]`) mượt mà.
- *   4. [📋 Hộp Thoại Chi Tiết & Sự Kiện (`Location Popup`)]: Nhấp vào địa điểm cụ thể để xem toàn bộ mô tả, nhân vật hiện diện, mức độ an toàn và sự kiện.
- *   5. [⚡ Tích hợp AI Quét Đa Thể Loại & Cấu Hình Model (`Universal AI Scan & Config`)]: Vẫn giữ nguyên sức mạnh AI tự động quét lịch sử chat dựng bản đồ theo đúng thể loại truyện kèm Tải danh sách Model.
- * - Phiên bản: v1.3.0.3
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Map) - v8.1 Deep Info & Infinite N-Layers Overhaul (v1.3.0.5)
+ * - Khắc phục lỗi hiển thị lặp 2 dấu cộng (+ + Thêm Địa Điểm).
+ * - [♾️ Hệ Thống Truy Cập Vô Hạn Lớp (`Infinite N-Layer Navigation Stack`)]:
+ *   - Không giới hạn ở 2 lớp (Cha -> Con) như trước. Giờ đây bạn có thể đi sâu vô hạn lớp:
+ *     `Thế Giới / Vùng Đất -> Thành Phố -> Khu Vực Lớn -> Tòa Nhà -> Tầng Lầu -> Căn Phòng -> Hầm Bí Mật -> Lối Đi Ngầm...`
+ *   - Thanh Breadcrumb thông minh (`Breadcrumb Navigation Bar`) cho phép bấm nhảy ngược về bất kỳ lớp cha nào ở phía trên hoặc lùi từng bước (`[⬅️ Lùi 1 lớp]`).
+ * - [🔬 Deep Lore Info (`Cải thiện chi tiết sâu thông tin bản đồ`)]:
+ *   - Bổ sung hệ thống dữ liệu chuyên sâu cho từng địa điểm (`Atmosphere`, `Secrets/Loot`, `Active Events`, `Access Status`).
+ *   - Hộp thoại chi tiết hiển thị đầy đủ: Môi trường & Bầu không khí, Vật phẩm & Bí mật ẩn giấu, Sự kiện đang diễn ra và Quyền truy cập.
+ * - [⚡ AI Khám Phá Sâu Từng Lớp (`AI Deep Drill-Down Scan`)]:
+ *   - Ngay trong hộp thoại chi tiết của bất kỳ địa điểm nào ở bất kỳ tầng lớp nào, bạn có thể bấm **[⚡ AI Khám Phá & Dựng Phân Khu Con Tại Đây]** để AI tạo thêm lớp địa điểm con bên trong khu vực đó!
+ * - Phiên bản: v1.3.0.5
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.0 Native App-Style Overhaul (v1.3.0.3)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.1 Deep Info & Infinite N-Layers Overhaul (v1.3.0.5)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -40,12 +43,16 @@
         try { localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(aiConfig)); } catch (e) {}
     }
 
-    // ============ DỮ LIỆU BẢN ĐỒ (HIERARCHICAL STRUCTURE) ============
-    // Cấu trúc chuẩn App Bản đồ: { locations: [ { id, name, icon, category, danger_level, controlled_by, context_type, description, status, characters: [], subLocations: [] } ] }
+    // ============ DỮ LIỆU BẢN ĐỒ & INFINITE NAVIGATION STACK ============
     let activeChatId = 'default_global_chat';
     let mapData = { locations: [] };
-    let currentParentLocation = null; // null = trang chủ (danh sách khu vực lớn), object = đang ở trong subLocations của khu vực đó
-    let selectedDetailLocation = null; // để hiển thị Location Popup
+    
+    // navStack: Mảng chứa đường dẫn các địa điểm đang truy cập sâu.
+    // VD: [] = Lớp gốc (danh sách mapData.locations)
+    // [locA] = Đang ở bên trong subLocations của locA
+    // [locA, subLocB] = Đang ở bên trong subLocations của subLocB (thuộc locA)
+    let navStack = [];
+    let selectedDetailLocation = null;
 
     const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
 
@@ -71,7 +78,6 @@
                 if (Array.isArray(parsed.locations)) {
                     mapData = parsed;
                 } else if (Array.isArray(parsed.nodes)) {
-                    // Tự động chuyển đổi dữ liệu từ bản graph cũ sang chuẩn App Lưới
                     mapData = convertGraphToGridApp(parsed);
                     saveMapData();
                 } else {
@@ -81,7 +87,6 @@
                 mapData = { locations: [] };
             }
         } else {
-            // Thử kiểm tra xem có dữ liệu graph cũ không để chuyển sang
             const oldRaw = localStorage.getItem('kaiz_lore_graph_map_' + activeChatId);
             if (oldRaw) {
                 try {
@@ -99,28 +104,51 @@
                 locations: [
                     {
                         id: 'loc_start',
-                        name: 'Khu Vực Khởi Đầu',
+                        name: 'Thị Trấn Khởi Đầu',
                         icon: 'fa-building',
                         category: 'major_hub',
                         context_type: 'Khu vực chính',
                         danger_level: 'An toàn bình thường',
-                        controlled_by: 'Chung / Không rõ',
-                        status: 'Hoạt động bình thường',
-                        description: 'Địa điểm xuất phát của câu chuyện trong phòng chat này. Nhấp vào đây để xem chi tiết hoặc thêm phân khu con bên trong.',
+                        controlled_by: 'Chung / Người dân',
+                        status: 'Tự do ra vào',
+                        description: 'Địa điểm khởi đầu của câu chuyện. Một thị trấn bình yên với nhiều tòa nhà và ngõ ngách bên trong.',
                         characters: ['Tôi', 'Nhân vật chính'],
+                        atmosphere: 'Thời tiết mát mẻ, tiếng chim hót ríu rít ngoài đường phố, nhịp sống yên ả.',
+                        secrets: 'Một bức thư cũ kĩ giấu trong hòm thư trước cổng chung cư chính.',
+                        events: 'Mọi người đang chuẩn bị cho lễ hội mùa hè sắp tới vào cuối tuần.',
                         subLocations: [
                             {
-                                id: 'sub_room_1',
-                                name: 'Phòng Chính / Trung Tâm',
-                                icon: 'fa-door-open',
+                                id: 'sub_house_1',
+                                name: 'Nhà Ông Bà Itsuki',
+                                icon: 'fa-house-chimney',
                                 category: 'sub_location',
-                                context_type: 'Phòng / Phân khu',
-                                danger_level: 'An toàn',
-                                controlled_by: 'Chung',
-                                status: 'Bình thường',
-                                description: 'Gian phòng chính nơi các cuộc trò chuyện thường xuyên diễn ra.',
-                                characters: ['Tôi'],
-                                subLocations: []
+                                context_type: 'Nhà ở dân sự',
+                                danger_level: 'An toàn tuyệt đối',
+                                controlled_by: 'Itsuki & Gia đình',
+                                status: 'Quyền riêng tư / Khóa cửa về đêm',
+                                description: 'Nơi ở hiện tại của Itsuki sau khi cậu chuyển đến thị trấn này do hoàn cảnh gia đình.',
+                                characters: ['Itsuki', 'Tôi'],
+                                atmosphere: 'Mùi trà xanh thơm nhẹ lảng vảng trong hiên nhà, ánh nắng ấm áp chiếu rọi qua rèm cửa.',
+                                secrets: 'Chìa khóa phòng áp mái bí mật nằm dưới chậu hoa cúc bên hiên.',
+                                events: 'Bữa tối ấm cúng sắp được chuẩn bị dưới gian bếp.',
+                                subLocations: [
+                                    {
+                                        id: 'sub_sub_room_1',
+                                        name: 'Phòng Ngủ Của Itsuki',
+                                        icon: 'fa-bed',
+                                        category: 'sub_location',
+                                        context_type: 'Căn phòng cá nhân',
+                                        danger_level: 'An toàn',
+                                        controlled_by: 'Itsuki',
+                                        status: 'Khóa riêng tư',
+                                        description: 'Căn phòng nhỏ ngăn nắp trên tầng hai, nơi Itsuki học tập và nghỉ ngơi mỗi ngày.',
+                                        characters: ['Itsuki'],
+                                        atmosphere: 'Yên tĩnh, có tiếng gió lùa nhẹ qua ô cửa sổ hướng ra sân sau.',
+                                        secrets: 'Cuốn sổ tay ghi chép những suy nghĩ thầm kín đặt bên dưới gối ngủ.',
+                                        events: 'Itsuki đang ngồi bên bàn học suy nghĩ về những chuyện vừa xảy ra.',
+                                        subLocations: []
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -136,7 +164,6 @@
         const nodes = graphData.nodes || [];
         const edges = graphData.edges || [];
 
-        // Lọc các major_hub làm cha
         const hubs = nodes.filter(n => n.category === 'major_hub' || !n.category);
         const subs = nodes.filter(n => n.category !== 'major_hub');
 
@@ -153,14 +180,16 @@
                 context_type: h.context_type || 'Khu vực',
                 danger_level: h.danger_level || 'An toàn',
                 controlled_by: h.controlled_by || 'Chung',
-                status: h.status || 'Bình thường',
+                status: h.status || 'Tự do',
                 description: h.description || '',
                 characters: h.controlled_by && h.controlled_by !== 'Chung' ? [h.controlled_by] : [],
+                atmosphere: 'Bầu không khí bình thường.',
+                secrets: 'Chưa phát hiện vật phẩm hay bí mật nào.',
+                events: 'Tình hình ổn định.',
                 subLocations: []
             });
         });
 
-        // Đưa các sub_location vào subLocations của hub tương ứng (hoặc hub đầu tiên)
         subs.forEach(s => {
             const locObj = {
                 id: s.id || ('sub_' + Math.random().toString(36).substr(2, 6)),
@@ -170,17 +199,20 @@
                 context_type: s.context_type || 'Phân khu',
                 danger_level: s.danger_level || 'An toàn',
                 controlled_by: s.controlled_by || 'Chung',
-                status: s.status || 'Bình thường',
+                status: s.status || 'Tự do',
                 description: s.description || '',
                 characters: s.controlled_by && s.controlled_by !== 'Chung' ? [s.controlled_by] : [],
+                atmosphere: 'Không gian yên tĩnh.',
+                secrets: 'Chưa có thông tin bí mật.',
+                events: 'Không có biến cố đặc biệt.',
                 subLocations: []
             };
 
-            // Tìm xem có edge nào nối với hub không
             const parentEdge = edges.find(e => (e.from === s.id || e.to === s.id) && hubs.some(h => h.id === e.from || h.id === e.to));
             let parentHubId = parentEdge ? (hubs.find(h => h.id === parentEdge.from || h.id === parentEdge.to)?.id) : (locations[0]?.id);
             let parentLoc = locations.find(l => l.id === parentHubId) || locations[0];
             if (parentLoc) {
+                parentLoc.subLocations = parentLoc.subLocations || [];
                 parentLoc.subLocations.push(locObj);
             } else {
                 locations.push(locObj);
@@ -220,7 +252,6 @@
                 }
             }
         } catch (e) {}
-        // Avatar ngẫu nhiên theo tên nếu không tìm thấy
         const hash = Array.from(charName).reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const colors = ['#38bdf8', '#a855f7', '#f43f5e', '#10b981', '#f59e0b', '#6366f1'];
         return { isText: true, text: charName.substring(0, 2).toUpperCase(), bg: colors[hash % colors.length] };
@@ -229,9 +260,9 @@
     const doc = (window.parent && window.parent.document) || document;
 
     function injectStyles() {
-        if (doc.getElementById('lore-world-map-app-styles-v8')) return;
+        if (doc.getElementById('lore-world-map-app-styles-v81')) return;
         const style = doc.createElement('style');
-        style.id = 'lore-world-map-app-styles-v8';
+        style.id = 'lore-world-map-app-styles-v81';
         style.innerHTML = `
             #lore_app_modal_overlay {
                 position: fixed;
@@ -250,7 +281,7 @@
             }
             #lore_app_modal_content {
                 width: 100%;
-                max-width: 1300px;
+                max-width: 1320px;
                 height: 94vh;
                 border-radius: 22px;
                 box-shadow: 0 25px 70px rgba(0,0,0,0.9);
@@ -308,7 +339,7 @@
             .lore-btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #e2e8f0; }
             .lore-btn-secondary:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255,255,255,0.35); }
             
-            /* ============ MAIN VIEWPORT & GRID APP STYLE (index-14.js Style) ============ */
+            /* ============ MAIN VIEWPORT & INFINITE N-LAYER BREADCRUMB ============ */
             #lore_app_viewport {
                 flex: 1 1 0%;
                 display: flex;
@@ -321,12 +352,13 @@
             .lore-breadcrumb {
                 display: flex;
                 align-items: center;
+                flex-wrap: wrap;
                 gap: 8px;
                 margin-bottom: 20px;
                 background: rgba(255,255,255,0.06);
-                padding: 10px 16px;
-                border-radius: 14px;
-                border: 1px solid rgba(255,255,255,0.12);
+                padding: 12px 18px;
+                border-radius: 16px;
+                border: 1px solid rgba(255,255,255,0.14);
                 font-size: 0.95em;
                 font-weight: bold;
                 flex-shrink: 0;
@@ -335,20 +367,32 @@
                 background: rgba(56, 189, 248, 0.2);
                 color: #38bdf8;
                 border: 1px solid rgba(56, 189, 248, 0.4);
-                padding: 5px 12px;
-                border-radius: 8px;
+                padding: 6px 14px;
+                border-radius: 10px;
                 cursor: pointer;
                 transition: all 0.15s;
                 font-size: 0.88em;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
             }
             .lore-breadcrumb-btn:hover { background: rgba(56, 189, 248, 0.35); transform: scale(1.02); }
+            .lore-breadcrumb-item {
+                cursor: pointer;
+                color: #cbd5e1;
+                padding: 4px 10px;
+                border-radius: 8px;
+                transition: all 0.15s;
+            }
+            .lore-breadcrumb-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+            .lore-breadcrumb-item.active { color: #38bdf8; font-weight: 800; cursor: default; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); }
 
             /* BỐ CỤC LƯỚI & ĐƯỜNG ĐI CHUẨN APP BẢN ĐỒ */
             .lore-grid-container {
                 display: flex;
                 flex-direction: column;
                 gap: 16px;
-                max-width: 1050px;
+                max-width: 1080px;
                 margin: 0 auto;
                 width: 100%;
             }
@@ -370,7 +414,7 @@
             }
 
             .location-button {
-                min-height: 140px;
+                min-height: 145px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -378,8 +422,8 @@
                 position: relative;
                 background: linear-gradient(145deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.96));
                 border: 2px solid rgba(148, 163, 184, 0.35);
-                border-radius: 16px;
-                padding: 16px 12px;
+                border-radius: 18px;
+                padding: 18px 14px;
                 cursor: pointer;
                 transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
                 color: #f8fafc;
@@ -407,15 +451,15 @@
             }
             .location-button.empty-location:hover { transform: none; border-color: rgba(148, 163, 184, 0.25); background: rgba(15, 23, 42, 0.4); box-shadow: none; }
 
-            .location-button > i { font-size: 28px; margin-bottom: 8px; color: #38bdf8; z-index: 1; transition: transform 0.2s; }
+            .location-button > i { font-size: 30px; margin-bottom: 8px; color: #38bdf8; z-index: 1; transition: transform 0.2s; }
             .location-button.hub-button > i { color: #c084fc; }
             .location-button.danger-button > i { color: #fb7185; }
             .location-button:hover > i { transform: scale(1.15); }
             
-            .location-button > .loc-name { font-weight: 800; font-size: 1.05em; z-index: 1; line-height: 1.3; max-width: 100%; word-break: break-word; color: #f8fafc; }
-            .location-button > .loc-sub-count { font-size: 0.78em; color: #93c5fd; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 8px; margin-top: 6px; border: 1px solid rgba(59, 130, 246, 0.4); }
+            .location-button > .loc-name { font-weight: 800; font-size: 1.08em; z-index: 1; line-height: 1.3; max-width: 100%; word-break: break-word; color: #f8fafc; }
+            .location-button > .loc-sub-count { font-size: 0.8em; color: #93c5fd; background: rgba(59, 130, 246, 0.22); padding: 3px 10px; border-radius: 8px; margin-top: 8px; border: 1px solid rgba(59, 130, 246, 0.45); font-weight: bold; }
 
-            /* MARKER NHÂN VẬT STANDING TRÊN ĐỊA ĐIỂM (Chuẩn index-14.js) */
+            /* MARKER NHÂN VẬT STANDING TRÊN ĐỊA ĐIỂM */
             .character-markers {
                 position: absolute;
                 top: -16px;
@@ -484,15 +528,15 @@
                 border-radius: 4px;
             }
 
-            /* MODAL CHI TIẾT ĐỊA ĐIỂM & CÀI ĐẶT AI (Đã sửa lỗi không bị khuất phần đầu) */
+            /* MODAL CHI TIẾT ĐỊA ĐIỂM & CÀI ĐẶT AI (Sửa lỗi không bị cắt đỉnh) */
             #lore_location_detail_modal, #lore_ai_config_modal {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100vw;
                 height: 100vh;
-                background: rgba(0,0,0,0.85);
-                backdrop-filter: blur(10px);
+                background: rgba(0,0,0,0.86);
+                backdrop-filter: blur(12px);
                 z-index: 100000000 !important;
                 display: none;
                 overflow-y: auto;
@@ -501,20 +545,46 @@
             }
             #lore_location_detail_box, #lore_ai_config_box {
                 width: 100%;
-                max-width: 600px;
+                max-width: 650px;
                 background: #0f172a;
                 border: 2px solid #38bdf8;
-                border-radius: 20px;
-                padding: 24px;
+                border-radius: 22px;
+                padding: 26px;
                 color: #fff;
-                box-shadow: 0 25px 60px rgba(0,0,0,0.95);
+                box-shadow: 0 25px 65px rgba(0,0,0,0.95);
                 display: flex;
                 flex-direction: column;
-                gap: 14px;
+                gap: 16px;
                 margin: auto;
                 flex-shrink: 0;
                 position: relative;
             }
+            
+            /* DEEP INFO BOXES IN DETAILS MODAL */
+            .deep-info-card {
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 14px;
+                padding: 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .deep-info-title {
+                font-size: 0.78em;
+                color: #94a3b8;
+                font-weight: 800;
+                text-transform: uppercase;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .deep-info-text {
+                font-size: 0.94em;
+                color: #e2e8f0;
+                line-height: 1.55;
+            }
+
             .lore-input {
                 padding: 8px 11px;
                 border-radius: 8px;
@@ -567,16 +637,16 @@
                 <!-- Header Toolbar Responsive -->
                 <div id="lore_app_header">
                     <div class="lore-header-left">
-                        <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 12px rgba(56,189,248,0.4); flex-shrink: 0;">
+                        <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 12px rgba(56,189,248,0.4); flex-shrink: 0;">
                             ${SVG_GLOBE_ICON}
                         </div>
                         <div>
-                            <div style="font-weight: 800; font-size: 1.1em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.3)</span>
+                            <div style="font-weight: 800; font-size: 1.12em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.5)</span>
                                 <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 khu vực</span>
                                 <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
-                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px;">Chat ID: <span style="color: #c084fc;">...</span> | Chế độ Lưới & Phân Cấp Chuẩn App</div>
+                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px;">Chat ID: <span style="color: #c084fc;">...</span> | Chế độ Lưới & Truy Cập Vô Hạn Lớp N-Layers</div>
                         </div>
                     </div>
 
@@ -585,8 +655,8 @@
                             <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map
                         </button>
 
-                        <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Thêm địa điểm vào khu vực đang xem">
-                            <i class="fa-solid fa-plus"></i> + Thêm Địa Điểm
+                        <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Thêm địa điểm vào lớp hiện tại">
+                            <i class="fa-solid fa-plus"></i> Thêm Địa Điểm
                         </button>
 
                         <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI & Tải danh sách Model">
@@ -599,13 +669,12 @@
                     </div>
                 </div>
 
-                <!-- Viewport & Grid App -->
+                <!-- Viewport & Infinite N-Layer Breadcrumb -->
                 <div id="lore_app_viewport">
-                    <!-- Breadcrumb Header -->
+                    <!-- Dynamic Infinite Breadcrumb Bar -->
                     <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none;">
-                        <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Trở về Khu Vực Lớn</button>
-                        <span style="color: #64748b;">/</span>
-                        <span id="breadcrumb_current_name" style="color: #38bdf8; font-size: 1.05em;">Tên Phân Khu</span>
+                        <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Lùi 1 lớp</button>
+                        <div id="breadcrumb_path_list" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-left: 6px;"></div>
                     </div>
 
                     <!-- Lưới Địa Điểm & Đường Đi -->
@@ -615,48 +684,74 @@
                 </div>
             </div>
 
-            <!-- MODAL CHI TIẾT ĐỊA ĐIỂM -->
+            <!-- MODAL CHI TIẾT ĐỊA ĐIỂM (DEEP INFO POPUP) -->
             <div id="lore_location_detail_modal">
                 <div id="lore_location_detail_box">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <i id="det_icon" class="fas fa-building" style="font-size: 1.5em; color: #38bdf8;"></i>
-                            <span id="det_name" style="font-size: 1.25em; font-weight: 800; color: #f8fafc;">Tên địa điểm</span>
+                            <i id="det_icon" class="fas fa-building" style="font-size: 1.6em; color: #38bdf8;"></i>
+                            <span id="det_name" style="font-size: 1.35em; font-weight: 800; color: #f8fafc;">Tên địa điểm</span>
                         </div>
-                        <span id="det_close" style="cursor: pointer; color: #f87171; font-size: 1.2em; padding: 4px 8px;">✕</span>
+                        <span id="det_close" style="cursor: pointer; color: #f87171; font-size: 1.3em; padding: 4px 8px;">✕</span>
                     </div>
 
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <span id="det_category_badge" style="padding: 4px 10px; border-radius: 8px; background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(168,85,247,0.4);">🏢 Khu vực lớn</span>
-                        <span id="det_danger_badge" style="padding: 4px 10px; border-radius: 8px; background: rgba(34,197,94,0.2); color: #4ade80; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(34,197,94,0.4);">🛡️ An toàn</span>
-                        <span id="det_type_badge" style="padding: 4px 10px; border-radius: 8px; background: rgba(59,130,246,0.2); color: #93c5fd; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(59,130,246,0.4);">🏷️ Khu vực</span>
+                        <span id="det_category_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(168,85,247,0.4);">🏢 Khu vực lớn</span>
+                        <span id="det_danger_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(34,197,94,0.2); color: #4ade80; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(34,197,94,0.4);">🛡️ An toàn</span>
+                        <span id="det_status_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(245,158,11,0.2); color: #fcd34d; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(245,158,11,0.4);">🔓 Tự do</span>
+                        <span id="det_type_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(59,130,246,0.2); color: #93c5fd; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(59,130,246,0.4);">🏷️ Khu vực</span>
                     </div>
 
-                    <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">👥 Nhân vật kiểm soát / Hiện diện</div>
-                        <div id="det_characters" style="font-size: 0.95em; color: #38bdf8; font-weight: bold;">Chung / Không rõ</div>
+                    <!-- DEEP INFO SECTIONS -->
+                    <div class="deep-info-card">
+                        <div class="deep-info-title"><i class="fa-solid fa-users"></i> Nhân vật kiểm soát / Hiện diện tại địa điểm</div>
+                        <div id="det_characters" class="deep-info-text" style="color: #38bdf8; font-weight: bold;">Chung / Không rõ</div>
                     </div>
 
-                    <div>
-                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">📜 Mô tả chi tiết & Sự Kiện</div>
-                        <div id="det_description" style="font-size: 0.92em; color: #e2e8f0; line-height: 1.6; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; min-height: 60px; white-space: pre-wrap;">Không có mô tả.</div>
+                    <div class="deep-info-card">
+                        <div class="deep-info-title"><i class="fa-solid fa-scroll"></i> Mô tả chi tiết vai trò & Cảnh quan</div>
+                        <div id="det_description" class="deep-info-text" style="white-space: pre-wrap;">Không có mô tả.</div>
                     </div>
 
-                    <div style="display: flex; gap: 8px; margin-top: 6px; justify-content: flex-end;">
-                        <button id="det_btn_edit" class="lore-btn lore-btn-primary" style="padding: 8px 16px;">
-                            <i class="fa-solid fa-pen"></i> Chỉnh Sửa
-                        </button>
-                        <button id="det_btn_enter_sub" class="lore-btn lore-btn-success" style="padding: 8px 16px; display: none;">
-                            <i class="fa-solid fa-door-open"></i> Vào Phân Khu Con
-                        </button>
-                        <button id="det_btn_delete" class="lore-btn lore-btn-danger" style="padding: 8px 16px;">
-                            <i class="fa-solid fa-trash"></i> Xóa
-                        </button>
+                    <div class="deep-info-card">
+                        <div class="deep-info-title"><i class="fa-solid fa-cloud-sun"></i> Môi trường & Bầu không khí (Atmosphere)</div>
+                        <div id="det_atmosphere" class="deep-info-text" style="color: #a7f3d0;">Bình thường, yên tĩnh.</div>
+                    </div>
+
+                    <div class="deep-info-card">
+                        <div class="deep-info-title"><i class="fa-solid fa-gem"></i> Bí mật / Vật phẩm / Tài nguyên đặc biệt (Secrets & Loot)</div>
+                        <div id="det_secrets" class="deep-info-text" style="color: #fde047;">Chưa phát hiện bí mật hay vật phẩm đặc biệt.</div>
+                    </div>
+
+                    <div class="deep-info-card">
+                        <div class="deep-info-title"><i class="fa-solid fa-bolt-lightning"></i> Sự kiện hoặc Biến cố đang diễn ra (Active Events)</div>
+                        <div id="det_events" class="deep-info-text" style="color: #fca5a5;">Không có biến cố nào.</div>
+                    </div>
+
+                    <!-- ACTIONS & INFINITE DRILL-DOWN -->
+                    <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button id="det_btn_enter_sub" class="lore-btn lore-btn-success" style="padding: 10px 18px; font-size: 0.95em;">
+                                <i class="fa-solid fa-door-open"></i> Vào Phân Khu Con
+                            </button>
+                            <button id="det_btn_ai_drill" class="lore-btn lore-btn-primary" style="padding: 10px 16px; font-size: 0.9em; background: linear-gradient(135deg, #0284c7, #9333ea);" title="Dùng AI khám phá & tạo tự động các phân khu nhỏ/hầm ngầm bên trong địa điểm này">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Khám Phá Sâu
+                            </button>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button id="det_btn_edit" class="lore-btn lore-btn-secondary" style="padding: 8px 16px;">
+                                <i class="fa-solid fa-pen"></i> Sửa Deep Info
+                            </button>
+                            <button id="det_btn_delete" class="lore-btn lore-btn-danger" style="padding: 8px 16px;">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- MODAL CÀI ĐẶT AI v8.0 -->
+            <!-- MODAL CÀI ĐẶT AI v8.1 -->
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
                     <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
@@ -665,7 +760,7 @@
                     </div>
 
                     <div style="font-size: 0.85em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.25);">
-                        ℹ️ <b>App Lưới Đa Thể Loại:</b> Tự động nhận diện bối cảnh truyện để xây dựng lưới khu vực và phân khu chính xác (Học đường, Tu tiên, Sci-Fi, Horror...).
+                        ℹ️ <b>App Lưới Đa Thể Loại & Vô Hạn Lớp:</b> Tự động nhận diện bối cảnh truyện để xây dựng lưới khu vực và phân khu chính xác sâu vô tận (Học đường, Tu tiên, Sci-Fi, Horror...).
                     </div>
 
                     <div>
@@ -721,36 +816,44 @@
 
         overlay.querySelector('#lore_btn_close_app').addEventListener('click', () => overlay.style.display = 'none');
         overlay.querySelector('#btn_back_parent').addEventListener('click', () => {
-            currentParentLocation = null;
-            renderAppGrid();
+            if (navStack.length > 0) {
+                navStack.pop();
+                renderAppGrid();
+            }
         });
 
-        // Xử lý nút Thêm Địa Điểm
+        // Xử lý nút Thêm Địa Điểm (Đã sửa lỗi không lặp + + Thêm Địa Điểm)
         overlay.querySelector('#lore_btn_add_location').addEventListener('click', () => {
-            const name = prompt('Nhập tên địa điểm/phân khu mới:', 'Phòng / Khu Vực Mới');
+            const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+            const name = prompt('Nhập tên địa điểm/phân khu mới:', 'Khu Vực / Căn Phòng Mới');
             if (!name || !name.trim()) return;
-            const contextType = prompt('Loại địa điểm theo bối cảnh (VD: Phòng học, Trạm vũ trụ, Quán ăn, Động phủ...):', currentParentLocation ? 'Phân khu' : 'Khu vực lớn') || 'Khu vực';
+            const contextType = prompt('Loại địa điểm theo bối cảnh (VD: Phòng học, Trạm vũ trụ, Quán ăn, Động phủ...):', currentParent ? 'Phân khu tầng sâu' : 'Khu vực lớn') || 'Khu vực';
             const danger = prompt('Mức độ an toàn / rủi ro tại đây:', 'An toàn bình thường') || 'An toàn';
             const controlled = prompt('Nhân vật nào đang đứng tại hoặc quản lý nơi này? (Nhập tên để hiện Avatar):', 'Tôi') || 'Chung';
             const desc = prompt('Mô tả chi tiết hoặc sự kiện diễn ra tại đây:', 'Một địa điểm vừa được thêm vào bản đồ.') || '';
+            const atmo = prompt('Môi trường & Bầu không khí (Atmosphere):', 'Không gian yên tĩnh, ánh sáng dịu nhẹ.') || 'Bình thường';
+            const secrets = prompt('Bí mật / Vật phẩm / Tài nguyên ẩn (Secrets & Loot):', 'Chưa có thông tin bí mật.') || 'Chưa phát hiện bí mật nào';
 
             const newLoc = {
-                id: 'loc_' + Date.now(),
+                id: (currentParent ? 'sub_' : 'loc_') + Date.now(),
                 name: name.trim(),
-                icon: currentParentLocation ? 'fa-door-open' : 'fa-building',
-                category: currentParentLocation ? 'sub_location' : 'major_hub',
+                icon: currentParent ? 'fa-door-open' : 'fa-building',
+                category: currentParent ? 'sub_location' : 'major_hub',
                 context_type: contextType.trim(),
                 danger_level: danger.trim(),
                 controlled_by: controlled.trim(),
-                status: 'Bình thường',
+                status: 'Tự do ra vào',
                 description: desc.trim(),
-                characters: controlled && controlled !== 'Chung' ? controlled.split(',').map(c => c.trim()) : [],
+                characters: controlled && controlled !== 'Chung' ? controlled.split(',').map(c => c.trim()).filter(Boolean) : [],
+                atmosphere: atmo.trim(),
+                secrets: secrets.trim(),
+                events: 'Tình hình ổn định.',
                 subLocations: []
             };
 
-            if (currentParentLocation) {
-                currentParentLocation.subLocations = currentParentLocation.subLocations || [];
-                currentParentLocation.subLocations.push(newLoc);
+            if (currentParent) {
+                currentParent.subLocations = currentParent.subLocations || [];
+                currentParent.subLocations.push(newLoc);
             } else {
                 mapData.locations.push(newLoc);
             }
@@ -849,7 +952,7 @@
             alert('Đã lưu cấu hình AI!');
         });
 
-        // Xử lý Modal Chi Tiết
+        // Xử lý Modal Chi Tiết Deep Lore Info
         const detModal = overlay.querySelector('#lore_location_detail_modal');
         overlay.querySelector('#det_close').addEventListener('click', () => detModal.style.display = 'none');
 
@@ -862,7 +965,12 @@
             selectedDetailLocation.controlled_by = prompt('Nhân vật đứng tại / kiểm soát:', selectedDetailLocation.controlled_by || 'Chung') || 'Chung';
             selectedDetailLocation.characters = selectedDetailLocation.controlled_by ? selectedDetailLocation.controlled_by.split(',').map(c => c.trim()).filter(Boolean) : [];
             selectedDetailLocation.danger_level = prompt('Mức độ an toàn:', selectedDetailLocation.danger_level || 'An toàn') || 'An toàn';
-            selectedDetailLocation.description = prompt('Mô tả chi tiết:', selectedDetailLocation.description || '') || '';
+            selectedDetailLocation.status = prompt('Trạng thái truy cập (Khóa / Tự do / Tuyệt mật):', selectedDetailLocation.status || 'Tự do') || 'Tự do';
+            selectedDetailLocation.description = prompt('Mô tả chi tiết & vai trò:', selectedDetailLocation.description || '') || '';
+            selectedDetailLocation.atmosphere = prompt('Môi trường & Bầu không khí (Atmosphere):', selectedDetailLocation.atmosphere || '') || 'Bình thường';
+            selectedDetailLocation.secrets = prompt('Bí mật / Vật phẩm / Tài nguyên ẩn (Secrets & Loot):', selectedDetailLocation.secrets || '') || 'Chưa phát hiện bí mật nào';
+            selectedDetailLocation.events = prompt('Sự kiện hoặc biến cố đang diễn ra (Events):', selectedDetailLocation.events || '') || 'Không có biến cố nào';
+            
             saveMapData();
             detModal.style.display = 'none';
             renderAppGrid();
@@ -871,14 +979,21 @@
         overlay.querySelector('#det_btn_enter_sub').addEventListener('click', () => {
             if (!selectedDetailLocation) return;
             detModal.style.display = 'none';
-            currentParentLocation = selectedDetailLocation;
+            navStack.push(selectedDetailLocation);
             renderAppGrid();
+        });
+
+        // AI Khám Phá Sâu Phân Khu Bên Trong (Deep Drill Scan)
+        overlay.querySelector('#det_btn_ai_drill').addEventListener('click', async () => {
+            if (!selectedDetailLocation) return;
+            await triggerAiDeepDrillScan(selectedDetailLocation);
         });
 
         overlay.querySelector('#det_btn_delete').addEventListener('click', () => {
             if (!selectedDetailLocation || !confirm(`Bạn có chắc muốn xóa "${selectedDetailLocation.name}"?`)) return;
-            if (currentParentLocation && Array.isArray(currentParentLocation.subLocations)) {
-                currentParentLocation.subLocations = currentParentLocation.subLocations.filter(l => l.id !== selectedDetailLocation.id);
+            const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+            if (currentParent && Array.isArray(currentParent.subLocations)) {
+                currentParent.subLocations = currentParent.subLocations.filter(l => l.id !== selectedDetailLocation.id);
             } else {
                 mapData.locations = mapData.locations.filter(l => l.id !== selectedDetailLocation.id);
             }
@@ -888,52 +1003,86 @@
         });
     }
 
+    function countAllLocations(locList) {
+        let count = 0;
+        if (!Array.isArray(locList)) return 0;
+        locList.forEach(l => {
+            count++;
+            if (Array.isArray(l.subLocations)) count += countAllLocations(l.subLocations);
+        });
+        return count;
+    }
+
     function updateUI() {
         loadAiConfig();
         const statusBox = doc.getElementById('lore_chat_status');
         const badgeStats = doc.getElementById('lore_stats_badge');
         const badgeAi = doc.getElementById('lore_ai_badge');
 
-        if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span> | Chế độ Lưới & Phân Cấp Chuẩn App`;
+        if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span> | Chế độ Lưới & Truy Cập Vô Hạn Lớp N-Layers`;
         if (badgeStats) {
-            let total = mapData.locations.length;
-            mapData.locations.forEach(l => { if (Array.isArray(l.subLocations)) total += l.subLocations.length; });
-            badgeStats.innerText = `${total} địa điểm/phân khu`;
+            const total = countAllLocations(mapData.locations);
+            badgeStats.innerText = `${total} địa điểm / phân khu sâu`;
         }
         if (badgeAi) {
             badgeAi.innerText = aiConfig.source === 'custom' ? `⚡ Custom AI (${aiConfig.customModel || 'model'})` : `⭐ SillyTavern AI`;
         }
     }
 
+    function renderBreadcrumb() {
+        const breadcrumb = doc.getElementById('lore_breadcrumb_container');
+        const pathList = doc.getElementById('breadcrumb_path_list');
+        if (!breadcrumb || !pathList) return;
+
+        if (navStack.length === 0) {
+            breadcrumb.style.display = 'none';
+            return;
+        }
+
+        breadcrumb.style.display = 'flex';
+        let html = `<span class="lore-breadcrumb-item" onclick="window._loreNavJump(-1)">🌍 Thế Giới / Lớp Gốc</span>`;
+        
+        navStack.forEach((loc, idx) => {
+            html += `<span style="color: #64748b; font-weight: bold;">/</span>`;
+            if (idx === navStack.length - 1) {
+                html += `<span class="lore-breadcrumb-item active">📍 ${loc.name}</span>`;
+            } else {
+                html += `<span class="lore-breadcrumb-item" onclick="window._loreNavJump(${idx})">${loc.name}</span>`;
+            }
+        });
+
+        pathList.innerHTML = html;
+    }
+
+    window._loreNavJump = function (stackIdx) {
+        if (stackIdx === -1) {
+            navStack = [];
+        } else if (stackIdx >= 0 && stackIdx < navStack.length - 1) {
+            navStack = navStack.slice(0, stackIdx + 1);
+        }
+        renderAppGrid();
+    };
+
     function renderAppGrid() {
         updateUI();
+        renderBreadcrumb();
         const gridContainer = doc.getElementById('lore_grid_container');
-        const breadcrumb = doc.getElementById('lore_breadcrumb_container');
-        const breadcrumbName = doc.getElementById('breadcrumb_current_name');
         if (!gridContainer) return;
 
-        let currentList = [];
-        if (currentParentLocation) {
-            breadcrumb.style.display = 'flex';
-            breadcrumbName.innerText = currentParentLocation.name;
-            currentList = currentParentLocation.subLocations || [];
-        } else {
-            breadcrumb.style.display = 'none';
-            currentList = mapData.locations || [];
-        }
+        const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+        let currentList = currentParent ? (currentParent.subLocations || []) : (mapData.locations || []);
 
         if (currentList.length === 0) {
             gridContainer.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px; color: #64748b; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px dashed rgba(255,255,255,0.12);">
                     <i class="fa-solid fa-map-location-dot" style="font-size: 3.5em; color: #38bdf8; opacity: 0.5; margin-bottom: 12px;"></i>
-                    <div style="font-size: 1.1em; font-weight: bold; color: #cbd5e1;">Khu vực này hiện chưa có địa điểm nào</div>
-                    <div style="font-size: 0.88em; margin-top: 6px;">Bấm nút <b>[🪄 AI Quét & Xây Map]</b> ở trên hoặc nút <b>[+ Thêm Địa Điểm]</b> để thêm mới!</div>
+                    <div style="font-size: 1.1em; font-weight: bold; color: #cbd5e1;">Lớp phân khu này hiện chưa có địa điểm nào</div>
+                    <div style="font-size: 0.88em; margin-top: 6px;">Bấm nút <b>[ Thêm Địa Điểm ]</b> ở trên hoặc bấm <b>[ ⚡ AI Khám Phá Sâu ]</b> từ lớp cha để tạo mới!</div>
                 </div>
             `;
             return;
         }
 
-        // Sắp xếp theo hàng 3 ô (3x3 grid) kèm đường đi giống index-14.js
         const COLS = 3;
         const rowsCount = Math.ceil(currentList.length / COLS);
         let html = '';
@@ -945,7 +1094,7 @@
                 const loc = currentList[idx];
 
                 if (loc) {
-                    const isHub = loc.category === 'major_hub' || (!currentParentLocation && (!loc.category || loc.category === 'major_hub'));
+                    const isHub = loc.category === 'major_hub' || (!currentParent && (!loc.category || loc.category === 'major_hub'));
                     const isDanger = loc.danger_level && (loc.danger_level.toLowerCase().includes('nguy') || loc.danger_level.toLowerCase().includes('cấm') || loc.danger_level.toLowerCase().includes('tử') || loc.danger_level.toLowerCase().includes('hỗn loạn'));
                     let btnClass = 'location-button';
                     if (isHub) btnClass += ' hub-button';
@@ -975,21 +1124,21 @@
                             <div class="character-markers">${charPinsHTML}</div>
                             <i class="fas ${loc.icon || 'fa-location-dot'}"></i>
                             <span class="loc-name">${loc.name}</span>
-                            ${subCount > 0 ? `<span class="loc-sub-count">📁 ${subCount} phân khu con</span>` : `<span style="font-size:0.75em; color:#94a3b8; margin-top:4px;">🏷️ ${loc.context_type || 'Khu vực'}</span>`}
+                            ${subCount > 0 ? `<span class="loc-sub-count">📁 ${subCount} phân khu bên trong</span>` : `<span style="font-size:0.75em; color:#94a3b8; margin-top:4px;">🏷️ ${loc.context_type || 'Phân khu'}</span>`}
                         </div>
                     `;
                 } else if (idx === currentList.length) {
                     html += `
                         <div class="location-button empty-location" style="cursor: pointer; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.08);" onclick="document.getElementById('lore_btn_add_location').click()" title="Nhấp để thêm địa điểm vào ô trống này">
-                            <i class="fas fa-plus" style="color: #38bdf8; font-size: 22px;"></i>
-                            <span style="font-size: 0.92em; font-weight: bold; color: #38bdf8;">+ Thêm địa điểm</span>
+                            <i class="fas fa-plus" style="color: #38bdf8; font-size: 24px;"></i>
+                            <span style="font-size: 0.94em; font-weight: bold; color: #38bdf8;">Thêm Địa Điểm</span>
                         </div>
                     `;
                 } else {
                     html += `
-                        <div class="location-button empty-location" style="opacity: 0.35; border: 1px dashed rgba(148,163,184,0.15);">
-                            <i class="fas fa-question" style="font-size: 18px;"></i>
-                            <span style="font-size: 0.85em;">Trống</span>
+                        <div class="location-button empty-location" style="opacity: 0.25; border: 1px dashed rgba(148,163,184,0.12);">
+                            <i class="fas fa-question" style="font-size: 16px;"></i>
+                            <span style="font-size: 0.82em;">Trống</span>
                         </div>
                     `;
                 }
@@ -1001,7 +1150,7 @@
             }
             html += `</div>`;
 
-            // Đường nối ngang giữa các hàng (trừ hàng cuối cùng, chỉ nối khi có địa điểm tương ứng ở hàng tiếp theo)
+            // Đường nối ngang giữa các hàng
             if (r < rowsCount - 1) {
                 html += `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">`;
                 for (let c = 0; c < COLS; c++) {
@@ -1021,23 +1170,28 @@
     }
 
     window._loreOnLocationClick = function (locId) {
-        let list = currentParentLocation ? (currentParentLocation.subLocations || []) : mapData.locations;
+        const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+        let list = currentParent ? (currentParent.subLocations || []) : mapData.locations;
         const found = list.find(l => l.id === locId);
         if (!found) return;
 
-        // Nếu là khu vực lớn và có subLocations -> Đi vào sâu phân khu bên trong (như App Bản đồ index-14.js)
-        if (!currentParentLocation && Array.isArray(found.subLocations) && found.subLocations.length > 0) {
-            currentParentLocation = found;
+        // Nếu địa điểm có subLocations -> Đi sâu vào tầng lớp con ngay lập tức (vô hạn lớp N-Layers)
+        if (Array.isArray(found.subLocations) && found.subLocations.length > 0) {
+            navStack.push(found);
             renderAppGrid();
         } else {
-            // Mở Popup chi tiết địa điểm
             window._loreShowDetail(locId);
         }
     };
 
     window._loreShowDetail = function (locId) {
-        let list = currentParentLocation ? (currentParentLocation.subLocations || []) : mapData.locations;
-        const found = list.find(l => l.id === locId) || mapData.locations.find(l => l.id === locId);
+        const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+        let list = currentParent ? (currentParent.subLocations || []) : mapData.locations;
+        let found = list.find(l => l.id === locId);
+        if (!found) {
+            // Tìm đệ quy trong toàn bộ mapData để đảm bảo hiển thị đúng dù ở tầng nào
+            found = findLocationRecursive(mapData.locations, locId);
+        }
         if (!found) return;
 
         selectedDetailLocation = found;
@@ -1046,7 +1200,7 @@
 
         doc.getElementById('det_icon').className = `fas ${found.icon || 'fa-building'}`;
         doc.getElementById('det_name').innerText = found.name;
-        doc.getElementById('det_category_badge').innerText = found.category === 'major_hub' ? '🏢 Trung tâm / Khu vực lớn' : '📍 Phân khu / Phòng';
+        doc.getElementById('det_category_badge').innerText = found.category === 'major_hub' ? '🏢 Khu vực lớn / Tầng ngoài' : '📍 Phân khu / Phòng sâu';
         doc.getElementById('det_type_badge').innerText = `🏷️ ${found.context_type || 'Khu vực'}`;
         
         const dangerBadge = doc.getElementById('det_danger_badge');
@@ -1061,19 +1215,186 @@
             dangerBadge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
         }
 
+        const statusBadge = doc.getElementById('det_status_badge');
+        statusBadge.innerText = `🔓 ${found.status || 'Tự do'}`;
+
         const charsList = found.characters && found.characters.length > 0 ? found.characters.join(', ') : (found.controlled_by || 'Chung / Không rõ');
         doc.getElementById('det_characters').innerText = charsList;
-        doc.getElementById('det_description').innerText = found.description || 'Không có thông tin mô tả nào cho địa điểm này.';
+        doc.getElementById('det_description').innerText = found.description || 'Không có thông tin mô tả chi tiết.';
+        doc.getElementById('det_atmosphere').innerText = found.atmosphere || 'Bầu không khí bình thường, không có điểm bất thường.';
+        doc.getElementById('det_secrets').innerText = found.secrets || 'Chưa phát hiện bí mật hay vật phẩm đặc biệt nào.';
+        doc.getElementById('det_events').innerText = found.events || 'Tình hình ổn định, không có sự kiện căng thẳng nào.';
 
         const btnEnterSub = doc.getElementById('det_btn_enter_sub');
-        if (!currentParentLocation && Array.isArray(found.subLocations) && found.subLocations.length > 0) {
-            btnEnterSub.style.display = 'inline-flex';
+        // Luôn cho phép bấm Vào Phân Khu Con để đi sâu hoặc tạo mới nếu chưa có
+        btnEnterSub.style.display = 'inline-flex';
+        if (Array.isArray(found.subLocations) && found.subLocations.length > 0) {
+            btnEnterSub.innerHTML = `<i class="fa-solid fa-door-open"></i> Vào Phân Khu Con (${found.subLocations.length})`;
         } else {
-            btnEnterSub.style.display = 'none';
+            btnEnterSub.innerHTML = `<i class="fa-solid fa-folder-plus"></i> Mở & Tạo Phân Khu Con`;
         }
 
         detModal.style.display = 'flex';
     };
+
+    function findLocationRecursive(locList, targetId) {
+        if (!Array.isArray(locList)) return null;
+        for (let l of locList) {
+            if (l.id === targetId) return l;
+            if (Array.isArray(l.subLocations) && l.subLocations.length > 0) {
+                const sub = findLocationRecursive(l.subLocations, targetId);
+                if (sub) return sub;
+            }
+        }
+        return null;
+    }
+
+    // AI Khám Phá Sâu & Dựng Phân Khu Con (Infinite Deep Drill Scan)
+    async function triggerAiDeepDrillScan(targetLoc) {
+        if (!targetLoc) return;
+        loadAiConfig();
+        const btnDrill = doc.getElementById('det_btn_ai_drill');
+        if (btnDrill) {
+            btnDrill.disabled = true;
+            btnDrill.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> AI đang suy luận & tạo tầng sâu bên trong "${targetLoc.name}"...`;
+        }
+
+        try {
+            const win = window.parent || window;
+            let chatArray = [];
+            if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
+                const ctx = win.SillyTavern.getContext();
+                if (ctx && Array.isArray(ctx.chat)) chatArray = ctx.chat;
+            } else if (win.chat && Array.isArray(win.chat)) {
+                chatArray = win.chat;
+            }
+
+            const historyLimit = aiConfig.historyCount || 30;
+            const recentChat = chatArray.slice(-historyLimit);
+            const historyText = recentChat.map(m => `${m.is_user ? 'Tôi' : (m.name || 'AI')}: ${m.mes || m.content || ''}`).join('\n---\n');
+
+            const prompt = `Bạn là Kiến Trúc Sư Khám Phá Địa Lý Sâu (Deep Lore & N-Layer Map Architect).
+Địa điểm hiện tại chúng ta đang muốn KHÁM PHÁ SÂU VÀ MỞ RỘNG PHÂN KHU BÊN TRONG là:
+- Tên địa điểm: "${targetLoc.name}"
+- Loại / Bối cảnh: "${targetLoc.context_type}"
+- Mô tả hiện tại: "${targetLoc.description}"
+- Bầu không khí (Atmosphere): "${targetLoc.atmosphere || ''}"
+- Bí mật ẩn (Secrets): "${targetLoc.secrets || ''}"
+
+=== LỊCH SỬ CHAT GẦN ĐÂY ===
+${historyText.slice(0, 6500)}
+===========================
+
+NHIỆM VỤ:
+Tạo 2 đến 4 Phân Khu Con / Căn Phòng / Hầm Ngầm / Góc Bí Mật NẰM BÊN TRONG "${targetLoc.name}" để làm phong phú chiều sâu câu chuyện.
+Mỗi phân khu con cần có thông tin Deep Lore phong phú (Atmosphere, Secrets, Events).
+
+TRẢ VỀ DUY NHẤT 1 JSON HỢP LỆ theo định dạng:
+{
+  "subLocations": [
+    {
+      "name": "Tên Phòng / Hầm bí mật / Phân khu bên trong",
+      "category": "sub_location",
+      "context_type": "Phòng học / Phòng riêng / Hầm ngầm / Gác mái...",
+      "danger_level": "An toàn / Nguy hiểm...",
+      "controlled_by": "Nhân vật đứng tại hoặc quản lý",
+      "status": "Khóa / Tự do / Tuyệt mật",
+      "description": "Mô tả chi tiết vai trò của căn phòng/phân khu này",
+      "characters": ["Tên nhân vật ở đây"],
+      "atmosphere": "Môi trường, ánh sáng, mùi hương, tiếng động tại đây",
+      "secrets": "Bí mật, mật thư hoặc vật phẩm quý giá giấu tại đây",
+      "events": "Sự kiện hoặc biến cố đang diễn ra trong phòng"
+    }
+  ]
+}`;
+
+            let responseJson = null;
+            if (aiConfig.source === 'custom' && aiConfig.customUrl) {
+                try {
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (aiConfig.customKey) headers['Authorization'] = `Bearer ${aiConfig.customKey}`;
+
+                    const res = await fetch(aiConfig.customUrl, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({
+                            model: aiConfig.customModel || 'gpt-4o-mini',
+                            messages: [
+                                { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
+                                { role: 'user', content: prompt }
+                            ],
+                            temperature: 0.75
+                        })
+                    });
+                    const data = await res.json();
+                    if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                        responseJson = parseJsonFromText(data.choices[0].message.content);
+                    }
+                } catch (e) {}
+            }
+
+            if (!responseJson && win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
+                try {
+                    const rawRes = await win.SillyTavern.getContext().generateRaw(prompt);
+                    responseJson = parseJsonFromText(rawRes);
+                } catch (e) {}
+            }
+
+            if (!responseJson && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
+                try {
+                    const rawRes = await win.PhoneSystem.callExternalAPI([
+                        { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
+                        { role: 'user', content: prompt }
+                    ], { maxTokens: 4000, temperature: 0.75 });
+                    responseJson = parseJsonFromText(rawRes);
+                } catch (e) {}
+            }
+
+            if (!responseJson || !Array.isArray(responseJson.subLocations)) {
+                throw new Error('AI không trả về JSON phân khu hợp lệ!');
+            }
+
+            targetLoc.subLocations = targetLoc.subLocations || [];
+            let added = 0;
+            responseJson.subLocations.forEach(sub => {
+                if (!sub || !sub.name) return;
+                const exist = targetLoc.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
+                if (!exist) {
+                    targetLoc.subLocations.push({
+                        id: 'sub_' + Math.random().toString(36).substr(2, 7),
+                        name: sub.name.trim(),
+                        icon: 'fa-door-open',
+                        category: 'sub_location',
+                        context_type: sub.context_type || 'Phân khu tầng sâu',
+                        danger_level: sub.danger_level || 'An toàn',
+                        controlled_by: sub.controlled_by || 'Chung',
+                        status: sub.status || 'Tự do',
+                        description: sub.description || '',
+                        characters: Array.isArray(sub.characters) ? sub.characters : [],
+                        atmosphere: sub.atmosphere || 'Không gian yên tĩnh.',
+                        secrets: sub.secrets || 'Chưa phát hiện bí mật nào.',
+                        events: sub.events || 'Tình hình ổn định.',
+                        subLocations: []
+                    });
+                    added++;
+                }
+            });
+
+            saveMapData();
+            doc.getElementById('lore_location_detail_modal').style.display = 'none';
+            // Tự động lặn vào tầng sâu vừa được AI tạo mới
+            navStack.push(targetLoc);
+            renderAppGrid();
+            alert(`🎉 AI đã khám phá thành công +${added} phân khu tầng sâu bên trong "${targetLoc.name}"!`);
+        } catch (err) {
+            alert('⚠️ Lỗi khi AI khám phá tầng sâu: ' + err.message);
+        } finally {
+            if (btnDrill) {
+                btnDrill.disabled = false;
+                btnDrill.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> AI Khám Phá Sâu`;
+            }
+        }
+    }
 
     async function triggerAiWorldScan() {
         loadAiConfig();
@@ -1115,9 +1436,7 @@ ${existingStr || '(Chưa có)'}
 
 NHIỆM VỤ:
 1. KHÔNG áp đặt định kiến Fantasy. Hãy phân tích đúng thể loại câu chuyện (Học đường, Sci-Fi, Tu tiên, Horror, Gia đình...).
-2. Tổ chức bản đồ theo cấu trúc phân cấp chuẩn App Lưới:
-   - "locations": Các Khu Vực Lớn / Tòa nhà / Trung tâm / Vùng đất.
-   - Bên trong mỗi khu vực lớn có "subLocations": Các Phòng / Phân khu cụ thể thuộc khu vực đó.
+2. Tổ chức bản đồ kèm đầy đủ Deep Lore Info (Atmosphere, Secrets, Events, Access Status).
 3. TRẢ VỀ DUY NHẤT 1 JSON HỢP LỆ theo định dạng:
 {
   "locations": [
@@ -1127,8 +1446,12 @@ NHIỆM VỤ:
       "context_type": "Tòa nhà / Trường học / Trạm vũ trụ / Tông môn...",
       "danger_level": "An toàn bình thường / Cực kỳ nguy hiểm...",
       "controlled_by": "Nhân vật hoặc thế lực kiểm soát",
+      "status": "Tự do / Khóa / Cấm địa",
       "description": "Mô tả vai trò của khu vực này",
       "characters": ["Tên nhân vật A", "Tên nhân vật B đang ở đây"],
+      "atmosphere": "Bầu không khí, thời tiết, âm thanh tại đây",
+      "secrets": "Bí mật hoặc vật phẩm giấu kín tại đây",
+      "events": "Sự kiện hiện tại diễn ra tại đây",
       "subLocations": [
         {
           "name": "Tên Phòng / Phân khu nhỏ bên trong",
@@ -1136,8 +1459,12 @@ NHIỆM VỤ:
           "context_type": "Phòng học / Phòng ngủ / Sân thượng / Động phủ...",
           "danger_level": "An toàn",
           "controlled_by": "Tên nhân vật đứng tại phòng",
+          "status": "Khóa riêng tư",
           "description": "Mô tả chi tiết phòng/phân khu này",
-          "characters": ["Tên nhân vật đang ở đây"]
+          "characters": ["Tên nhân vật đang ở đây"],
+          "atmosphere": "Môi trường và ánh sáng trong phòng",
+          "secrets": "Vật phẩm bí mật trong phòng",
+          "events": "Sự kiện đang xảy ra trong phòng"
         }
       ]
     }
@@ -1206,14 +1533,21 @@ NHIỆM VỤ:
                         context_type: item.context_type || 'Khu vực lớn',
                         danger_level: item.danger_level || 'An toàn',
                         controlled_by: item.controlled_by || 'Chung',
+                        status: item.status || 'Tự do',
                         description: item.description || '',
                         characters: Array.isArray(item.characters) ? item.characters : [],
+                        atmosphere: item.atmosphere || 'Bầu không khí bình thường.',
+                        secrets: item.secrets || 'Chưa phát hiện bí mật nào.',
+                        events: item.events || 'Tình hình ổn định.',
                         subLocations: []
                     };
                     mapData.locations.push(hub);
                     addedCount++;
                 } else {
                     if (item.description && hub.description.length < item.description.length) hub.description = item.description;
+                    if (item.atmosphere) hub.atmosphere = item.atmosphere;
+                    if (item.secrets) hub.secrets = item.secrets;
+                    if (item.events) hub.events = item.events;
                     if (Array.isArray(item.characters)) hub.characters = Array.from(new Set([...(hub.characters||[]), ...item.characters]));
                 }
 
@@ -1231,8 +1565,12 @@ NHIỆM VỤ:
                                 context_type: sub.context_type || 'Phòng / Phân khu',
                                 danger_level: sub.danger_level || 'An toàn',
                                 controlled_by: sub.controlled_by || 'Chung',
+                                status: sub.status || 'Khóa riêng tư',
                                 description: sub.description || '',
-                                characters: Array.isArray(sub.characters) ? sub.characters : []
+                                characters: Array.isArray(sub.characters) ? sub.characters : [],
+                                atmosphere: sub.atmosphere || 'Môi trường bình thường.',
+                                secrets: sub.secrets || 'Chưa có bí mật nào.',
+                                events: sub.events || 'Tình hình ổn định.'
                             });
                             addedCount++;
                         }
@@ -1242,7 +1580,7 @@ NHIỆM VỤ:
 
             saveMapData();
             renderAppGrid();
-            alert(`🎉 AI đã xây dựng thành công bản đồ lưới! +${addedCount} khu vực mới.`);
+            alert(`🎉 AI đã xây dựng thành công bản đồ lưới Deep Lore! +${addedCount} khu vực mới.`);
         } catch (err) {
             alert('⚠️ Lỗi khi quét bản đồ AI: ' + err.message);
         } finally {
@@ -1274,7 +1612,7 @@ NHIỆM VỤ:
                 overlay.style.display = 'none';
             } else {
                 overlay.style.display = 'flex';
-                currentParentLocation = null;
+                navStack = [];
                 renderAppGrid();
             }
         }
