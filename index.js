@@ -222,14 +222,17 @@ function getPhoneConfig() {
     try {
         const saved = localStorage.getItem(CONFIG_KEY);
         if (saved) {
-            return JSON.parse(saved);
+            const parsed = JSON.parse(saved);
+            if (parsed.auto_check_update === undefined) parsed.auto_check_update = true;
+            return parsed;
         }
     } catch (e) {
         // Không gọi console.error để tránh đệ quy log vô tận
     }
     return {
         enabled: true,
-        disabled_modules: []
+        disabled_modules: [],
+        auto_check_update: true
     };
 }
 
@@ -249,7 +252,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '1.2.2';
+const KAIZ_CURRENT_VERSION = '1.2.3';
 
 function compareVersions(vA, vB) {
     const partsA = String(vA || '0').split('.').map(Number);
@@ -266,6 +269,13 @@ function compareVersions(vA, vB) {
 
 async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
     const doc = targetWin.document || document;
+    if (!manualCheck) {
+        const config = getPhoneConfig();
+        if (config.auto_check_update === false) {
+            console.log('[KAIZ Collection] Tự động kiểm tra bản cập nhật khi mở web đang bị TẮT trong cài đặt.');
+            return;
+        }
+    }
 
     try {
         if (manualCheck && targetWin.toastr) {
@@ -609,6 +619,18 @@ function renderExtensionSettings(targetWin, jq) {
                             <span>KIỂM TRA CẬP NHẬT</span>
                         </button>
                     </div>
+                    <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-size: 0.84em; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-bell" style="color: #c084fc;"></i>
+                            <span>Tự động kiểm tra và thông báo bản cập nhật mới khi mở/làm mới trang:</span>
+                        </span>
+                        <label class="checkbox_label" style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.35); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="kaiz_auto_check_update_cb" ${config.auto_check_update !== false ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer; accent-color: #c084fc;">
+                            <span id="kaiz_auto_check_update_status" style="font-weight: 700; font-size: 0.84em; color: ${config.auto_check_update !== false ? '#c084fc' : '#94a3b8'};">
+                                ${config.auto_check_update !== false ? 'Đang Bật' : 'Đã Tắt'}
+                            </span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Accordion Section 1: Core Modules -->
@@ -797,6 +819,19 @@ function renderExtensionSettings(targetWin, jq) {
     if (checkUpdateBtn) {
         checkUpdateBtn.addEventListener('click', () => {
             checkKaizCollectionUpdate(targetWin, true);
+        });
+    }
+
+    const autoCheckUpdateCb = doc.getElementById('kaiz_auto_check_update_cb');
+    if (autoCheckUpdateCb) {
+        autoCheckUpdateCb.addEventListener('change', (e) => {
+            config.auto_check_update = e.target.checked;
+            const statusText = doc.getElementById('kaiz_auto_check_update_status');
+            if (statusText) {
+                statusText.textContent = e.target.checked ? 'Đang Bật' : 'Đã Tắt';
+                statusText.style.color = e.target.checked ? '#c084fc' : '#94a3b8';
+            }
+            savePhoneConfig(config);
         });
     }
 
