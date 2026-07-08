@@ -249,7 +249,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '1.2.1';
+const KAIZ_CURRENT_VERSION = '1.2.2';
 
 function compareVersions(vA, vB) {
     const partsA = String(vA || '0').split('.').map(Number);
