@@ -266,12 +266,6 @@ function compareVersions(vA, vB) {
 
 async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
     const doc = targetWin.document || document;
-    if (!manualCheck && sessionStorage.getItem('kaiz_update_checked_session') === 'true') {
-        return; // Chỉ tự động kiểm tra/hỏi 1 lần mỗi phiên làm việc web (lần đầu mở web)
-    }
-    if (!manualCheck) {
-        sessionStorage.setItem('kaiz_update_checked_session', 'true');
-    }
 
     try {
         if (manualCheck && targetWin.toastr) {
@@ -308,8 +302,9 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
 
         if (compareVersions(remoteVersion, KAIZ_CURRENT_VERSION) > 0) {
             const skippedVer = localStorage.getItem('kaiz_skip_update_version');
-            if (!manualCheck && skippedVer === remoteVersion) {
-                console.log(`[KAIZ Collection] Bỏ qua thông báo cập nhật v${remoteVersion} do người dùng đã chọn bỏ qua trước đó.`);
+            const dismissedInSession = sessionStorage.getItem(`kaiz_dismissed_session_${remoteVersion}`);
+            if (!manualCheck && (skippedVer === remoteVersion || dismissedInSession === 'true')) {
+                console.log(`[KAIZ Collection] Bỏ qua thông báo cập nhật v${remoteVersion} (đã chọn bỏ qua hoặc để sau trong phiên làm việc này).`);
                 return;
             }
             showKaizUpdateModal(targetWin, remoteVersion, remoteManifest.description || '');
@@ -334,10 +329,10 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
 
     const overlay = doc.createElement('div');
     overlay.id = 'kaiz_update_modal_overlay';
-    overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(0, 0, 0, 0.78); z-index: 999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.78); z-index: 99999999; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; overflow-y: auto; backdrop-filter: blur(8px);';
 
     const modal = doc.createElement('div');
-    modal.style.cssText = 'background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 20px; width: 90%; max-width: 480px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); color: #f8fafc; font-family: sans-serif; display: flex; flex-direction: column; gap: 16px;';
+    modal.style.cssText = 'margin: auto; background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); color: #f8fafc; font-family: sans-serif; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; flex-shrink: 0; position: relative;';
     
     modal.innerHTML = `
         <div style="display: flex; align-items: center; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
@@ -378,7 +373,7 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
     `;
 
     overlay.appendChild(modal);
-    doc.body.appendChild(overlay);
+    (doc.documentElement || doc.body).appendChild(overlay);
 
     const statusBox = modal.querySelector('#kaiz_update_status_box');
     const btnUpdate = modal.querySelector('#kaiz_btn_do_update');
@@ -467,11 +462,13 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
 
     btnSkip.addEventListener('click', () => {
         localStorage.setItem('kaiz_skip_update_version', remoteVersion);
+        sessionStorage.setItem(`kaiz_dismissed_session_${remoteVersion}`, 'true');
         overlay.remove();
         if (targetWin.toastr) targetWin.toastr.info(`Đã bỏ qua thông báo cập nhật v${remoteVersion}. Bạn có thể kiểm tra lại trong cài đặt.`);
     });
 
     btnClose.addEventListener('click', () => {
+        sessionStorage.setItem(`kaiz_dismissed_session_${remoteVersion}`, 'true');
         overlay.remove();
     });
 }
