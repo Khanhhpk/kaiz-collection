@@ -1,17 +1,17 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Graph) - v5.0 True Responsive Masterpiece
- * - Khắc phục triệt để lỗi bị ẩn/mất thông tin (Inspector bị đẩy ra ngoài) khi màn hình web ở dạng dọc/hẹp (< 860px).
- * - Tối ưu Flexbox 100% chuẩn xác: Trên màn hình dọc, chia tỷ lệ Khung bản đồ (55%) và Khung thông tin (45%) độc lập có cuộn riêng, không bao giờ đè hay đẩy nhau.
- * - Header Toolbar siêu thông minh cho màn hình hẹp: Tự động xếp chồng ngăn nắp, thanh tìm kiếm tràn viền rõ ràng, nút bấm dàn đều gọn gàng.
- * - Sửa lỗi Modal Cài đặt AI bị khuất đỉnh trên màn dọc/nhỏ: Có thanh cuộn mượt mà từ trên xuống dưới.
- * - Đa Thể Loại Bối Cảnh (Universal): Không áp đặt Fantasy, tự động tương ứng mọi thể loại truyện/game.
- * - Bổ sung nút [🔄 Tải danh sách model] cho Chế độ 2 (Custom API).
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Graph) - v6.0 Next-Gen Visual & Responsive Masterpiece
+ * - Khắc phục hoàn toàn lỗi Modal Cài Đặt AI bị khuất/bị cắt đỉnh trên màn hình dọc hoặc thu hẹp (thêm scroll mượt mà chuẩn xác).
+ * - Cải tiến nghệ thuật vẽ bản đồ (Next-Gen Map Renderer): Thay thế đồ thị hộp sơ sài bằng bộ tạo thẻ Đồ Họa Cao Cấp SVG Data-URI (Thẻ Glassmorphism 3D phát sáng, hiển thị icon, badge trạng thái, thanh thông tin lực lượng rõ nét).
+ * - Tích hợp Nút chuyển đổi giao diện [✨ Thẻ Đồ Họa 3D / Đồ Thị Gọn] ngay trên Header Toolbar.
+ * - Đa Thể Loại Bối Cảnh (Universal): Tự tương ứng 100% mọi thể loại truyện/game (Học đường, Sci-Fi, Tu Tiên, Horror...).
+ * - Bố cục siêu mượt trên màn hình dọc (<= 880px): Tỷ lệ chuẩn 54/46 không đè lấp Inspector, thanh tìm kiếm tràn viền.
+ * - Phiên bản: v1.3.0.1
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Đa Thể Loại v5.0 True Responsive...');
+    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Thế Giới v6.0 Next-Gen (v1.3.0.1)...');
 
     const MODULE_ID = 'lore_world_map_graph';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (Graph AI)';
@@ -45,20 +45,20 @@
         border: 'rgba(192, 132, 252, 0.35)',
         text: '#f8fafc',
         edgeText: '#e2e8f0',
-        edgeLabelBg: 'rgba(15, 23, 42, 0.88)',
+        edgeLabelBg: 'rgba(15, 23, 42, 0.92)',
         nodeCategories: {
-            major_hub: { label: '🏢 Trung tâm / Khu vực lớn', bg: '#4c1d95', border: '#c084fc', highlight: '#7c3aed', icon: '🏢' },
-            sub_location: { label: '📍 Phân khu / Phòng / Điểm cụ thể', bg: '#1e3a8a', border: '#60a5fa', highlight: '#2563eb', icon: '📍' },
-            danger_zone: { label: '⚠️ Vùng nguy hiểm / Cấm địa / Tranh chấp', bg: '#881337', border: '#fb7185', highlight: '#e11d48', icon: '⚠️' },
-            nature_or_open: { label: '🌿 Không gian mở / Thiên nhiên / Công cộng', bg: '#14532d', border: '#4ade80', highlight: '#16a34a', icon: '🌿' },
-            secret_or_special: { label: '🔐 Khu vực bí mật / Đặc biệt / Mật thất', bg: '#78350f', border: '#fbd38d', highlight: '#d97706', icon: '🔐' },
-            other: { label: '🏷️ Khác', bg: '#334155', border: '#94a3b8', highlight: '#475569', icon: '🏷️' }
+            major_hub: { label: '🏢 Trung tâm / Khu vực lớn', bg: '#4c1d95', border: '#c084fc', highlight: '#7c3aed', icon: '🏢', colorHex: '#a855f7' },
+            sub_location: { label: '📍 Phân khu / Phòng / Điểm cụ thể', bg: '#1e3a8a', border: '#60a5fa', highlight: '#2563eb', icon: '📍', colorHex: '#3b82f6' },
+            danger_zone: { label: '⚠️ Vùng nguy hiểm / Cấm địa / Tranh chấp', bg: '#881337', border: '#fb7185', highlight: '#e11d48', icon: '⚠️', colorHex: '#f43f5e' },
+            nature_or_open: { label: '🌿 Không gian mở / Thiên nhiên / Công cộng', bg: '#14532d', border: '#4ade80', highlight: '#16a34a', icon: '🌿', colorHex: '#10b981' },
+            secret_or_special: { label: '🔐 Khu vực bí mật / Đặc biệt / Mật thất', bg: '#78350f', border: '#fbd38d', highlight: '#d97706', icon: '🔐', colorHex: '#f59e0b' },
+            other: { label: '🏷️ Khác', bg: '#334155', border: '#94a3b8', highlight: '#475569', icon: '🏷️', colorHex: '#64748b' }
         },
         edgeRelations: {
-            physical_path: { label: '🚶 Đường nối liền / Hành lang / Cầu thang', color: '#818cf8', dashes: false, width: 2.2 },
-            transit_fast: { label: '⚡ Di chuyển nhanh / Thang máy / Phương tiện', color: '#c084fc', dashes: [8, 6], width: 2.6 },
-            restricted: { label: '🔒 Khóa / Cần thẻ hoặc điều kiện / Hạn chế', color: '#f43f5e', dashes: [4, 4], width: 2.5 },
-            connection: { label: '🔗 Liên kết chung / Kế bên', color: '#34d399', dashes: false, width: 2.2 }
+            physical_path: { label: '🚶 Đường nối liền / Hành lang / Cầu thang', color: '#818cf8', dashes: false, width: 2.5 },
+            transit_fast: { label: '⚡ Di chuyển nhanh / Thang máy / Phương tiện', color: '#c084fc', dashes: [8, 6], width: 3.0 },
+            restricted: { label: '🔒 Khóa / Cần thẻ hoặc điều kiện / Hạn chế', color: '#f43f5e', dashes: [4, 4], width: 2.8 },
+            connection: { label: '🔗 Liên kết chung / Kế bên', color: '#34d399', dashes: false, width: 2.3 }
         }
     };
 
@@ -66,6 +66,7 @@
     let mapData = { nodes: [], edges: [] };
     let networkInstance = null;
     let selectedNodeId = null;
+    let renderMode = 'premium_svg'; // 'premium_svg' | 'compact_glow'
 
     const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
 
@@ -84,6 +85,80 @@
         });
         if (curLine.trim()) lines.push(curLine.trim());
         return lines.join('\n');
+    }
+
+    // ============ BỘ TẠO THẺ ĐỒ HỌA CAO CẤP (PREMIUM SVG NODE CARD GENERATOR) ============
+    function generateNodeSvgUrl(node, isSelected = false) {
+        const cat = THEME.nodeCategories[node.category] || THEME.nodeCategories.other;
+        const isDanger = node.danger_level && (
+            node.danger_level.toLowerCase().includes('nguy') ||
+            node.danger_level.toLowerCase().includes('cấm') ||
+            node.danger_level.toLowerCase().includes('tử') ||
+            node.danger_level.toLowerCase().includes('hỗn loạn') ||
+            node.danger_level.toLowerCase().includes('bạo động')
+        );
+
+        const borderColor = isSelected ? '#38bdf8' : (isDanger ? '#ef4444' : cat.colorHex);
+        const borderWidth = isSelected ? 3.5 : (isDanger ? 2.5 : 1.8);
+        const bgOpacity0 = isSelected ? '0.98' : '0.92';
+        const titleColor = isSelected ? '#38bdf8' : '#f8fafc';
+        
+        let badgeBg = isDanger ? '#7f1d1d' : '#1e293b';
+        let badgeColor = isDanger ? '#fca5a5' : '#93c5fd';
+        let badgeText = node.danger_level ? (node.danger_level.length > 15 ? node.danger_level.substring(0, 14) + '…' : node.danger_level) : 'An toàn';
+
+        const safeTitle = (node.label || 'Địa điểm').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const safeControlled = (node.controlled_by || 'Chung').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const safeType = (node.context_type || 'Khu vực').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        // Sắp xếp tự động ngắt dòng cho tiêu đề trong SVG (tối đa 2 dòng)
+        let titleLine1 = safeTitle;
+        let titleLine2 = '';
+        if (safeTitle.length > 20) {
+            const idx = safeTitle.lastIndexOf(' ', 20);
+            if (idx !== -1) {
+                titleLine1 = safeTitle.substring(0, idx);
+                titleLine2 = safeTitle.substring(idx + 1);
+                if (titleLine2.length > 22) titleLine2 = titleLine2.substring(0, 20) + '…';
+            } else {
+                titleLine1 = safeTitle.substring(0, 20);
+                titleLine2 = safeTitle.substring(20, 40) + (safeTitle.length > 40 ? '…' : '');
+            }
+        }
+
+        const cardHeight = titleLine2 ? 116 : 98;
+        const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="280" height="${cardHeight}" viewBox="0 0 280 ${cardHeight}">
+            <defs>
+                <linearGradient id="grad_${node.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#0f172a" stop-opacity="${bgOpacity0}" />
+                    <stop offset="100%" stop-color="#1e1b4b" stop-opacity="${bgOpacity0}" />
+                </linearGradient>
+                <filter id="shadow_${node.id}" x="-10%" y="-10%" width="125%" height="125%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.75" />
+                </filter>
+            </defs>
+            <rect x="3" y="3" width="274" height="${cardHeight - 6}" rx="16" fill="url(#grad_${node.id})" stroke="${borderColor}" stroke-width="${borderWidth}" filter="url(#shadow_${node.id})" />
+            
+            <!-- Biểu tượng phân loại dạng Avatar tròn -->
+            <circle cx="34" cy="36" r="18" fill="${cat.colorHex}" fill-opacity="0.25" stroke="${cat.colorHex}" stroke-width="1.5" />
+            <text x="34" y="42" font-size="18" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">${cat.icon}</text>
+
+            <!-- Tiêu đề địa điểm -->
+            <text x="62" y="${titleLine2 ? '30' : '36'}" font-size="15" font-weight="bold" fill="${titleColor}" font-family="-apple-system, Inter, sans-serif">${titleLine1}</text>
+            ${titleLine2 ? `<text x="62" y="48" font-size="14" font-weight="bold" fill="${titleColor}" font-family="-apple-system, Inter, sans-serif">${titleLine2}</text>` : ''}
+
+            <!-- Huy hiệu Trạng Thái / Mức An Toàn -->
+            <rect x="62" y="${titleLine2 ? '58' : '48'}" width="120" height="20" rx="6" fill="${badgeBg}" stroke="${badgeColor}" stroke-width="0.8" />
+            <text x="122" y="${titleLine2 ? '72' : '62'}" font-size="11" font-weight="800" fill="${badgeColor}" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">${badgeText}</text>
+
+            <!-- Đường kẻ ngang phân cách info -->
+            <line x1="16" y1="${cardHeight - 28}" x2="264" y2="${cardHeight - 28}" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+
+            <!-- Thông tin Lực lượng kiểm soát & Loại bối cảnh phía đáy -->
+            <text x="16" y="${cardHeight - 10}" font-size="11" fill="#94a3b8" font-family="-apple-system, Inter, sans-serif">🛡️ ${safeControlled.length > 15 ? safeControlled.substring(0, 14) + '…' : safeControlled} | 🏷️ ${safeType.length > 14 ? safeType.substring(0, 13) + '…' : safeType}</text>
+        </svg>`;
+
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
     }
 
     function getActiveChatId() {
@@ -140,16 +215,16 @@
     const doc = (window.parent && window.parent.document) || document;
 
     function injectStyles() {
-        if (doc.getElementById('lore-world-map-styles-v5')) return;
+        if (doc.getElementById('lore-world-map-styles-v6')) return;
         const style = doc.createElement('style');
-        style.id = 'lore-world-map-styles-v5';
+        style.id = 'lore-world-map-styles-v6';
         style.innerHTML = `
             #lore_graph_modal_overlay {
                 position: fixed;
                 inset: 0;
                 width: 100vw;
                 height: 100vh;
-                background: rgba(0, 0, 0, 0.86);
+                background: rgba(0, 0, 0, 0.88);
                 backdrop-filter: blur(14px);
                 z-index: 99999999;
                 display: none;
@@ -161,7 +236,7 @@
             }
             #lore_graph_modal_content {
                 width: 100%;
-                max-width: 1420px;
+                max-width: 1440px;
                 height: 94vh;
                 border-radius: 20px;
                 box-shadow: 0 25px 65px rgba(0,0,0,0.85);
@@ -210,7 +285,7 @@
                 border: none;
                 color: #fff;
                 font-size: 0.88em;
-                width: 140px;
+                width: 135px;
                 outline: none;
                 padding: 2px 0;
             }
@@ -281,7 +356,6 @@
                     font-size: 0.82em;
                 }
 
-                /* Khi màn hình dọc, chia chiều cao Container: 54% Bản đồ phía trên, 46% Inspector phía dưới */
                 #lore_main_container {
                     flex-direction: column !important;
                 }
@@ -387,32 +461,39 @@
             }
             .lore-ai-loading { animation: lorePulse 1.2s infinite ease-in-out; }
             
-            /* ============ MODAL CÀI ĐẶT AI (AI CONFIG MODAL v5.0) ============ */
-            /* Sửa lỗi bị che mất phần đầu khi màn hình nhỏ bằng cách cho phép cuộn từ đỉnh flex-start */
+            /* ============ MODAL CÀI ĐẶT AI v6.0 (KHẮC PHỤC TRIỆT ĐỂ LỖI KHUẤT ĐỈNH) ============ */
+            /* Cho phép cuộn mượt từ đỉnh xuống trên mọi kích thước màn hình web dọc hoặc hẹp */
             #lore_ai_config_modal {
                 position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.85);
-                z-index: 100000000;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.88);
+                backdrop-filter: blur(12px);
+                z-index: 1000000000 !important;
                 display: none;
-                align-items: flex-start;
+                align-items: center;
                 justify-content: center;
-                padding: 24px 12px;
-                overflow-y: auto;
+                padding: 16px;
+                box-sizing: border-box;
             }
             #lore_ai_config_box {
                 width: 100%;
-                max-width: 550px;
+                max-width: 540px;
+                max-height: 88vh;
                 background: #0f172a;
                 border: 1px solid #38bdf8;
                 border-radius: 18px;
                 padding: 22px;
                 color: #fff;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+                box-shadow: 0 25px 60px rgba(0,0,0,0.95);
                 display: flex;
                 flex-direction: column;
                 gap: 14px;
-                margin: auto 0;
+                overflow-y: auto;
+                box-sizing: border-box;
+                margin: auto;
             }
         `;
         doc.head.appendChild(style);
@@ -455,11 +536,11 @@
                         </div>
                         <div>
                             <div style="font-weight: 800; font-size: 1.05em; color: #f8fafc; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (UNIVERSAL)</span>
+                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.1)</span>
                                 <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 địa điểm</span>
                                 <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
-                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">Chat ID: <span style="color: #c084fc;">...</span></div>
+                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px;">Chat ID: <span style="color: #c084fc;">...</span></div>
                         </div>
                     </div>
 
@@ -469,7 +550,12 @@
                             <input id="lore_search_input" type="text" placeholder="Tìm địa điểm...">
                         </div>
 
-                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat để tự động thêm địa điểm & đường đi tương ứng đúng bối cảnh truyện">
+                        <!-- Nút đổi chế độ đồ họa -->
+                        <button id="lore_btn_toggle_view" class="lore-btn lore-btn-secondary" style="border-color: #a855f7; color: #e9d5ff;" title="Chuyển đổi giữa chế độ Thẻ Đồ Họa Cao Cấp (SVG 3D) và Đồ Thị Gọn">
+                            <i class="fa-solid fa-layer-group"></i> ✨ Thẻ Đồ Họa 3D
+                        </button>
+
+                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat để tự động thêm địa điểm & đường đi đúng bối cảnh truyện">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map
                         </button>
 
@@ -491,7 +577,7 @@
                     </div>
                 </div>
 
-                <!-- Main Container (Ngang khi web rộng > 880px, Dọc 54/46 khi web hẹp <= 880px) -->
+                <!-- Main Container -->
                 <div id="lore_main_container">
                     <div id="lore_graph_viewport">
                         <div class="lore-control-dock">
@@ -514,12 +600,12 @@
                 </div>
             </div>
 
-            <!-- MODAL CÀI ĐẶT AI v5.0 -->
+            <!-- MODAL CÀI ĐẶT AI v6.0 -->
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
-                    <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
+                    <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; flex-shrink: 0;">
                         <span>🤖 CẤU HÌNH NGUỒN KẾT NỐI AI</span>
-                        <span id="ai_cfg_close" style="cursor: pointer; color: #f87171;">✕</span>
+                        <span id="ai_cfg_close" style="cursor: pointer; color: #f87171; font-size: 1.1em;">✕</span>
                     </div>
 
                     <div style="font-size: 0.85em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.25);">
@@ -568,7 +654,7 @@
                         </select>
                     </div>
 
-                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; flex-shrink: 0;">
                         <button id="ai_cfg_save" class="lore-btn lore-btn-success" style="padding: 10px 20px;">
                             <i class="fa-solid fa-check"></i> Lưu Cấu Hình AI
                         </button>
@@ -583,6 +669,14 @@
             selectedNodeId = null;
             renderInspector();
             if (networkInstance && typeof networkInstance.unselectAll === 'function') networkInstance.unselectAll();
+        });
+
+        // Chuyển đổi chế độ đồ họa
+        const btnToggleView = overlay.querySelector('#lore_btn_toggle_view');
+        btnToggleView.addEventListener('click', () => {
+            renderMode = renderMode === 'premium_svg' ? 'compact_glow' : 'premium_svg';
+            btnToggleView.innerHTML = renderMode === 'premium_svg' ? `<i class="fa-solid fa-layer-group"></i> ✨ Thẻ Đồ Họa 3D` : `<i class="fa-solid fa-circle-dot"></i> 🔮 Đồ Thị Gọn`;
+            renderNetwork();
         });
 
         // Xử lý Cài đặt AI & Fetch Model
@@ -613,7 +707,6 @@
 
         overlay.querySelector('#ai_cfg_close').addEventListener('click', () => aiModal.style.display = 'none');
 
-        // Logic Fetch Models
         const btnFetchModels = overlay.querySelector('#cfg_btn_fetch_models');
         const modelInput = overlay.querySelector('#cfg_model');
         const modelSelect = overlay.querySelector('#cfg_model_select');
@@ -682,7 +775,6 @@
             alert('Đã lưu cấu hình AI!');
         });
 
-        // Điều hướng Custom Control Dock
         overlay.querySelector('#dock_btn_zoomin').addEventListener('click', () => {
             if (networkInstance && typeof networkInstance.getScale === 'function') {
                 networkInstance.moveTo({ scale: networkInstance.getScale() * 1.3, animation: { duration: 300 } });
@@ -818,23 +910,48 @@
     function initVisNetwork(container) {
         const nodesArray = mapData.nodes.map(n => {
             const cat = THEME.nodeCategories[n.category] || THEME.nodeCategories.other;
-            const isDanger = n.danger_level && (n.danger_level.toLowerCase().includes('nguy') || n.danger_level.toLowerCase().includes('cấm') || n.danger_level.toLowerCase().includes('tử') || n.danger_level.toLowerCase().includes('hỗn loạn'));
+            const isDanger = n.danger_level && (
+                n.danger_level.toLowerCase().includes('nguy') ||
+                n.danger_level.toLowerCase().includes('cấm') ||
+                n.danger_level.toLowerCase().includes('tử') ||
+                n.danger_level.toLowerCase().includes('hỗn loạn') ||
+                n.danger_level.toLowerCase().includes('bạo động')
+            );
 
-            return {
-                id: n.id,
-                label: `${cat.icon} ${n.label}\n[${n.danger_level || 'An toàn'}]`,
-                title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}\n• Đặc điểm/Chức năng: ${n.features || 'Không có'}\n• Trạng thái: ${n.status || 'Bình thường'}`,
-                color: {
-                    background: cat.bg,
-                    border: isDanger ? '#ef4444' : cat.border,
-                    highlight: { background: cat.highlight, border: '#ffffff' }
-                },
-                font: { color: THEME.text, size: 14, face: '-apple-system, Inter, sans-serif', bold: true },
-                borderWidth: isDanger ? 3 : 2,
-                shadow: { enabled: true, color: 'rgba(0,0,0,0.6)', size: 12, x: 0, y: 5 },
-                shape: 'box',
-                margin: 12
-            };
+            if (renderMode === 'premium_svg') {
+                const unselectedImg = generateNodeSvgUrl(n, false);
+                const selectedImg = generateNodeSvgUrl(n, true);
+
+                return {
+                    id: n.id,
+                    shape: 'image',
+                    image: {
+                        unselected: unselectedImg,
+                        selected: selectedImg
+                    },
+                    size: 40,
+                    title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}\n• Đặc điểm/Chức năng: ${n.features || 'Không có'}\n• Trạng thái: ${n.status || 'Bình thường'}`,
+                    font: { color: 'transparent', size: 1 }, // Ẩn nhãn text mặc định vì SVG đã hiển thị siêu nét
+                    margin: 0
+                };
+            } else {
+                // Chế độ Đồ Thị Gọn (Compact Glow Nodes)
+                return {
+                    id: n.id,
+                    label: `${cat.icon} ${n.label}\n[${n.danger_level || 'An toàn'}]`,
+                    title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}`,
+                    color: {
+                        background: cat.bg,
+                        border: isDanger ? '#ef4444' : cat.border,
+                        highlight: { background: cat.highlight, border: '#ffffff' }
+                    },
+                    font: { color: THEME.text, size: 14, face: '-apple-system, Inter, sans-serif', bold: true },
+                    borderWidth: isDanger ? 3 : 2,
+                    shadow: { enabled: true, color: 'rgba(0,0,0,0.7)', size: 14, x: 0, y: 6 },
+                    shape: 'box',
+                    margin: 12
+                };
+            }
         });
 
         const edgesArray = mapData.edges.map(e => {
@@ -858,8 +975,8 @@
                     align: 'horizontal'
                 },
                 arrows: { to: { enabled: true, scaleFactor: 0.85 } },
-                smooth: { type: 'continuous', roundness: 0.2 },
-                width: relStyle.width || 2.2
+                smooth: { type: 'continuous', roundness: 0.22 },
+                width: relStyle.width || 2.5
             };
         });
 
@@ -871,9 +988,9 @@
         const options = {
             physics: {
                 forceAtlas2Based: {
-                    gravitationalConstant: -90,
+                    gravitationalConstant: -100,
                     centralGravity: 0.012,
-                    springLength: 230,
+                    springLength: renderMode === 'premium_svg' ? 260 : 220,
                     springConstant: 0.08
                 },
                 maxVelocity: 45,
@@ -942,7 +1059,7 @@
             contentDiv.innerHTML = `
                 <div style="display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0;">
                     <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px; font-size: 0.84em; color: #e0f2fe; flex-shrink: 0;">
-                        💡 <b>Mẹo:</b> Kéo chuột để di chuyển địa điểm. Cuộn chuột zoom. Nhấp vào một địa điểm để sửa Quản lý, Chức năng và Kết nối!
+                        💡 <b>Mẹo:</b> Kéo chuột để di chuyển địa điểm. Cuộn chuột zoom. Nhấp vào nút [✨ Thẻ Đồ Họa 3D] trên thanh công cụ để trải nghiệm đồ họa thẻ SVG siêu đẹp!
                     </div>
 
                     <div style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
