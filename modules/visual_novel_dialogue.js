@@ -110,6 +110,16 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
     const VN_IDB_PREFIX = 'vn-idb://';
     const VN_BLANK_IMG = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>');
     const VN_IDB_OBJECT_URL_CACHE = {};
+    const VN_IDB_OBJECT_URL_KEYS = [];
+    function pruneIdbObjectUrlCache() {
+        if (VN_IDB_OBJECT_URL_KEYS.length > 80) {
+            const toRemove = VN_IDB_OBJECT_URL_KEYS.splice(0, VN_IDB_OBJECT_URL_KEYS.length - 80);
+            toRemove.forEach(k => {
+                try { if (VN_IDB_OBJECT_URL_CACHE[k]) URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[k]); } catch (e) { }
+                delete VN_IDB_OBJECT_URL_CACHE[k];
+            });
+        }
+    }
     const VN_IDB_PENDING = {};
 
     function cloneDeep(obj) {
@@ -499,6 +509,8 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
                 if (!rec || !rec.blob) throw new Error('Ảnh local không còn tồn tại trong IndexedDB.');
                 const objectUrl = URL.createObjectURL(rec.blob);
                 VN_IDB_OBJECT_URL_CACHE[ref] = objectUrl;
+                if (!VN_IDB_OBJECT_URL_KEYS.includes(ref)) VN_IDB_OBJECT_URL_KEYS.push(ref);
+                pruneIdbObjectUrlCache();
                 return objectUrl;
             } finally {
                 db.close();
@@ -512,7 +524,11 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
         const safe = safeImageUrl(url);
         if (!safe) return fallback;
         if (isLocalImageRef(safe)) {
-            if (VN_IDB_OBJECT_URL_CACHE[safe]) return VN_IDB_OBJECT_URL_CACHE[safe];
+            if (VN_IDB_OBJECT_URL_CACHE[safe]) {
+                const idx = VN_IDB_OBJECT_URL_KEYS.indexOf(safe);
+                if (idx !== -1) { VN_IDB_OBJECT_URL_KEYS.splice(idx, 1); VN_IDB_OBJECT_URL_KEYS.push(safe); }
+                return VN_IDB_OBJECT_URL_CACHE[safe];
+            }
             getLocalImageObjectUrl(safe).then(objectUrl => {
                 PD.querySelectorAll('img[data-orig-src]').forEach(el => {
                     if (el.dataset.origSrc === safe) el.src = objectUrl;
@@ -538,7 +554,12 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
         return openVNImageDB().then(db => new Promise((resolve, reject) => {
             const tx = db.transaction(VN_IDB_STORE, 'readwrite');
             tx.objectStore(VN_IDB_STORE).clear();
-            tx.oncomplete = () => { db.close(); Object.keys(VN_IDB_OBJECT_URL_CACHE).forEach(k => { try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[k]); } catch (e) {} delete VN_IDB_OBJECT_URL_CACHE[k]; }); resolve(); };
+            tx.oncomplete = () => {
+                db.close();
+                Object.keys(VN_IDB_OBJECT_URL_CACHE).forEach(k => { try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[k]); } catch (e) { } delete VN_IDB_OBJECT_URL_CACHE[k]; });
+                VN_IDB_OBJECT_URL_KEYS.length = 0;
+                resolve();
+            };
             tx.onerror = () => { db.close(); reject(tx.error || new Error('Không xoá được IndexedDB ảnh.')); };
         })).catch(err => console.warn('[VN Dialogue] Không thể xoá IndexedDB ảnh:', err));
     }
@@ -581,8 +602,10 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
                 tx.onerror = () => reject(tx.error || new Error('Không xoá được ảnh Local.'));
             });
             if (VN_IDB_OBJECT_URL_CACHE[ref]) {
-                try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[ref]); } catch (e) {}
+                try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[ref]); } catch (e) { }
                 delete VN_IDB_OBJECT_URL_CACHE[ref];
+                const idx = VN_IDB_OBJECT_URL_KEYS.indexOf(ref);
+                if (idx !== -1) VN_IDB_OBJECT_URL_KEYS.splice(idx, 1);
             }
         } finally {
             db.close();
@@ -5729,7 +5752,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     function openMainModal() {
-        buildMainModal();
+        if (!PD.getElementById('vn-modal-overlay')) {
+            buildMainModal();
+        }
         refreshMainModal();
         const overlay = PD.getElementById('vn-modal-overlay');
         if (overlay) overlay.classList.add('show');
