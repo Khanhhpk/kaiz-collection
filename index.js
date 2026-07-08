@@ -255,8 +255,9 @@ function savePhoneConfig(config) {
 const KAIZ_CURRENT_VERSION = '1.2.3';
 
 function compareVersions(vA, vB) {
-    const partsA = String(vA || '0').split('.').map(Number);
-    const partsB = String(vB || '0').split('.').map(Number);
+    const clean = v => String(v || '0').replace(/[^0-9.]/g, '').split('.').map(x => parseInt(x, 10) || 0);
+    const partsA = clean(vA);
+    const partsB = clean(vB);
     const len = Math.max(partsA.length, partsB.length);
     for (let i = 0; i < len; i++) {
         const numA = partsA[i] || 0;
@@ -264,7 +265,62 @@ function compareVersions(vA, vB) {
         if (numA > numB) return 1;
         if (numA < numB) return -1;
     }
+    if (vA !== vB) {
+        if (String(vA).includes('-') && !String(vB).includes('-')) return -1;
+        if (!String(vA).includes('-') && String(vB).includes('-')) return 1;
+    }
     return 0;
+}
+
+async function getKaizCurrentGitBranch(targetWin) {
+    const win = targetWin || window;
+    let reqHeaders = { 'Content-Type': 'application/json' };
+    try {
+        if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
+            const ctx = win.SillyTavern.getContext();
+            if (ctx && typeof ctx.getRequestHeaders === 'function') {
+                reqHeaders = Object.assign(reqHeaders, ctx.getRequestHeaders());
+            }
+        } else if (typeof win.getRequestHeaders === 'function') {
+            reqHeaders = Object.assign(reqHeaders, win.getRequestHeaders());
+        } else {
+            let token = win.token || win.SillyTavern?.token;
+            if (!token) {
+                const meta = (win.document || document).querySelector('meta[name="csrf-token"]');
+                if (meta) token = meta.content;
+            }
+            if (token) reqHeaders['X-CSRF-Token'] = token;
+        }
+    } catch (e) {}
+
+    let selfFolder = 'kaiz-collection';
+    try {
+        if (typeof import.meta !== 'undefined' && import.meta.url) {
+            const parts = import.meta.url.split('/');
+            const folder = parts[parts.length - 2];
+            if (folder && !['third-party', 'extensions', 'scripts'].includes(folder)) {
+                selfFolder = decodeURIComponent(folder);
+            }
+        }
+    } catch (e) {}
+
+    const namesToTry = [selfFolder, 'kaiz-collection', 'kaiz_collection', 'kaiz-collection-master', 'kaiz-collection-beta'].filter((v, i, a) => v && a.indexOf(v) === i);
+    for (const extName of namesToTry) {
+        try {
+            const res = await fetch('/api/extensions/version', {
+                method: 'POST',
+                headers: reqHeaders,
+                body: JSON.stringify({ extensionName: extName, global: false })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.currentBranchName) {
+                    return data.currentBranchName;
+                }
+            }
+        } catch (e) {}
+    }
+    return 'master';
 }
 
 async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
@@ -278,19 +334,22 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
     }
 
     try {
+        const currentBranch = await getKaizCurrentGitBranch(targetWin);
         if (manualCheck && targetWin.toastr) {
-            targetWin.toastr.info('Đang kiểm tra bản cập nhật từ GitHub...');
+            targetWin.toastr.info(`Đang kiểm tra bản cập nhật từ GitHub (nhánh: ${currentBranch})...`);
         }
-        // Lấy manifest từ GitHub (ưu tiên refs/heads/master và API trực tiếp để tránh Fastly CDN cache bị trễ 3-5 phút sau khi push)
+        console.log(`[KAIZ Collection] Đang kiểm tra cập nhật trên nhánh Git hiện tại: "${currentBranch}"`);
+
+        // Lấy manifest từ đúng nhánh Git hiện tại (beta, master, ...) để tránh xung đột
         let remoteManifest = null;
         try {
-            const resRef = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/refs/heads/master/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
+            const resRef = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/refs/heads/${currentBranch}/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
             if (resRef.ok) remoteManifest = await resRef.json();
         } catch (e) {}
 
         if (!remoteManifest || compareVersions(remoteManifest.version, KAIZ_CURRENT_VERSION) <= 0) {
             try {
-                const resApi = await fetch(`https://api.github.com/repos/Khanhhpk/kaiz-collection/contents/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
+                const resApi = await fetch(`https://api.github.com/repos/Khanhhpk/kaiz-collection/contents/manifest.json?ref=${currentBranch}&t=${Date.now()}`, { cache: 'no-store' });
                 if (resApi.ok) {
                     const apiData = await resApi.json();
                     if (apiData && apiData.content) {
@@ -304,23 +363,23 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
         }
 
         if (!remoteManifest) {
-            const res = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/master/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
+            const res = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/${currentBranch}/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
             if (!res.ok) throw new Error('HTTP ' + res.status);
             remoteManifest = await res.json();
         }
         const remoteVersion = remoteManifest.version || KAIZ_CURRENT_VERSION;
 
         if (compareVersions(remoteVersion, KAIZ_CURRENT_VERSION) > 0) {
-            const skippedVer = localStorage.getItem('kaiz_skip_update_version');
-            const dismissedInSession = sessionStorage.getItem(`kaiz_dismissed_session_${remoteVersion}`);
+            const skippedVer = localStorage.getItem(`kaiz_skip_update_version_${currentBranch}`);
+            const dismissedInSession = sessionStorage.getItem(`kaiz_dismissed_session_${currentBranch}_${remoteVersion}`);
             if (!manualCheck && (skippedVer === remoteVersion || dismissedInSession === 'true')) {
-                console.log(`[KAIZ Collection] Bỏ qua thông báo cập nhật v${remoteVersion} (đã chọn bỏ qua hoặc để sau trong phiên làm việc này).`);
+                console.log(`[KAIZ Collection] Bỏ qua thông báo cập nhật v${remoteVersion} trên nhánh ${currentBranch} (đã chọn bỏ qua trong phiên này).`);
                 return;
             }
-            showKaizUpdateModal(targetWin, remoteVersion, remoteManifest.description || '');
+            showKaizUpdateModal(targetWin, remoteVersion, remoteManifest.description || '', currentBranch);
         } else if (manualCheck) {
             if (targetWin.toastr) {
-                targetWin.toastr.success(`✅ KAIZ Collection đang ở phiên bản mới nhất (v${KAIZ_CURRENT_VERSION})!`);
+                targetWin.toastr.success(`✅ KAIZ Collection đang ở phiên bản mới nhất (v${KAIZ_CURRENT_VERSION} - nhánh ${currentBranch})!`);
             }
         }
     } catch (err) {
@@ -331,7 +390,8 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
     }
 }
 
-function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
+
+function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch = 'master') {
     const doc = targetWin.document || document;
     if (doc.getElementById('kaiz_update_modal_overlay')) {
         doc.getElementById('kaiz_update_modal_overlay').remove();
@@ -351,7 +411,7 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
             </div>
             <div>
                 <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; letter-spacing: 0.3px;">PHÁT HIỆN BẢN CẬP NHẬT MỚI</div>
-                <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">KAIZ Collection Extension</div>
+                <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">KAIZ Collection (<span style="color: #c084fc; font-weight: bold;">Nhánh: ${currentBranch}</span>)</div>
             </div>
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
@@ -366,12 +426,12 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
             </div>
         </div>
         <div style="font-size: 0.9em; color: #cbd5e1; line-height: 1.6;">
-            Đã có bản cập nhật mới trên GitHub với nhiều nâng cấp tính năng và tối ưu hóa hiệu năng toàn diện. Bạn có muốn tự động cập nhật ngay lúc này không?
+            Đã có bản cập nhật mới trên nhánh <b style="color: #c084fc;">${currentBranch}</b> với nhiều nâng cấp và tối ưu. Bạn có muốn kéo bản cập nhật của nhánh này ngay không?
         </div>
         <div id="kaiz_update_status_box" style="font-size: 0.88em;"></div>
         <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
             <button id="kaiz_btn_do_update" style="flex: 1; min-width: 140px; padding: 12px 18px; background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; font-weight: 700; font-size: 0.94em; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s;">
-                <i class="fa-solid fa-bolt"></i> CẬP NHẬT NGAY
+                <i class="fa-solid fa-bolt"></i> CẬP NHẬT NHÁNH "${currentBranch.toUpperCase()}"
             </button>
             <button id="kaiz_btn_skip_update" style="padding: 12px 16px; background: rgba(255,255,255,0.05); color: #f87171; font-weight: 600; font-size: 0.9em; border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 12px; cursor: pointer; transition: all 0.15s;">
                 Bỏ qua bản này
@@ -393,7 +453,7 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
     btnUpdate.addEventListener('click', async () => {
         btnUpdate.disabled = true;
         btnUpdate.style.opacity = '0.6';
-        statusBox.innerHTML = '<div style="color: #38bdf8; padding: 8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> Đang yêu cầu máy chủ SillyTavern tự động kéo bản cập nhật...</div>';
+        statusBox.innerHTML = `<div style="color: #38bdf8; padding: 8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> Đang yêu cầu máy chủ SillyTavern tự động kéo bản cập nhật nhánh <b>${currentBranch}</b>...</div>`;
         try {
             // Lấy header chuẩn từ SillyTavern (bao gồm X-CSRF-Token bắt buộc cho POST API)
             const win = targetWin || window;
@@ -448,8 +508,8 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
             }
 
             if (updatedOk) {
-                statusBox.innerHTML = '<div style="color: #34d399; font-weight: bold; padding: 8px 0;"><i class="fa-solid fa-circle-check"></i> 🎉 Đã cập nhật thành công lên v' + remoteVersion + '! Đang tải lại web...</div>';
-                if (targetWin.toastr) targetWin.toastr.success(`🎉 Đã cập nhật KAIZ Collection thành công lên v${remoteVersion}!`);
+                statusBox.innerHTML = `<div style="color: #34d399; font-weight: bold; padding: 8px 0;"><i class="fa-solid fa-circle-check"></i> 🎉 Đã cập nhật thành công nhánh ${currentBranch} lên v${remoteVersion}! Đang tải lại web...</div>`;
+                if (targetWin.toastr) targetWin.toastr.success(`🎉 Đã cập nhật KAIZ Collection (nhánh ${currentBranch}) thành công lên v${remoteVersion}!`);
                 setTimeout(() => targetWin.location.reload(), 1600);
                 return;
             }
@@ -459,11 +519,11 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
         statusBox.innerHTML = `
             <div style="color: #fbbf24; font-size: 0.92em; line-height: 1.5; background: rgba(251, 191, 36, 0.12); padding: 12px; border-radius: 10px; border: 1px solid rgba(251, 191, 36, 0.35);">
                 <b>⚠️ Chưa thể cập nhật tự động qua máy chủ SillyTavern.</b><br>
-                Vui lòng cập nhật trực tiếp trong tab Extensions của SillyTavern hoặc bấm nút bên dưới để tải bản mới nhất từ GitHub!
+                Vui lòng kiểm tra trong tab Extensions của SillyTavern hoặc bấm nút bên dưới để mở nhánh <b>${currentBranch}</b> trên GitHub!
             </div>
             <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center;">
-                <a href="https://github.com/Khanhhpk/kaiz-collection" target="_blank" style="padding: 8px 16px; background: #38bdf8; color: #0f172a; font-weight: bold; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                    <i class="fa-brands fa-github"></i> Mở GitHub tải về
+                <a href="https://github.com/Khanhhpk/kaiz-collection/tree/${currentBranch}" target="_blank" style="padding: 8px 16px; background: #38bdf8; color: #0f172a; font-weight: bold; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-brands fa-github"></i> Mở nhánh "${currentBranch}" trên GitHub
                 </a>
                 <button onclick="window.location.reload()" style="padding: 8px 16px; background: #475569; color: #fff; border-radius: 8px; border: none; cursor: pointer; font-weight: bold;">Làm mới trang</button>
             </div>
@@ -471,14 +531,14 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc) {
     });
 
     btnSkip.addEventListener('click', () => {
-        localStorage.setItem('kaiz_skip_update_version', remoteVersion);
-        sessionStorage.setItem(`kaiz_dismissed_session_${remoteVersion}`, 'true');
+        localStorage.setItem(`kaiz_skip_update_version_${currentBranch}`, remoteVersion);
+        sessionStorage.setItem(`kaiz_dismissed_session_${currentBranch}_${remoteVersion}`, 'true');
         overlay.remove();
-        if (targetWin.toastr) targetWin.toastr.info(`Đã bỏ qua thông báo cập nhật v${remoteVersion}. Bạn có thể kiểm tra lại trong cài đặt.`);
+        if (targetWin.toastr) targetWin.toastr.info(`Đã bỏ qua thông báo cập nhật v${remoteVersion} của nhánh ${currentBranch}.`);
     });
 
     btnClose.addEventListener('click', () => {
-        sessionStorage.setItem(`kaiz_dismissed_session_${remoteVersion}`, 'true');
+        sessionStorage.setItem(`kaiz_dismissed_session_${currentBranch}_${remoteVersion}`, 'true');
         overlay.remove();
     });
 }
