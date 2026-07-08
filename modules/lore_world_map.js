@@ -1,27 +1,26 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Graph) - v7.0 Ultimate Layout & Zero-Drift Engine
- * - Khắc phục triệt để lỗi "Kéo thả vị trí bị tự ý trôi đi / điều chỉnh lại" (Zero-Drift & Instant Lock):
- *   + Khi kéo thả node (`dragEnd`), tự động ghim chết tọa độ (`fixed: {x:true, y:true}`) vào localStorage. Nơi bạn thả chính là nơi địa điểm đứng yên vĩnh viễn!
- *   + Tối ưu hóa hiệu năng cực cao (60 FPS): Tự động tắt mô phỏng vật lý sau khi ổn định bố cục (`stabilized -> physics: false`), không gây tiêu tốn CPU/GPU ngầm.
- * - Bổ sung 3 Chế Độ Bố Cục Bản Đồ Đột Phá (Inspired by App Bản Đồ `index-14.js`):
- *   1. [🧱 Lưới Khu Vực (District Grid)]: Sắp xếp theo cột lưới chuẩn chỉ từng khu (Trung tâm phía trên, Phân khu ở giữa, Vùng nguy hiểm bên cạnh).
- *   2. [🌳 Phân Cấp Sơ Đồ (Hierarchical Tree)]: Bố cục cây trên xuống dưới, cực chuẩn cho tầng lầu, sơ đồ tổ chức, con đường di chuyển.
- *   3. [🌌 Lực Hấp Dẫn Tự Do (Organic Physics)]: Mô phỏng lực hút tự nhiên có ghim vị trí.
- * - Sửa lỗi khuất đỉnh Modal Cấu hình AI trên màn dọc, hiển thị Thẻ Đồ Họa Cao Cấp SVG 3D siêu mượt.
- * - Phiên bản: v1.3.0.2
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Map) - v8.0 Native App-Style Overhaul (v1.3.0.3)
+ * - Xóa bỏ hoàn toàn đồ thị vật lý trôi nổi (Vis.js Graph) gây khó chịu khi kéo thả & tối ưu kém.
+ * - Chuyển đổi 100% sang dạng trình bày chuẩn App Bản Đồ Điện Thoại (`index-14.js` Style):
+ *   1. [📱 Bố Cục Lưới & Đường Đi (`Interactive Grid & Roads`)]: Sắp xếp theo ô lưới gọn gàng (3x3 / 4x4) xen kẽ các đường giao thông (`road-horizontal`, `road-vertical`), 0% độ trễ, 60 FPS mượt mà.
+ *   2. [👥 Biểu Tượng Nhân Vật Tại Địa Điểm (`Character Avatar Pins`)]: Hiển thị avatar tròn thu nhỏ (`24x24px`) kèm ghim nhọn (`marker-pin`) ngay trên đầu ô địa điểm nơi nhân vật đang đứng/kiểm soát.
+ *   3. [🏢 Điều Hướng Phân Cấp Sâu (`Drill-down SubLocations`)]: Nhấp vào Khu Vực Lớn sẽ đi sâu vào các Phân Khu / Phòng nhỏ bên trong (`subLocations`). Có nút Trở về (`[⬅️ Trở lại]`) mượt mà.
+ *   4. [📋 Hộp Thoại Chi Tiết & Sự Kiện (`Location Popup`)]: Nhấp vào địa điểm cụ thể để xem toàn bộ mô tả, nhân vật hiện diện, mức độ an toàn và sự kiện.
+ *   5. [⚡ Tích hợp AI Quét Đa Thể Loại & Cấu Hình Model (`Universal AI Scan & Config`)]: Vẫn giữ nguyên sức mạnh AI tự động quét lịch sử chat dựng bản đồ theo đúng thể loại truyện kèm Tải danh sách Model.
+ * - Phiên bản: v1.3.0.3
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo module Bản Đồ Thế Giới v7.0 Ultimate Layout & Zero-Drift (v1.3.0.2)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.0 Native App-Style Overhaul (v1.3.0.3)...');
 
-    const MODULE_ID = 'lore_world_map_graph';
-    const MODULE_TITLE = 'Bản Đồ Thế Giới (Graph AI)';
-    const STORAGE_PREFIX = 'kaiz_lore_graph_map_';
+    const MODULE_ID = 'lore_world_map_app';
+    const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
+    const STORAGE_PREFIX = 'kaiz_lore_app_map_';
     const AI_CONFIG_KEY = 'kaiz_lore_graph_ai_config';
 
-    // ============ CẤU HÌNH AI & FETCH MODEL ============
+    // ============ CẤU HÌNH AI ============
     let aiConfig = {
         source: 'sillytavern', // 'sillytavern' | 'custom'
         customUrl: 'https://api.openai.com/v1/chat/completions',
@@ -41,128 +40,14 @@
         try { localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(aiConfig)); } catch (e) {}
     }
 
-    // ============ THEME PHỔ QUÁT ĐA THỂ LOẠI ============
-    const THEME = {
-        bg: 'radial-gradient(circle at 50% 50%, #1e1b4b 0%, #090d16 100%)',
-        panelBg: 'rgba(15, 23, 42, 0.94)',
-        border: 'rgba(192, 132, 252, 0.35)',
-        text: '#f8fafc',
-        edgeText: '#e2e8f0',
-        edgeLabelBg: 'rgba(15, 23, 42, 0.92)',
-        nodeCategories: {
-            major_hub: { label: '🏢 Trung tâm / Khu vực lớn', bg: '#4c1d95', border: '#c084fc', highlight: '#7c3aed', icon: '🏢', colorHex: '#a855f7' },
-            sub_location: { label: '📍 Phân khu / Phòng / Điểm cụ thể', bg: '#1e3a8a', border: '#60a5fa', highlight: '#2563eb', icon: '📍', colorHex: '#3b82f6' },
-            danger_zone: { label: '⚠️ Vùng nguy hiểm / Cấm địa / Tranh chấp', bg: '#881337', border: '#fb7185', highlight: '#e11d48', icon: '⚠️', colorHex: '#f43f5e' },
-            nature_or_open: { label: '🌿 Không gian mở / Thiên nhiên / Công cộng', bg: '#14532d', border: '#4ade80', highlight: '#16a34a', icon: '🌿', colorHex: '#10b981' },
-            secret_or_special: { label: '🔐 Khu vực bí mật / Đặc biệt / Mật thất', bg: '#78350f', border: '#fbd38d', highlight: '#d97706', icon: '🔐', colorHex: '#f59e0b' },
-            other: { label: '🏷️ Khác', bg: '#334155', border: '#94a3b8', highlight: '#475569', icon: '🏷️', colorHex: '#64748b' }
-        },
-        edgeRelations: {
-            physical_path: { label: '🚶 Đường nối liền / Hành lang / Cầu thang', color: '#818cf8', dashes: false, width: 2.5 },
-            transit_fast: { label: '⚡ Di chuyển nhanh / Thang máy / Phương tiện', color: '#c084fc', dashes: [8, 6], width: 3.0 },
-            restricted: { label: '🔒 Khóa / Cần thẻ hoặc điều kiện / Hạn chế', color: '#f43f5e', dashes: [4, 4], width: 2.8 },
-            connection: { label: '🔗 Liên kết chung / Kế bên', color: '#34d399', dashes: false, width: 2.3 }
-        }
-    };
-
+    // ============ DỮ LIỆU BẢN ĐỒ (HIERARCHICAL STRUCTURE) ============
+    // Cấu trúc chuẩn App Bản đồ: { locations: [ { id, name, icon, category, danger_level, controlled_by, context_type, description, status, characters: [], subLocations: [] } ] }
     let activeChatId = 'default_global_chat';
-    let mapData = { nodes: [], edges: [] };
-    let networkInstance = null;
-    let selectedNodeId = null;
-    let renderMode = 'premium_svg'; // 'premium_svg' | 'compact_glow'
-    let layoutMode = 'organic'; // 'organic' | 'district_grid' | 'hierarchical'
+    let mapData = { locations: [] };
+    let currentParentLocation = null; // null = trang chủ (danh sách khu vực lớn), object = đang ở trong subLocations của khu vực đó
+    let selectedDetailLocation = null; // để hiển thị Location Popup
 
     const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
-
-    function wrapText(text, maxLen = 22) {
-        if (!text || text.length <= maxLen) return text;
-        const words = text.split(' ');
-        let lines = [];
-        let curLine = '';
-        words.forEach(w => {
-            if ((curLine + w).length > maxLen) {
-                if (curLine) lines.push(curLine.trim());
-                curLine = w + ' ';
-            } else {
-                curLine += w + ' ';
-            }
-        });
-        if (curLine.trim()) lines.push(curLine.trim());
-        return lines.join('\n');
-    }
-
-    // ============ BỘ TẠO THẺ ĐỒ HỌA CAO CẤP (PREMIUM SVG NODE CARD) ============
-    function generateNodeSvgUrl(node, isSelected = false) {
-        const cat = THEME.nodeCategories[node.category] || THEME.nodeCategories.other;
-        const isDanger = node.danger_level && (
-            node.danger_level.toLowerCase().includes('nguy') ||
-            node.danger_level.toLowerCase().includes('cấm') ||
-            node.danger_level.toLowerCase().includes('tử') ||
-            node.danger_level.toLowerCase().includes('hỗn loạn') ||
-            node.danger_level.toLowerCase().includes('bạo động')
-        );
-
-        const borderColor = isSelected ? '#38bdf8' : (isDanger ? '#ef4444' : cat.colorHex);
-        const borderWidth = isSelected ? 3.5 : (isDanger ? 2.5 : 1.8);
-        const bgOpacity0 = isSelected ? '0.98' : '0.92';
-        const titleColor = isSelected ? '#38bdf8' : '#f8fafc';
-        
-        let badgeBg = isDanger ? '#7f1d1d' : '#1e293b';
-        let badgeColor = isDanger ? '#fca5a5' : '#93c5fd';
-        let badgeText = node.danger_level ? (node.danger_level.length > 15 ? node.danger_level.substring(0, 14) + '…' : node.danger_level) : 'An toàn';
-
-        const safeTitle = (node.label || 'Địa điểm').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const safeControlled = (node.controlled_by || 'Chung').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const safeType = (node.context_type || 'Khu vực').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-        let titleLine1 = safeTitle;
-        let titleLine2 = '';
-        if (safeTitle.length > 20) {
-            const idx = safeTitle.lastIndexOf(' ', 20);
-            if (idx !== -1) {
-                titleLine1 = safeTitle.substring(0, idx);
-                titleLine2 = safeTitle.substring(idx + 1);
-                if (titleLine2.length > 22) titleLine2 = titleLine2.substring(0, 20) + '…';
-            } else {
-                titleLine1 = safeTitle.substring(0, 20);
-                titleLine2 = safeTitle.substring(20, 40) + (safeTitle.length > 40 ? '…' : '');
-            }
-        }
-
-        const cardHeight = titleLine2 ? 116 : 98;
-        const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="280" height="${cardHeight}" viewBox="0 0 280 ${cardHeight}">
-            <defs>
-                <linearGradient id="grad_${node.id}" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#0f172a" stop-opacity="${bgOpacity0}" />
-                    <stop offset="100%" stop-color="#1e1b4b" stop-opacity="${bgOpacity0}" />
-                </linearGradient>
-                <filter id="shadow_${node.id}" x="-10%" y="-10%" width="125%" height="125%">
-                    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.75" />
-                </filter>
-            </defs>
-            <rect x="3" y="3" width="274" height="${cardHeight - 6}" rx="16" fill="url(#grad_${node.id})" stroke="${borderColor}" stroke-width="${borderWidth}" filter="url(#shadow_${node.id})" />
-            
-            <!-- Biểu tượng phân loại dạng Avatar tròn -->
-            <circle cx="34" cy="36" r="18" fill="${cat.colorHex}" fill-opacity="0.25" stroke="${cat.colorHex}" stroke-width="1.5" />
-            <text x="34" y="42" font-size="18" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">${cat.icon}</text>
-
-            <!-- Tiêu đề địa điểm -->
-            <text x="62" y="${titleLine2 ? '30' : '36'}" font-size="15" font-weight="bold" fill="${titleColor}" font-family="-apple-system, Inter, sans-serif">${titleLine1}</text>
-            ${titleLine2 ? `<text x="62" y="48" font-size="14" font-weight="bold" fill="${titleColor}" font-family="-apple-system, Inter, sans-serif">${titleLine2}</text>` : ''}
-
-            <!-- Huy hiệu Trạng Thái / Mức An Toàn -->
-            <rect x="62" y="${titleLine2 ? '58' : '48'}" width="120" height="20" rx="6" fill="${badgeBg}" stroke="${badgeColor}" stroke-width="0.8" />
-            <text x="122" y="${titleLine2 ? '72' : '62'}" font-size="11" font-weight="800" fill="${badgeColor}" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">${badgeText}</text>
-
-            <!-- Đường kẻ ngang phân cách info -->
-            <line x1="16" y1="${cardHeight - 28}" x2="264" y2="${cardHeight - 28}" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
-
-            <!-- Thông tin Lực lượng kiểm soát & Loại bối cảnh phía đáy -->
-            <text x="16" y="${cardHeight - 10}" font-size="11" fill="#94a3b8" font-family="-apple-system, Inter, sans-serif">🛡️ ${safeControlled.length > 15 ? safeControlled.substring(0, 14) + '…' : safeControlled} | 🏷️ ${safeType.length > 14 ? safeType.substring(0, 13) + '…' : safeType}</text>
-        </svg>`;
-
-        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
-    }
 
     function getActiveChatId() {
         try {
@@ -182,32 +67,138 @@
         const raw = localStorage.getItem(STORAGE_PREFIX + activeChatId);
         if (raw) {
             try {
-                mapData = JSON.parse(raw);
-                if (!Array.isArray(mapData.nodes)) mapData.nodes = [];
-                if (!Array.isArray(mapData.edges)) mapData.edges = [];
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed.locations)) {
+                    mapData = parsed;
+                } else if (Array.isArray(parsed.nodes)) {
+                    // Tự động chuyển đổi dữ liệu từ bản graph cũ sang chuẩn App Lưới
+                    mapData = convertGraphToGridApp(parsed);
+                    saveMapData();
+                } else {
+                    mapData = { locations: [] };
+                }
             } catch (e) {
-                mapData = { nodes: [], edges: [] };
+                mapData = { locations: [] };
             }
         } else {
+            // Thử kiểm tra xem có dữ liệu graph cũ không để chuyển sang
+            const oldRaw = localStorage.getItem('kaiz_lore_graph_map_' + activeChatId);
+            if (oldRaw) {
+                try {
+                    const oldParsed = JSON.parse(oldRaw);
+                    if (Array.isArray(oldParsed.nodes) && oldParsed.nodes.length > 0) {
+                        mapData = convertGraphToGridApp(oldParsed);
+                        saveMapData();
+                        updateUI();
+                        return;
+                    }
+                } catch (e) {}
+            }
+
             mapData = {
-                nodes: [
+                locations: [
                     {
-                        id: 'start_node',
-                        label: 'Khu Vực Khởi Đầu',
+                        id: 'loc_start',
+                        name: 'Khu Vực Khởi Đầu',
+                        icon: 'fa-building',
                         category: 'major_hub',
                         context_type: 'Khu vực chính',
                         danger_level: 'An toàn bình thường',
                         controlled_by: 'Chung / Không rõ',
-                        features: 'Nơi câu chuyện và các nhân vật bắt đầu hội thoại.',
                         status: 'Hoạt động bình thường',
-                        description: 'Địa điểm khởi điểm của cuộc trò chuyện trong phòng chat này.'
+                        description: 'Địa điểm xuất phát của câu chuyện trong phòng chat này. Nhấp vào đây để xem chi tiết hoặc thêm phân khu con bên trong.',
+                        characters: ['Tôi', 'Nhân vật chính'],
+                        subLocations: [
+                            {
+                                id: 'sub_room_1',
+                                name: 'Phòng Chính / Trung Tâm',
+                                icon: 'fa-door-open',
+                                category: 'sub_location',
+                                context_type: 'Phòng / Phân khu',
+                                danger_level: 'An toàn',
+                                controlled_by: 'Chung',
+                                status: 'Bình thường',
+                                description: 'Gian phòng chính nơi các cuộc trò chuyện thường xuyên diễn ra.',
+                                characters: ['Tôi'],
+                                subLocations: []
+                            }
+                        ]
                     }
-                ],
-                edges: []
+                ]
             };
             saveMapData();
         }
         updateUI();
+    }
+
+    function convertGraphToGridApp(graphData) {
+        let locations = [];
+        const nodes = graphData.nodes || [];
+        const edges = graphData.edges || [];
+
+        // Lọc các major_hub làm cha
+        const hubs = nodes.filter(n => n.category === 'major_hub' || !n.category);
+        const subs = nodes.filter(n => n.category !== 'major_hub');
+
+        if (hubs.length === 0 && nodes.length > 0) {
+            hubs.push(nodes[0]);
+        }
+
+        hubs.forEach(h => {
+            locations.push({
+                id: h.id || ('loc_' + Math.random().toString(36).substr(2, 6)),
+                name: h.label || 'Khu Vực',
+                icon: getIconForCategory(h.category),
+                category: h.category || 'major_hub',
+                context_type: h.context_type || 'Khu vực',
+                danger_level: h.danger_level || 'An toàn',
+                controlled_by: h.controlled_by || 'Chung',
+                status: h.status || 'Bình thường',
+                description: h.description || '',
+                characters: h.controlled_by && h.controlled_by !== 'Chung' ? [h.controlled_by] : [],
+                subLocations: []
+            });
+        });
+
+        // Đưa các sub_location vào subLocations của hub tương ứng (hoặc hub đầu tiên)
+        subs.forEach(s => {
+            const locObj = {
+                id: s.id || ('sub_' + Math.random().toString(36).substr(2, 6)),
+                name: s.label || 'Phân Khu',
+                icon: getIconForCategory(s.category),
+                category: s.category || 'sub_location',
+                context_type: s.context_type || 'Phân khu',
+                danger_level: s.danger_level || 'An toàn',
+                controlled_by: s.controlled_by || 'Chung',
+                status: s.status || 'Bình thường',
+                description: s.description || '',
+                characters: s.controlled_by && s.controlled_by !== 'Chung' ? [s.controlled_by] : [],
+                subLocations: []
+            };
+
+            // Tìm xem có edge nào nối với hub không
+            const parentEdge = edges.find(e => (e.from === s.id || e.to === s.id) && hubs.some(h => h.id === e.from || h.id === e.to));
+            let parentHubId = parentEdge ? (hubs.find(h => h.id === parentEdge.from || h.id === parentEdge.to)?.id) : (locations[0]?.id);
+            let parentLoc = locations.find(l => l.id === parentHubId) || locations[0];
+            if (parentLoc) {
+                parentLoc.subLocations.push(locObj);
+            } else {
+                locations.push(locObj);
+            }
+        });
+
+        return { locations };
+    }
+
+    function getIconForCategory(cat) {
+        switch (cat) {
+            case 'major_hub': return 'fa-building';
+            case 'sub_location': return 'fa-location-dot';
+            case 'danger_zone': return 'fa-triangle-exclamation';
+            case 'nature_or_open': return 'fa-tree';
+            case 'secret_or_special': return 'fa-key';
+            default: return 'fa-map-pin';
+        }
     }
 
     function saveMapData() {
@@ -215,14 +206,34 @@
         try { localStorage.setItem(STORAGE_PREFIX + activeChatId, JSON.stringify(mapData)); } catch (e) {}
     }
 
+    function getCharacterAvatar(charName) {
+        if (!charName) return '';
+        try {
+            const win = window.parent || window;
+            if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
+                const ctx = win.SillyTavern.getContext();
+                if (ctx && ctx.characters) {
+                    const found = ctx.characters.find(c => c && (c.name === charName || charName.includes(c.name)));
+                    if (found && found.avatar) {
+                        return `/characters/${encodeURIComponent(found.avatar)}`;
+                    }
+                }
+            }
+        } catch (e) {}
+        // Avatar ngẫu nhiên theo tên nếu không tìm thấy
+        const hash = Array.from(charName).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const colors = ['#38bdf8', '#a855f7', '#f43f5e', '#10b981', '#f59e0b', '#6366f1'];
+        return { isText: true, text: charName.substring(0, 2).toUpperCase(), bg: colors[hash % colors.length] };
+    }
+
     const doc = (window.parent && window.parent.document) || document;
 
     function injectStyles() {
-        if (doc.getElementById('lore-world-map-styles-v7')) return;
+        if (doc.getElementById('lore-world-map-app-styles-v8')) return;
         const style = doc.createElement('style');
-        style.id = 'lore-world-map-styles-v7';
+        style.id = 'lore-world-map-app-styles-v8';
         style.innerHTML = `
-            #lore_graph_modal_overlay {
+            #lore_app_modal_overlay {
                 position: fixed;
                 inset: 0;
                 width: 100vw;
@@ -237,29 +248,29 @@
                 box-sizing: border-box;
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
             }
-            #lore_graph_modal_content {
+            #lore_app_modal_content {
                 width: 100%;
-                max-width: 1440px;
+                max-width: 1300px;
                 height: 94vh;
-                border-radius: 20px;
-                box-shadow: 0 25px 65px rgba(0,0,0,0.85);
+                border-radius: 22px;
+                box-shadow: 0 25px 70px rgba(0,0,0,0.9);
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
                 position: relative;
-                background: ${THEME.bg};
-                border: 1px solid ${THEME.border};
-                color: ${THEME.text};
+                background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090d16 100%);
+                border: 1px solid rgba(192, 132, 252, 0.35);
+                color: #f8fafc;
             }
             
             /* ============ HEADER TOOLBAR RESPONSIVE ============ */
-            #lore_graph_header {
-                min-height: 60px;
+            #lore_app_header {
+                min-height: 64px;
                 border-bottom: 1px solid rgba(255,255,255,0.15);
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 8px 16px;
+                padding: 10px 18px;
                 flex-shrink: 0;
                 background: rgba(0,0,0,0.65);
                 gap: 12px;
@@ -268,7 +279,7 @@
             .lore-header-left {
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 12px;
             }
             .lore-header-actions {
                 display: flex;
@@ -276,117 +287,8 @@
                 gap: 8px;
                 flex-wrap: wrap;
             }
-            .lore-search-box {
-                display: flex;
-                align-items: center;
-                background: rgba(0,0,0,0.45);
-                border: 1px solid rgba(255,255,255,0.22);
-                border-radius: 10px;
-                padding: 4px 10px;
-            }
-            .lore-search-box input {
-                background: transparent;
-                border: none;
-                color: #fff;
-                font-size: 0.88em;
-                width: 135px;
-                outline: none;
-                padding: 2px 0;
-            }
-
-            /* ============ MAIN CONTAINER FLEXBOX CHUẨN XÁC ============ */
-            #lore_main_container {
-                flex: 1 1 0%;
-                display: flex;
-                flex-direction: row;
-                overflow: hidden;
-                position: relative;
-                width: 100%;
-            }
-            #lore_graph_viewport {
-                flex: 1 1 0%;
-                height: 100%;
-                position: relative;
-                min-width: 0;
-                min-height: 0;
-            }
-            #lore_graph_inspector {
-                width: 400px;
-                height: 100%;
-                background: rgba(15, 23, 42, 0.96);
-                border-left: 1px solid rgba(255,255,255,0.15);
-                padding: 16px;
-                box-sizing: border-box;
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                flex-shrink: 0;
-                z-index: 5;
-            }
-
-            /* ============ CSS MEDIA QUERY CHO MÀN HÌNH DỌC / HẸP (< 880px) ============ */
-            @media (max-width: 880px) {
-                #lore_graph_header {
-                    flex-direction: column;
-                    align-items: stretch;
-                    padding: 10px 12px;
-                    gap: 10px;
-                    max-height: 38vh;
-                    overflow-y: auto;
-                }
-                .lore-header-left {
-                    width: 100%;
-                    justify-content: space-between;
-                }
-                .lore-header-actions {
-                    width: 100%;
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 6px;
-                }
-                .lore-search-box {
-                    flex: 1 1 100%;
-                    width: 100%;
-                    box-sizing: border-box;
-                }
-                .lore-search-box input {
-                    width: 100%;
-                }
-                .lore-header-actions .lore-btn {
-                    flex: 1 1 auto;
-                    justify-content: center;
-                    padding: 7px 10px;
-                    font-size: 0.82em;
-                }
-
-                #lore_main_container {
-                    flex-direction: column !important;
-                }
-                #lore_graph_viewport {
-                    flex: 0 0 54% !important;
-                    height: 54% !important;
-                    width: 100% !important;
-                    border-bottom: 2px solid rgba(56, 189, 248, 0.4);
-                }
-                #lore_graph_inspector {
-                    flex: 1 1 auto !important;
-                    height: 46% !important;
-                    width: 100% !important;
-                    max-height: 46% !important;
-                    border-left: none !important;
-                    padding: 14px !important;
-                }
-                .lore-control-dock {
-                    bottom: 10px !important;
-                    right: 10px !important;
-                    transform: scale(0.9);
-                    transform-origin: bottom right;
-                }
-            }
-
             .lore-btn {
-                padding: 8px 13px;
+                padding: 8px 14px;
                 border-radius: 10px;
                 border: none;
                 font-weight: 700;
@@ -403,75 +305,218 @@
             .lore-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124, 58, 237, 0.6); }
             .lore-btn-success { background: linear-gradient(135deg, #059669, #10b981); }
             .lore-btn-danger { background: linear-gradient(135deg, #e11d48, #f43f5e); }
-            .lore-btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); color: #e2e8f0; }
+            .lore-btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #e2e8f0; }
             .lore-btn-secondary:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255,255,255,0.35); }
             
-            .lore-input {
-                padding: 8px 11px;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.18);
-                background: rgba(0,0,0,0.45);
-                color: #fff;
-                font-size: 0.88em;
-                outline: none;
-            }
-            .lore-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
-            
-            .lore-control-dock {
-                position: absolute;
-                bottom: 18px;
-                right: 18px;
-                z-index: 100;
+            /* ============ MAIN VIEWPORT & GRID APP STYLE (index-14.js Style) ============ */
+            #lore_app_viewport {
+                flex: 1 1 0%;
                 display: flex;
-                gap: 6px;
-                background: rgba(15, 23, 42, 0.92);
-                padding: 6px;
-                border-radius: 14px;
-                border: 1px solid rgba(255, 255, 255, 0.18);
-                backdrop-filter: blur(8px);
-                box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+                flex-direction: column;
+                overflow-y: auto;
+                padding: 22px;
+                position: relative;
+                box-sizing: border-box;
             }
-            .lore-dock-btn {
-                width: 36px;
-                height: 36px;
-                border-radius: 10px;
+            .lore-breadcrumb {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 20px;
                 background: rgba(255,255,255,0.06);
-                border: 1px solid rgba(255,255,255,0.08);
-                color: #e2e8f0;
+                padding: 10px 16px;
+                border-radius: 14px;
+                border: 1px solid rgba(255,255,255,0.12);
+                font-size: 0.95em;
+                font-weight: bold;
+                flex-shrink: 0;
+            }
+            .lore-breadcrumb-btn {
+                background: rgba(56, 189, 248, 0.2);
+                color: #38bdf8;
+                border: 1px solid rgba(56, 189, 248, 0.4);
+                padding: 5px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.15s;
+                font-size: 0.88em;
+            }
+            .lore-breadcrumb-btn:hover { background: rgba(56, 189, 248, 0.35); transform: scale(1.02); }
+
+            /* BỐ CỤC LƯỚI & ĐƯỜNG ĐI CHUẨN APP BẢN ĐỒ */
+            .lore-grid-container {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                max-width: 1050px;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .lore-grid-row {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 18px;
+                position: relative;
+            }
+            @media (max-width: 880px) {
+                #lore_app_header { flex-direction: column; align-items: stretch; max-height: 38vh; overflow-y: auto; gap: 10px; }
+                .lore-header-left { justify-content: space-between; width: 100%; }
+                .lore-header-actions { width: 100%; display: flex; flex-wrap: wrap; gap: 6px; }
+                .lore-header-actions .lore-btn { flex: 1 1 auto; justify-content: center; }
+                .lore-grid-row { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
+            }
+            @media (max-width: 520px) {
+                .lore-grid-row { grid-template-columns: 1fr !important; }
+            }
+
+            .location-button {
+                min-height: 140px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                background: linear-gradient(145deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.96));
+                border: 2px solid rgba(148, 163, 184, 0.35);
+                border-radius: 16px;
+                padding: 16px 12px;
+                cursor: pointer;
+                transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+                color: #f8fafc;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+                overflow: visible;
+            }
+            .location-button:hover {
+                transform: translateY(-4px) scale(1.02);
+                border-color: #38bdf8;
+                box-shadow: 0 15px 35px rgba(56, 189, 248, 0.25);
+                background: linear-gradient(145deg, rgba(30, 41, 59, 0.98), rgba(30, 58, 138, 0.4));
+            }
+            .location-button.hub-button { border-color: #c084fc; background: linear-gradient(145deg, rgba(46, 16, 101, 0.65), rgba(15, 23, 42, 0.95)); }
+            .location-button.hub-button:hover { border-color: #e9d5ff; box-shadow: 0 15px 35px rgba(192, 132, 252, 0.3); }
+            .location-button.danger-button { border-color: #fb7185; background: linear-gradient(145deg, rgba(136, 19, 55, 0.65), rgba(15, 23, 42, 0.95)); }
+            .location-button.danger-button:hover { border-color: #fca5a5; box-shadow: 0 15px 35px rgba(251, 113, 133, 0.3); }
+            
+            .location-button.empty-location {
+                background: rgba(15, 23, 42, 0.4);
+                border: 2px dashed rgba(148, 163, 184, 0.25);
+                color: #64748b;
+                cursor: default;
+                box-shadow: none;
+            }
+            .location-button.empty-location:hover { transform: none; border-color: rgba(148, 163, 184, 0.25); background: rgba(15, 23, 42, 0.4); box-shadow: none; }
+
+            .location-button > i { font-size: 28px; margin-bottom: 8px; color: #38bdf8; z-index: 1; transition: transform 0.2s; }
+            .location-button.hub-button > i { color: #c084fc; }
+            .location-button.danger-button > i { color: #fb7185; }
+            .location-button:hover > i { transform: scale(1.15); }
+            
+            .location-button > .loc-name { font-weight: 800; font-size: 1.05em; z-index: 1; line-height: 1.3; max-width: 100%; word-break: break-word; color: #f8fafc; }
+            .location-button > .loc-sub-count { font-size: 0.78em; color: #93c5fd; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 8px; margin-top: 6px; border: 1px solid rgba(59, 130, 246, 0.4); }
+
+            /* MARKER NHÂN VẬT STANDING TRÊN ĐỊA ĐIỂM (Chuẩn index-14.js) */
+            .character-markers {
+                position: absolute;
+                top: -16px;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: center;
+                gap: 6px;
+                pointer-events: auto;
+                z-index: 5;
+            }
+            .character-marker {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                cursor: pointer;
+                transition: transform 0.2s ease;
+                filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+            }
+            .character-marker:hover { transform: scale(1.2) translateY(-2px); z-index: 10; }
+            .character-marker-avatar {
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                border: 2px solid #38bdf8;
+                background-color: #0f172a;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                cursor: pointer;
-                font-size: 1.1em;
-                transition: all 0.15s;
-            }
-            .lore-dock-btn:hover { background: rgba(56, 189, 248, 0.25); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); transform: scale(1.06); }
-            
-            .lore-badge {
-                padding: 3px 8px;
-                border-radius: 6px;
-                font-size: 0.78em;
+                font-size: 11px;
                 font-weight: 800;
-                text-transform: uppercase;
-                display: inline-block;
+                color: #fff;
+                overflow: hidden;
             }
-            .badge-safe { background: rgba(34, 197, 94, 0.18); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-            .badge-warn { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-            .badge-danger { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-            @keyframes lorePulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(168, 85, 247, 0.8); }
-                100% { transform: scale(1); }
+            .character-marker-avatar img { width: 100%; height: 100%; object-fit: cover; }
+            .marker-pin {
+                width: 0;
+                height: 0;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 6px solid #38bdf8;
+                margin-top: -1px;
             }
-            .lore-ai-loading { animation: lorePulse 1.2s infinite ease-in-out; }
-            
-            /* ============ MODAL CÀI ĐẶT AI v7.0 (KHẮC PHỤC TRIỆT ĐỂ LỖI KHUẤT ĐỈNH) ============ */
+
+            /* ĐƯỜNG ĐI GIAO THÔNG GIỮA CÁC Ô (Roads) */
+            .road-horizontal {
+                height: 16px;
+                background: linear-gradient(90deg, rgba(56,189,248,0.1) 0%, rgba(56,189,248,0.3) 50%, rgba(56,189,248,0.1) 100%);
+                border-top: 1px dashed rgba(56,189,248,0.4);
+                border-bottom: 1px dashed rgba(56,189,248,0.4);
+                margin: 4px 0;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                color: #7dd3fc;
+                letter-spacing: 2px;
+            }
+            .road-vertical {
+                width: 16px;
+                background: linear-gradient(180deg, rgba(56,189,248,0.1) 0%, rgba(56,189,248,0.3) 50%, rgba(56,189,248,0.1) 100%);
+                border-left: 1px dashed rgba(56,189,248,0.4);
+                border-right: 1px dashed rgba(56,189,248,0.4);
+                margin: 0 auto;
+                border-radius: 4px;
+            }
+
+            /* MODAL CHI TIẾT ĐỊA ĐIỂM (Popup) */
+            #lore_location_detail_modal {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.85);
+                backdrop-filter: blur(10px);
+                z-index: 100000000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+            }
+            #lore_location_detail_box {
+                width: 100%;
+                max-width: 600px;
+                max-height: 88vh;
+                background: #0f172a;
+                border: 2px solid #38bdf8;
+                border-radius: 20px;
+                padding: 24px;
+                color: #fff;
+                box-shadow: 0 25px 60px rgba(0,0,0,0.95);
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                overflow-y: auto;
+                position: relative;
+            }
+
+            /* MODAL CÀI ĐẶT AI v8.0 */
             #lore_ai_config_modal {
                 position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
+                inset: 0;
                 background: rgba(0,0,0,0.88);
                 backdrop-filter: blur(12px);
                 z-index: 1000000000 !important;
@@ -479,7 +524,6 @@
                 align-items: center;
                 justify-content: center;
                 padding: 16px;
-                box-sizing: border-box;
             }
             #lore_ai_config_box {
                 width: 100%;
@@ -495,9 +539,23 @@
                 flex-direction: column;
                 gap: 14px;
                 overflow-y: auto;
-                box-sizing: border-box;
-                margin: auto;
             }
+            .lore-input {
+                padding: 8px 11px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.18);
+                background: rgba(0,0,0,0.45);
+                color: #fff;
+                font-size: 0.88em;
+                outline: none;
+            }
+            .lore-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+            @keyframes lorePulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(168, 85, 247, 0.8); }
+                100% { transform: scale(1); }
+            }
+            .lore-ai-loading { animation: lorePulse 1.2s infinite ease-in-out; }
         `;
         doc.head.appendChild(style);
     }
@@ -510,7 +568,7 @@
             icon: SVG_GLOBE_ICON,
             color: 'linear-gradient(135deg, #0284c7 0%, #7c3aed 100%)',
             order: 18,
-            onClick: () => toggleGraphModal()
+            onClick: () => toggleAppModal()
         };
 
         if (win.FloatingMenuManager && typeof win.FloatingMenuManager.registerButton === 'function') {
@@ -523,102 +581,116 @@
         }
     }
 
-    function createGraphModal() {
-        if (doc.getElementById('lore_graph_modal_overlay')) return;
+    function createAppModal() {
+        if (doc.getElementById('lore_app_modal_overlay')) return;
         loadAiConfig();
 
         const overlay = doc.createElement('div');
-        overlay.id = 'lore_graph_modal_overlay';
+        overlay.id = 'lore_app_modal_overlay';
         overlay.innerHTML = `
-            <div id="lore_graph_modal_content">
+            <div id="lore_app_modal_content">
                 <!-- Header Toolbar Responsive -->
-                <div id="lore_graph_header">
+                <div id="lore_app_header">
                     <div class="lore-header-left">
-                        <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 10px rgba(56,189,248,0.4); flex-shrink: 0;">
+                        <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 12px rgba(56,189,248,0.4); flex-shrink: 0;">
                             ${SVG_GLOBE_ICON}
                         </div>
                         <div>
-                            <div style="font-weight: 800; font-size: 1.05em; color: #f8fafc; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.2)</span>
-                                <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 địa điểm</span>
+                            <div style="font-weight: 800; font-size: 1.1em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span>BẢN ĐỒ THẾ GIỚI (v1.3.0.3)</span>
+                                <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 khu vực</span>
                                 <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
-                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px;">Chat ID: <span style="color: #c084fc;">...</span></div>
+                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px;">Chat ID: <span style="color: #c084fc;">...</span> | Chế độ Lưới & Phân Cấp Chuẩn App</div>
                         </div>
                     </div>
 
                     <div class="lore-header-actions">
-                        <div class="lore-search-box">
-                            <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 0.85em; margin-right: 6px;"></i>
-                            <input id="lore_search_input" type="text" placeholder="Tìm địa điểm...">
-                        </div>
-
-                        <!-- Nút chọn kiểu Bố Cục (Layout Switcher - lấy cảm hứng từ App Bản đồ index-14.js) -->
-                        <button id="lore_btn_change_layout" class="lore-btn lore-btn-secondary" style="border-color: #38bdf8; color: #7dd3fc;" title="Chuyển đổi bố cục: Lực hấp dẫn tự do (Organic) / Lưới Khu Vực (District Grid) / Phân cấp cây (Hierarchical)">
-                            <i class="fa-solid fa-compass"></i> 🧭 Bố Cục: Lực Hút
-                        </button>
-
-                        <!-- Nút đổi chế độ đồ họa -->
-                        <button id="lore_btn_toggle_view" class="lore-btn lore-btn-secondary" style="border-color: #a855f7; color: #e9d5ff;" title="Chuyển đổi giữa chế độ Thẻ Đồ Họa Cao Cấp (SVG 3D) và Đồ Thị Gọn">
-                            <i class="fa-solid fa-layer-group"></i> ✨ Thẻ Đồ Họa 3D
-                        </button>
-
-                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat để tự động thêm địa điểm & đường đi đúng bối cảnh truyện">
+                        <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat dựng bản đồ chính xác theo bối cảnh">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map
                         </button>
 
-                        <button id="lore_btn_add_node" class="lore-btn lore-btn-secondary" title="Thêm địa điểm thủ công">
-                            <i class="fa-solid fa-location-dot"></i> + Địa Điểm
+                        <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Thêm địa điểm vào khu vực đang xem">
+                            <i class="fa-solid fa-plus"></i> + Thêm Địa Điểm
                         </button>
 
-                        <button id="lore_btn_add_edge" class="lore-btn lore-btn-secondary" title="Nối đường giữa 2 địa điểm">
-                            <i class="fa-solid fa-route"></i> + Nối Đường
-                        </button>
-
-                        <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI (SillyTavern hoặc Custom API kèm tải danh sách Model)">
+                        <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI & Tải danh sách Model">
                             <i class="fa-solid fa-gear"></i> Cấu hình AI
                         </button>
 
-                        <button id="lore_btn_close_modal" class="lore-btn" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 8px 12px; font-size: 1.05em;" title="Đóng bản đồ">
+                        <button id="lore_btn_close_app" class="lore-btn" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 8px 12px; font-size: 1.05em;" title="Đóng bản đồ">
                             ✕
                         </button>
                     </div>
                 </div>
 
-                <!-- Main Container -->
-                <div id="lore_main_container">
-                    <div id="lore_graph_viewport">
-                        <div class="lore-control-dock">
-                            <button id="dock_btn_zoomin" class="lore-dock-btn" title="Phóng to">+</button>
-                            <button id="dock_btn_zoomout" class="lore-dock-btn" title="Thu nhỏ">-</button>
-                            <button id="dock_btn_fit" class="lore-dock-btn" title="Xem toàn cảnh"><i class="fa-solid fa-compress"></i></button>
-                            <button id="dock_btn_relayout" class="lore-dock-btn" title="Mở lại mô phỏng vật lý / Sắp xếp lại"><i class="fa-solid fa-rotate-right"></i></button>
-                        </div>
+                <!-- Viewport & Grid App -->
+                <div id="lore_app_viewport">
+                    <!-- Breadcrumb Header -->
+                    <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none;">
+                        <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Trở về Khu Vực Lớn</button>
+                        <span style="color: #64748b;">/</span>
+                        <span id="breadcrumb_current_name" style="color: #38bdf8; font-size: 1.05em;">Tên Phân Khu</span>
                     </div>
 
-                    <div id="lore_graph_inspector">
-                        <div style="font-weight: 800; font-size: 0.98em; color: #38bdf8; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-                            <span>🏷️ THÔNG TIN ĐỊA ĐIỂM</span>
-                            <span id="inspector_close_btn" style="cursor: pointer; color: #94a3b8; font-size: 1.1em;" title="Bỏ chọn">✕</span>
-                        </div>
-                        <div id="inspector_content" style="font-size: 0.9em; color: #cbd5e1; line-height: 1.6; display: flex; flex-direction: column; gap: 12px; flex: 1;">
-                            <!-- Nội dung nạp tự động -->
-                        </div>
+                    <!-- Lưới Địa Điểm & Đường Đi -->
+                    <div id="lore_grid_container" class="lore-grid-container">
+                        <!-- Nạp động -->
                     </div>
                 </div>
             </div>
 
-            <!-- MODAL CÀI ĐẶT AI v7.0 -->
+            <!-- MODAL CHI TIẾT ĐỊA ĐIỂM -->
+            <div id="lore_location_detail_modal">
+                <div id="lore_location_detail_box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i id="det_icon" class="fas fa-building" style="font-size: 1.5em; color: #38bdf8;"></i>
+                            <span id="det_name" style="font-size: 1.25em; font-weight: 800; color: #f8fafc;">Tên địa điểm</span>
+                        </div>
+                        <span id="det_close" style="cursor: pointer; color: #f87171; font-size: 1.2em; padding: 4px 8px;">✕</span>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span id="det_category_badge" style="padding: 4px 10px; border-radius: 8px; background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(168,85,247,0.4);">🏢 Khu vực lớn</span>
+                        <span id="det_danger_badge" style="padding: 4px 10px; border-radius: 8px; background: rgba(34,197,94,0.2); color: #4ade80; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(34,197,94,0.4);">🛡️ An toàn</span>
+                        <span id="det_type_badge" style="padding: 4px 10px; border-radius: 8px; background: rgba(59,130,246,0.2); color: #93c5fd; font-size: 0.82em; font-weight: bold; border: 1px solid rgba(59,130,246,0.4);">🏷️ Khu vực</span>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">👥 Nhân vật kiểm soát / Hiện diện</div>
+                        <div id="det_characters" style="font-size: 0.95em; color: #38bdf8; font-weight: bold;">Chung / Không rõ</div>
+                    </div>
+
+                    <div>
+                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">📜 Mô tả chi tiết & Sự Kiện</div>
+                        <div id="det_description" style="font-size: 0.92em; color: #e2e8f0; line-height: 1.6; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; min-height: 60px; white-space: pre-wrap;">Không có mô tả.</div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 6px; justify-content: flex-end;">
+                        <button id="det_btn_edit" class="lore-btn lore-btn-primary" style="padding: 8px 16px;">
+                            <i class="fa-solid fa-pen"></i> Chỉnh Sửa
+                        </button>
+                        <button id="det_btn_enter_sub" class="lore-btn lore-btn-success" style="padding: 8px 16px; display: none;">
+                            <i class="fa-solid fa-door-open"></i> Vào Phân Khu Con
+                        </button>
+                        <button id="det_btn_delete" class="lore-btn lore-btn-danger" style="padding: 8px 16px;">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL CÀI ĐẶT AI v8.0 -->
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
-                    <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px; flex-shrink: 0;">
+                    <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
                         <span>🤖 CẤU HÌNH NGUỒN KẾT NỐI AI</span>
                         <span id="ai_cfg_close" style="cursor: pointer; color: #f87171; font-size: 1.1em;">✕</span>
                     </div>
 
                     <div style="font-size: 0.85em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.25);">
-                        ℹ️ <b>Thiết kế Đa Thể Loại (Universal):</b> Bản đồ tự tương ứng 100% mọi bối cảnh truyện (Học đường, Sci-Fi, Tu tiên, Horror...).<br>
-                        Mặc định dùng model của SillyTavern. Bạn có thể chuyển sang Custom API và bấm nút tải danh sách Model bên dưới!
+                        ℹ️ <b>App Lưới Đa Thể Loại:</b> Tự động nhận diện bối cảnh truyện để xây dựng lưới khu vực và phân khu chính xác (Học đường, Tu tiên, Sci-Fi, Horror...).
                     </div>
 
                     <div>
@@ -636,7 +708,7 @@
                         </div>
                         <div>
                             <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">API Key</label>
-                            <input id="cfg_key" type="password" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" placeholder="sk-....... (Để trống nếu dùng local Ollama/Kobold)">
+                            <input id="cfg_key" type="password" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" placeholder="sk-.......">
                         </div>
                         <div>
                             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
@@ -662,7 +734,7 @@
                         </select>
                     </div>
 
-                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; flex-shrink: 0;">
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
                         <button id="ai_cfg_save" class="lore-btn lore-btn-success" style="padding: 10px 20px;">
                             <i class="fa-solid fa-check"></i> Lưu Cấu Hình AI
                         </button>
@@ -672,36 +744,48 @@
         `;
         doc.body.appendChild(overlay);
 
-        overlay.querySelector('#lore_btn_close_modal').addEventListener('click', () => overlay.style.display = 'none');
-        overlay.querySelector('#inspector_close_btn').addEventListener('click', () => {
-            selectedNodeId = null;
-            renderInspector();
-            if (networkInstance && typeof networkInstance.unselectAll === 'function') networkInstance.unselectAll();
+        overlay.querySelector('#lore_btn_close_app').addEventListener('click', () => overlay.style.display = 'none');
+        overlay.querySelector('#btn_back_parent').addEventListener('click', () => {
+            currentParentLocation = null;
+            renderAppGrid();
         });
 
-        // Chuyển đổi chế độ Bố Cục (Layout Mode - inspired by App Bản đồ index-14.js)
-        const btnChangeLayout = overlay.querySelector('#lore_btn_change_layout');
-        btnChangeLayout.addEventListener('click', () => {
-            if (layoutMode === 'organic') {
-                layoutMode = 'district_grid';
-                btnChangeLayout.innerHTML = `<i class="fa-solid fa-table-cells-large"></i> 🧱 Bố Cục: Lưới Khu Vực`;
-            } else if (layoutMode === 'district_grid') {
-                layoutMode = 'hierarchical';
-                btnChangeLayout.innerHTML = `<i class="fa-solid fa-sitemap"></i> 🌳 Bố Cục: Sơ Đồ Cây`;
+        // Xử lý nút Thêm Địa Điểm
+        overlay.querySelector('#lore_btn_add_location').addEventListener('click', () => {
+            const name = prompt('Nhập tên địa điểm/phân khu mới:', 'Phòng / Khu Vực Mới');
+            if (!name || !name.trim()) return;
+            const contextType = prompt('Loại địa điểm theo bối cảnh (VD: Phòng học, Trạm vũ trụ, Quán ăn, Động phủ...):', currentParentLocation ? 'Phân khu' : 'Khu vực lớn') || 'Khu vực';
+            const danger = prompt('Mức độ an toàn / rủi ro tại đây:', 'An toàn bình thường') || 'An toàn';
+            const controlled = prompt('Nhân vật nào đang đứng tại hoặc quản lý nơi này? (Nhập tên để hiện Avatar):', 'Tôi') || 'Chung';
+            const desc = prompt('Mô tả chi tiết hoặc sự kiện diễn ra tại đây:', 'Một địa điểm vừa được thêm vào bản đồ.') || '';
+
+            const newLoc = {
+                id: 'loc_' + Date.now(),
+                name: name.trim(),
+                icon: currentParentLocation ? 'fa-door-open' : 'fa-building',
+                category: currentParentLocation ? 'sub_location' : 'major_hub',
+                context_type: contextType.trim(),
+                danger_level: danger.trim(),
+                controlled_by: controlled.trim(),
+                status: 'Bình thường',
+                description: desc.trim(),
+                characters: controlled && controlled !== 'Chung' ? controlled.split(',').map(c => c.trim()) : [],
+                subLocations: []
+            };
+
+            if (currentParentLocation) {
+                currentParentLocation.subLocations = currentParentLocation.subLocations || [];
+                currentParentLocation.subLocations.push(newLoc);
             } else {
-                layoutMode = 'organic';
-                btnChangeLayout.innerHTML = `<i class="fa-solid fa-compass"></i> 🧭 Bố Cục: Lực Hút`;
+                mapData.locations.push(newLoc);
             }
-            // Mở lại physics hoặc tính toán tọa độ lưới
-            applyLayoutMode();
+            saveMapData();
+            renderAppGrid();
         });
 
-        // Chuyển đổi chế độ đồ họa
-        const btnToggleView = overlay.querySelector('#lore_btn_toggle_view');
-        btnToggleView.addEventListener('click', () => {
-            renderMode = renderMode === 'premium_svg' ? 'compact_glow' : 'premium_svg';
-            btnToggleView.innerHTML = renderMode === 'premium_svg' ? `<i class="fa-solid fa-layer-group"></i> ✨ Thẻ Đồ Họa 3D` : `<i class="fa-solid fa-circle-dot"></i> 🔮 Đồ Thị Gọn`;
-            renderNetwork();
+        // Xử lý AI Quét Map
+        overlay.querySelector('#lore_btn_ai_scan').addEventListener('click', async () => {
+            await triggerAiWorldScan();
         });
 
         // Xử lý Cài đặt AI & Fetch Model
@@ -739,23 +823,16 @@
         btnFetchModels.addEventListener('click', async () => {
             let url = overlay.querySelector('#cfg_url').value.trim();
             const key = overlay.querySelector('#cfg_key').value.trim();
-            if (!url) {
-                alert('Vui lòng nhập API Endpoint URL trước!');
-                return;
-            }
+            if (!url) { alert('Vui lòng nhập API Endpoint URL trước!'); return; }
 
             btnFetchModels.disabled = true;
             btnFetchModels.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang tải...`;
 
             try {
                 let modelsUrl = url;
-                if (modelsUrl.endsWith('/chat/completions')) {
-                    modelsUrl = modelsUrl.replace('/chat/completions', '/models');
-                } else if (modelsUrl.endsWith('/v1')) {
-                    modelsUrl = modelsUrl + '/models';
-                } else if (!modelsUrl.endsWith('/models')) {
-                    modelsUrl = modelsUrl.replace(/\/+$/, '') + '/models';
-                }
+                if (modelsUrl.endsWith('/chat/completions')) modelsUrl = modelsUrl.replace('/chat/completions', '/models');
+                else if (modelsUrl.endsWith('/v1')) modelsUrl = modelsUrl + '/models';
+                else if (!modelsUrl.endsWith('/models')) modelsUrl = modelsUrl.replace(/\/+$/, '') + '/models';
 
                 const headers = { 'Content-Type': 'application/json' };
                 if (key) headers['Authorization'] = `Bearer ${key}`;
@@ -769,19 +846,16 @@
                 else if (data && Array.isArray(data.models)) list = data.models.map(m => m.id || m.name || m).filter(Boolean);
                 else if (Array.isArray(data)) list = data.map(m => m.id || m.name || String(m)).filter(Boolean);
 
-                if (list.length === 0) {
-                    throw new Error('API trả về nhưng không tìm thấy danh sách model hợp lệ!');
-                }
+                if (list.length === 0) throw new Error('Không tìm thấy danh sách model hợp lệ từ API!');
 
                 modelSelect.innerHTML = list.map(m => `<option value="${m}" ${m === modelInput.value ? 'selected' : ''}>${m}</option>`).join('');
                 modelSelect.style.display = 'block';
                 modelInput.style.width = '160px';
                 if (list[0] && !modelInput.value) modelInput.value = list[0];
-
                 modelSelect.onchange = () => { modelInput.value = modelSelect.value; };
-                alert(`🎉 Đã tải thành công ${list.length} model! Bạn có thể chọn ngay ở danh sách bên cạnh.`);
+                alert(`🎉 Đã tải thành công ${list.length} model!`);
             } catch (err) {
-                alert('⚠️ Lỗi khi tải danh sách Model: ' + err.message + '\nBạn vẫn có thể gõ trực tiếp tên model vào ô.');
+                alert('⚠️ Lỗi tải model: ' + err.message);
             } finally {
                 btnFetchModels.disabled = false;
                 btnFetchModels.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Tải danh sách Model`;
@@ -800,138 +874,43 @@
             alert('Đã lưu cấu hình AI!');
         });
 
-        overlay.querySelector('#dock_btn_zoomin').addEventListener('click', () => {
-            if (networkInstance && typeof networkInstance.getScale === 'function') {
-                networkInstance.moveTo({ scale: networkInstance.getScale() * 1.3, animation: { duration: 300 } });
-            }
-        });
-        overlay.querySelector('#dock_btn_zoomout').addEventListener('click', () => {
-            if (networkInstance && typeof networkInstance.getScale === 'function') {
-                networkInstance.moveTo({ scale: networkInstance.getScale() * 0.75, animation: { duration: 300 } });
-            }
-        });
-        overlay.querySelector('#dock_btn_fit').addEventListener('click', () => {
-            if (networkInstance && typeof networkInstance.fit === 'function') {
-                networkInstance.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-            }
-        });
-        overlay.querySelector('#dock_btn_relayout').addEventListener('click', () => {
-            if (networkInstance) {
-                // Xóa ghim tọa độ cũ và bật lại physics mô phỏng
-                mapData.nodes.forEach(n => { delete n.x; delete n.y; });
-                saveMapData();
-                applyLayoutMode(true);
-            }
-        });
+        // Xử lý Modal Chi Tiết
+        const detModal = overlay.querySelector('#lore_location_detail_modal');
+        overlay.querySelector('#det_close').addEventListener('click', () => detModal.style.display = 'none');
 
-        overlay.querySelector('#lore_btn_add_node').addEventListener('click', () => {
-            const name = prompt('Nhập tên địa điểm mới:', 'Khu Vực / Điểm Mới');
-            if (!name || !name.trim()) return;
-            const category = prompt('Phân loại (major_hub / sub_location / danger_zone / nature_or_open / secret_or_special):', 'sub_location') || 'sub_location';
-            const contextType = prompt('Loại địa điểm theo bối cảnh (VD: Phòng học, Trạm vũ trụ, Quán ăn, Cấm địa...):', 'Khu vực') || 'Khu vực';
-            const danger = prompt('Mức độ an toàn / rủi ro tại đây:', 'An toàn bình thường') || 'An toàn bình thường';
-            const controlled = prompt('Ai hoặc tổ chức nào kiểm soát nơi này?', 'Chung / Không rõ') || 'Chung';
-            const features = prompt('Đặc điểm nổi bật / Tài nguyên / Chức năng tại đây:', 'Không có') || '';
-            const desc = prompt('Mô tả chi tiết hoặc sự kiện xảy ra tại địa điểm này:', 'Một địa điểm vừa được ghi nhận.') || '';
-
-            const id = 'node_' + Date.now();
-            mapData.nodes.push({
-                id,
-                label: name.trim(),
-                category: category.trim(),
-                context_type: contextType.trim(),
-                danger_level: danger.trim(),
-                controlled_by: controlled.trim(),
-                features: features.trim(),
-                status: 'Hoạt động bình thường',
-                description: desc.trim()
-            });
+        overlay.querySelector('#det_btn_edit').addEventListener('click', () => {
+            if (!selectedDetailLocation) return;
+            const newName = prompt('Tên địa điểm:', selectedDetailLocation.name);
+            if (!newName || !newName.trim()) return;
+            selectedDetailLocation.name = newName.trim();
+            selectedDetailLocation.context_type = prompt('Loại địa điểm:', selectedDetailLocation.context_type || 'Khu vực') || 'Khu vực';
+            selectedDetailLocation.controlled_by = prompt('Nhân vật đứng tại / kiểm soát:', selectedDetailLocation.controlled_by || 'Chung') || 'Chung';
+            selectedDetailLocation.characters = selectedDetailLocation.controlled_by ? selectedDetailLocation.controlled_by.split(',').map(c => c.trim()).filter(Boolean) : [];
+            selectedDetailLocation.danger_level = prompt('Mức độ an toàn:', selectedDetailLocation.danger_level || 'An toàn') || 'An toàn';
+            selectedDetailLocation.description = prompt('Mô tả chi tiết:', selectedDetailLocation.description || '') || '';
             saveMapData();
-            renderNetwork();
-            selectNode(id);
+            detModal.style.display = 'none';
+            renderAppGrid();
         });
 
-        overlay.querySelector('#lore_btn_add_edge').addEventListener('click', () => {
-            if (mapData.nodes.length < 2) {
-                alert('Bạn cần có ít nhất 2 địa điểm trên bản đồ để tạo kết nối!');
-                return;
-            }
-            const nodeListStr = mapData.nodes.map(n => `${n.id}: ${n.label}`).join('\n');
-            const fromId = prompt(`Nhập ID hoặc tên địa điểm XUẤT PHÁT:\n${nodeListStr}`, mapData.nodes[0].id);
-            if (!fromId) return;
-            const toId = prompt(`Nhập ID hoặc tên địa điểm ĐÍCH ĐẾN:\n${nodeListStr}`, mapData.nodes[1].id);
-            if (!toId || fromId === toId) return;
-
-            const nFrom = mapData.nodes.find(n => n.id === fromId || n.label.toLowerCase() === fromId.toLowerCase());
-            const nTo = mapData.nodes.find(n => n.id === toId || n.label.toLowerCase() === toId.toLowerCase());
-            if (!nFrom || !nTo) {
-                alert('Không tìm thấy địa điểm xuất phát hoặc đích đến hợp lệ!');
-                return;
-            }
-
-            const relType = prompt('Loại liên kết (physical_path: Đường bộ/hành lang / transit_fast: Thang máy/phương tiện / restricted: Cần thẻ/bị khóa / connection: Kế bên):', 'physical_path') || 'physical_path';
-            const label = prompt('Mô tả kết nối (VD: Cầu thang bộ, Thang máy số 2, Cánh cửa...):', 'Đường nối');
-            const dist = prompt('Khoảng cách hoặc thời gian (VD: 2 phút đi bộ, Kế bên, 10km...):', 'Gần') || '';
-
-            mapData.edges.push({
-                from: nFrom.id,
-                to: nTo.id,
-                label: label || '',
-                relation_type: ['physical_path', 'transit_fast', 'restricted', 'connection'].includes(relType) ? relType : 'physical_path',
-                distance: dist
-            });
-            saveMapData();
-            renderNetwork();
+        overlay.querySelector('#det_btn_enter_sub').addEventListener('click', () => {
+            if (!selectedDetailLocation) return;
+            detModal.style.display = 'none';
+            currentParentLocation = selectedDetailLocation;
+            renderAppGrid();
         });
 
-        overlay.querySelector('#lore_btn_ai_scan').addEventListener('click', async () => {
-            await triggerAiWorldScan();
-        });
-
-        const searchInput = overlay.querySelector('#lore_search_input');
-        function doSearch() {
-            const kw = searchInput.value.trim().toLowerCase();
-            if (!kw) return;
-            const found = mapData.nodes.find(n => n.label.toLowerCase().includes(kw) || (n.description && n.description.toLowerCase().includes(kw)) || (n.features && n.features.toLowerCase().includes(kw)));
-            if (found) {
-                selectNode(found.id);
-                if (networkInstance && typeof networkInstance.focus === 'function') {
-                    networkInstance.focus(found.id, { scale: 1.35, animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
-                }
+        overlay.querySelector('#det_btn_delete').addEventListener('click', () => {
+            if (!selectedDetailLocation || !confirm(`Bạn có chắc muốn xóa "${selectedDetailLocation.name}"?`)) return;
+            if (currentParentLocation && Array.isArray(currentParentLocation.subLocations)) {
+                currentParentLocation.subLocations = currentParentLocation.subLocations.filter(l => l.id !== selectedDetailLocation.id);
             } else {
-                alert(`Không tìm thấy địa điểm nào khớp với "${kw}"!`);
+                mapData.locations = mapData.locations.filter(l => l.id !== selectedDetailLocation.id);
             }
-        }
-        searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
-    }
-
-    function applyLayoutMode(forceRelayout = false) {
-        if (!networkInstance) return renderNetwork();
-
-        if (layoutMode === 'district_grid') {
-            // Chuẩn App Bản đồ index-14.js: Sắp xếp theo Lưới Khu Vực (District Grid)
-            const colWidth = renderMode === 'premium_svg' ? 340 : 250;
-            const rowHeight = renderMode === 'premium_svg' ? 180 : 130;
-            const cols = Math.max(2, Math.floor(Math.sqrt(mapData.nodes.length + 2)));
-
-            mapData.nodes.forEach((node, idx) => {
-                node.x = (idx % cols) * colWidth - ((cols * colWidth) / 2);
-                node.y = Math.floor(idx / cols) * rowHeight - 150;
-            });
             saveMapData();
-            renderNetwork();
-        } else if (layoutMode === 'hierarchical') {
-            // Chế độ Sơ đồ phân cấp cây
-            renderNetwork();
-        } else {
-            // Chế độ Lực hút Organic
-            if (forceRelayout) {
-                networkInstance.setOptions({ physics: { enabled: true } });
-                networkInstance.stabilize(150);
-            } else {
-                renderNetwork();
-            }
-        }
+            detModal.style.display = 'none';
+            renderAppGrid();
+        });
     }
 
     function updateUI() {
@@ -940,381 +919,174 @@
         const badgeStats = doc.getElementById('lore_stats_badge');
         const badgeAi = doc.getElementById('lore_ai_badge');
 
-        if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span>`;
-        if (badgeStats) badgeStats.innerText = `${mapData.nodes.length} địa điểm, ${mapData.edges.length} liên kết`;
+        if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span> | Chế độ Lưới & Phân Cấp Chuẩn App`;
+        if (badgeStats) {
+            let total = mapData.locations.length;
+            mapData.locations.forEach(l => { if (Array.isArray(l.subLocations)) total += l.subLocations.length; });
+            badgeStats.innerText = `${total} địa điểm/phân khu`;
+        }
         if (badgeAi) {
             badgeAi.innerText = aiConfig.source === 'custom' ? `⚡ Custom AI (${aiConfig.customModel || 'model'})` : `⭐ SillyTavern AI`;
         }
     }
 
-    function renderNetwork() {
+    function renderAppGrid() {
         updateUI();
-        const container = doc.getElementById('lore_graph_viewport');
-        if (!container) return;
+        const gridContainer = doc.getElementById('lore_grid_container');
+        const breadcrumb = doc.getElementById('lore_breadcrumb_container');
+        const breadcrumbName = doc.getElementById('breadcrumb_current_name');
+        if (!gridContainer) return;
 
-        if (typeof window.vis === 'undefined' || !window.vis.Network) {
-            console.log('[Lore World Map] Đang nạp thư viện Vis.js...');
-            const script = doc.createElement('script');
-            script.src = 'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js';
-            script.onload = () => initVisNetwork(container);
-            doc.head.appendChild(script);
+        let currentList = [];
+        if (currentParentLocation) {
+            breadcrumb.style.display = 'flex';
+            breadcrumbName.innerText = currentParentLocation.name;
+            currentList = currentParentLocation.subLocations || [];
         } else {
-            initVisNetwork(container);
-        }
-    }
-
-    function initVisNetwork(container) {
-        const nodesArray = mapData.nodes.map((n, idx) => {
-            const cat = THEME.nodeCategories[n.category] || THEME.nodeCategories.other;
-            const isDanger = n.danger_level && (
-                n.danger_level.toLowerCase().includes('nguy') ||
-                n.danger_level.toLowerCase().includes('cấm') ||
-                n.danger_level.toLowerCase().includes('tử') ||
-                n.danger_level.toLowerCase().includes('hỗn loạn') ||
-                n.danger_level.toLowerCase().includes('bạo động')
-            );
-
-            // Tọa độ ghim (nếu đã từng kéo thả hoặc chọn chế độ Lưới)
-            let posX = typeof n.x === 'number' ? n.x : undefined;
-            let posY = typeof n.y === 'number' ? n.y : undefined;
-
-            if (layoutMode === 'district_grid' && posX === undefined) {
-                const colWidth = renderMode === 'premium_svg' ? 340 : 250;
-                const rowHeight = renderMode === 'premium_svg' ? 180 : 130;
-                const cols = Math.max(2, Math.floor(Math.sqrt(mapData.nodes.length + 2)));
-                posX = (idx % cols) * colWidth - ((cols * colWidth) / 2);
-                posY = Math.floor(idx / cols) * rowHeight - 150;
-            }
-
-            const baseNode = {
-                id: n.id,
-                x: posX,
-                y: posY,
-                // Nếu node đã có tọa độ ghim thì khóa vật lý (zero drift)
-                fixed: (typeof posX === 'number' && typeof posY === 'number' && layoutMode !== 'hierarchical') ? { x: true, y: true } : false
-            };
-
-            if (renderMode === 'premium_svg') {
-                const unselectedImg = generateNodeSvgUrl(n, false);
-                const selectedImg = generateNodeSvgUrl(n, true);
-
-                return Object.assign(baseNode, {
-                    shape: 'image',
-                    image: {
-                        unselected: unselectedImg,
-                        selected: selectedImg
-                    },
-                    size: 40,
-                    title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}\n• Đặc điểm/Chức năng: ${n.features || 'Không có'}\n• Trạng thái: ${n.status || 'Bình thường'}`,
-                    font: { color: 'transparent', size: 1 },
-                    margin: 0
-                });
-            } else {
-                return Object.assign(baseNode, {
-                    label: `${cat.icon} ${n.label}\n[${n.danger_level || 'An toàn'}]`,
-                    title: `${n.label}\n• Phân loại: ${cat.label}\n• Kiểu địa điểm: ${n.context_type || 'Chung'}\n• Kiểm soát bởi: ${n.controlled_by || 'Chung'}`,
-                    color: {
-                        background: cat.bg,
-                        border: isDanger ? '#ef4444' : cat.border,
-                        highlight: { background: cat.highlight, border: '#ffffff' }
-                    },
-                    font: { color: THEME.text, size: 14, face: '-apple-system, Inter, sans-serif', bold: true },
-                    borderWidth: isDanger ? 3 : 2,
-                    shadow: { enabled: true, color: 'rgba(0,0,0,0.7)', size: 14, x: 0, y: 6 },
-                    shape: 'box',
-                    margin: 12
-                });
-            }
-        });
-
-        const edgesArray = mapData.edges.map(e => {
-            const relStyle = THEME.edgeRelations[e.relation_type] || THEME.edgeRelations.physical_path;
-            const labelText = e.distance ? `${e.label || 'Kết nối'} (${e.distance})` : (e.label || 'Kết nối');
-            const wrappedLabel = wrapText(labelText, 24);
-
-            return {
-                from: e.from,
-                to: e.to,
-                label: wrappedLabel,
-                title: `${relStyle.label}\n• Chi tiết: ${e.label || 'Không có'}\n• Khoảng cách/Thời gian: ${e.distance || 'Kế bên'}`,
-                color: { color: relStyle.color, highlight: '#38bdf8' },
-                dashes: relStyle.dashes || false,
-                font: {
-                    color: THEME.edgeText,
-                    size: 11.5,
-                    face: '-apple-system, Inter, sans-serif',
-                    background: THEME.edgeLabelBg,
-                    strokeWidth: 0,
-                    align: 'horizontal'
-                },
-                arrows: { to: { enabled: true, scaleFactor: 0.85 } },
-                smooth: layoutMode === 'hierarchical' ? { type: 'cubicBezier' } : { type: 'continuous', roundness: 0.22 },
-                width: relStyle.width || 2.5
-            };
-        });
-
-        const data = {
-            nodes: new window.vis.DataSet(nodesArray),
-            edges: new window.vis.DataSet(edgesArray)
-        };
-
-        const options = {
-            layout: {
-                hierarchical: layoutMode === 'hierarchical' ? {
-                    enabled: true,
-                    direction: 'UD',
-                    sortMethod: 'directed',
-                    nodeSpacing: renderMode === 'premium_svg' ? 320 : 220,
-                    levelSeparation: renderMode === 'premium_svg' ? 200 : 150
-                } : { enabled: false }
-            },
-            physics: {
-                enabled: layoutMode === 'organic',
-                forceAtlas2Based: {
-                    gravitationalConstant: -110,
-                    centralGravity: 0.012,
-                    springLength: renderMode === 'premium_svg' ? 270 : 220,
-                    springConstant: 0.08
-                },
-                maxVelocity: 45,
-                solver: 'forceAtlas2Based',
-                timestep: 0.35,
-                stabilization: { iterations: 160 }
-            },
-            interaction: {
-                hover: true,
-                tooltipDelay: 150,
-                navigationButtons: false,
-                keyboard: true,
-                dragNodes: true
-            }
-        };
-
-        const dock = container.querySelector('.lore-control-dock');
-        container.innerHTML = '';
-        if (dock) container.appendChild(dock);
-
-        const graphDiv = doc.createElement('div');
-        graphDiv.style.cssText = 'width: 100%; height: 100%;';
-        container.insertBefore(graphDiv, dock || null);
-
-        networkInstance = new window.vis.Network(graphDiv, data, options);
-
-        // ============ CƠ CHẾ ZERO-DRIFT INSTANT LOCK KHI KÉO THẢ ============
-        networkInstance.on('dragStart', params => {
-            if (params.nodes.length > 0 && layoutMode === 'organic') {
-                // Tạm thời bật vật lý nhẹ khi kéo
-                networkInstance.setOptions({ physics: { enabled: true } });
-            }
-        });
-
-        networkInstance.on('dragEnd', params => {
-            if (params.nodes.length > 0 && layoutMode !== 'hierarchical') {
-                const nodeId = params.nodes[0];
-                const pos = networkInstance.getPositions([nodeId])[nodeId];
-                if (pos) {
-                    const target = mapData.nodes.find(n => n.id === nodeId);
-                    if (target) {
-                        target.x = pos.x;
-                        target.y = pos.y;
-                        saveMapData();
-                        // Ghim chết tọa độ ngay tức thì để không bị trôi đi
-                        data.nodes.update({ id: nodeId, x: pos.x, y: pos.y, fixed: { x: true, y: true } });
-                    }
-                }
-            }
-        });
-
-        // Khi mô phỏng vật lý đã ổn định -> TỰ ĐỘNG TẮT PHYSICS để tối ưu 60 FPS (không tốn CPU)
-        if (layoutMode === 'organic') {
-            networkInstance.on('stabilized', () => {
-                networkInstance.setOptions({ physics: { enabled: false } });
-                console.log('[Lore World Map] Physics stabilized -> Tắt mô phỏng ngầm tối ưu 100% hiệu năng.');
-            });
+            breadcrumb.style.display = 'none';
+            currentList = mapData.locations || [];
         }
 
-        networkInstance.on('click', params => {
-            if (params.nodes.length > 0) {
-                selectNode(params.nodes[0]);
-            } else {
-                selectedNodeId = null;
-                renderInspector();
-            }
-        });
-
-        renderInspector();
-    }
-
-    function selectNode(id) {
-        selectedNodeId = id;
-        renderInspector();
-    }
-
-    function renderInspector() {
-        const contentDiv = doc.getElementById('inspector_content');
-        if (!contentDiv) return;
-
-        if (!selectedNodeId) {
-            const listNodesHTML = mapData.nodes.map(n => {
-                let badgeClass = 'badge-safe';
-                if (n.danger_level && (n.danger_level.toLowerCase().includes('nguy') || n.danger_level.toLowerCase().includes('cấm') || n.danger_level.toLowerCase().includes('tử') || n.danger_level.toLowerCase().includes('hỗn loạn'))) badgeClass = 'badge-danger';
-                else if (n.danger_level && n.danger_level.toLowerCase().includes('thận')) badgeClass = 'badge-warn';
-
-                return `
-                    <div onclick="window._loreJumpToNode('${n.id}')" style="padding: 10px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: 700; color: #38bdf8; font-size: 0.96em;">📍 ${n.label}</span>
-                            <span class="lore-badge ${badgeClass}">${n.danger_level || 'An toàn'}</span>
-                        </div>
-                        <div style="font-size: 0.82em; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            🏷️ ${n.context_type || 'Khu vực'} | 🛡️ Kiểm soát: ${n.controlled_by || 'Chung'}
-                        </div>
-                    </div>
-                `;
-            }).join('') || '<div style="color: #64748b; text-align: center;">Bản đồ chưa có địa điểm nào.</div>';
-
-            contentDiv.innerHTML = `
-                <div style="display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0;">
-                    <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px; font-size: 0.84em; color: #e0f2fe; flex-shrink: 0;">
-                        💡 <b>Zero-Drift & Bố Cục:</b> Kéo thả địa điểm sẽ <b>ghim chết vị trí vĩnh viễn</b> (không bị trôi đi). Bấm nút [🧭 Bố Cục] để chọn kiểu Lưới Khu Vực hoặc Phân cấp cây!
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
-                        <div style="font-size: 0.78em; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; flex-shrink: 0;">
-                            📋 TẤT CẢ ĐỊA ĐIỂM (${mapData.nodes.length})
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; padding-right: 4px;">
-                            ${listNodesHTML}
-                        </div>
-                    </div>
+        if (currentList.length === 0) {
+            gridContainer.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: #64748b; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px dashed rgba(255,255,255,0.12);">
+                    <i class="fa-solid fa-map-location-dot" style="font-size: 3.5em; color: #38bdf8; opacity: 0.5; margin-bottom: 12px;"></i>
+                    <div style="font-size: 1.1em; font-weight: bold; color: #cbd5e1;">Khu vực này hiện chưa có địa điểm nào</div>
+                    <div style="font-size: 0.88em; margin-top: 6px;">Bấm nút <b>[🪄 AI Quét & Xây Map]</b> ở trên hoặc nút <b>[+ Thêm Địa Điểm]</b> để thêm mới!</div>
                 </div>
             `;
             return;
         }
 
-        const node = mapData.nodes.find(n => n.id === selectedNodeId);
-        if (!node) return;
+        // Sắp xếp theo hàng 3 ô (3x3 grid) kèm đường đi giống index-14.js
+        const COLS = 3;
+        const rowsCount = Math.ceil(currentList.length / COLS);
+        let html = '';
 
-        const connectedEdges = mapData.edges.filter(e => e.from === node.id || e.to === node.id);
-        let linksHTML = connectedEdges.map(e => {
-            const targetId = e.from === node.id ? e.to : e.from;
-            const targetNode = mapData.nodes.find(n => n.id === targetId);
-            const targetName = targetNode ? targetNode.label : targetId;
-            const arrow = e.from === node.id ? '➔ ĐẾN' : '🡄 TỪ';
-            const relInfo = THEME.edgeRelations[e.relation_type] || THEME.edgeRelations.physical_path;
+        for (let r = 0; r < rowsCount; r++) {
+            html += `<div class="lore-grid-row">`;
+            for (let c = 0; c < COLS; c++) {
+                const idx = r * COLS + c;
+                const loc = currentList[idx];
 
-            return `
-                <div style="padding: 8px 10px; background: rgba(255,255,255,0.05); border-radius: 10px; font-size: 0.86em; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;">
-                    <div style="overflow: hidden; max-width: 200px;">
-                        <div style="font-weight: 700; color: #38bdf8;">${arrow}: ${targetName}</div>
-                        <div style="font-size: 0.8em; color: ${relInfo.color}; font-weight: bold; margin-top: 2px;">${relInfo.label}</div>
-                        <div style="font-size: 0.82em; color: #94a3b8; margin-top: 1px;">${e.label || 'Kết nối'} ${e.distance ? `(${e.distance})` : ''}</div>
+                if (loc) {
+                    const isHub = loc.category === 'major_hub' || (!currentParentLocation && (!loc.category || loc.category === 'major_hub'));
+                    const isDanger = loc.danger_level && (loc.danger_level.toLowerCase().includes('nguy') || loc.danger_level.toLowerCase().includes('cấm') || loc.danger_level.toLowerCase().includes('tử') || loc.danger_level.toLowerCase().includes('hỗn loạn'));
+                    let btnClass = 'location-button';
+                    if (isHub) btnClass += ' hub-button';
+                    if (isDanger) btnClass += ' danger-button';
+
+                    const subCount = Array.isArray(loc.subLocations) ? loc.subLocations.length : 0;
+                    const charPinsHTML = (loc.characters && loc.characters.length > 0 ? loc.characters : (loc.controlled_by && loc.controlled_by !== 'Chung' ? [loc.controlled_by] : [])).slice(0, 3).map(charName => {
+                        const avatarData = getCharacterAvatar(charName);
+                        let inner = '';
+                        if (typeof avatarData === 'string' && avatarData) {
+                            inner = `<img src="${avatarData}" alt="${charName}" onerror="this.style.display='none'; this.parentNode.innerHTML='${charName.substring(0,2).toUpperCase()}'">`;
+                        } else if (typeof avatarData === 'object') {
+                            inner = `<span style="background:${avatarData.bg}; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">${avatarData.text}</span>`;
+                        } else {
+                            inner = `<span>${charName.substring(0,2).toUpperCase()}</span>`;
+                        }
+                        return `
+                            <div class="character-marker" title="Nhân vật hiện diện: ${charName}" onclick="event.stopPropagation(); window._loreShowDetail('${loc.id}')">
+                                <div class="character-marker-avatar">${inner}</div>
+                                <div class="marker-pin"></div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    html += `
+                        <div class="${btnClass}" onclick="window._loreOnLocationClick('${loc.id}')">
+                            <div class="character-markers">${charPinsHTML}</div>
+                            <i class="fas ${loc.icon || 'fa-location-dot'}"></i>
+                            <span class="loc-name">${loc.name}</span>
+                            ${subCount > 0 ? `<span class="loc-sub-count">📁 ${subCount} phân khu con</span>` : `<span style="font-size:0.75em; color:#94a3b8; margin-top:4px;">🏷️ ${loc.context_type || 'Khu vực'}</span>`}
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="location-button empty-location">
+                            <i class="fas fa-question"></i>
+                            <span style="font-size: 0.9em; font-weight: bold;">Tạm thời trống</span>
+                        </div>
+                    `;
+                }
+
+                // Đường đi dọc giữa các ô trong cùng 1 hàng (trừ ô cuối cùng)
+                if (c < COLS - 1 && currentList[idx] && currentList[idx + 1]) {
+                    html += `<div class="road-vertical" style="position: absolute; right: -17px; top: 50%; transform: translateY(-50%); height: 32px; width: 16px;"></div>`;
+                }
+            }
+            html += `</div>`;
+
+            // Đường nối ngang giữa các hàng (trừ hàng cuối cùng)
+            if (r < rowsCount - 1) {
+                html += `
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">
+                        <div class="road-horizontal">⦙ NỐI LIỀN ⦙</div>
+                        <div class="road-horizontal">⦙ HÀNH LANG ⦙</div>
+                        <div class="road-horizontal">⦙ NỐI LIỀN ⦙</div>
                     </div>
-                    <button onclick="window._loreJumpToNode('${targetId}')" class="lore-btn" style="background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.4); color: #c084fc; padding: 6px 10px; font-size: 0.85em;" title="Chuyển sang địa điểm này">🎯</button>
-                </div>
-            `;
-        }).join('') || '<div style="color:#64748b; font-size: 0.85em;">Chưa có kết nối nào tới địa điểm này.</div>';
+                `;
+            }
+        }
 
-        contentDiv.innerHTML = `
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <div>
-                    <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Tên Địa Điểm</label>
-                    <input id="insp_label" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px; font-weight: bold; font-size: 1.02em;" value="${node.label}">
-                </div>
-
-                <div style="display: flex; gap: 8px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Phân loại</label>
-                        <select id="insp_category" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;">
-                            <option value="major_hub" ${node.category === 'major_hub' ? 'selected' : ''}>🏢 Trung tâm / Khu vực lớn</option>
-                            <option value="sub_location" ${node.category === 'sub_location' ? 'selected' : ''}>📍 Phân khu / Phòng / Điểm cụ thể</option>
-                            <option value="danger_zone" ${node.category === 'danger_zone' ? 'selected' : ''}>⚠️ Vùng nguy hiểm / Cấm địa</option>
-                            <option value="nature_or_open" ${node.category === 'nature_or_open' ? 'selected' : ''}>🌿 Không gian mở / Công cộng</option>
-                            <option value="secret_or_special" ${node.category === 'secret_or_special' ? 'selected' : ''}>🔐 Khu vực bí mật / Mật thất</option>
-                            <option value="other" ${node.category === 'other' ? 'selected' : ''}>🏷️ Khác</option>
-                        </select>
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Kiểu địa điểm</label>
-                        <input id="insp_context_type" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.context_type || 'Khu vực'}" placeholder="Phòng học, Trạm vũ trụ...">
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 8px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Kiểm soát bởi</label>
-                        <input id="insp_controlled" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.controlled_by || 'Chung'}" placeholder="Ai sở hữu?">
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mức an toàn / rủi ro</label>
-                        <input id="insp_danger" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.danger_level || 'An toàn'}" placeholder="An toàn / Nguy hiểm...">
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 8px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Đặc điểm / Chức năng</label>
-                        <input id="insp_features" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.features || ''}" placeholder="Tài nguyên, chức năng...">
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Trạng thái</label>
-                        <input id="insp_status" type="text" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="${node.status || 'Bình thường'}" placeholder="Bình thường / Phong tỏa...">
-                    </div>
-                </div>
-
-                <div>
-                    <label style="font-size: 0.76em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Mô tả chi tiết & Sự Kiện</label>
-                    <textarea id="insp_desc" class="lore-input" style="width: 100%; height: 75px; box-sizing: border-box; margin-top: 2px; resize: vertical; line-height: 1.5;">${node.description || ''}</textarea>
-                </div>
-
-                <div style="display: flex; gap: 8px; margin-top: 2px;">
-                    <button id="insp_btn_save" class="lore-btn lore-btn-success" style="flex: 2; justify-content: center;">
-                        <i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi
-                    </button>
-                    <button id="insp_btn_delete" class="lore-btn lore-btn-danger" style="flex: 1; justify-content: center;">
-                        <i class="fa-solid fa-trash"></i> Xóa
-                    </button>
-                </div>
-
-                <div style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 10px;">
-                    <label style="font-size: 0.76em; color: #38bdf8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 6px;">🔗 Các Địa Điểm Kết Nối (${connectedEdges.length})</label>
-                    <div style="display: flex; flex-direction: column; gap: 8px; max-height: 160px; overflow-y: auto;">
-                        ${linksHTML}
-                    </div>
-                </div>
-            </div>
-        `;
-
-        contentDiv.querySelector('#insp_btn_save').addEventListener('click', () => {
-            node.label = contentDiv.querySelector('#insp_label').value.trim() || node.label;
-            node.category = contentDiv.querySelector('#insp_category').value;
-            node.context_type = contentDiv.querySelector('#insp_context_type').value.trim() || 'Khu vực';
-            node.controlled_by = contentDiv.querySelector('#insp_controlled').value.trim() || 'Chung';
-            node.danger_level = contentDiv.querySelector('#insp_danger').value.trim() || 'An toàn';
-            node.features = contentDiv.querySelector('#insp_features').value.trim();
-            node.status = contentDiv.querySelector('#insp_status').value.trim() || 'Bình thường';
-            node.description = contentDiv.querySelector('#insp_desc').value.trim();
-            saveMapData();
-            renderNetwork();
-            selectNode(node.id);
-        });
-
-        contentDiv.querySelector('#insp_btn_delete').addEventListener('click', () => {
-            if (!confirm(`Bạn có chắc muốn xóa địa điểm "${node.label}" khỏi bản đồ?`)) return;
-            mapData.nodes = mapData.nodes.filter(n => n.id !== node.id);
-            mapData.edges = mapData.edges.filter(e => e.from !== node.id && e.to !== node.id);
-            selectedNodeId = null;
-            saveMapData();
-            renderNetwork();
-        });
+        gridContainer.innerHTML = html;
     }
 
-    window._loreJumpToNode = function (targetId) {
-        selectNode(targetId);
-        if (networkInstance && typeof networkInstance.focus === 'function') {
-            networkInstance.focus(targetId, { scale: 1.35, animation: { duration: 550, easingFunction: 'easeInOutQuad' } });
-            networkInstance.selectNodes([targetId]);
+    window._loreOnLocationClick = function (locId) {
+        let list = currentParentLocation ? (currentParentLocation.subLocations || []) : mapData.locations;
+        const found = list.find(l => l.id === locId);
+        if (!found) return;
+
+        // Nếu là khu vực lớn và có subLocations -> Đi vào sâu phân khu bên trong (như App Bản đồ index-14.js)
+        if (!currentParentLocation && Array.isArray(found.subLocations) && found.subLocations.length > 0) {
+            currentParentLocation = found;
+            renderAppGrid();
+        } else {
+            // Mở Popup chi tiết địa điểm
+            window._loreShowDetail(locId);
         }
+    };
+
+    window._loreShowDetail = function (locId) {
+        let list = currentParentLocation ? (currentParentLocation.subLocations || []) : mapData.locations;
+        const found = list.find(l => l.id === locId) || mapData.locations.find(l => l.id === locId);
+        if (!found) return;
+
+        selectedDetailLocation = found;
+        const detModal = doc.getElementById('lore_location_detail_modal');
+        if (!detModal) return;
+
+        doc.getElementById('det_icon').className = `fas ${found.icon || 'fa-building'}`;
+        doc.getElementById('det_name').innerText = found.name;
+        doc.getElementById('det_category_badge').innerText = found.category === 'major_hub' ? '🏢 Trung tâm / Khu vực lớn' : '📍 Phân khu / Phòng';
+        doc.getElementById('det_type_badge').innerText = `🏷️ ${found.context_type || 'Khu vực'}`;
+        
+        const dangerBadge = doc.getElementById('det_danger_badge');
+        dangerBadge.innerText = `🛡️ ${found.danger_level || 'An toàn'}`;
+        if (found.danger_level && (found.danger_level.toLowerCase().includes('nguy') || found.danger_level.toLowerCase().includes('cấm') || found.danger_level.toLowerCase().includes('tử'))) {
+            dangerBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+            dangerBadge.style.color = '#f87171';
+            dangerBadge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        } else {
+            dangerBadge.style.background = 'rgba(34, 197, 94, 0.2)';
+            dangerBadge.style.color = '#4ade80';
+            dangerBadge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+        }
+
+        const charsList = found.characters && found.characters.length > 0 ? found.characters.join(', ') : (found.controlled_by || 'Chung / Không rõ');
+        doc.getElementById('det_characters').innerText = charsList;
+        doc.getElementById('det_description').innerText = found.description || 'Không có thông tin mô tả nào cho địa điểm này.';
+
+        const btnEnterSub = doc.getElementById('det_btn_enter_sub');
+        if (!currentParentLocation && Array.isArray(found.subLocations) && found.subLocations.length > 0) {
+            btnEnterSub.style.display = 'inline-flex';
+        } else {
+            btnEnterSub.style.display = 'none';
+        }
+
+        detModal.style.display = 'flex';
     };
 
     async function triggerAiWorldScan() {
@@ -1323,7 +1095,7 @@
         if (btnScan) {
             btnScan.disabled = true;
             btnScan.classList.add('lore-ai-loading');
-            btnScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang đọc chat & xây map...`;
+            btnScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang đọc chat & dựng lưới bản đồ...`;
         }
 
         try {
@@ -1345,52 +1117,43 @@
                 return;
             }
 
-            const existingNodesStr = mapData.nodes.map(n => `- ${n.label} (${n.context_type}, Kiểm soát: ${n.controlled_by})`).join('\n');
-            const prompt = `Bạn là Bậc Thầy Kiến Trúc Sư Địa Lý Đa Thể Loại (Universal World Lore Architect).
-Dưới đây là Lịch sử trò chơi gần đây (${historyLimit} tin nhắn):
+            const existingStr = mapData.locations.map(l => `- ${l.name} (${l.context_type}): [${(l.subLocations||[]).map(s=>s.name).join(', ')}]`).join('\n');
+            const prompt = `Bạn là Kiến Trúc Sư Địa Lý Chuẩn App Bản Đồ (Universal Phone Map App Architect).
+Dưới đây là Lịch sử trò chuyện gần đây (${historyLimit} tin nhắn):
 === LỊCH SỬ CHAT ===
 ${historyText.slice(0, 8800)}
 ====================
 
-Các địa điểm đã có trên bản đồ:
-${existingNodesStr || '(Chưa có)'}
+Cấu trúc bản đồ hiện có:
+${existingStr || '(Chưa có)'}
 
-NGUYÊN TẮC VÀ NHIỆM VỤ QUAN TRỌNG:
-1. KHÔNG áp đặt định kiến Fantasy/chơi game. Hãy phân tích đúng theo THỂ LOẠI THỰC TẾ của câu chuyện (Ví dụ nếu bối cảnh là Hiện đại học đường thì địa điểm là Lớp học, Sân thượng, Hành lang; nếu Sci-Fi thì là Trạm vũ trụ, Phòng thí nghiệm; nếu Tu Tiên thì là Tông môn, Động phủ; nếu Horror thì là Căn nhà ma, Bệnh viện hoang...).
-2. Trích xuất tất cả Địa Điểm, Khu vực lớn hoặc Phòng/Phân khu cụ thể xuất hiện/được nhắc đến.
-3. Với mỗi địa điểm, xác định category phổ quát:
-   - "major_hub": Trung tâm / Khu vực lớn / Tổ chức chính
-   - "sub_location": Phân khu / Phòng / Điểm cụ thể
-   - "danger_zone": Vùng nguy hiểm / Cấm địa / Khu tranh chấp
-   - "nature_or_open": Không gian mở / Thiên nhiên / Khu công cộng
-   - "secret_or_special": Khu vực bí mật / Đặc biệt / Mật thất
-   - "other": Khác
-4. Với các liên kết, phân loại relation_type phổ quát:
-   - "physical_path": Đường bộ / Hành lang / Cầu thang / Đường nối liền
-   - "transit_fast": Phương tiện nhanh / Thang máy / Dịch chuyển
-   - "restricted": Bị hạn chế / Khóa / Cần thẻ hay điều kiện
-   - "connection": Liên kết chung / Kế bên
-5. TRẢ VỀ DUY NHẤT 1 JSON HỢP LỆ (không kèm lời dẫn):
+NHIỆM VỤ:
+1. KHÔNG áp đặt định kiến Fantasy. Hãy phân tích đúng thể loại câu chuyện (Học đường, Sci-Fi, Tu tiên, Horror, Gia đình...).
+2. Tổ chức bản đồ theo cấu trúc phân cấp chuẩn App Lưới:
+   - "locations": Các Khu Vực Lớn / Tòa nhà / Trung tâm / Vùng đất.
+   - Bên trong mỗi khu vực lớn có "subLocations": Các Phòng / Phân khu cụ thể thuộc khu vực đó.
+3. TRẢ VỀ DUY NHẤT 1 JSON HỢP LỆ theo định dạng:
 {
-  "nodes": [
+  "locations": [
     {
-      "label": "Tên địa điểm chính xác theo bối cảnh truyện",
-      "category": "major_hub | sub_location | danger_zone | nature_or_open | secret_or_special | other",
-      "context_type": "Loại địa điểm thực tế (VD: Phòng học, Trạm vũ trụ, Quán ăn, Động phủ...)",
-      "danger_level": "VD: An toàn bình thường / Cực kỳ nguy hiểm / Khu vực giám sát...",
-      "controlled_by": "Ai hoặc thế lực/nhân vật nào quản lý/sở hữu?",
-      "features": "Đặc điểm, tài nguyên, chức năng nổi bật tại đây",
-      "status": "VD: Đang hoạt động / Bị phong tỏa / Đã bỏ hoang...",
-      "description": "Mô tả vai trò và sự kiện diễn ra tại địa điểm này"
-    }
-  ],
-  "edges": [
-    {
-      "from_label": "Tên địa điểm xuất phát",
-      "to_label": "Tên địa điểm đích đến",
-      "label": "Mô tả kết nối ngắn gọn dưới 20 ký tự (VD: Cầu thang bộ, Hành lang nối...)",
-      "relation_type": "physical_path | transit_fast | restricted | connection",
-      "distance": "VD: 2 phút đi bộ / Kế bên / 50km / Qua 1 cánh cửa"
+      "name": "Tên Khu Vực Lớn / Trung Tâm",
+      "category": "major_hub",
+      "context_type": "Tòa nhà / Trường học / Trạm vũ trụ / Tông môn...",
+      "danger_level": "An toàn bình thường / Cực kỳ nguy hiểm...",
+      "controlled_by": "Nhân vật hoặc thế lực kiểm soát",
+      "description": "Mô tả vai trò của khu vực này",
+      "characters": ["Tên nhân vật A", "Tên nhân vật B đang ở đây"],
+      "subLocations": [
+        {
+          "name": "Tên Phòng / Phân khu nhỏ bên trong",
+          "category": "sub_location",
+          "context_type": "Phòng học / Phòng ngủ / Sân thượng / Động phủ...",
+          "danger_level": "An toàn",
+          "controlled_by": "Tên nhân vật đứng tại phòng",
+          "description": "Mô tả chi tiết phòng/phân khu này",
+          "characters": ["Tên nhân vật đang ở đây"]
+        }
+      ]
     }
   ]
 }`;
@@ -1408,7 +1171,7 @@ NGUYÊN TẮC VÀ NHIỆM VỤ QUAN TRỌNG:
                         body: JSON.stringify({
                             model: aiConfig.customModel || 'gpt-4o-mini',
                             messages: [
-                                { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ truyện/game hợp lệ 100%.' },
+                                { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
                                 { role: 'user', content: prompt }
                             ],
                             temperature: 0.7
@@ -1433,74 +1196,69 @@ NGUYÊN TẮC VÀ NHIỆM VỤ QUAN TRỌNG:
             if (!responseJson && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
                 try {
                     const rawRes = await win.PhoneSystem.callExternalAPI([
-                        { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ truyện/game hợp lệ 100%.' },
+                        { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
                         { role: 'user', content: prompt }
                     ], { maxTokens: 4000, temperature: 0.7 });
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
             }
 
-            if (!responseJson || !Array.isArray(responseJson.nodes)) {
-                throw new Error('AI không trả về JSON hợp lệ! Hãy kiểm tra lại kết nối AI trong SillyTavern hoặc trong nút [⚙️ Cấu hình AI].');
+            if (!responseJson || !Array.isArray(responseJson.locations)) {
+                throw new Error('AI không trả về JSON bản đồ hợp lệ! Vui lòng kiểm tra kết nối AI.');
             }
 
-            let newNodesCount = 0;
-            let newEdgesCount = 0;
-
-            responseJson.nodes.forEach(item => {
-                if (!item || !item.label) return;
-                const cleanLabel = item.label.trim();
-                let existing = mapData.nodes.find(n => n.label.toLowerCase() === cleanLabel.toLowerCase());
-                if (existing) {
-                    if (item.description && (!existing.description || existing.description.length < item.description.length)) existing.description = item.description;
-                    if (item.danger_level) existing.danger_level = item.danger_level;
-                    if (item.context_type) existing.context_type = item.context_type;
-                    if (item.controlled_by && existing.controlled_by === 'Chung') existing.controlled_by = item.controlled_by;
-                    if (item.features && !existing.features) existing.features = item.features;
-                    if (item.status) existing.status = item.status;
-                } else {
-                    const newId = 'node_' + Math.random().toString(36).substr(2, 8);
-                    mapData.nodes.push({
-                        id: newId,
-                        label: cleanLabel,
-                        category: ['major_hub', 'sub_location', 'danger_zone', 'nature_or_open', 'secret_or_special'].includes(item.category) ? item.category : 'other',
-                        context_type: item.context_type || 'Khu vực',
+            let addedCount = 0;
+            responseJson.locations.forEach(item => {
+                if (!item || !item.name) return;
+                let hub = mapData.locations.find(l => l.name.toLowerCase() === item.name.trim().toLowerCase());
+                if (!hub) {
+                    hub = {
+                        id: 'loc_' + Math.random().toString(36).substr(2, 7),
+                        name: item.name.trim(),
+                        icon: 'fa-building',
+                        category: 'major_hub',
+                        context_type: item.context_type || 'Khu vực lớn',
                         danger_level: item.danger_level || 'An toàn',
                         controlled_by: item.controlled_by || 'Chung',
-                        features: item.features || '',
-                        status: item.status || 'Hoạt động bình thường',
-                        description: item.description || ''
+                        description: item.description || '',
+                        characters: Array.isArray(item.characters) ? item.characters : [],
+                        subLocations: []
+                    };
+                    mapData.locations.push(hub);
+                    addedCount++;
+                } else {
+                    if (item.description && hub.description.length < item.description.length) hub.description = item.description;
+                    if (Array.isArray(item.characters)) hub.characters = Array.from(new Set([...(hub.characters||[]), ...item.characters]));
+                }
+
+                if (Array.isArray(item.subLocations)) {
+                    item.subLocations.forEach(sub => {
+                        if (!sub || !sub.name) return;
+                        hub.subLocations = hub.subLocations || [];
+                        let existSub = hub.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
+                        if (!existSub) {
+                            hub.subLocations.push({
+                                id: 'sub_' + Math.random().toString(36).substr(2, 7),
+                                name: sub.name.trim(),
+                                icon: 'fa-door-open',
+                                category: 'sub_location',
+                                context_type: sub.context_type || 'Phòng / Phân khu',
+                                danger_level: sub.danger_level || 'An toàn',
+                                controlled_by: sub.controlled_by || 'Chung',
+                                description: sub.description || '',
+                                characters: Array.isArray(sub.characters) ? sub.characters : []
+                            });
+                            addedCount++;
+                        }
                     });
-                    newNodesCount++;
                 }
             });
 
-            if (Array.isArray(responseJson.edges)) {
-                responseJson.edges.forEach(link => {
-                    if (!link.from_label || !link.to_label) return;
-                    const fromNode = mapData.nodes.find(n => n.label.toLowerCase() === link.from_label.trim().toLowerCase());
-                    const toNode = mapData.nodes.find(n => n.label.toLowerCase() === link.to_label.trim().toLowerCase());
-                    if (fromNode && toNode && fromNode.id !== toNode.id) {
-                        const exists = mapData.edges.some(e => (e.from === fromNode.id && e.to === toNode.id) || (e.from === toNode.id && e.to === fromNode.id));
-                        if (!exists) {
-                            mapData.edges.push({
-                                from: fromNode.id,
-                                to: toNode.id,
-                                label: link.label || 'Kết nối',
-                                relation_type: ['physical_path', 'transit_fast', 'restricted', 'connection'].includes(link.relation_type) ? link.relation_type : 'physical_path',
-                                distance: link.distance || ''
-                            });
-                            newEdgesCount++;
-                        }
-                    }
-                });
-            }
-
             saveMapData();
-            renderNetwork();
-            if (win.toastr) win.toastr.success(`🎉 AI đã xây xong! +${newNodesCount} địa điểm, +${newEdgesCount} liên kết.`);
+            renderAppGrid();
+            alert(`🎉 AI đã xây dựng thành công bản đồ lưới! +${addedCount} khu vực mới.`);
         } catch (err) {
-            alert('⚠️ Lỗi khi dựng bản đồ AI: ' + err.message);
+            alert('⚠️ Lỗi khi quét bản đồ AI: ' + err.message);
         } finally {
             if (btnScan) {
                 btnScan.disabled = false;
@@ -1519,18 +1277,19 @@ NGUYÊN TẮC VÀ NHIỆM VỤ QUAN TRỌNG:
         return JSON.parse(str);
     }
 
-    function toggleGraphModal() {
+    function toggleAppModal() {
         injectStyles();
-        createGraphModal();
+        createAppModal();
         loadMapDataForCurrentChat();
 
-        const overlay = doc.getElementById('lore_graph_modal_overlay');
+        const overlay = doc.getElementById('lore_app_modal_overlay');
         if (overlay) {
             if (overlay.style.display === 'flex') {
                 overlay.style.display = 'none';
             } else {
                 overlay.style.display = 'flex';
-                renderNetwork();
+                currentParentLocation = null;
+                renderAppGrid();
             }
         }
     }
