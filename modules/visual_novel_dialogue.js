@@ -55,6 +55,7 @@
         regexMode: 'at', // at | japanese | curly | brackets | colon | custom
         autoRegisterChars: true,
         autoAssignAvatar: false,
+        dynamicContextImages: false,
         customRegex: '',
         cleanPatterns: '', // Để trống = giữ nguyên theo regex, không tự xóa
         customSizing: {
@@ -122,6 +123,12 @@ Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đ�
         cfg.standalonePos = Object.assign({}, DEFAULT_CONFIG.standalonePos, parsed.standalonePos || {});
         cfg.customSizing = Object.assign({}, DEFAULT_CONFIG.customSizing, parsed.customSizing || {});
         cfg.characters = Object.assign({}, parsed.characters || {});
+        Object.keys(cfg.characters).forEach(k => {
+            const ch = cfg.characters[k];
+            if (ch && typeof ch === 'object') {
+                ch.expressions = Array.isArray(ch.expressions) ? ch.expressions.filter(e => e && e.label && e.url) : [];
+            }
+        });
         cfg.favourites = Array.isArray(parsed.favourites) ? parsed.favourites.slice() : [];
         cfg.linkLibrary = Array.isArray(parsed.linkLibrary) ? parsed.linkLibrary.filter(Boolean).slice() : [];
         return cfg;
@@ -2385,12 +2392,44 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         } catch (e) { }
     }
 
+    function getDynamicTagFormatExample(name, tag) {
+        const mode = CFG.regexMode || 'at';
+        if (mode === 'japanese') return `【${name} [${tag}]】`;
+        if (mode === 'curly') return `{${name} [${tag}]}`;
+        if (mode === 'brackets') return `[${name} - ${tag}]`;
+        if (mode === 'colon') return `${name} [${tag}]:`;
+        return `@${name} [${tag}]@`;
+    }
+
     function getEffectivePrompt() {
         let base = CFG.customPrompt ? CFG.customPrompt.trim() : '';
         if (CFG.autoAssignAvatar) {
             const gPrompt = (CFG.genderPrompt || DEFAULT_CONFIG.genderPrompt || '').trim();
             if (gPrompt && !base.includes('[QUY TẮC NHẬN DIỆN GIỚI TÍNH')) {
                 base += '\n\n' + gPrompt;
+            }
+        }
+        if (CFG.dynamicContextImages) {
+            let charTagsList = '';
+            Object.keys(CFG.characters).forEach(cName => {
+                const ch = CFG.characters[cName];
+                if (ch && Array.isArray(ch.expressions) && ch.expressions.length > 0) {
+                    const validLabels = ch.expressions.map(e => e && e.label ? e.label.trim() : '').filter(Boolean);
+                    if (validLabels.length > 0) {
+                        charTagsList += `- ${cName}: [${validLabels.join(', ')}]\n`;
+                    }
+                }
+            });
+            if (charTagsList) {
+                const dynPrompt = `[QUY TẮC GẮN NHÃN ẢNH NGỮ CẢNH ĐỘNG (DYNAMIC CONTEXT IMAGES)]\n` +
+                    `Hiện tại, các nhân vật có danh sách nhãn cảm xúc/ngữ cảnh sau đây:\n` +
+                    charTagsList.trim() + `\n\n` +
+                    `Khi nhân vật có lời thoại hoặc suy nghĩ, nếu ngữ cảnh hoặc cảm xúc khớp với một trong các nhãn trên, bạn HÃY viết kèm tên nhãn vào trong thẻ tên nhân vật theo định dạng: ${getDynamicTagFormatExample('TênNhânVật', 'TênNhãn')} (hoặc có thêm giới tính nếu cần).\n` +
+                    `Ví dụ: ${getDynamicTagFormatExample('Kazumi', 'Ăn kem')} "Món kem này ngon quá đi mất!" hoặc ${getDynamicTagFormatExample('Kazumi', 'buồn')} *Sao anh ấy lại nói vậy với mình chứ...*\n` +
+                    `Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân vật ở trạng thái bình thường, hãy chỉ ghi tên nhân vật như bình thường.`;
+                if (!base.includes('[QUY TẮC GẮN NHÃN ẢNH NGỮ CẢNH ĐỘNG')) {
+                    base += '\n\n' + dynPrompt;
+                }
             }
         }
         return base;
@@ -2521,7 +2560,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             } else if (CFG.regexMode === 'brackets') {
                 namePart = `${TAG_INLINE}\\[([^\\]\\n<>]{1,50})\\]${TAG_INLINE_CLOSE}${SEP_ANY}`;
             } else if (CFG.regexMode === 'colon') {
-                namePart = `${TAG_INLINE}([a-zA-Z0-9_\\-\\s\u00C0-\u017F\u3040-\u30FF\u4E00-\u9FAF]{1,40})${TAG_INLINE_CLOSE}\\s*[:：]\\s*`;
+                namePart = `${TAG_INLINE}([a-zA-Z0-9_\\-\\s\\[\\]\\(\\)<>\u00C0-\u017F\u3040-\u30FF\u4E00-\u9FAF]{1,50})${TAG_INLINE_CLOSE}\\s*[:：]\\s*`;
             }
 
             const closeSpan = isStreaming ? `(?:<\\/span>|(?=\\n|$))` : `<\\/span>`;
@@ -2553,21 +2592,70 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return res;
     }
 
-    function parseNameAndGender(rawName) {
-        if (!rawName || typeof rawName !== 'string') return { cleanName: '', gender: null };
+    function parseNameGenderAndTag(rawName) {
+        if (!rawName || typeof rawName !== 'string') return { cleanName: '', gender: null, tag: null };
         let name = rawName.trim();
         let gender = null;
-        const match = name.match(/^(.*?)\s*\((Nữ|Nam|Waifu|Husbando|Female|Male|F|M|Girl|Boy|nữ|nam)\)\s*$/i);
-        if (match) {
-            name = match[1].trim();
-            const g = match[2].toLowerCase();
+        let tag = null;
+
+        // 1. Tách giới tính (Nữ/Nam/Waifu/Husbando/...) TRƯỚC để tránh xung đột với thẻ ngữ cảnh
+        const genderMatch = name.match(/^(.*?)\s*\((Nữ|Nam|Waifu|Husbando|Female|Male|F|M|Girl|Boy|nữ|nam)\)\s*(.*?)$/i);
+        if (genderMatch) {
+            const g = genderMatch[2].toLowerCase();
             if (['nữ', 'waifu', 'female', 'f', 'girl'].includes(g)) {
                 gender = 'waifu';
             } else if (['nam', 'husbando', 'male', 'm', 'boy'].includes(g)) {
                 gender = 'husbando';
             }
+            name = (genderMatch[1] + ' ' + genderMatch[3]).trim();
         }
-        return { cleanName: name, gender: gender };
+
+        // 2. Tách nhãn trong ngoặc vuông [Tag] hoặc <Tag> hoặc - Tag
+        const tagBracketMatch = name.match(/^(.*?)\s*\[([^\]]+)\]\s*(.*?)$/);
+        if (tagBracketMatch) {
+            tag = tagBracketMatch[2].trim();
+            name = (tagBracketMatch[1] + ' ' + tagBracketMatch[3]).trim();
+        } else {
+            const tagAngleMatch = name.match(/^(.*?)\s*<([^>]+)>\s*(.*?)$/);
+            if (tagAngleMatch) {
+                tag = tagAngleMatch[2].trim();
+                name = (tagAngleMatch[1] + ' ' + tagAngleMatch[3]).trim();
+            } else {
+                const tagDashMatch = name.match(/^(.*?)\s*-\s*([^\-]+)$/);
+                if (tagDashMatch) {
+                    const potentialName = tagDashMatch[1].trim();
+                    const potentialTag = tagDashMatch[2].trim();
+                    const ch = getCharCfg(potentialName);
+                    if (ch && Array.isArray(ch.expressions) && ch.expressions.some(e => e && e.label && e.label.toLowerCase() === potentialTag.toLowerCase())) {
+                        name = potentialName;
+                        tag = potentialTag;
+                    }
+                }
+            }
+        }
+
+        // 3. Nếu vẫn còn ngoặc tròn (...), kiểm tra xem có phải là Tag trong ngoặc tròn không (ví dụ Kazumi (Ăn kem))
+        if (!tag) {
+            const parenMatch = name.match(/^(.*?)\s*\(([^)]+)\)\s*(.*?)$/);
+            if (parenMatch) {
+                const parenVal = parenMatch[2].trim();
+                const potentialName = (parenMatch[1] + ' ' + parenMatch[3]).trim();
+                const ch = getCharCfg(potentialName);
+                if (ch && Array.isArray(ch.expressions) && ch.expressions.some(e => e && e.label && e.label.toLowerCase() === parenVal.toLowerCase())) {
+                    tag = parenVal;
+                    name = potentialName;
+                } else if (!gender) {
+                    tag = parenVal;
+                    name = potentialName;
+                }
+            }
+        }
+
+        return { cleanName: name.trim(), gender: gender, tag: tag };
+    }
+
+    function parseNameAndGender(rawName) {
+        return parseNameGenderAndTag(rawName);
     }
 
     const FETCHING_AVATARS = new Set();
@@ -2767,11 +2855,18 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return url;
     }
 
-    function buildAvatarHtml(name) {
+    function buildAvatarHtml(name, isStreaming = false, tag = null) {
         const charCfg = getCharCfg(name);
         let avatarPart = '';
         if (charCfg && charCfg.avatar) {
-            const safeAvatar = safeImageUrl(charCfg.avatar);
+            let targetUrl = charCfg.avatar;
+            if (CFG.dynamicContextImages && tag && Array.isArray(charCfg.expressions)) {
+                const foundExp = charCfg.expressions.find(e => e && e.label && e.label.toLowerCase() === tag.toLowerCase());
+                if (foundExp && foundExp.url && foundExp.url.trim()) {
+                    targetUrl = foundExp.url.trim();
+                }
+            }
+            const safeAvatar = safeImageUrl(targetUrl);
             if (safeAvatar) {
                 const fallbackSrc = buildInitialSvgData(name);
                 const optSrc = (CFG.inchatImgMode === 'always_full') ? resolveImageSrc(safeAvatar, fallbackSrc) : (AVATAR_CACHE[safeAvatar] || getSmoothAvatar(safeAvatar));
@@ -2840,26 +2935,26 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return s;
     }
 
-    function buildBlockHtml(name, content, isThought, noAnim = false, isStreaming = false) {
+    function buildBlockHtml(name, content, isThought, noAnim = false, isStreaming = false, tag = null) {
         if (isStreaming) {
-            const cacheKey = `${name}///${content}///${isThought}///${noAnim}///${CFG.displayStyle}///${CFG.inchatImgMode}`;
+            const cacheKey = `${name}///${content}///${isThought}///${noAnim}///${CFG.displayStyle}///${CFG.inchatImgMode}///${tag || ''}`;
             if (_blockHtmlCache.has(cacheKey)) {
                 return _blockHtmlCache.get(cacheKey);
             }
             if (_blockHtmlCache.size > 500) _blockHtmlCache.clear();
-            const res = _buildBlockHtmlInternal(name, content, isThought, noAnim, true);
+            const res = _buildBlockHtmlInternal(name, content, isThought, noAnim, true, tag);
             _blockHtmlCache.set(cacheKey, res);
             return res;
         } else {
             if (_blockHtmlCache.size > 0) _blockHtmlCache.clear();
         }
-        return _buildBlockHtmlInternal(name, content, isThought, noAnim, false);
+        return _buildBlockHtmlInternal(name, content, isThought, noAnim, false, tag);
     }
 
-    function _buildBlockHtmlInternal(name, content, isThought, noAnim, isStreaming) {
+    function _buildBlockHtmlInternal(name, content, isThought, noAnim, isStreaming, tag = null) {
         const isRight = isThought;
-        const avatarHtml = buildAvatarHtml(name, isStreaming);
-        const tagText = name + (isThought ? ' · ✦ Suy nghĩ' : '');
+        const avatarHtml = buildAvatarHtml(name, isStreaming, tag);
+        const tagText = name + (tag && CFG.dynamicContextImages ? ` · ✦ ${tag}` : '') + (isThought ? ' · ✦ Suy nghĩ' : '');
         const cleanContent = cleanBubbleText(content).normalize('NFC');
         const bubbleText = sanitizeInlineHtml(cleanContent); // FREE HTML MODE: render nguyên HTML trong bubble để hỗ trợ style/custom markup
         const charCfg = getCharCfg(name);
@@ -2870,7 +2965,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const safeTextColor = safeCssValue(charCfg.textColor, '');
             if (safeTextColor) customTextStyle = ` style="color:${escapeAttr(safeTextColor)} !important;"`;
         }
-        return `<div class="vn-block${isRight ? ' vn-right' : ''}${noAnim ? ' vn-no-anim' : ''}${isStreaming ? ' vn-streaming' : ''}">${avatarHtml}<div class="vn-bubble${isThought ? ' vn-thought' : ''}"${customTextStyle}><div class="vn-bubble-tag" style="${escapeAttr(tagStyle)}">${escapeHtml(tagText)}</div><div class="vn-bubble-text"${customTextStyle}>${bubbleText}</div></div></div>`;
+        return `<div class="vn-block${isRight ? ' vn-right' : ''}${noAnim ? ' vn-no-anim' : ''}${isStreaming ? ' vn-streaming' : ''}" data-name="${escapeAttr(name)}" data-vn-tag="${escapeAttr(tag || '')}">${avatarHtml}<div class="vn-bubble${isThought ? ' vn-thought' : ''}"${customTextStyle}><div class="vn-bubble-tag" style="${escapeAttr(tagStyle)}">${escapeHtml(tagText)}</div><div class="vn-bubble-text"${customTextStyle}>${bubbleText}</div></div></div>`;
     }
 
     function isElementStreaming(el) {
@@ -2936,8 +3031,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         re.lastIndex = 0;
         let newHtml = raw.replace(re, (match, g1, g2, g3, g4, g5, g6, g7) => {
             const rawName = (g1 || '').trim();
-            const parsed = parseNameAndGender(rawName);
+            const parsed = parseNameGenderAndTag(rawName);
             const name = parsed.cleanName || rawName;
+            const tag = parsed.tag || null;
             if (CFG.autoRegisterChars === false && !getCharCfg(name)) {
                 return match;
             }
@@ -2949,7 +3045,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const isThought = (g5 !== undefined || g6 !== undefined || g7 !== undefined) ||
                 /font-style\s*:\s*italic/i.test(spanStyle) ||
                 (CFG.regexMode === 'custom' && (match.includes('*') || match.includes('<em>') || match.includes('<i>')));
-            return buildBlockHtml(name, content, isThought, actuallyStreaming || isAlreadyProcessed, actuallyStreaming);
+            return buildBlockHtml(name, content, isThought, actuallyStreaming || isAlreadyProcessed, actuallyStreaming, tag);
         });
 
         newHtml = newHtml.replace(/<p>\s*(?:<br\s*\/?>)?\s*<\/p>/gi, '');
@@ -3010,17 +3106,20 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 } else {
                     textEl.querySelectorAll('.vn-block').forEach(block => {
                         const charNameEl = block.querySelector('.vn-charname');
-                        if (charNameEl) {
-                            const name = charNameEl.textContent.trim();
+                        const name = block.dataset.name || (charNameEl ? charNameEl.textContent.trim() : '');
+                        const tag = block.dataset.vnTag || null;
+                        if (name) {
                             const charCfg = getCharCfg(name);
                             const color = safeCssValue(charCfg && charCfg.color ? charCfg.color : getNameColor(name), '#818cf8');
                             const avatarWrap = block.querySelector('.vn-avatar-wrap');
                             if (avatarWrap) {
-                                avatarWrap.outerHTML = buildAvatarHtml(name, false);
+                                avatarWrap.outerHTML = buildAvatarHtml(name, false, tag);
                             }
                             const tagEl = block.querySelector('.vn-bubble-tag');
                             if (tagEl) {
                                 tagEl.style.cssText = `background:${color};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;`;
+                                const tagText = name + (tag && CFG.dynamicContextImages ? ` · ✦ ${tag}` : '') + (block.querySelector('.vn-bubble.vn-thought') ? ' · ✦ Suy nghĩ' : '');
+                                tagEl.textContent = tagText;
                             }
                         }
                         const bubbleTextEl = block.querySelector('.vn-bubble-text');
@@ -3798,6 +3897,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign" /><span class="vn-slider"></span></label>
       </div>
+      <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.1);">
+        <div class="vn-toggle-info">
+          <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Bật tính năng Ảnh ngữ cảnh động (Dynamic Context Images)</div>
+          <div class="vn-toggle-desc">Bơm danh sách nhãn ảnh vào prompt để AI tự động gắn thẻ và hiển thị ảnh theo cảm xúc/ngữ cảnh truyện (Ăn kem, buồn, vui...)</div>
+        </div>
+        <label class="vn-switch"><input type="checkbox" id="vn-toggle-dynamic-context" /><span class="vn-slider"></span></label>
+      </div>
       <div id="vn-add-char-wrap" style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:14px;">
         <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:user-plus.svg?color=%23818cf8" class="vn-icon">Thêm nhanh nhân vật mới</div>
         <div style="display:flex;gap:8px;">
@@ -3858,6 +3964,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
               <input type="color" id="vn-char-det-textcolorpicker" value="#ffffff" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu chữ" />
             </div>
             <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab Giao diện & Style thì màu này mới có hiệu lực!</div>
+          </div>
+          <div class="vn-group" id="vn-char-det-expressions-group" style="background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:12px;">
+            <div class="vn-section-label" style="color:#ec4899;margin-top:0;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Danh sách Ảnh ngữ cảnh động / Nhãn cảm xúc (Dynamic Context Images)</div>
+            <div id="vn-char-det-expressions-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+            <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-add-expression" type="button" style="border-color:rgba(236,72,153,0.4);color:#f472b6;"><img src="https://api.iconify.design/lucide:plus.svg?color=%23f472b6" class="vn-icon">Thêm nhãn ảnh ngữ cảnh mới...</button>
+            <div style="font-size:11px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Khi bật tính năng "Ảnh ngữ cảnh động" ở cài đặt, AI sẽ tự chọn nhãn phù hợp (ví dụ: Ăn kem, buồn, vui...) để hiển thị ảnh tương ứng cho nhân vật theo mạch truyện!</div>
           </div>
           <div style="display:flex;gap:8px;margin-top:4px;">
             <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;"><img src="https://api.iconify.design/lucide:save.svg?color=white" class="vn-icon">Lưu nhân vật này</button>
@@ -4120,6 +4232,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-prompt" /><span class="vn-slider"></span></label>
     </div>
+    <div class="vn-toggle-row" style="border-color:rgba(236,72,153,0.3);background:rgba(236,72,153,0.08);margin-bottom:14px;">
+      <div class="vn-toggle-info">
+        <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Tự động tiêm nhãn ảnh ngữ cảnh vào Prompt (Dynamic Context Images)</div>
+        <div class="vn-toggle-desc">Tự động bổ sung danh sách nhãn ảnh cảm xúc của từng nhân vật vào Prompt hướng dẫn bên dưới cho AI</div>
+      </div>
+      <label class="vn-switch"><input type="checkbox" id="vn-toggle-dynamic-context-prompt" /><span class="vn-slider"></span></label>
+    </div>
     <div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div class="vn-section-label" style="color:#f43f5e;margin:0;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%23f43f5e" class="vn-icon">Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
@@ -4199,6 +4318,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-set" /><span class="vn-slider"></span></label>
     </div>
+    <div class="vn-toggle-row">
+      <div class="vn-toggle-info">
+        <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Bật tính năng Ảnh ngữ cảnh động (Dynamic Context Images)</div>
+        <div class="vn-toggle-desc">Bơm danh sách nhãn ảnh của nhân vật vào prompt để AI tự chọn ảnh theo mạch truyện</div>
+      </div>
+      <label class="vn-switch"><input type="checkbox" id="vn-toggle-dynamic-context-set" /><span class="vn-slider"></span></label>
+    </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:trash.svg?color=%23cbd5e1" class="vn-icon">Dọn dẹp Cache</button>
@@ -4252,6 +4378,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (togAutoAssign) togAutoAssign.checked = !!CFG.autoAssignAvatar;
         if (togAutoAssignSet) togAutoAssignSet.checked = !!CFG.autoAssignAvatar;
         if (togAutoAssignPrompt) togAutoAssignPrompt.checked = !!CFG.autoAssignAvatar;
+
+        const togDyn = PD.getElementById('vn-toggle-dynamic-context');
+        const togDynPrompt = PD.getElementById('vn-toggle-dynamic-context-prompt');
+        const togDynSet = PD.getElementById('vn-toggle-dynamic-context-set');
+        if (togDyn) togDyn.checked = !!CFG.dynamicContextImages;
+        if (togDynPrompt) togDynPrompt.checked = !!CFG.dynamicContextImages;
+        if (togDynSet) togDynSet.checked = !!CFG.dynamicContextImages;
 
         PD.querySelectorAll('#vn-tab-style .vn-style-opt').forEach(b => b.classList.toggle('selected', b.dataset.style === CFG.displayStyle));
         
@@ -4388,6 +4521,103 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         return el;
     }
 
+    function addExpressionRow(label = '', url = '') {
+        const listEl = PD.getElementById('vn-char-det-expressions-list');
+        if (!listEl) return;
+        const row = PD.createElement('div');
+        row.className = 'vn-expression-row';
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;background:rgba(0,0,0,0.25);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);';
+        
+        const labelInput = PD.createElement('input');
+        labelInput.type = 'text';
+        labelInput.className = 'vn-input vn-exp-label';
+        labelInput.placeholder = 'Tên nhãn (vd: Ăn kem, buồn...)';
+        labelInput.value = label;
+        labelInput.style.cssText = 'flex:1;min-width:120px;padding:6px 10px;font-size:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;';
+        
+        const urlInput = PD.createElement('input');
+        urlInput.type = 'text';
+        urlInput.className = 'vn-input vn-exp-url';
+        urlInput.placeholder = 'URL ảnh hoặc chọn ảnh local ->';
+        urlInput.value = url;
+        urlInput.style.cssText = 'flex:2;min-width:160px;padding:6px 10px;font-size:13px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:#fff;';
+        
+        const fileInput = PD.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        
+        const uploadBtn = PD.createElement('button');
+        uploadBtn.type = 'button';
+        uploadBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
+        uploadBtn.title = 'Tải ảnh từ máy lên';
+        uploadBtn.innerHTML = '<img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">';
+        uploadBtn.style.cssText = 'padding:6px 10px;border-color:rgba(255,255,255,0.15);';
+        uploadBtn.onclick = () => fileInput.click();
+        
+        fileInput.onchange = async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            try {
+                const charName = _currentEditChar || 'char';
+                const cleanTag = labelInput.value.trim() || 'exp_' + Date.now();
+                const key = `${charName}_exp_${cleanTag}_${Date.now()}.png`;
+                const idbUrl = await putLocalImageBlob(file, { name: key });
+                urlInput.value = idbUrl;
+                showToast('Đã lưu ảnh ngữ cảnh vào IndexedDB!', 'success');
+            } catch (err) {
+                console.error('[VN Dialogue] Lỗi upload ảnh ngữ cảnh:', err);
+                const reader = new FileReader();
+                reader.onload = () => { urlInput.value = reader.result; };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        const previewImg = PD.createElement('img');
+        previewImg.style.cssText = 'width:32px;height:32px;border-radius:6px;object-fit:cover;background:#1e293b;border:1px solid rgba(255,255,255,0.1);';
+        const updatePreview = () => {
+            const val = safeImageUrl(urlInput.value.trim());
+            if (val) {
+                previewImg.src = val;
+                if (isLocalImageRef(val)) hydrateLocalImageEl(previewImg, val);
+                previewImg.style.display = 'block';
+            } else {
+                previewImg.style.display = 'none';
+            }
+        };
+        urlInput.addEventListener('input', updatePreview);
+        updatePreview();
+        
+        const delBtn = PD.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'vn-btn vn-btn-danger vn-btn-sm';
+        delBtn.title = 'Xóa nhãn này';
+        delBtn.innerHTML = '<img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon">';
+        delBtn.style.cssText = 'padding:6px 10px;border-color:rgba(248,113,113,0.3);';
+        delBtn.onclick = () => row.remove();
+        
+        row.appendChild(labelInput);
+        row.appendChild(urlInput);
+        row.appendChild(uploadBtn);
+        row.appendChild(fileInput);
+        row.appendChild(previewImg);
+        row.appendChild(delBtn);
+        listEl.appendChild(row);
+    }
+
+    function renderCharExpressionsList(expressions = []) {
+        const listEl = PD.getElementById('vn-char-det-expressions-list');
+        if (!listEl) return;
+        listEl.innerHTML = '';
+        if (Array.isArray(expressions)) {
+            expressions.forEach(exp => {
+                if (exp && exp.label && exp.url) {
+                    addExpressionRow(exp.label, exp.url);
+                }
+            });
+        }
+    }
+
     let _currentEditChar = null;
     function openCharDetail(name) {
         _currentEditChar = name;
@@ -4425,6 +4655,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 hintEl.style.color = '#94a3b8';
             }
         }
+
+        renderCharExpressionsList(ch.expressions || []);
 
         const btnsWrap = PD.getElementById('vn-char-det-btns');
         if (btnsWrap) btnsWrap.innerHTML = '';
@@ -4589,6 +4821,20 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if ($('vn-toggle-auto-assign')) $('vn-toggle-auto-assign').addEventListener('change', e => handleAutoAssignChange(e.target.checked));
         if ($('vn-toggle-auto-assign-set')) $('vn-toggle-auto-assign-set').addEventListener('change', e => handleAutoAssignChange(e.target.checked));
         if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').addEventListener('change', e => handleAutoAssignChange(e.target.checked));
+
+        const handleDynamicContextChange = (checked) => {
+            CFG.dynamicContextImages = checked;
+            saveConfig(CFG);
+            doInjectSystemPrompt();
+            if ($('vn-toggle-dynamic-context')) $('vn-toggle-dynamic-context').checked = checked;
+            if ($('vn-toggle-dynamic-context-prompt')) $('vn-toggle-dynamic-context-prompt').checked = checked;
+            if ($('vn-toggle-dynamic-context-set')) $('vn-toggle-dynamic-context-set').checked = checked;
+            forceReRenderAll();
+            showToast(checked ? '✨ Đã bật tính năng Ảnh ngữ cảnh động!' : 'Đã tắt tính năng Ảnh ngữ cảnh động', 'info');
+        };
+        if ($('vn-toggle-dynamic-context')) $('vn-toggle-dynamic-context').addEventListener('change', e => handleDynamicContextChange(e.target.checked));
+        if ($('vn-toggle-dynamic-context-prompt')) $('vn-toggle-dynamic-context-prompt').addEventListener('change', e => handleDynamicContextChange(e.target.checked));
+        if ($('vn-toggle-dynamic-context-set')) $('vn-toggle-dynamic-context-set').addEventListener('change', e => handleDynamicContextChange(e.target.checked));
 
         PD.querySelectorAll('#vn-tab-style .vn-style-opt').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -4979,6 +5225,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             setAvatarAdjustControls({ avatarPosX: 50, avatarPosY: 50, avatarZoom: 100, avatarFit: 'cover' });
         });
 
+        const addExpBtn = $('vn-char-add-expression');
+        if (addExpBtn) {
+            addExpBtn.addEventListener('click', () => {
+                addExpressionRow('', '');
+            });
+        }
+
         const pickImgBtn = $('vn-char-pick-img');
         if (pickImgBtn) {
             pickImgBtn.addEventListener('click', () => {
@@ -5050,6 +5303,28 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     return;
                 }
             }
+            const expressions = [];
+            const expRows = PD.querySelectorAll('#vn-char-det-expressions-list .vn-expression-row');
+            for (let i = 0; i < expRows.length; i++) {
+                const labelEl = expRows[i].querySelector('.vn-exp-label');
+                const urlEl = expRows[i].querySelector('.vn-exp-url');
+                if (labelEl && urlEl) {
+                    const label = labelEl.value.trim();
+                    let url = urlEl.value.trim();
+                    if (label && url) {
+                        url = safeImageUrl(url) || '';
+                        if (isLegacyDataImage(url)) {
+                            try {
+                                url = await putLocalImageBlob(dataUrlToBlob(url), { name: `${newName}_exp_${i}_${Date.now()}.png` });
+                                urlEl.value = url;
+                            } catch (e) {
+                                console.error('[VN Dialogue] Lỗi lưu ảnh ngữ cảnh vào IndexedDB:', e);
+                            }
+                        }
+                        if (url) expressions.push({ label, url });
+                    }
+                }
+            }
             if (newName !== _currentEditChar) {
                 const data = CFG.characters[_currentEditChar];
                 delete CFG.characters[_currentEditChar];
@@ -5061,9 +5336,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 _currentEditChar = newName;
             }
             const oldData = CFG.characters[_currentEditChar] || {};
-            CFG.characters[_currentEditChar] = Object.assign({}, oldData, { avatar: avatarUrl, color, textColor }, avatarAdjust);
+            CFG.characters[_currentEditChar] = Object.assign({}, oldData, { avatar: avatarUrl, color, textColor, expressions }, avatarAdjust);
             const savedName = _currentEditChar;
             saveConfig(CFG);
+            doInjectSystemPrompt();
             renderCharGrid();
             closeCharDetail();
             forceReRenderAll();
