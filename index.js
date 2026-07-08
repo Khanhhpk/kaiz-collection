@@ -277,10 +277,33 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
         if (manualCheck && targetWin.toastr) {
             targetWin.toastr.info('Đang kiểm tra bản cập nhật từ GitHub...');
         }
-        // Kiểm tra manifest mới nhất từ GitHub master branch
-        const res = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/master/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const remoteManifest = await res.json();
+        // Lấy manifest từ GitHub (ưu tiên refs/heads/master và API trực tiếp để tránh Fastly CDN cache bị trễ 3-5 phút sau khi push)
+        let remoteManifest = null;
+        try {
+            const resRef = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/refs/heads/master/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (resRef.ok) remoteManifest = await resRef.json();
+        } catch (e) {}
+
+        if (!remoteManifest || compareVersions(remoteManifest.version, KAIZ_CURRENT_VERSION) <= 0) {
+            try {
+                const resApi = await fetch(`https://api.github.com/repos/Khanhhpk/kaiz-collection/contents/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
+                if (resApi.ok) {
+                    const apiData = await resApi.json();
+                    if (apiData && apiData.content) {
+                        const decoded = JSON.parse(decodeURIComponent(escape(atob(apiData.content))));
+                        if (decoded && decoded.version && compareVersions(decoded.version, remoteManifest?.version || '0') > 0) {
+                            remoteManifest = decoded;
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        if (!remoteManifest) {
+            const res = await fetch(`https://raw.githubusercontent.com/Khanhhpk/kaiz-collection/master/manifest.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            remoteManifest = await res.json();
+        }
         const remoteVersion = remoteManifest.version || KAIZ_CURRENT_VERSION;
 
         if (compareVersions(remoteVersion, KAIZ_CURRENT_VERSION) > 0) {
