@@ -46,11 +46,11 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
    - "connections": LỐI ĐI & LIÊN KẾT GIAO THÔNG tới các địa điểm khác trong truyện.
    - "status": Trạng thái truy cập hoặc tình trạng kiến trúc ("Tự do ra vào", "Khóa mật mã / Cửa khóa", "Cấm địa / Tuyệt mật", "Đang bị phá hủy"...).
    - "characters": Danh sách nhân vật đang đứng/hiện diện tại địa điểm lúc này.
-5. CẬP NHẬT HOÀN TOÀN TẠO MỚI (CỰC KỲ QUAN TRỌNG): Bản đồ hiện tại của chúng ta CÓ SẴN các địa điểm sau:
+5. CẬP NHẬT CHẮP VÁ THÔNG MINH (PATCH UPDATE) (CỰC KỲ QUAN TRỌNG): Bản đồ hiện tại của chúng ta CÓ SẴN các địa điểm sau:
 === BẢN ĐỒ HIỆN TẠI ===
 {{existing_map}}
 ======================
-NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON để HỆ THỐNG CẬP NHẬT THÔNG TIN thay vì tạo mới. Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id".
+NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON. ĐỒNG THỜI, BẠN CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN CẬP NHẬT (Ví dụ: chỉ xuất `characters` nếu có người tới). CÁC TRƯỜNG KHÁC (description, atmosphere...) HÃY BỎ QUA (Không ghi vào JSON) để giữ nguyên gốc! Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
 6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - KHÔNG GIAN ĐỊA LÝ): Hệ thống sử dụng mạng lưới không gian 2D (row,col) để phác thảo khoảng cách địa lý. Tọa độ bắt đầu từ 0,0 và BẮT BUỘC PHẢI LÀ SỐ DƯƠNG (>= 0). CHÚ Ý: Lưới không gian bị giới hạn kích thước tối đa là 15x15. Do đó, cả hàng (row) và cột (col) đều chỉ được phép nằm trong khoảng từ 0 đến 14. Bạn PHẢI cấp tọa độ \`grid_hint\` cho TẤT CẢ các địa điểm (Cả Khu Vực Lớn \`locations\` và Phân Khu Nhỏ \`subLocations\`).
    - TƯ DUY KHÔNG GIAN (Chain of Thought): Thay vì áp dụng quy tắc tọa độ cứng nhắc, hãy tự tư duy và phác thảo sơ đồ không gian trong đầu bạn trước:
      + 1. Tâm của bối cảnh hiện tại nằm ở đâu?
@@ -63,7 +63,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
   "geography_thought_process": "Viết luồng tư duy phân tích không gian (Tâm ở đâu, hướng nào, khoảng cách xa/gần, lý do chọn tọa độ) trước khi liệt kê các địa điểm...",
   "locations": [
     {
-      "id": "ID_NẾU_MUỐN_CẬP_NHẬT_ĐỊA_ĐIỂM_CŨ (Nếu là địa điểm tạo mới, KHÔNG ĐIỀN TRƯỜNG NÀY)",
+      "id": "ID_NẾU_MUỐN_CẬP_NHẬT_ĐỊA_ĐIỂM_CŨ (Nếu cập nhật, CHỈ CẦN ghi các trường thay đổi, còn lại xóa khỏi JSON)",
       "name": "Tên Khu Vực Lớn / Trung Tâm (VD: Trường Trung Học Sakura / Trạm Vũ Trụ Alpha / Đảo Rồng)",
       "category": "Phân loại chính tự do theo đúng bối cảnh truyện",
       "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
@@ -79,7 +79,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       "characters": ["Tên nhân vật A đang đứng/hiện diện tại đây"],
       "subLocations": [
         {
-          "id": "ID_NẾU_CẬP_NHẬT (Bỏ trống nếu tạo mới)",
+          "id": "ID_NẾU_CẬP_NHẬT (Bỏ trống nếu tạo mới. Nếu cập nhật, chỉ xuất trường thay đổi)",
           "name": "Tên Căn Phòng / Phân Khu Nhỏ bên trong",
           "category": "Phân loại tập con tự do",
           "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
