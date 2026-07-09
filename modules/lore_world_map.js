@@ -3046,7 +3046,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 opacity: 0;
                 animation: lore-globe-pulse 1.5s infinite;
             `;
-            globalLoadingIcon.innerHTML = '<img src="https://api.iconify.design/lucide:globe.svg?color=%2338bdf8" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />';
+            globalLoadingIcon.innerHTML = '<img src="https://api.iconify.design/lucide:globe.svg?color=%2338bdf8" class="fa-spin" style="width:24px;height:24px;display:inline-block;" />';
             if (!doc.getElementById('lore_globe_pulse_style')) {
                 const style = doc.createElement('style');
                 style.id = 'lore_globe_pulse_style';
