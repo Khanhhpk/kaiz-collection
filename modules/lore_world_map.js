@@ -173,8 +173,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         injectEnabled: false,
         injMapStruct: true,
         injLocDetails: true,
-        injConnections: true,
-        injCharacters: true,
+          injConnections: true,
+          injCharacters: true,
+          injAtmosphere: true,
+          injSecrets: true,
         injectTarget: 'in_chat',
         injectRole: 'system',
         injectDepth: 0,
@@ -1699,6 +1701,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                         <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_loc_details"> Thông tin chi tiết địa điểm</label>
                                         <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_connections"> Mối liên kết giao thông</label>
                                         <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_characters"> Nhân vật hiện diện</label>
+                                          <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_atmosphere"> Môi trường & Bầu không khí</label>
+                                          <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_secrets"> Bí mật & Vật phẩm ẩn</label>
                                     </div>
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -2024,6 +2028,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             overlay.querySelector('#cfg_inj_loc_details').checked = aiConfig.injLocDetails !== false;
             overlay.querySelector('#cfg_inj_connections').checked = aiConfig.injConnections !== false;
             overlay.querySelector('#cfg_inj_characters').checked = aiConfig.injCharacters !== false;
+              const atmEl = overlay.querySelector('#cfg_inj_atmosphere'); if (atmEl) atmEl.checked = aiConfig.injAtmosphere !== false;
+              const secEl = overlay.querySelector('#cfg_inj_secrets'); if (secEl) secEl.checked = aiConfig.injSecrets !== false;
             overlay.querySelector('#cfg_inj_target').value = aiConfig.injectTarget || 'in_chat';
             overlay.querySelector('#cfg_inj_role').value = aiConfig.injectRole || 'system';
             overlay.querySelector('#cfg_inj_depth').value = aiConfig.injectDepth || 0;
@@ -2158,6 +2164,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             aiConfig.injLocDetails = overlay.querySelector('#cfg_inj_loc_details').checked;
             aiConfig.injConnections = overlay.querySelector('#cfg_inj_connections').checked;
             aiConfig.injCharacters = overlay.querySelector('#cfg_inj_characters').checked;
+              const atmEl2 = overlay.querySelector('#cfg_inj_atmosphere'); if (atmEl2) aiConfig.injAtmosphere = atmEl2.checked;
+              const secEl2 = overlay.querySelector('#cfg_inj_secrets'); if (secEl2) aiConfig.injSecrets = secEl2.checked;
             aiConfig.injectTarget = overlay.querySelector('#cfg_inj_target').value;
             aiConfig.injectRole = overlay.querySelector('#cfg_inj_role').value;
             aiConfig.injectDepth = parseInt(overlay.querySelector('#cfg_inj_depth').value, 10) || 0;
@@ -3325,7 +3333,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             out.push(buildTree(mapData.locations));
         }
 
-        if (aiConfig.injLocDetails || aiConfig.injConnections || aiConfig.injCharacters) {
+        if (aiConfig.injLocDetails || aiConfig.injConnections || aiConfig.injCharacters || aiConfig.injAtmosphere || aiConfig.injSecrets) {
             out.push("[CHI TIẾT CÁC ĐỊA ĐIỂM QUAN TRỌNG]");
             const buildDetails = (locs) => {
                 let s = "";
