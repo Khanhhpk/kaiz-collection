@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.0.6
+ * - Phiên bản: v1.5.0.7
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.6)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.7)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -46,7 +46,7 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
    - "connections": LỐI ĐI & LIÊN KẾT GIAO THÔNG tới các địa điểm khác trong truyện.
    - "status": Trạng thái truy cập hoặc tình trạng kiến trúc ("Tự do ra vào", "Khóa mật mã / Cửa khóa", "Cấm địa / Tuyệt mật", "Đang bị phá hủy"...).
    - "characters": Danh sách nhân vật đang đứng/hiện diện tại địa điểm lúc này.
-5. CẬP NHẬT HOẶC TẠO MỚI (CỰC KỲ QUAN TRỌNG): Bản đồ hiện tại của chúng ta CÓ SẴN các địa điểm sau:
+5. CẬP NHẬT HOÀN TOÀN TẠO MỚI (CỰC KỲ QUAN TRỌNG): Bản đồ hiện tại của chúng ta CÓ SẴN các địa điểm sau:
 === BẢN ĐỒ HIỆN TẠI ===
 {{existing_map}}
 ======================
@@ -152,6 +152,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // ============ CẤU HÌNH AI & PROMPT ============
     let aiConfig = {
+        nodeSize: 340,
         source: 'sillytavern', // 'sillytavern' | 'custom'
         customUrl: 'https://api.openai.com/v1/chat/completions',
         customKey: '',
@@ -417,6 +418,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const style = doc.createElement('style');
         style.id = 'lore-world-map-app-styles-v83';
         style.innerHTML = `
+            :root { --lore-node-size: 340px; }
             #lore_app_modal_overlay {
                 position: fixed;
                 inset: 0;
@@ -566,8 +568,23 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 margin: 0 auto 16px auto;
             }
             .lore-grid-row > .location-button {
-                flex: 0 0 340px;
-                width: 340px;
+                flex: 0 0 var(--lore-node-size);
+                width: var(--lore-node-size);
+                height: var(--lore-node-size);
+                min-height: var(--lore-node-size);
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                padding: 16px 14px 12px 14px;
+                background: linear-gradient(145deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.98));
+                border: 2px solid rgba(148, 163, 184, 0.35);
+                border-radius: 20px;
+                cursor: pointer;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                color: #f8fafc;
+                box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+                overflow: visible;
+                user-select: none;
             }
             @media (max-width: 880px) {
                 #lore_app_header { flex-direction: column; align-items: stretch; max-height: 42vh; overflow-y: auto; gap: 10px; }
@@ -576,23 +593,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 .lore-header-actions .lore-btn { flex: 1 1 auto; justify-content: center; }
             }
 
-            .location-button {
-                min-height: 210px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                position: relative;
-                background: linear-gradient(145deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.98));
-                border: 2px solid rgba(148, 163, 184, 0.35);
-                border-radius: 20px;
-                padding: 16px 14px 12px 14px;
-                cursor: pointer;
-                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-                color: #f8fafc;
-                box-shadow: 0 12px 28px rgba(0,0,0,0.6);
-                overflow: visible;
-                user-select: none;
-            }
             .location-button:hover {
                 transform: translateY(-5px) scale(1.015);
                 border-color: #38bdf8;
@@ -605,7 +605,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             .location-button.danger-button:hover { border-color: #fca5a5; box-shadow: 0 18px 40px rgba(251, 113, 133, 0.35); }
             
             .location-button.empty-location {
-                min-height: 210px; /* Đồng nhất với location-button */
                 background: rgba(15, 23, 42, 0.2);
                 border: 1px dashed rgba(148, 163, 184, 0.2);
                 color: #64748b;
@@ -613,7 +612,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 box-shadow: none;
                 justify-content: center;
                 align-items: center;
-                pointer-events: none; /* Mặc định vô hiệu hóa */
+                pointer-events: none;
                 transition: all 0.2s ease-in-out;
             }
             .location-button.empty-location.add-mode-cell {
@@ -1099,20 +1098,42 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     let loreScrollLeftStart = 0;
     let loreScrollTopStart = 0;
 
-    window._loreGraphZoom = function(delta) {
-        loreGraphZoomLevel = Math.max(0.4, Math.min(2.2, Number((loreGraphZoomLevel + delta).toFixed(2))));
+    window._loreGraphZoom = function(delta, e) {
         const grid = doc.getElementById('lore_grid_container');
+        const viewport = doc.getElementById('lore_app_viewport');
         const label = doc.getElementById('lore_graph_zoom_label');
-        if (grid) {
-            // Sử dụng zoom thay cho scale để trình duyệt tự căn lại chính xác kích thước scrollWidth/scrollHeight không bị rìa vô hình chặn cắt
-            if ('zoom' in grid.style) {
-                grid.style.zoom = loreGraphZoomLevel;
-                grid.style.transform = 'none';
-            } else {
-                grid.style.transform = `scale(${loreGraphZoomLevel})`;
-                grid.style.transformOrigin = 'top left';
-            }
+        if (!grid || !viewport) return;
+
+        let oldZoom = loreGraphZoomLevel;
+        let newZoom = Math.max(0.4, Math.min(2.2, Number((oldZoom + delta).toFixed(2))));
+        if (oldZoom === newZoom) return;
+
+        loreGraphZoomLevel = newZoom;
+
+        let clientX, clientY;
+        if (e) {
+            const rect = viewport.getBoundingClientRect();
+            clientX = e.clientX - rect.left;
+            clientY = e.clientY - rect.top;
+        } else {
+            clientX = viewport.clientWidth / 2;
+            clientY = viewport.clientHeight / 2;
         }
+
+        const contentX = (viewport.scrollLeft + clientX) / oldZoom;
+        const contentY = (viewport.scrollTop + clientY) / oldZoom;
+
+        if ('zoom' in grid.style) {
+            grid.style.zoom = loreGraphZoomLevel;
+            grid.style.transform = 'none';
+        } else {
+            grid.style.transform = `scale(${loreGraphZoomLevel})`;
+            grid.style.transformOrigin = 'top left';
+        }
+
+        viewport.scrollLeft = contentX * newZoom - clientX;
+        viewport.scrollTop = contentY * newZoom - clientY;
+
         if (label) label.innerText = `${Math.round(loreGraphZoomLevel * 100)}%`;
     };
 
@@ -1133,6 +1154,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const viewport = doc.getElementById('lore_app_viewport');
         if (btn) btn.classList.toggle('active', loreGraphDragEnabled);
         if (viewport) viewport.style.cursor = loreGraphDragEnabled ? 'grab' : 'default';
+    };
+
+    window._loreChangeNodeSize = function(val) {
+        aiConfig.nodeSize = parseInt(val, 10) || 340;
+        saveAiConfig();
+        const overlay = doc.getElementById('lore_app_modal_overlay');
+        if (overlay) overlay.style.setProperty('--lore-node-size', `${aiConfig.nodeSize}px`);
     };
 
     window._loreToggleDynamicTracking = function() {
@@ -1191,7 +1219,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         viewport.addEventListener('wheel', (e) => {
             if (e.ctrlKey) {
                 e.preventDefault();
-                window._loreGraphZoom(e.deltaY < 0 ? 0.08 : -0.08);
+                window._loreGraphZoom(e.deltaY < 0 ? 0.08 : -0.08, e);
             }
         }, { passive: false });
     }
@@ -1202,6 +1230,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         const overlay = doc.createElement('div');
         overlay.id = 'lore_app_modal_overlay';
+        overlay.style.setProperty('--lore-node-size', `${aiConfig.nodeSize || 340}px`);
         overlay.innerHTML = `
             <div id="lore_app_modal_content">
                 <!-- Header Toolbar Responsive -->
@@ -1287,6 +1316,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                 <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) - Ghim ở góc phải dưới modal -->
                 <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
+                    <div style="display: flex; align-items: center; gap: 8px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.18); margin-right: 4px;">
+                        <span style="font-size: 0.8em; color: #cbd5e1; font-weight: bold;"><i class="fa-solid fa-expand"></i> Cỡ ô</span>
+                        <input type="range" id="lore_node_size_slider" min="200" max="800" step="20" value="${aiConfig.nodeSize || 340}" style="width: 80px; accent-color: #38bdf8;" oninput="window._loreChangeNodeSize(this.value)" title="Điều chỉnh kích thước ô vuông địa điểm" />
+                    </div>
                     <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><i class="fa-solid fa-plus"></i></button>
                     <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
                     <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
@@ -2745,13 +2778,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (statusBadge) statusBadge.innerText = cleanModalLabel(found.status || 'Tự do');
 
         const charBoxEl = doc.getElementById('det_characters')?.parentElement;
-
         if (aiConfig.trackDynamicInfo === false) {
             if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'none';
-            if (eventBoxEl && eventBoxEl.classList.contains('deep-info-card')) eventBoxEl.style.display = 'none';
         } else {
             if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'block';
-            if (eventBoxEl && eventBoxEl.classList.contains('deep-info-card')) eventBoxEl.style.display = 'block';
 
             const charArray = Array.isArray(found.characters) ? found.characters.filter(Boolean) : (typeof found.characters === 'string' && found.characters ? found.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
             if (charArray.length > 0) {
