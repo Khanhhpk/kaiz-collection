@@ -253,7 +253,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '1.3.0.15';
+const KAIZ_CURRENT_VERSION = '1.3.0.17';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -271,6 +271,48 @@ function compareVersions(vA, vB) {
         if (numA < numB) return -1;
     }
     return 0;
+}
+
+async function getKaizLocalVersion() {
+    let localCurrentVersion = KAIZ_CURRENT_VERSION;
+    try {
+        let selfFolder = 'kaiz-collection';
+        try {
+            if (typeof import.meta !== 'undefined' && import.meta.url) {
+                const parts = import.meta.url.split('/');
+                const folder = parts[parts.length - 2];
+                if (folder && !['third-party', 'extensions', 'scripts'].includes(folder)) {
+                    selfFolder = decodeURIComponent(folder);
+                }
+            }
+        } catch (e) {}
+
+        const localPathsToTry = [];
+        try {
+            if (typeof import.meta !== 'undefined' && import.meta.url) {
+                localPathsToTry.push(new URL('manifest.json', import.meta.url).href);
+            }
+        } catch (e) {}
+        localPathsToTry.push(
+            `/scripts/extensions/third-party/${selfFolder}/manifest.json`,
+            `/scripts/extensions/${selfFolder}/manifest.json`,
+            './manifest.json'
+        );
+
+        for (const lp of localPathsToTry) {
+            try {
+                const resLocal = await fetch(`${lp}?t=${Date.now()}`, { cache: 'no-store' });
+                if (resLocal.ok) {
+                    const localData = await resLocal.json();
+                    if (localData && localData.version) {
+                        localCurrentVersion = localData.version;
+                        break;
+                    }
+                }
+            } catch (e) {}
+        }
+    } catch (e) {}
+    return localCurrentVersion;
 }
 
 async function getKaizCurrentGitBranch(targetWin) {
@@ -342,44 +384,7 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
         console.log(`[KAIZ Collection] Đang kiểm tra cập nhật trên nhánh Git hiện tại: "${currentBranch}"`);
 
         // Lấy chính xác phiên bản cục bộ đang chạy (ưu tiên đọc trực tiếp từ manifest.json cục bộ)
-        let localCurrentVersion = KAIZ_CURRENT_VERSION;
-        try {
-            let selfFolder = 'kaiz-collection';
-            try {
-                if (typeof import.meta !== 'undefined' && import.meta.url) {
-                    const parts = import.meta.url.split('/');
-                    const folder = parts[parts.length - 2];
-                    if (folder && !['third-party', 'extensions', 'scripts'].includes(folder)) {
-                        selfFolder = decodeURIComponent(folder);
-                    }
-                }
-            } catch (e) {}
-
-            const localPathsToTry = [];
-            try {
-                if (typeof import.meta !== 'undefined' && import.meta.url) {
-                    localPathsToTry.push(new URL('manifest.json', import.meta.url).href);
-                }
-            } catch (e) {}
-            localPathsToTry.push(
-                `/scripts/extensions/third-party/${selfFolder}/manifest.json`,
-                `/scripts/extensions/${selfFolder}/manifest.json`,
-                './manifest.json'
-            );
-
-            for (const lp of localPathsToTry) {
-                try {
-                    const resLocal = await fetch(`${lp}?t=${Date.now()}`, { cache: 'no-store' });
-                    if (resLocal.ok) {
-                        const localData = await resLocal.json();
-                        if (localData && localData.version) {
-                            localCurrentVersion = localData.version;
-                            break;
-                        }
-                    }
-                } catch (e) {}
-            }
-        } catch (e) {}
+        let localCurrentVersion = await getKaizLocalVersion();
 
         // Lấy manifest từ đúng nhánh Git hiện tại (beta, master, ...) để tránh xung đột
         let remoteManifest = null;
@@ -666,7 +671,7 @@ function renderExtensionSettings(targetWin, jq) {
         <div class="inline-drawer-toggle inline-drawer-header" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <i class="fa-solid fa-layer-group" style="color: #38bdf8; font-size: 1.1em;"></i>
-                <b style="font-size: 1.02em; color: #f8fafc; letter-spacing: 0.3px;">KAIZ Collection <span style="font-size:11.5px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;font-weight:700;">v${KAIZ_CURRENT_VERSION}</span></b>
+                <b style="font-size: 1.02em; color: #f8fafc; letter-spacing: 0.3px;">KAIZ Collection <span id="kaiz_version_display" style="font-size:11.5px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;font-weight:700;">v...</span></b>
             </div>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down" style="color: #64748b;"></div>
         </div>
@@ -768,6 +773,11 @@ function renderExtensionSettings(targetWin, jq) {
     </div>`;
 
     container.appendChild(section);
+
+    getKaizLocalVersion().then(v => {
+        const span = doc.getElementById('kaiz_version_display');
+        if (span) span.innerText = 'v' + v;
+    });
 
     // Xử lý chuyển tab
     const tabBtnModules = doc.getElementById('kaiz_tab_btn_modules');
