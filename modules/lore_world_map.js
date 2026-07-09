@@ -404,12 +404,24 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             .lore-btn-secondary:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255,255,255,0.35); }
             
             /* ============ MAIN VIEWPORT & INFINITE N-LAYER BREADCRUMB ============ */
+            /* ============ FIXED TOP PANEL & MAIN VIEWPORT ============ */
+            #lore_fixed_top_panel {
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 14px 22px 10px 22px;
+                background: rgba(15, 23, 42, 0.96);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 20;
+                user-select: none;
+            }
             #lore_app_viewport {
                 flex: 1 1 0%;
                 display: flex;
                 flex-direction: column;
                 overflow: auto;
-                padding: 28px;
+                padding: 40px 30px 80px 30px;
                 position: relative;
                 box-sizing: border-box;
                 cursor: grab;
@@ -423,12 +435,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 align-items: center;
                 flex-wrap: wrap;
                 gap: 8px;
-                margin-bottom: 20px;
+                margin-bottom: 4px;
                 background: rgba(255,255,255,0.06);
-                padding: 12px 18px;
-                border-radius: 16px;
+                padding: 10px 16px;
+                border-radius: 14px;
                 border: 1px solid rgba(255,255,255,0.14);
-                font-size: 0.95em;
+                font-size: 0.92em;
                 font-weight: bold;
                 flex-shrink: 0;
                 cursor: default;
@@ -527,24 +539,32 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             /* CARD HEADER BADGES & ANNOTATIONS */
             .loc-card-header {
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
+                align-items: flex-start;
+                justify-content: flex-start;
                 flex-wrap: wrap;
                 gap: 6px;
                 width: 100%;
+                max-width: 100%;
                 margin-bottom: 10px;
                 pointer-events: none;
+                box-sizing: border-box;
             }
             .badge-pill {
-                font-size: 0.74em;
+                font-size: 0.75em;
                 font-weight: 800;
-                padding: 3px 9px;
-                border-radius: 20px;
-                display: flex;
+                padding: 4px 10px;
+                border-radius: 14px;
+                display: inline-flex;
                 align-items: center;
                 gap: 5px;
                 letter-spacing: 0.3px;
-                white-space: nowrap;
+                white-space: normal;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                line-height: 1.35;
+                text-align: left;
+                max-width: 100%;
+                box-sizing: border-box;
             }
             .badge-cat { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }
             .badge-hub { background: rgba(192, 132, 252, 0.18); color: #e9d5ff; border: 1px solid rgba(192, 132, 252, 0.45); }
@@ -951,14 +971,18 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (viewport) viewport.style.cursor = loreGraphDragEnabled ? 'grab' : 'default';
     };
 
+    let loreDidPanDuringDrag = false;
+
     function attachGraphPanListeners(overlay) {
         const viewport = overlay.querySelector('#lore_app_viewport');
         if (!viewport) return;
 
         viewport.addEventListener('mousedown', (e) => {
             if (!loreGraphDragEnabled) return;
-            if (e.target.closest('button, input, textarea, select, .location-button, #lore_location_detail_box')) return;
+            // Cho phép kéo thả trực tiếp trên cả nút địa điểm (.location-button), chỉ loại bỏ các thành phần nhập liệu hoặc nút bấm riêng lẻ
+            if (e.target.closest('button, input, textarea, select, a, .smart-transit-link, #lore_location_detail_box, .lore-graph-controls')) return;
             loreIsDraggingGraph = true;
+            loreDidPanDuringDrag = false;
             loreDragStartX = e.clientX;
             loreDragStartY = e.clientY;
             loreScrollLeftStart = viewport.scrollLeft;
@@ -968,17 +992,23 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         window.addEventListener('mousemove', (e) => {
             if (!loreIsDraggingGraph || !loreGraphDragEnabled) return;
-            e.preventDefault();
             const dx = e.clientX - loreDragStartX;
             const dy = e.clientY - loreDragStartY;
-            viewport.scrollLeft = loreScrollLeftStart - dx;
-            viewport.scrollTop = loreScrollTopStart - dy;
+            if (Math.abs(dx) > 4 || Math.abs(dy) > 4 || loreDidPanDuringDrag) {
+                loreDidPanDuringDrag = true;
+                e.preventDefault();
+                viewport.scrollLeft = loreScrollLeftStart - dx;
+                viewport.scrollTop = loreScrollTopStart - dy;
+            }
         });
 
         window.addEventListener('mouseup', () => {
             if (loreIsDraggingGraph) {
                 loreIsDraggingGraph = false;
                 if (loreGraphDragEnabled && viewport) viewport.style.cursor = 'grab';
+                if (loreDidPanDuringDrag) {
+                    setTimeout(() => { loreDidPanDuringDrag = false; }, 80);
+                }
             }
         });
 
@@ -1006,7 +1036,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </div>
                         <div>
                             <div style="font-weight: 800; font-size: 1.12em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (v8.6 Graph - v1.3.0.13)</span>
+                                <span>BẢN ĐỒ THẾ GIỚI (v8.7 Graph - v1.3.0.14)</span>
                                 <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 khu vực</span>
                                 <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
@@ -1041,10 +1071,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     </div>
                 </div>
 
-                <!-- Viewport & Infinite N-Layer Breadcrumb -->
-                <div id="lore_app_viewport">
+                <!-- Fixed Top Panel (Cố định hoàn toàn khi cuộn/kéo bản đồ 2D) -->
+                <div id="lore_fixed_top_panel">
                     <!-- Instruction Banner Chuột Trái / Chuột Phải -->
-                    <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 8px 14px; margin-bottom: 14px; font-size: 0.86em; color: #bae6fd; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap;">
+                    <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 8px 14px; font-size: 0.86em; color: #bae6fd; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap;">
                         <span>💡 <b>Hướng dẫn điều khiển:</b> Nhấp <b>Chuột Trái</b> vào địa điểm để đi sâu vào tập con/phân khu bên trong <i class="fa-solid fa-arrow-right" style="color: #38bdf8; margin: 0 6px;"></i> Nhấp <b>Chuột Phải</b> (hoặc Nhấn Giữ) để xem & đọc Thông Tin Chi Tiết (Deep Info).</span>
                         <span style="font-size: 0.9em; color: #38bdf8; font-weight: bold;">[ Lưu tự động theo Chat ]</span>
                     </div>
@@ -1057,7 +1087,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <!-- Smart Roadmap & Inter-connection Overview Bar -->
                     <div id="lore_smart_roadmap_bar" style="display: none;"></div>
+                </div>
 
+                <!-- Viewport (Chỉ chứa lưới đồ thị 2D & Nút điều khiển Zoom/Pan) -->
+                <div id="lore_app_viewport">
                     <!-- Lưới Địa Điểm & Đường Đi -->
                     <div id="lore_grid_container" class="lore-grid-container">
                         <!-- Nạp động -->
@@ -1842,12 +1875,24 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     window._loreQuickJumpToLocation = function(event, targetId) {
         if (event && event.stopPropagation) event.stopPropagation();
         const grid = doc.getElementById('lore_grid_container');
-        if (!grid) return;
+        const viewport = doc.getElementById('lore_app_viewport');
+        if (!grid || !viewport) return;
         const targetElem = grid.querySelector(`[data-loc-id="${targetId}"]`);
         if (targetElem) {
-            targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Cuộn hoàn toàn cục bộ bên trong #lore_app_viewport để không làm nhảy hay đẩy lệch cấu trúc web SillyTavern
+            const vpRect = viewport.getBoundingClientRect();
+            const elemRect = targetElem.getBoundingClientRect();
+            const targetLeft = viewport.scrollLeft + (elemRect.left - vpRect.left) - (vpRect.width / 2) + (elemRect.width / 2);
+            const targetTop = viewport.scrollTop + (elemRect.top - vpRect.top) - (vpRect.height / 2) + (elemRect.height / 2);
+
+            viewport.scrollTo({
+                left: targetLeft,
+                top: targetTop,
+                behavior: 'smooth'
+            });
+
             targetElem.style.transition = 'box-shadow 0.3s, transform 0.3s';
-            targetElem.style.boxShadow = '0 0 35px rgba(56, 189, 248, 0.9)';
+            targetElem.style.boxShadow = '0 0 38px rgba(56, 189, 248, 0.95)';
             targetElem.style.transform = 'scale(1.04)';
             setTimeout(() => {
                 targetElem.style.boxShadow = '';
@@ -2101,6 +2146,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // CHUỘT TRÁI: Vào xem tập con / drill-down
     window._loreOnLocationLeftClick = function (event, locId) {
+        if (loreDidPanDuringDrag) {
+            if (event && event.stopPropagation) event.stopPropagation();
+            return;
+        }
         if (event && event.stopPropagation) event.stopPropagation();
         const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
         let list = currentParent ? (currentParent.subLocations || []) : mapData.locations;
@@ -2119,6 +2168,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // CHUỘT PHẢI: Mở xem thông tin chi tiết (Deep Lore Info)
     window._loreOnLocationRightClick = function (event, locId) {
+        if (loreDidPanDuringDrag) {
+            if (event && event.preventDefault) event.preventDefault();
+            if (event && event.stopPropagation) event.stopPropagation();
+            return false;
+        }
         if (event) {
             if (event.preventDefault) event.preventDefault();
             if (event.stopPropagation) event.stopPropagation();
