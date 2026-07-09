@@ -408,10 +408,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 flex: 1 1 0%;
                 display: flex;
                 flex-direction: column;
-                overflow-y: auto;
-                padding: 22px;
+                overflow: auto;
+                padding: 28px;
                 position: relative;
                 box-sizing: border-box;
+                cursor: grab;
+                user-select: none;
+            }
+            #lore_app_viewport:active {
+                cursor: grabbing;
             }
             .lore-breadcrumb {
                 display: flex;
@@ -426,6 +431,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 font-size: 0.95em;
                 font-weight: bold;
                 flex-shrink: 0;
+                cursor: default;
             }
             .lore-breadcrumb-btn {
                 background: rgba(56, 189, 248, 0.2);
@@ -445,30 +451,37 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             .lore-breadcrumb-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
             .lore-breadcrumb-item.active { color: #38bdf8; font-weight: 800; cursor: default; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); }
 
-            /* BỐ CỤC LƯỚI & ĐƯỜNG ĐI CHUẨN APP BẢN ĐỒ */
+            /* BỐ CỤC GRAPH CANVAS & ĐƯỜNG ĐI CHUẨN NODE GRAPH */
             .lore-grid-container {
                 display: flex;
                 flex-direction: column;
-                gap: 16px;
-                max-width: 1080px;
+                gap: 20px;
+                min-width: 1040px;
+                max-width: 1380px;
                 margin: 0 auto;
-                width: 100%;
+                padding: 10px 10px 60px 10px;
+                transform-origin: top center;
+                transition: transform 0.18s ease-out;
             }
             .lore-grid-row {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 18px;
+                display: flex;
+                align-items: stretch;
+                justify-content: center;
+                gap: 12px;
                 position: relative;
+                width: 100%;
+                flex-wrap: nowrap;
+            }
+            .lore-grid-row > .location-button {
+                flex: 1 1 340px;
+                min-width: 300px;
+                max-width: 440px;
             }
             @media (max-width: 880px) {
                 #lore_app_header { flex-direction: column; align-items: stretch; max-height: 42vh; overflow-y: auto; gap: 10px; }
                 .lore-header-left { justify-content: space-between; width: 100%; }
                 .lore-header-actions { width: 100%; display: flex; flex-wrap: wrap; gap: 6px; }
                 .lore-header-actions .lore-btn { flex: 1 1 auto; justify-content: center; }
-                .lore-grid-row { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
-            }
-            @media (max-width: 520px) {
-                .lore-grid-row { grid-template-columns: 1fr !important; }
             }
 
             .location-button {
@@ -651,48 +664,101 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 font-size: 0.88em;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             }
-            .smart-road-h {
-                position: absolute;
-                right: -17px;
-                top: 50%;
-                transform: translateY(-50%);
-                z-index: 10;
+            .smart-road-h-cell {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 16px;
-                height: 38px;
-                background: linear-gradient(180deg, rgba(56,189,248,0.15) 0%, rgba(56,189,248,0.45) 50%, rgba(56,189,248,0.15) 100%);
-                border-left: 1px dashed rgba(56,189,248,0.6);
-                border-right: 1px dashed rgba(56,189,248,0.6);
-                border-radius: 6px;
+                flex: 0 0 auto;
+                padding: 0 4px;
+                z-index: 5;
+            }
+            .smart-road-h-badge {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                background: linear-gradient(135deg, rgba(56,189,248,0.2) 0%, rgba(124,58,237,0.35) 100%);
+                border: 1px solid rgba(56,189,248,0.55);
+                border-radius: 50%;
                 color: #38bdf8;
-                font-size: 13px;
+                font-size: 14px;
+                box-shadow: 0 0 16px rgba(56,189,248,0.3);
+                transition: all 0.2s;
                 cursor: help;
+                flex-shrink: 0;
+            }
+            .smart-road-h-badge:hover {
+                transform: scale(1.2);
+                background: #38bdf8;
+                color: #0f172a;
+                box-shadow: 0 0 24px rgba(56,189,248,0.9);
             }
             .smart-road-v {
-                grid-column: 1 / -1;
+                width: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 12px;
-                margin: 6px 0;
+                margin: 8px 0;
                 color: #38bdf8;
-                font-size: 0.82em;
+                font-size: 0.85em;
                 font-weight: 800;
             }
-            .smart-road-v .road-line { flex: 1; height: 2px; background: linear-gradient(90deg, transparent, rgba(56,189,248,0.45), transparent); }
+            .smart-road-v .road-line { flex: 1; height: 2px; background: linear-gradient(90deg, transparent, rgba(56,189,248,0.55), transparent); }
             .smart-road-v .road-pill {
                 background: rgba(15, 23, 42, 0.95);
-                border: 1px solid rgba(56, 189, 248, 0.45);
-                padding: 5px 14px;
+                border: 1px solid rgba(56, 189, 248, 0.55);
+                padding: 6px 16px;
                 border-radius: 20px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.6);
                 color: #7dd3fc;
                 letter-spacing: 0.5px;
+            }
+            .lore-graph-controls {
+                position: sticky;
+                bottom: 20px;
+                left: 100%;
+                margin-top: -46px;
+                margin-right: 18px;
+                z-index: 100;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(15, 23, 42, 0.92);
+                border: 1px solid rgba(56, 189, 248, 0.5);
+                padding: 6px 10px;
+                border-radius: 16px;
+                box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+            }
+            .lore-graph-btn {
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.18);
+                color: #e2e8f0;
+                padding: 6px 11px;
+                border-radius: 10px;
+                font-size: 0.84em;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.15s;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .lore-graph-btn:hover {
+                background: rgba(56,189,248,0.25);
+                border-color: #38bdf8;
+                color: #fff;
+                transform: translateY(-1px);
+            }
+            .lore-graph-btn.active {
+                background: linear-gradient(135deg, #0284c7, #2563eb);
+                border-color: #7dd3fc;
+                color: #fff;
+                box-shadow: 0 0 12px rgba(56,189,248,0.5);
             }
             .lore-zone-divider {
                 grid-column: 1 / -1;
@@ -852,6 +918,78 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         };
     }
 
+    // Biến trạng thái Graph 2D Zoom & Drag
+    let loreGraphZoomLevel = 1.0;
+    let loreGraphDragEnabled = true;
+    let loreIsDraggingGraph = false;
+    let loreDragStartX = 0;
+    let loreDragStartY = 0;
+    let loreScrollLeftStart = 0;
+    let loreScrollTopStart = 0;
+
+    window._loreGraphZoom = function(delta) {
+        loreGraphZoomLevel = Math.max(0.4, Math.min(2.2, Number((loreGraphZoomLevel + delta).toFixed(2))));
+        const grid = doc.getElementById('lore_grid_container');
+        const label = doc.getElementById('lore_graph_zoom_label');
+        if (grid) grid.style.transform = `scale(${loreGraphZoomLevel})`;
+        if (label) label.innerText = `${Math.round(loreGraphZoomLevel * 100)}%`;
+    };
+
+    window._loreGraphReset = function() {
+        loreGraphZoomLevel = 1.0;
+        const grid = doc.getElementById('lore_grid_container');
+        const label = doc.getElementById('lore_graph_zoom_label');
+        if (grid) grid.style.transform = `scale(1.0)`;
+        if (label) label.innerText = `100%`;
+    };
+
+    window._loreToggleGraphDrag = function() {
+        loreGraphDragEnabled = !loreGraphDragEnabled;
+        const btn = doc.getElementById('lore_btn_graph_drag');
+        const viewport = doc.getElementById('lore_app_viewport');
+        if (btn) btn.classList.toggle('active', loreGraphDragEnabled);
+        if (viewport) viewport.style.cursor = loreGraphDragEnabled ? 'grab' : 'default';
+    };
+
+    function attachGraphPanListeners(overlay) {
+        const viewport = overlay.querySelector('#lore_app_viewport');
+        if (!viewport) return;
+
+        viewport.addEventListener('mousedown', (e) => {
+            if (!loreGraphDragEnabled) return;
+            if (e.target.closest('button, input, textarea, select, .location-button, #lore_location_detail_box')) return;
+            loreIsDraggingGraph = true;
+            loreDragStartX = e.clientX;
+            loreDragStartY = e.clientY;
+            loreScrollLeftStart = viewport.scrollLeft;
+            loreScrollTopStart = viewport.scrollTop;
+            viewport.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!loreIsDraggingGraph || !loreGraphDragEnabled) return;
+            e.preventDefault();
+            const dx = e.clientX - loreDragStartX;
+            const dy = e.clientY - loreDragStartY;
+            viewport.scrollLeft = loreScrollLeftStart - dx;
+            viewport.scrollTop = loreScrollTopStart - dy;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (loreIsDraggingGraph) {
+                loreIsDraggingGraph = false;
+                if (loreGraphDragEnabled && viewport) viewport.style.cursor = 'grab';
+            }
+        });
+
+        viewport.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                window._loreGraphZoom(e.deltaY < 0 ? 0.08 : -0.08);
+            }
+        }, { passive: false });
+    }
+
     function createAppModal() {
         if (doc.getElementById('lore_app_modal_overlay')) return;
         loadAiConfig();
@@ -868,7 +1006,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </div>
                         <div>
                             <div style="font-weight: 800; font-size: 1.12em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (v8.5 - v1.3.0.12)</span>
+                                <span>BẢN ĐỒ THẾ GIỚI (v8.6 Graph - v1.3.0.13)</span>
                                 <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 khu vực</span>
                                 <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
                             </div>
@@ -923,6 +1061,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <!-- Lưới Địa Điểm & Đường Đi -->
                     <div id="lore_grid_container" class="lore-grid-container">
                         <!-- Nạp động -->
+                    </div>
+
+                    <!-- Thanh điều khiển Graph 2D Zoom / Pan -->
+                    <div class="lore-graph-controls">
+                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to (Zoom In)"><i class="fa-solid fa-plus"></i></button>
+                        <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
+                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
+                        <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt kéo thả di chuyển bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo Bản Đồ 2D</button>
                     </div>
                 </div>
             </div>
@@ -1221,6 +1367,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             </div>
         `;
         doc.body.appendChild(overlay);
+        attachGraphPanListeners(overlay);
 
         overlay.querySelector('#lore_btn_close_app').addEventListener('click', () => overlay.style.display = 'none');
         overlay.querySelector('#btn_back_parent').addEventListener('click', () => {
@@ -1716,18 +1863,47 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             return `<span style="color: #64748b; font-style: italic;">Chưa ghi nhận cổng nối tiếp giáp cụ thể.</span>`;
         }
         let formatted = connText;
-        // Liên kết thông minh tới các địa điểm khác trong danh sách hoặc trong toàn bộ map
         const allGlobalLocs = getAllLocationsFlattened(mapData.locations || []);
-        allGlobalLocs.forEach(otherLoc => {
-            if (otherLoc && otherLoc.id !== currentLocId && otherLoc.name && otherLoc.name.length > 2) {
-                const reg = new RegExp(`(${otherLoc.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                if (reg.test(formatted)) {
-                    formatted = formatted.replace(reg, `<span class="smart-transit-link" title="Chuyển nhanh tới $1" onclick="window._loreQuickJumpToLocation(event, '${otherLoc.id}')"><i class="fa-solid fa-link" style="font-size:0.85em;"></i> $1</span>`);
-                }
+        
+        // Sắp xếp tên dài trước để tránh match tên ngắn nằm bên trong tên dài
+        const validTargets = allGlobalLocs
+            .filter(l => l && l.id !== currentLocId && l.name && l.name.trim().length > 2)
+            .sort((a, b) => b.name.trim().length - a.name.trim().length);
+
+        const linkReplacements = [];
+        validTargets.forEach(otherLoc => {
+            const cleanName = otherLoc.name.trim();
+            const reg = new RegExp(`(${cleanName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            if (reg.test(formatted)) {
+                const placeholder = `__LORE_LINK_${linkReplacements.length}__`;
+                linkReplacements.push({
+                    placeholder,
+                    html: `<span class="smart-transit-link" title="Chuyển nhanh tới ${cleanName}" onclick="window._loreQuickJumpToLocation(event, '${otherLoc.id}')"><i class="fa-solid fa-link" style="font-size:0.85em;"></i> ${cleanName}</span>`
+                });
+                formatted = formatted.replace(reg, placeholder);
             }
         });
-        // Highlight các từ khóa giao thông
-        formatted = formatted.replace(/(Cổng|Hành lang|Thang bộ|Thang máy|Lối đi|Sân|Đường|Tầng|Khu|Phòng|Sảnh)/gi, `<b style="color: #7dd3fc;">$1</b>`);
+
+        // Highlight từ khóa giao thông một cách an toàn không chạm vào placeholder
+        const kwReplacements = [];
+        const kwRegex = /(Cổng|Hành lang|Thang bộ|Thang máy|Lối đi|Sân|Đường|Tầng|Khu|Phòng|Sảnh)/gi;
+        formatted = formatted.replace(kwRegex, match => {
+            const placeholder = `__LORE_KW_${kwReplacements.length}__`;
+            kwReplacements.push({
+                placeholder,
+                html: `<b style="color: #7dd3fc;">${match}</b>`
+            });
+            return placeholder;
+        });
+
+        // Khôi phục lại HTML từ placeholder
+        kwReplacements.forEach(item => {
+            formatted = formatted.split(item.placeholder).join(item.html);
+        });
+        linkReplacements.forEach(item => {
+            formatted = formatted.split(item.placeholder).join(item.html);
+        });
+
         return formatted;
     }
 
@@ -1890,8 +2066,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 // Horizontal smart bridge between columns
                 if (!window._loreHideRoads && c < COLS - 1 && currentList[idx] && currentList[idx + 1]) {
                     html += `
-                        <div class="smart-road-h" title="Cổng thông liền kề ngang giữa ${currentList[idx].name} và ${currentList[idx+1].name}">
-                            <i class="fa-solid fa-right-left"></i>
+                        <div class="smart-road-h-cell" title="Cổng nối ngang thông trực tiếp giữa ${currentList[idx].name} và ${currentList[idx+1].name}">
+                            <div class="smart-road-h-badge">
+                                <i class="fa-solid fa-right-left"></i>
+                            </div>
                         </div>
                     `;
                 }
@@ -1916,6 +2094,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
 
         gridContainer.innerHTML = html;
+        if (typeof loreGraphZoomLevel === 'number') {
+            gridContainer.style.transform = `scale(${loreGraphZoomLevel})`;
+        }
     }
 
     // CHUỘT TRÁI: Vào xem tập con / drill-down
