@@ -794,71 +794,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
             .smart-transit-link:hover { background: #38bdf8; color: #0f172a; transform: scale(1.04); }
 
-            /* SMART ROAD CONNECTORS & NETWORK OVERVIEW */
-            .lore-network-overview-bar {
-                background: rgba(30, 41, 59, 0.75);
-                border: 1px solid rgba(56, 189, 248, 0.25);
-                border-radius: 10px;
-                padding: 6px 12px;
-                margin-bottom: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                flex-wrap: wrap;
-                gap: 8px;
-                color: #e0f2fe;
-                font-size: 0.85em;
-            }
-            .smart-road-h-cell {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex: 0 0 auto;
-                padding: 0 4px;
-                z-index: 5;
-            }
-            .smart-road-h-badge {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
-                box-shadow: 0 0 16px rgba(56,189,248,0.3);
-                transition: all 0.2s;
-                cursor: help;
-                flex-shrink: 0;
-            }
-            .smart-road-h-badge:hover {
-                transform: scale(1.2);
-                background: #38bdf8;
-                color: #0f172a;
-                box-shadow: 0 0 24px rgba(56,189,248,0.9);
-            }
-            .smart-road-v {
-                width: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 12px;
-                margin: 8px 0;
-                color: #38bdf8;
-                font-size: 0.85em;
-                font-weight: 800;
-            }
-            .smart-road-v .road-line { flex: 1; height: 2px; background: linear-gradient(90deg, transparent, rgba(56,189,248,0.55), transparent); }
-            .smart-road-v .road-pill {
-                background: rgba(15, 23, 42, 0.95);
-                border: 1px solid rgba(56, 189, 248, 0.55);
-                padding: 6px 16px;
-                border-radius: 20px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-                color: #7dd3fc;
-                letter-spacing: 0.5px;
-            }
             /* GRAPH CONTROLS BAR INSIDE TOP PANEL */
             .lore-graph-controls {
                 position: static;
@@ -1349,9 +1284,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Lùi 1 lớp</button>
                                 <div id="breadcrumb_path_list" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-left: 6px;"></div>
                             </div>
-                            <!-- Smart Roadmap & Inter-connection Overview Bar -->
-                            <div id="lore_smart_roadmap_bar" style="display: none; margin: 0;"></div>
-                        </div>
+                            </div>
 
                         <!-- Nút Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện...) -->
                         <div class="lore-graph-controls" style="position: static; margin-left: auto;">
@@ -2332,12 +2265,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         renderAppGrid();
     };
 
-    window._loreHideRoads = false;
-    window._loreToggleVisualConnectors = function() {
-        window._loreHideRoads = !window._loreHideRoads;
-        renderAppGrid();
-    };
-
     window._loreQuickJumpToLocation = function(event, targetId) {
         if (event && event.stopPropagation) event.stopPropagation();
         const grid = doc.getElementById('lore_grid_container');
@@ -2418,43 +2345,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         return formatted;
     }
 
-    function renderSmartRoadmapBar(currentList, currentParent) {
-        const bar = doc.getElementById('lore_smart_roadmap_bar');
-        if (!bar) return;
-        if (!currentList || currentList.length === 0) {
-            bar.style.display = 'none';
-            return;
-        }
-        let totalConns = 0;
-        currentList.forEach(loc => {
-            if (loc.connections && loc.connections.trim() !== '' && !loc.connections.toLowerCase().includes('chưa có')) totalConns++;
-        });
-        bar.style.display = 'flex';
-        bar.className = 'lore-network-overview-bar';
-        bar.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="background: rgba(56,189,248,0.18); padding: 3px 10px; border-radius: 8px; color: #38bdf8; font-weight: 800; border: 1px solid rgba(56,189,248,0.35); display: inline-flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-project-diagram"></i> Sơ đồ liên kết
-                </span>
-                <span style="color: #cbd5e1;">
-                    Đang hiển thị <b style="color: #fff;">${currentList.length}</b> phân khu tại ${currentParent ? `tập con <b style="color:#38bdf8;">[ ${currentParent.name} ]</b>` : '<b style="color:#38bdf8;">[ Lớp Bản Đồ Chính ]</b>'} ${totalConns > 0 ? `<span style="color:#34d399;">(có <b>${totalConns}</b> khu nối rõ ràng)</span>` : ''}
-                </span>
-            </div>
-            <div>
-                <button class="lore-btn lore-btn-secondary" style="padding: 4px 10px; font-size: 0.82em; border-radius: 8px;" onclick="window._loreToggleVisualConnectors()">
-                    <i class="fa-solid fa-route"></i> ${window._loreHideRoads ? 'Bật Cầu Nối Lưới' : 'Ẩn Cầu Nối Lưới'}
-                </button>
-            </div>
-        `;
-    }
-
-    function getSmartInterRowText(currentList, r, COLS, currentParent) {
-        if (currentParent && currentParent.name) {
-            return `Hành Lang Liên Thông & Lối Đi Nội Bộ [ ${currentParent.name} ]`;
-        }
-        return `Tuyến Đường Giao Thông & Cổng Kết Nối Liên Khu Vực`;
-    }
-
     function renderAppGrid() {
         updateUI();
         renderBreadcrumb();
@@ -2463,8 +2353,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
         let currentList = currentParent ? (currentParent.subLocations || []) : (mapData.locations || []);
-
-        renderSmartRoadmapBar(currentList, currentParent);
 
         if (currentList.length === 0) {
             gridContainer.innerHTML = `
@@ -2642,38 +2530,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     }
                 }
 
-                // Horizontal smart bridge between columns
-                if (!window._loreHideRoads && c < COLS - 1 && grid2D[r][c] && grid2D[r][c + 1]) {
-                    html += `
-                        <div class="smart-road-h-cell" title="Cổng nối ngang thông trực tiếp giữa ${grid2D[r][c].name} và ${grid2D[r][c + 1].name}">
-                            <div class="smart-road-h-badge">
-                                <i class="fa-solid fa-right-left"></i>
-                            </div>
-                        </div>
-                    `;
-                }
+                
             }
             html += `</div>`;
-
-            // Vertical smart bridge between rows
-            if (!window._loreHideRoads && r < rowsCount - 1) {
-                // Kiểm tra xem hàng tiếp theo có nội dung gì không
-                const hasNextRowContent = grid2D[r + 1] && grid2D[r + 1].some(item => item !== null) || (r === rowsCount - 2 && !addBtnPlaced);
-                if (hasNextRowContent || addBtnPlaced) {
-                    html += `
-                        <div class="smart-road-v">
-                            <div class="road-line"></div>
-                            <div class="road-pill">
-                                <i class="fa-solid fa-route" style="color: #38bdf8;"></i>
-                                <span>${getSmartInterRowText(currentList, r, COLS, currentParent)}</span>
-                            </div>
-                            <div class="road-line"></div>
-                        </div>
-                    `;
-                }
-            } else if (r < rowsCount - 1) {
-                html += `<div class="lore-zone-divider"><span style="background: rgba(255,255,255,0.04); padding: 4px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">--- Hết Phân Khu ---</span></div>`;
-            }
         }
 
         gridContainer.innerHTML = html;
