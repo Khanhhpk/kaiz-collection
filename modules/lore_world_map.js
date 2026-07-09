@@ -52,7 +52,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
   "locations": [
     {
       "name": "Tên Khu Vực Lớn / Trung Tâm (VD: Trường Trung Học Sakura / Trạm Vũ Trụ Alpha / Đảo Rồng)",
-      "category": "Phân loại chính tự do (VD: Tòa nhà chính / Tông môn / Chiến hạm / Đô thị ngầm / Thần điện...)",
+      "category": "Phân loại chính tự do theo đúng bối cảnh truyện (VD: Tông môn / Chiến hạm / Đô thị ngầm / Học viện / Thần điện / Quán bar...)",
+      "icon": "Tên class FontAwesome icon phản ánh đúng nhất tính chất địa điểm (VD: fa-school, fa-tree, fa-utensils, fa-shield-halved, fa-landmark, fa-flask, fa-space-shuttle, fa-dungeon, fa-store, fa-hospital, fa-building... BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do", "Nhãn 3"],
       "context_type": "Mô tả loại hình không gian cụ thể",
       "danger_level": "Mức độ an toàn/nguy hiểm tự đánh giá theo bối cảnh",
@@ -67,7 +68,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       "subLocations": [
         {
           "name": "Tên Căn Phòng / Phân Khu Nhỏ bên trong (VD: Phòng Ngủ / Thư Viện Tầng 3 / Hầm Ngầm)",
-          "category": "Phân loại tập con tự do (VD: Phòng riêng / Hầm ngầm / Gác mái / Kho chứa / Vườn hoa...)",
+          "category": "Phân loại tập con tự do (VD: Phòng riêng / Hầm ngầm / Gác mái / Kho chứa / Vườn hoa / Phòng thí nghiệm...)",
+          "icon": "Tên class FontAwesome icon cho căn phòng/phân khu (VD: fa-door-open, fa-bed, fa-book, fa-key, fa-flask, fa-utensils, fa-computer, fa-couch... BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
           "tags": ["Nhãn riêng tư", "Vật phẩm quý"],
           "context_type": "Loại hình căn phòng/phân khu",
           "danger_level": "Mức độ an toàn trong phòng/phân khu",
@@ -85,7 +87,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
   ]
 }
 
-CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
+CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT & PHÂN LOẠI:
+- BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), ICON BẢN ĐỒ (\`icon\`), MỨC ĐỘ NGUY HIỂM (\`danger_level\`) VÀ LIÊN KẾT (\`connections\`)! Hãy sáng tạo tối đa theo bối cảnh truyện, tuyệt đối không bị gò bó bởi bất kỳ từ khóa hardcode nào!
 - "controlled_by": Là nhân vật hoặc thế lực CHỦ QUẢN, sở hữu, cai quản, kiểm soát địa điểm này (nhân vật có thể là chủ của nhiều nơi cùng lúc).
 - "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY (chỉ liệt kê nhân vật đang thực sự có mặt/đứng tại đúng địa điểm này ở thời điểm hiện tại của diễn biến story, KHÔNG liệt kê người chủ quản vào danh sách này nếu họ đang đứng ở địa điểm khác!).`;
 
@@ -103,7 +106,7 @@ Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂ
 
 NHIỆM VỤ CỦA BẠN:
 Hãy sáng tạo và xây dựng 2 đến 4 Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho hợp logic với cốt truyện và làm sâu sắc thêm trải nghiệm khám phá.
-BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), MỨC ĐỘ NGUY HIỂM (\`danger_level\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc nào!
+BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`), MỨC ĐỘ NGUY HIỂM (\`danger_level\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào!
 
 CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
 - "controlled_by": Là nhân vật chủ phòng, quản lý hoặc thế lực cai quản.
@@ -114,7 +117,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
   "subLocations": [
     {
       "name": "Tên Căn Phòng / Hầm bí mật / Phân khu bên trong",
-      "category": "Phân loại tự do (VD: Phòng riêng / Hầm bí mật / Gác xép / Trung tâm điều khiển...)",
+      "category": "Phân loại tự do (VD: Phòng riêng / Hầm bí mật / Gác xép / Trung tâm điều khiển / Phòng lab...)",
+      "icon": "Tên class FontAwesome icon (VD: fa-door-open, fa-bed, fa-book, fa-key, fa-flask, fa-utensils, fa-computer, fa-couch... BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do"],
       "context_type": "Mô tả công năng phòng/phân khu",
       "danger_level": "Đánh giá mức độ an toàn/nguy hiểm theo bối cảnh",
@@ -254,7 +258,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             locations.push({
                 id: h.id || ('loc_' + Math.random().toString(36).substr(2, 6)),
                 name: h.label || 'Khu Vực',
-                icon: getIconForCategory(h.category),
+                icon: getIconForCategory(h.icon || h.category, h.label || h.name, h.context_type),
                 category: h.category || 'major_hub',
                 context_type: h.context_type || 'Khu vực',
                 danger_level: h.danger_level || 'An toàn',
@@ -274,7 +278,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const locObj = {
                 id: s.id || ('sub_' + Math.random().toString(36).substr(2, 6)),
                 name: s.label || 'Phân Khu',
-                icon: getIconForCategory(s.category),
+                icon: getIconForCategory(s.icon || s.category, s.label || s.name, s.context_type),
                 category: s.category || 'sub_location',
                 context_type: s.context_type || 'Phân khu',
                 danger_level: s.danger_level || 'An toàn',
@@ -303,15 +307,35 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         return { locations };
     }
 
-    function getIconForCategory(cat) {
-        switch (cat) {
-            case 'major_hub': return 'fa-building';
-            case 'sub_location': return 'fa-location-dot';
-            case 'danger_zone': return 'fa-triangle-exclamation';
-            case 'nature_or_open': return 'fa-tree';
-            case 'secret_or_special': return 'fa-key';
-            default: return 'fa-map-pin';
+    function getIconForCategory(cat, name = '', contextType = '') {
+        if (!cat) cat = '';
+        const cleanCat = String(cat).trim();
+        // Nếu AI trả về trực tiếp class FontAwesome (VD: fa-school, fa-utensils, fas fa-book...)
+        if (cleanCat.startsWith('fa-') || cleanCat.includes(' fa-')) {
+            return cleanCat.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
         }
+
+        const combined = `${cleanCat} ${name} ${contextType}`.toLowerCase();
+        
+        // Phân tích ngữ nghĩa tự do cho mọi phân loại/nhãn mà AI hoặc người dùng tạo ra
+        if (combined.includes('nguy') || combined.includes('cấm') || combined.includes('danger') || combined.includes('quái') || combined.includes('bẫy') || combined.includes('tử')) return 'fa-triangle-exclamation';
+        if (combined.includes('trường') || combined.includes('học') || combined.includes('school') || combined.includes('academy') || combined.includes('lớp')) return 'fa-school';
+        if (combined.includes('thư viện') || combined.includes('sách') || combined.includes('book') || combined.includes('library') || combined.includes('tài liệu')) return 'fa-book-open';
+        if (combined.includes('phòng thí nghiệm') || combined.includes('lab') || combined.includes('nghiên cứu') || combined.includes('science') || combined.includes('hoá học')) return 'fa-flask';
+        if (combined.includes('bệnh viện') || combined.includes('y tế') || combined.includes('hospital') || combined.includes('clinic') || combined.includes('thuốc') || combined.includes('xá')) return 'fa-hospital';
+        if (combined.includes('ăn') || combined.includes('nhà hàng') || combined.includes('quán') || combined.includes('bếp') || combined.includes('restaurant') || combined.includes('food') || combined.includes('cafe')) return 'fa-utensils';
+        if (combined.includes('ngủ') || combined.includes('phòng riêng') || combined.includes('bed') || combined.includes('dorm') || combined.includes('khách sạn') || combined.includes('hotel')) return 'fa-bed';
+        if (combined.includes('cửa hàng') || combined.includes('chợ') || combined.includes('shop') || combined.includes('market') || combined.includes('mua') || combined.includes('thương mại')) return 'fa-store';
+        if (combined.includes('tông môn') || combined.includes('thần điện') || combined.includes('đền') || combined.includes('chùa') || combined.includes('temple') || combined.includes('shrine') || combined.includes('sanctuary') || combined.includes('thánh')) return 'fa-landmark';
+        if (combined.includes('quân') || combined.includes('chiến hạm') || combined.includes('căn cứ') || combined.includes('base') || combined.includes('ship') || combined.includes('pháo') || combined.includes('giáp') || combined.includes('shield')) return 'fa-shield-halved';
+        if (combined.includes('vũ trụ') || combined.includes('space') || combined.includes('trạm') || combined.includes('hàng không') || combined.includes('bay')) return 'fa-user-astronaut';
+        if (combined.includes('rừng') || combined.includes('cây') || combined.includes('vườn') || combined.includes('tự nhiên') || combined.includes('nature') || combined.includes('tree') || combined.includes('forest') || combined.includes('park')) return 'fa-tree';
+        if (combined.includes('hầm') || combined.includes('ngầm') || combined.includes('dungeon') || combined.includes('hang') || combined.includes('lao') || combined.includes('giam')) return 'fa-dungeon';
+        if (combined.includes('bí mật') || combined.includes('secret') || combined.includes('kho') || combined.includes('két') || combined.includes('bảo vật') || combined.includes('chìa khóa')) return 'fa-key';
+        if (combined.includes('cửa') || combined.includes('hành lang') || combined.includes('lối') || combined.includes('phân khu') || cleanCat === 'sub_location') return 'fa-door-open';
+        if (cleanCat === 'major_hub' || combined.includes('tòa nhà') || combined.includes('building') || combined.includes('trung tâm')) return 'fa-building';
+
+        return 'fa-map-location-dot';
     }
 
     function saveMapData() {
@@ -1448,9 +1472,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             const newLoc = {
                 id: (currentParent ? 'sub_' : 'loc_') + Date.now(),
-                name: name.trim(),
-                icon: currentParent ? 'fa-door-open' : 'fa-building',
-                category: currentParent ? 'sub_location' : 'major_hub',
+                icon: getIconForCategory(contextType.trim(), name.trim(), contextType.trim()),
+                category: contextType.trim() || (currentParent ? 'sub_location' : 'major_hub'),
                 tags: [],
                 context_type: contextType.trim(),
                 danger_level: danger.trim(),
@@ -1689,7 +1712,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const newCat = detBox.querySelector('#edit_det_category')?.value?.trim();
             if (newCat) {
                 selectedDetailLocation.category = newCat;
-                selectedDetailLocation.icon = getIconForCategory(newCat);
+                selectedDetailLocation.icon = getIconForCategory(newCat, selectedDetailLocation.name, selectedDetailLocation.context_type);
             }
             const tagsRaw = detBox.querySelector('#edit_det_tags')?.value?.trim() || '';
             selectedDetailLocation.tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -2296,9 +2319,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         window._loreToggleDetailEditMode(false);
 
-        doc.getElementById('det_icon').className = `fas ${found.icon || 'fa-building'}`;
+        doc.getElementById('det_icon').className = `fas ${found.icon || getIconForCategory(found.category, found.name, found.context_type)}`;
         doc.getElementById('det_name').innerText = found.name;
-        const catBadgeText = (found.category && found.category !== 'major_hub' && found.category !== 'sub_location') ? `🏢 ${found.category}` : (found.category === 'major_hub' || !currentParent ? '🏢 Khu vực lớn / Tầng ngoài' : '📍 Phân khu / Phòng sâu');
+        const catBadgeText = (found.category && found.category !== 'major_hub' && found.category !== 'sub_location') ? `🏷️ ${found.category}` : (found.category === 'major_hub' || !currentParent ? '⚡ Khu vực lớn / Tầng ngoài' : '📍 Phân khu / Phòng sâu');
         doc.getElementById('det_category_badge').innerText = catBadgeText;
         doc.getElementById('det_type_badge').innerText = `🏷️ ${found.context_type || 'Khu vực'}`;
         
@@ -2565,7 +2588,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     hub = {
                         id: 'loc_' + Math.random().toString(36).substr(2, 7),
                         name: item.name.trim(),
-                        icon: 'fa-building',
+                        icon: item.icon ? item.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(item.category, item.name, item.context_type),
                         category: item.category || 'major_hub',
                         tags: Array.isArray(item.tags) ? item.tags : (typeof item.tags === 'string' ? item.tags.split(',').map(t=>t.trim()) : []),
                         context_type: item.context_type || 'Khu vực lớn',
@@ -2583,7 +2606,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     mapData.locations.push(hub);
                     addedCount++;
                 } else {
-                    if (item.category && item.category !== 'major_hub') hub.category = item.category;
+                    if (item.icon) hub.icon = item.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
+                    if (item.category && item.category !== 'major_hub') {
+                        hub.category = item.category;
+                        if (!hub.icon || hub.icon === 'fa-building') hub.icon = getIconForCategory(item.category, hub.name, hub.context_type);
+                    }
                     if (Array.isArray(item.tags)) hub.tags = Array.from(new Set([...(hub.tags||[]), ...item.tags]));
                     if (item.description && hub.description.length < item.description.length) hub.description = item.description;
                     if (item.atmosphere) hub.atmosphere = item.atmosphere;
@@ -2602,7 +2629,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             hub.subLocations.push({
                                 id: 'sub_' + Math.random().toString(36).substr(2, 7),
                                 name: sub.name.trim(),
-                                icon: 'fa-door-open',
+                                icon: sub.icon ? sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(sub.category || 'sub_location', sub.name, sub.context_type),
                                 category: sub.category || 'sub_location',
                                 tags: Array.isArray(sub.tags) ? sub.tags : (typeof sub.tags === 'string' ? sub.tags.split(',').map(t=>t.trim()) : []),
                                 context_type: sub.context_type || 'Phòng / Phân khu',
