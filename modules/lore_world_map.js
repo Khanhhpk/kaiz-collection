@@ -119,7 +119,7 @@ NHIỆM VỤ CỦA BẠN:
 === CÁC PHÂN KHU ĐÃ CÓ ===
 {{existing_map}}
 ==========================
-NẾU một phân khu đã có, bạn PHẦI ĐIỀN trường "id" để CẬP NHẬT nó (vd sửa lại nhân vật hiện diện, mô tả, bí mật) thay vì tạo mới. Nếu tạo căn phòng mới, BỎ TRỐNG trường "id".
+NẾU một phân khu ĐÃ TỒN TẠI, bạn PHẦI ĐIỀN trường "id" để CẬP NHẬT nó. ĐỒNG THỜI, CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN THAY ĐỔI (ví dụ: chỉ xuất 'characters'), các trường khác (description, atmosphere...) HÃY BỎ QUA KHỎI JSON để giữ nguyên thông tin gốc! NẾU LÀ PHÂN KHU TẠO MỚI: Bỏ trống trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
 2. Hãy sáng tạo và xây dựng thêm (hoặc cập nhật) các Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
 3. BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào! Đặc biệt chú ý mô tả chuẩn lối đi liên kết giữa căn phòng này tới các khu vực bên ngoài (\`connections\`).
 
