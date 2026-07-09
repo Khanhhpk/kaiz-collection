@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.3.0.18
+ * - Phiên bản: v1.4.0.0
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.3.0.18)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.4.0.0)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -829,10 +829,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
             /* DEDICATED FLOATING 2D ZOOM & PAN TOOLBAR */
             .lore-zoom-pan-bar {
-                position: sticky;
-                bottom: 18px;
-                align-self: flex-end;
-                margin-top: auto;
+                position: absolute;
+                bottom: 24px;
+                right: 24px;
                 z-index: 1000;
                 display: flex;
                 align-items: center;
@@ -1232,15 +1231,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <!-- Nạp động -->
                     </div>
 
-                    <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) - Luôn dính ở đáy viewport -->
-                    <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
-                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><i class="fa-solid fa-plus"></i></button>
-                        <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
-                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
-                        <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.18); margin: 0 3px;"></div>
-                        <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
-                    </div>
                 </div>
+
+                <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) - Ghim ở góc phải dưới modal -->
+                <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><i class="fa-solid fa-plus"></i></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
+                    <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.18); margin: 0 3px;"></div>
+                    <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
                 </div>
             </div>
 
