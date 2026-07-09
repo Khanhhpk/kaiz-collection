@@ -3130,7 +3130,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const win = window.parent || window;
             if (!responseJson && win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
                 try {
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 300s')), 300000));
                       const rawRes = await Promise.race([win.SillyTavern.getContext().generateRaw(prompt), timeoutPromise]);
                     window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
@@ -3139,7 +3139,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             if (!responseJson && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
                 try {
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 300s')), 300000));
                       const rawRes = await Promise.race([win.PhoneSystem.callExternalAPI([
                           { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
                           { role: 'user', content: prompt }
@@ -3238,7 +3238,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const win = window.parent || window;
             if (!responseJson && win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
                 try {
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 300s')), 300000));
                       const rawRes = await Promise.race([win.SillyTavern.getContext().generateRaw(prompt), timeoutPromise]);
                     window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
@@ -3247,7 +3247,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             if (!responseJson && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
                 try {
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 300s')), 300000));
                       const rawRes = await Promise.race([win.PhoneSystem.callExternalAPI([
                           { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
                           { role: 'user', content: prompt }
