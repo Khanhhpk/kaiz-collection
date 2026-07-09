@@ -171,7 +171,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         historyCount: 30,
         historyMaxChars: 0, // 0 = Không giới hạn theo token/ký tự, chỉ giới hạn theo số tin nhắn (mặc định 30)
         customPromptWorldScan: DEFAULT_WORLD_SCAN_PROMPT,
-        customPromptDeepDrill: DEFAULT_DEEP_DRILL_PROMPT
+        customPromptDeepDrill: DEFAULT_DEEP_DRILL_PROMPT,
+        enhancedNLayerMode: false,
+        injectEnabled: false,
+        injMapStruct: true,
+        injLocDetails: true,
+        injConnections: true,
+        injCharacters: true,
+        injectTarget: 'in_chat',
+        injectRole: 'system',
+        injectDepth: 0,
+        autoScanTurns: 0
     };
 
     function loadAiConfig() {
@@ -1541,16 +1551,25 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </div>
                     </div>
 
-                    <div>
-                        <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Toàn bộ Payload / Prompt sẽ gửi đến AI (Raw Payload Preview):</label>
-                        <textarea id="dbg_prompt_textarea" class="lore-input" style="width: 100%; height: 280px; box-sizing: border-box; margin-top: 6px; font-family: monospace; font-size: 0.82em; line-height: 1.45;" readonly></textarea>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Toàn bộ Payload / Prompt gửi đến AI:</label>
+                            <textarea id="dbg_prompt_textarea" class="lore-input" style="width: 100%; height: 280px; box-sizing: border-box; margin-top: 6px; font-family: monospace; font-size: 0.82em; line-height: 1.45;" readonly></textarea>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.8em; color: #4ade80; font-weight: bold; text-transform: uppercase;">RAW RESPONSE (KẾT QUẢ AI TRẢ VỀ):</label>
+                            <textarea id="dbg_response_textarea" class="lore-input" style="width: 100%; height: 280px; box-sizing: border-box; margin-top: 6px; font-family: monospace; font-size: 0.82em; line-height: 1.45;" readonly placeholder="Kết quả trả về của lần quét gần nhất sẽ hiển thị ở đây..."></textarea>
+                        </div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px;">
                         <button id="dbg_btn_copy" class="lore-btn lore-btn-primary" style="padding: 10px 18px;">
-                            <i class="fa-solid fa-copy"></i> Sao Chép Toàn Bộ Request
+                            <i class="fa-solid fa-copy"></i> Sao Chép Request
                         </button>
-                        <button id="dbg_btn_refresh" class="lore-btn lore-btn-secondary" style="padding: 10px 18px;">
+                        <button id="dbg_btn_copy_res" class="lore-btn" style="padding: 10px 18px; background: rgba(74,222,128,0.2); border: 1px solid #4ade80; color: #4ade80;">
+                            <i class="fa-solid fa-copy"></i> Sao Chép Response
+                        </button>
+                        <button id="dbg_btn_refresh" class="lore-btn lore-btn-secondary" style="padding: 10px 18px; margin-left: auto;">
                             <i class="fa-solid fa-rotate"></i> Làm Mới Preview
                         </button>
                     </div>
@@ -1569,6 +1588,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <button id="tab_btn_conn" class="lore-breadcrumb-btn active" style="font-size: 0.9em; padding: 8px 16px;">🔌 Kết Nối & Model</button>
                         <button id="tab_btn_prompt_scan" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;">📝 Prompt Quét Toàn Bộ Map</button>
                         <button id="tab_btn_prompt_drill" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;">📝 Prompt Khám Phá Sâu</button>
+                        <button id="tab_btn_prompt_inject" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;">💉 Tiêm Prompt & Auto</button>
                     </div>
 
                     <!-- TAB 1: CONNECTION SETTINGS -->
@@ -1659,6 +1679,62 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <button id="btn_reset_prompt_drill" class="lore-btn lore-btn-secondary" style="font-size: 0.8em;">
                                 <i class="fa-solid fa-rotate-left"></i> Khôi Phục Prompt Khám Phá Mặc Định
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: PROMPT INJECTION & AUTO SETTINGS -->
+                    <div id="tab_pane_prompt_inject" style="display: none; flex-direction: column; gap: 14px;">
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px;">
+                                <input type="checkbox" id="cfg_inject_enabled" style="width: 18px; height: 18px; accent-color: #38bdf8;">
+                                <span style="font-size: 1.05em; font-weight: bold; color: #38bdf8;">Bật Tiêm Bản Đồ vào Prompt (Context Injection)</span>
+                            </label>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                <div>
+                                    <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Nội dung sẽ tiêm</label>
+                                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding-left: 6px;">
+                                        <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_map_struct"> Cấu trúc bản đồ</label>
+                                        <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_loc_details"> Thông tin chi tiết địa điểm</label>
+                                        <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_connections"> Mối liên kết giao thông</label>
+                                        <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="cfg_inj_characters"> Nhân vật hiện diện</label>
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div>
+                                        <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold;">Vị trí Bơm (Target)</label>
+                                        <select id="cfg_inj_target" class="lore-input" style="width: 100%; margin-top: 2px;">
+                                            <option value="in_chat">In-Chat (Chính văn)</option>
+                                            <option value="system_top">System Prompt (Đầu)</option>
+                                            <option value="system_bottom">System Prompt (Cuối)</option>
+                                            <option value="authors_note">Author's Note</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold;">Vai trò (Role)</label>
+                                        <select id="cfg_inj_role" class="lore-input" style="width: 100%; margin-top: 2px;">
+                                            <option value="system">System (Hệ thống)</option>
+                                            <option value="user">User (Người dùng)</option>
+                                            <option value="assistant">Assistant (AI)</option>
+                                        </select>
+                                    </div>
+                                    <div id="cfg_inj_depth_wrap">
+                                        <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold;">Độ sâu (Depth)</label>
+                                        <input type="number" id="cfg_inj_depth" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 2px;" value="0" min="0" max="99">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                            <div style="font-size: 0.9em; font-weight: bold; color: #fde047; margin-bottom: 6px;">
+                                <i class="fa-solid fa-robot"></i> Tự Động Quét Cập Nhật (Auto Update)
+                            </div>
+                            <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 10px;">Khi bật, AI tự động quét lịch sử chat để cập nhật Map sau mỗi N lượt tin nhắn. (0 = Tắt)</div>
+                            <div>
+                                <label style="font-size: 0.8em; color: #94a3b8; font-weight: bold;">Số lượt (N) trước khi Auto Scan</label>
+                                <input type="number" id="cfg_auto_scan_turns" class="lore-input" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="0" min="0" max="999">
+                            </div>
                         </div>
                     </div>
 
@@ -1873,6 +1949,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const fullPromptPreview = template.replace('{{history}}', histObj.text).replace('{{existing_map}}', existingStr || '(Chưa có)');
 
             overlay.querySelector('#dbg_prompt_textarea').value = fullPromptPreview;
+            overlay.querySelector('#dbg_response_textarea').value = window._lastAiResponse || 'Chưa có kết quả phản hồi từ AI trong phiên làm việc này.';
             debugModal.style.display = 'flex';
         }
 
@@ -1887,6 +1964,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 alert('Vui lòng bôi đen và nhấn Ctrl+C để sao chép trong khung văn bản.');
             }
         });
+        const btnCopyRes = overlay.querySelector('#dbg_btn_copy_res');
+        if (btnCopyRes) {
+            btnCopyRes.addEventListener('click', () => {
+                const txt = overlay.querySelector('#dbg_response_textarea').value;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(txt).then(() => alert('📋 Đã sao chép toàn bộ Response trả về vào clipboard!'));
+                } else {
+                    alert('Vui lòng bôi đen và nhấn Ctrl+C để sao chép trong khung văn bản.');
+                }
+            });
+        }
 
         // Xử lý Quản lý Bản đồ đã lưu
         const savedModal = overlay.querySelector('#lore_saved_maps_modal');
@@ -1929,39 +2017,65 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             overlay.querySelector('#cfg_prompt_world_scan').value = aiConfig.customPromptWorldScan || DEFAULT_WORLD_SCAN_PROMPT;
             overlay.querySelector('#cfg_prompt_deep_drill').value = aiConfig.customPromptDeepDrill || DEFAULT_DEEP_DRILL_PROMPT;
 
+            // Nạp cấu hình Inject
+            overlay.querySelector('#cfg_inject_enabled').checked = aiConfig.injectEnabled || false;
+            overlay.querySelector('#cfg_inj_map_struct').checked = aiConfig.injMapStruct !== false;
+            overlay.querySelector('#cfg_inj_loc_details').checked = aiConfig.injLocDetails !== false;
+            overlay.querySelector('#cfg_inj_connections').checked = aiConfig.injConnections !== false;
+            overlay.querySelector('#cfg_inj_characters').checked = aiConfig.injCharacters !== false;
+            overlay.querySelector('#cfg_inj_target').value = aiConfig.injectTarget || 'in_chat';
+            overlay.querySelector('#cfg_inj_role').value = aiConfig.injectRole || 'system';
+            overlay.querySelector('#cfg_inj_depth').value = aiConfig.injectDepth || 0;
+            overlay.querySelector('#cfg_auto_scan_turns').value = aiConfig.autoScanTurns || 0;
+            
+            overlay.querySelector('#cfg_inj_depth_wrap').style.display = (aiConfig.injectTarget === 'in_chat' || !aiConfig.injectTarget) ? 'block' : 'none';
+
             overlay.querySelector('#cfg_custom_group').style.display = aiConfig.source === 'custom' ? 'flex' : 'none';
             aiModal.style.display = 'flex';
         }
+
+        const injTargetEl = overlay.querySelector('#cfg_inj_target');
+        const depthWrapEl = overlay.querySelector('#cfg_inj_depth_wrap');
+        injTargetEl.addEventListener('change', (e) => {
+            depthWrapEl.style.display = e.target.value === 'in_chat' ? 'block' : 'none';
+        });
 
         btnAiSettings.addEventListener('click', openAiConfig);
         badgeAi.addEventListener('click', openAiConfig);
 
         // Chuyển Tab trong AI Config
+        // Chuyển Tab trong AI Config
         const tabBtnConn = overlay.querySelector('#tab_btn_conn');
         const tabBtnScan = overlay.querySelector('#tab_btn_prompt_scan');
         const tabBtnDrill = overlay.querySelector('#tab_btn_prompt_drill');
+        const tabBtnInject = overlay.querySelector('#tab_btn_prompt_inject');
         const paneConn = overlay.querySelector('#tab_pane_conn');
         const paneScan = overlay.querySelector('#tab_pane_prompt_scan');
         const paneDrill = overlay.querySelector('#tab_pane_prompt_drill');
+        const paneInject = overlay.querySelector('#tab_pane_prompt_inject');
 
         function switchTab(target) {
-            [tabBtnConn, tabBtnScan, tabBtnDrill].forEach(b => b.style.background = 'rgba(56,189,248,0.2)');
-            [paneConn, paneScan, paneDrill].forEach(p => p.style.display = 'none');
+            [tabBtnConn, tabBtnScan, tabBtnDrill, tabBtnInject].forEach(b => b.style.background = 'rgba(56,189,248,0.2)');
+            [paneConn, paneScan, paneDrill, paneInject].forEach(p => p.style.display = 'none');
             if (target === 'conn') {
                 tabBtnConn.style.background = 'rgba(56,189,248,0.45)';
                 paneConn.style.display = 'flex';
             } else if (target === 'scan') {
                 tabBtnScan.style.background = 'rgba(56,189,248,0.45)';
                 paneScan.style.display = 'flex';
-            } else {
+            } else if (target === 'drill') {
                 tabBtnDrill.style.background = 'rgba(56,189,248,0.45)';
                 paneDrill.style.display = 'flex';
+            } else {
+                tabBtnInject.style.background = 'rgba(56,189,248,0.45)';
+                paneInject.style.display = 'flex';
             }
         }
 
         tabBtnConn.addEventListener('click', () => switchTab('conn'));
         tabBtnScan.addEventListener('click', () => switchTab('scan'));
         tabBtnDrill.addEventListener('click', () => switchTab('drill'));
+        tabBtnInject.addEventListener('click', () => switchTab('inject'));
         switchTab('conn');
 
         overlay.querySelector('#btn_reset_prompt_scan').addEventListener('click', () => {
@@ -2038,10 +2152,21 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             aiConfig.customPromptWorldScan = overlay.querySelector('#cfg_prompt_world_scan').value.trim() || DEFAULT_WORLD_SCAN_PROMPT;
             aiConfig.customPromptDeepDrill = overlay.querySelector('#cfg_prompt_deep_drill').value.trim() || DEFAULT_DEEP_DRILL_PROMPT;
 
+            aiConfig.injectEnabled = overlay.querySelector('#cfg_inject_enabled').checked;
+            aiConfig.injMapStruct = overlay.querySelector('#cfg_inj_map_struct').checked;
+            aiConfig.injLocDetails = overlay.querySelector('#cfg_inj_loc_details').checked;
+            aiConfig.injConnections = overlay.querySelector('#cfg_inj_connections').checked;
+            aiConfig.injCharacters = overlay.querySelector('#cfg_inj_characters').checked;
+            aiConfig.injectTarget = overlay.querySelector('#cfg_inj_target').value;
+            aiConfig.injectRole = overlay.querySelector('#cfg_inj_role').value;
+            aiConfig.injectDepth = parseInt(overlay.querySelector('#cfg_inj_depth').value, 10) || 0;
+            aiConfig.autoScanTurns = parseInt(overlay.querySelector('#cfg_auto_scan_turns').value, 10) || 0;
+
             saveAiConfig();
+            setupPromptInjection(); // Cập nhật lại hook
             updateUI();
             aiModal.style.display = 'none';
-            alert('🎉 Đã lưu thành công cấu hình AI và các Prompt tùy chỉnh!');
+            alert('🎉 Đã lưu thành công cấu hình AI và các thiết lập Tiêm Prompt!');
         });
 
         // Xử lý Modal Chi Tiết Deep Lore Info
@@ -2890,9 +3015,60 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         return count;
     }
 
+    // Biểu tượng Loading góc màn hình
+    let globalLoadingIcon = null;
+    function showGlobalLoadingIcon() {
+        const doc = window.parent ? window.parent.document : document;
+        if (!globalLoadingIcon) {
+            globalLoadingIcon = doc.createElement('div');
+            globalLoadingIcon.id = 'lore_global_loading_icon';
+            globalLoadingIcon.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 99999;
+                background: rgba(15, 23, 42, 0.85);
+                border: 1px solid #38bdf8;
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+                color: #38bdf8;
+                font-size: 20px;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+                opacity: 0;
+                animation: lore-globe-pulse 1.5s infinite;
+            `;
+            globalLoadingIcon.innerHTML = '<i class="fa-solid fa-globe fa-spin"></i>';
+            if (!doc.getElementById('lore_globe_pulse_style')) {
+                const style = doc.createElement('style');
+                style.id = 'lore_globe_pulse_style';
+                style.textContent = `
+                    @keyframes lore-globe-pulse {
+                        0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); transform: scale(1); }
+                        50% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); transform: scale(1.05); }
+                        100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); transform: scale(1); }
+                    }
+                `;
+                doc.head.appendChild(style);
+            }
+            doc.body.appendChild(globalLoadingIcon);
+        }
+        globalLoadingIcon.style.opacity = '1';
+    }
+
+    function hideGlobalLoadingIcon() {
+        if (globalLoadingIcon) globalLoadingIcon.style.opacity = '0';
+    }
+
     // AI Khám Phá Sâu & Dựng Phân Khu Con (Infinite Deep Drill Scan v8.3)
     async function triggerAiDeepDrillScan(targetLoc) {
         if (!targetLoc) return;
+        showGlobalLoadingIcon();
         loadAiConfig();
         const btnDrill = doc.getElementById('det_btn_ai_drill');
         if (btnDrill) {
@@ -2939,6 +3115,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     });
                     const data = await res.json();
                     if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                        window._lastAiResponse = data.choices[0].message.content;
                         responseJson = parseJsonFromText(data.choices[0].message.content);
                     }
                 } catch (e) {}
@@ -2948,6 +3125,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (!responseJson && win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
                 try {
                     const rawRes = await win.SillyTavern.getContext().generateRaw(prompt);
+                    window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
             }
@@ -2958,6 +3136,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
                         { role: 'user', content: prompt }
                     ], { maxTokens: 4000, temperature: 0.75 });
+                    window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
             }
@@ -2979,6 +3158,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         } catch (err) {
             alert('⚠️ Lỗi khi AI khám phá tầng sâu: ' + err.message);
         } finally {
+            hideGlobalLoadingIcon();
             if (btnDrill) {
                 btnDrill.disabled = false;
                 btnDrill.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> AI Khám Phá Sâu`;
@@ -2987,7 +3167,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     }
 
     // AI Quét Map Toàn Cảnh (v8.3)
-    async function triggerAiWorldScan() {
+    async function triggerAiWorldScan(isAuto = false) {
+        showGlobalLoadingIcon();
         loadAiConfig();
         const btnScan = doc.getElementById('lore_btn_ai_scan');
         if (btnScan) {
@@ -2999,7 +3180,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         try {
             const histObj = extractFullHistoryText(aiConfig.historyCount, aiConfig.historyMaxChars);
             if (!histObj.text || histObj.text.trim().length < 20) {
-                alert('Lịch sử cuộc trò chuyện quá ngắn để AI phân tích bản đồ!');
+                if (!isAuto) alert('Lịch sử cuộc trò chuyện quá ngắn để AI phân tích bản đồ!');
                 return;
             }
 
@@ -3034,6 +3215,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     });
                     const data = await res.json();
                     if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                        window._lastAiResponse = data.choices[0].message.content;
                         responseJson = parseJsonFromText(data.choices[0].message.content);
                     }
                 } catch (e) {
@@ -3045,6 +3227,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (!responseJson && win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
                 try {
                     const rawRes = await win.SillyTavern.getContext().generateRaw(prompt);
+                    window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
             }
@@ -3055,6 +3238,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
                         { role: 'user', content: prompt }
                     ], { maxTokens: 4000, temperature: 0.7 });
+                    window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
             }
@@ -3071,8 +3255,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             saveMapData();
             renderAppGrid();
         } catch (err) {
-            alert('⚠️ Lỗi khi quét bản đồ AI: ' + err.message);
+            if (!isAuto) alert('⚠️ Lỗi khi quét bản đồ AI: ' + err.message);
         } finally {
+            hideGlobalLoadingIcon();
             if (btnScan) {
                 btnScan.disabled = false;
                 btnScan.classList.remove('lore-ai-loading');
@@ -3111,9 +3296,172 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
     }
 
+    // ============ PROMPT INJECTION LOGIC ============
+    function buildMapContextString() {
+        if (!aiConfig.injectEnabled) return '';
+        if (!mapData || !mapData.locations || mapData.locations.length === 0) return '';
+
+        let out = [];
+        out.push("--- TÀI LIỆU BẢN ĐỒ THẾ GIỚI (WORLD MAP LORE) ---");
+
+        if (aiConfig.injMapStruct) {
+            out.push("[CẤU TRÚC BẢN ĐỒ]");
+            const buildTree = (locs, depth = 0) => {
+                let s = "";
+                locs.forEach(loc => {
+                    s += "  ".repeat(depth) + `- ${loc.name || 'Unknown'} (${loc.type || 'Location'})\n`;
+                    if (loc.subLocations && loc.subLocations.length > 0) {
+                        s += buildTree(loc.subLocations, depth + 1);
+                    }
+                });
+                return s;
+            };
+            out.push(buildTree(mapData.locations));
+        }
+
+        if (aiConfig.injLocDetails || aiConfig.injConnections || aiConfig.injCharacters) {
+            out.push("[CHI TIẾT CÁC ĐỊA ĐIỂM QUAN TRỌNG]");
+            const buildDetails = (locs) => {
+                let s = "";
+                locs.forEach(loc => {
+                    let hasContent = false;
+                    let locInfo = `* Địa điểm: ${loc.name || 'Unknown'} (${loc.type || ''})\n`;
+                    if (aiConfig.injLocDetails && loc.description) {
+                        locInfo += `  - Mô tả: ${loc.description}\n`;
+                        hasContent = true;
+                    }
+                    if (aiConfig.injConnections && loc.connections && loc.connections.length > 0) {
+                        locInfo += `  - Đường đi tới: ${loc.connections.join(', ')}\n`;
+                        hasContent = true;
+                    }
+                    if (aiConfig.injCharacters && loc.characters && loc.characters.length > 0) {
+                        locInfo += `  - Nhân vật hiện diện: ${loc.characters.join(', ')}\n`;
+                        hasContent = true;
+                    }
+                    if (hasContent) s += locInfo + '\n';
+                    if (loc.subLocations && loc.subLocations.length > 0) {
+                        s += buildDetails(loc.subLocations);
+                    }
+                });
+                return s;
+            };
+            out.push(buildDetails(mapData.locations));
+        }
+
+        out.push("-------------------------------------------------");
+        return out.join('\n');
+    }
+
+    function setupPromptInjection() {
+        loadAiConfig();
+        const PW = window.parent || window;
+        const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
+        if (!ctx || !ctx.eventSource || !ctx.event_types) return;
+
+        // Xóa hook cũ
+        if (window._loreMapEventHandlers) {
+            window._loreMapEventHandlers.forEach(({ event, handler }) => {
+                if (ctx.eventSource.off) ctx.eventSource.off(event, handler);
+            });
+        }
+        window._loreMapEventHandlers = [];
+
+        const addEv = (event, handler) => {
+            if (event && ctx.eventSource.on) {
+                ctx.eventSource.on(event, handler);
+                window._loreMapEventHandlers.push({ event, handler });
+            }
+        };
+
+        const injectHandler = (payload) => {
+            if (!aiConfig.injectEnabled) return;
+            const contextStr = buildMapContextString();
+            if (!contextStr || contextStr.trim() === '') return;
+
+            let targetArray = null;
+            if (Array.isArray(payload)) {
+                targetArray = payload;
+            } else if (payload && Array.isArray(payload.messages)) {
+                targetArray = payload.messages;
+            } else if (payload && Array.isArray(payload.chat)) {
+                targetArray = payload.chat;
+            }
+
+            if (!targetArray) return;
+            
+            // Chống trùng
+            if (targetArray.some(m => m && (m._loreMapInjected || (typeof m.content === 'string' && m.content.includes("WORLD MAP LORE"))))) return;
+
+            const injectRole = aiConfig.injectRole || 'system';
+            const injectDepth = parseInt(aiConfig.injectDepth, 10) || 0;
+            const target = aiConfig.injectTarget || 'in_chat';
+            const msgObj = { role: injectRole, content: contextStr, _loreMapInjected: true };
+
+            if (target === 'system_top') {
+                targetArray.unshift(msgObj);
+            } else if (target === 'system_bottom') {
+                let lastSysIdx = -1;
+                for (let i = targetArray.length - 1; i >= 0; i--) {
+                    if (targetArray[i].role === 'system') { lastSysIdx = i; break; }
+                }
+                if (lastSysIdx >= 0) {
+                    targetArray[lastSysIdx].content += `\n\n${contextStr}`;
+                    targetArray[lastSysIdx]._loreMapInjected = true;
+                } else {
+                    targetArray.unshift(msgObj);
+                }
+            } else if (target === 'authors_note') {
+                // Giả lập Author's Note bằng cách bọc tag
+                msgObj.content = `[Author's Note: ${contextStr}]`;
+                let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
+                targetArray.splice(insertIdx, 0, msgObj);
+            } else { // in_chat
+                let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
+                targetArray.splice(insertIdx, 0, msgObj);
+            }
+            if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+                payload._loreMapInjected = true;
+            }
+        };
+
+        const promptEvents = [
+            ctx.event_types.CHAT_COMPLETION_PROMPT_READY,
+            ctx.event_types.GENERATE_AFTER_COMBINE_PROMPTS,
+            ctx.event_types.TEXT_COMPLETION_PROMPT_READY,
+            ctx.event_types.PROMPT_READY,
+            'chat_completion_prompt_ready',
+            'generate_after_combine_prompts',
+            'text_completion_prompt_ready',
+            'prompt_ready'
+        ];
+
+        promptEvents.forEach(evt => {
+            if (evt) addEv(evt, injectHandler);
+        });
+
+        // AUTO SCAN LOGIC
+        let msgCountSinceLastScan = 0;
+        const autoScanHandler = () => {
+            if (!aiConfig.injectEnabled || !aiConfig.autoScanTurns || aiConfig.autoScanTurns <= 0) return;
+            msgCountSinceLastScan++;
+            if (msgCountSinceLastScan >= aiConfig.autoScanTurns) {
+                msgCountSinceLastScan = 0;
+                // Gọi quét ẩn danh
+                console.log("[Lore Map] Auto Scan Triggered!");
+                if (typeof triggerAiWorldScan === 'function') {
+                    // Cần chạy ẩn hoặc thông báo nhẹ
+                    triggerAiWorldScan(true); // true = auto (nếu hàm hỗ trợ)
+                }
+            }
+        };
+        addEv(ctx.event_types.MESSAGE_RECEIVED, autoScanHandler);
+    }
+
+
     function init() {
         injectStyles();
         registerToMasterBall();
+        setupPromptInjection();
 
         try {
             const win = window.parent || window;
