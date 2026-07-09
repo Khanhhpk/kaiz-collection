@@ -253,7 +253,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '1.5.1.4';
+const KAIZ_CURRENT_VERSION = '1.5.1.5';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;

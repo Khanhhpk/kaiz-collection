@@ -2503,7 +2503,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             currentList.forEach(loc => {
                 if (loc && loc.grid_hint) {
                     const parts = loc.grid_hint.split(',').map(Number);
-                    if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1]) && parts[0] < totalRows && parts[1] < COLS) {
+                    if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1]) && parts[0] >= 0 && parts[0] < totalRows && parts[1] >= 0 && parts[1] < COLS) {
                         if (!grid2D[parts[0]][parts[1]]) {
                             grid2D[parts[0]][parts[1]] = loc;
                         } else {
