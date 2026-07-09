@@ -1481,7 +1481,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <i class="fa-solid fa-pen"></i> Sửa Deep Info
                             </button>
                             <button id="det_btn_delete" class="lore-btn lore-btn-danger" style="padding: 8px 16px;">
-                                🗑️ Xóa
+                                <i class="fa-solid fa-trash"></i> Xóa
                             </button>
                         </div>
                     </div>
@@ -1489,7 +1489,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <!-- ACTIONS BAR (Edit Mode) -->
                     <div id="det_edit_actions" style="display: none; gap: 12px; margin-top: 8px; justify-content: flex-end; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px;">
                         <button id="det_btn_cancel_edit" class="lore-btn lore-btn-secondary" style="padding: 10px 20px; font-size: 0.95em;">
-                            ❌ Hủy Bỏ
+                            <i class="fa-solid fa-xmark"></i> Hủy Bỏ
                         </button>
                         <button id="det_btn_save_edit" class="lore-btn lore-btn-success" style="padding: 10px 24px; font-size: 0.98em; font-weight: 800; box-shadow: 0 0 15px rgba(34,197,94,0.4);">
                             <i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi
@@ -1516,10 +1516,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px; margin-top: 6px; flex-wrap: wrap; gap: 10px;">
                         <button id="btn_delete_all_inactive" class="lore-btn lore-btn-danger" style="padding: 10px 16px;">
-                            🧹 Xóa Tất Cả Map Cũ (Giữ lại Chat hiện tại)
+                            <i class="fa-solid fa-broom"></i> Xóa Tất Cả Map Cũ (Giữ lại Chat hiện tại)
                         </button>
                         <button id="btn_refresh_saved_list" class="lore-btn lore-btn-secondary" style="padding: 10px 18px;">
-                            🔄 Làm Mới Danh Sách
+                            <i class="fa-solid fa-rotate"></i> Làm Mới Danh Sách
                         </button>
                     </div>
                 </div>
@@ -1561,13 +1561,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px;">
                         <button id="dbg_btn_copy" class="lore-btn lore-btn-primary" style="padding: 10px 18px;">
-                            📋 Sao Chép Request
+                            <i class="fa-solid fa-copy"></i> Sao Chép Request
                         </button>
                         <button id="dbg_btn_copy_res" class="lore-btn" style="padding: 10px 18px; background: rgba(74,222,128,0.2); border: 1px solid #4ade80; color: #4ade80;">
-                            📋 Sao Chép Response
+                            <i class="fa-solid fa-copy"></i> Sao Chép Response
                         </button>
                         <button id="dbg_btn_refresh" class="lore-btn lore-btn-secondary" style="padding: 10px 18px; margin-left: auto;">
-                            🔄 Làm Mới Preview
+                            <i class="fa-solid fa-rotate"></i> Làm Mới Preview
                         </button>
                     </div>
                 </div>
@@ -1661,7 +1661,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <textarea id="cfg_prompt_world_scan" class="lore-input" style="width: 100%; height: 320px; box-sizing: border-box; font-family: monospace; font-size: 0.82em; line-height: 1.45;"></textarea>
                         <div style="display: flex; justify-content: flex-start;">
                             <button id="btn_reset_prompt_scan" class="lore-btn lore-btn-secondary" style="font-size: 0.8em;">
-                                🔙 Khôi Phục Prompt Quét Mặc Định
+                                <i class="fa-solid fa-rotate-left"></i> Khôi Phục Prompt Quét Mặc Định
                             </button>
                         </div>
                     </div>
@@ -1674,7 +1674,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <textarea id="cfg_prompt_deep_drill" class="lore-input" style="width: 100%; height: 320px; box-sizing: border-box; font-family: monospace; font-size: 0.82em; line-height: 1.45;"></textarea>
                         <div style="display: flex; justify-content: flex-start;">
                             <button id="btn_reset_prompt_drill" class="lore-btn lore-btn-secondary" style="font-size: 0.8em;">
-                                🔙 Khôi Phục Prompt Khám Phá Mặc Định
+                                <i class="fa-solid fa-rotate-left"></i> Khôi Phục Prompt Khám Phá Mặc Định
                             </button>
                         </div>
                     </div>
@@ -1727,7 +1727,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                         <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
                             <div style="font-size: 0.9em; font-weight: bold; color: #fde047; margin-bottom: 6px;">
-                                🤖 Tự Động Quét Cập Nhật (Auto Update)
+                                <i class="fa-solid fa-robot"></i> Tự Động Quét Cập Nhật (Auto Update)
                             </div>
                             <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 10px;">Khi bật, AI tự động quét lịch sử chat để cập nhật Map sau mỗi N lượt tin nhắn. (0 = Tắt)</div>
                             <div>
@@ -1739,7 +1739,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
                         <button id="ai_cfg_save" class="lore-btn lore-btn-success" style="padding: 10px 20px;">
-                            ✔️ Lưu Toàn Bộ Cấu Hình & Prompt
+                            <i class="fa-solid fa-check"></i> Lưu Toàn Bộ Cấu Hình & Prompt
                         </button>
                     </div>
                 </div>
@@ -1813,7 +1813,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div style="background: #0f172a; width: 500px; max-width: 90%; margin: 0 auto; flex-shrink: 0; border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); display: flex; flex-direction: column; box-shadow: 0 25px 65px rgba(0,0,0,0.95);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
                             <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><i class="fa-solid fa-plus-square" style="color: #38bdf8; margin-right: 8px;"></i>Tạo Địa Điểm Mới</div>
-                            <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;">❌</button>
+                            <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                         <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
                             
@@ -2292,13 +2292,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div style="display: flex; gap: 8px;">
                         ${!isCurrent ? `
                             <button class="lore-btn lore-btn-secondary" style="padding: 6px 12px; font-size: 0.82em;" onclick="window._loreLoadSavedMap('${item.chatId}')" title="Chuyển sang xem/sửa bản đồ này">
-                                📂 Xem Thử
+                                <i class="fa-solid fa-folder-open"></i> Xem Thử
                             </button>
                         ` : `
                             <span style="font-size: 0.82em; color: #38bdf8; font-weight: bold; padding: 6px 10px;">(Bản đồ hiện tại)</span>
                         `}
                         <button class="lore-btn lore-btn-danger" style="padding: 6px 10px; font-size: 0.82em;" onclick="window._loreDeleteSavedMap('${item.key}', '${item.chatId}')" title="Xóa bản đồ chat này">
-                            🗑️ Xóa
+                            <i class="fa-solid fa-trash"></i> Xóa
                         </button>
                     </div>
                 </div>
@@ -2713,7 +2713,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <div class="loc-card-footer">
                                 ${subCount > 0 ? `
                                     <div class="loc-sub-folder-pill">
-                                        <span>🗂️  <b>${subCount}</b> tập con bên trong</span>
+                                        <span><i class="fa-solid fa-folder-tree" style="color: #60a5fa; margin-right: 6px;"></i> <b>${subCount}</b> tập con bên trong</span>
                                         <i class="fa-solid fa-chevron-right" style="opacity: 0.7;"></i>
                                     </div>
                                 ` : ''}
@@ -2754,7 +2754,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (currentList && currentList.length > 0) {
                 sidebarContent.innerHTML = currentList.map(loc => `
                     <div class="lore-sidebar-item" onclick="window._loreFocusNode('${loc.id}')" title="Nhấp để đi đến ${loc.name}">
-                        📍 
+                        <i class="fa-solid fa-location-dot" style="margin-right: 6px; color: #94a3b8;"></i>
                         ${loc.name}
                     </div>
                 `).join('');
