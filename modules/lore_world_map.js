@@ -2767,7 +2767,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     const tagsHTML = tagsList.map(t => `<span class="badge-pill badge-status" style="border-color: #c084fc; color: #e9d5ff; background: rgba(168,85,247,0.22);">${cleanLabelText(t)}</span>`).join('');
 
                     html += `
-                        <div class="${btnClass}" ${window._loreDragMode ? 'style="cursor: grab;" draggable="true" ondragstart="window._loreOnDragStart(event, \''+loc.id+'\')" ondragover="event.preventDefault()" ondrop="window._loreOnDrop(event, '+r+', '+c+')"' : ''} data-loc-id="${loc.id}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem & Đọc Thông Tin Chi Tiết (Deep Info)">
+                        <div class="${btnClass}" ${window._loreDragMode ? 'style="cursor: grab;" onmousedown="window._loreCustomDragStart(event, \''+loc.id+'\')"' : ''} data-loc-id="${loc.id}" data-row="${r}" data-col="${c}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem & Đọc Thông Tiết Chi Tiết (Deep Info)">
                             <!-- HEADER BADGES -->
                             <div class="loc-card-header">
                                 <span class="badge-pill ${isHub ? 'badge-hub' : 'badge-cat'}">${categoryText}</span>
@@ -2857,30 +2857,101 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
     }
 
-    window._loreOnDragStart = function(event, locId) {
+    let customDragSourceId = null;
+    let customDragClone = null;
+
+    window._loreCustomDragStart = function(e, locId) {
         if (!window._loreDragMode) return;
-        event.stopPropagation();
-        event.dataTransfer.setData('text/plain', locId);
-        event.dataTransfer.effectAllowed = 'move';
+        if (e.button !== 0) return; // Only left click
+        
+        customDragSourceId = locId;
+        const targetElement = e.target.closest('.location-button');
+        if (!targetElement) return;
+
+        // Prevent default to stop native selections
+        e.preventDefault();
+        
+        // Disable pointer events on the overlay so we don't accidentally hover things while dragging
+        const overlay = document.getElementById('lore_world_map_overlay');
+        
+        customDragClone = targetElement.cloneNode(true);
+        customDragClone.style.position = 'fixed';
+        customDragClone.style.pointerEvents = 'none';
+        customDragClone.style.zIndex = '9999999';
+        customDragClone.style.opacity = '0.8';
+        customDragClone.style.transform = 'scale(0.95)';
+        customDragClone.style.transition = 'none';
+        customDragClone.style.margin = '0';
+        
+        const rect = targetElement.getBoundingClientRect();
+        customDragClone.style.width = rect.width + 'px';
+        customDragClone.style.height = rect.height + 'px';
+        
+        document.body.appendChild(customDragClone);
+        
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+        
+        // Set initial position
+        customDragClone.style.left = (e.clientX - offsetX) + 'px';
+        customDragClone.style.top = (e.clientY - offsetY) + 'px';
+        
+        const onMouseMove = (moveEvent) => {
+            if (customDragClone) {
+                customDragClone.style.left = (moveEvent.clientX - offsetX) + 'px';
+                customDragClone.style.top = (moveEvent.clientY - offsetY) + 'px';
+            }
+        };
+        
+        const onMouseUp = (upEvent) => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            
+            if (customDragClone) {
+                customDragClone.remove();
+                customDragClone = null;
+            }
+            
+            if (customDragSourceId) {
+                // Find what's under the cursor
+                const dropTarget = document.elementFromPoint(upEvent.clientX, upEvent.clientY);
+                if (dropTarget) {
+                    const dropCell = dropTarget.closest('.lore-drag-mode-cell, .location-button');
+                    if (dropCell) {
+                        const targetId = dropCell.getAttribute('data-loc-id');
+                        const r = parseInt(dropCell.getAttribute('data-row'));
+                        const c = parseInt(dropCell.getAttribute('data-col'));
+                        
+                        if (!isNaN(r) && !isNaN(c)) {
+                            window._lorePerformDrop(customDragSourceId, targetId, r, c);
+                        }
+                    }
+                }
+                customDragSourceId = null;
+            }
+        };
+        
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
     };
 
-    window._loreOnDrop = function(event, r, c) {
-        if (!window._loreDragMode) return;
-        event.preventDefault();
-        const draggedId = event.dataTransfer.getData('text/plain');
-        if (!draggedId) return;
-        
+    window._lorePerformDrop = function(draggedId, targetId, r, c) {
         const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
         let list = currentParent ? (currentParent.subLocations || []) : mapData.locations;
         
         const draggedLoc = list.find(l => l.id === draggedId);
         if (!draggedLoc) return;
 
-        let targetLoc = list.find(l => l.grid_hint === `${r},${c}`);
+        let targetLoc = null;
+        if (targetId) {
+            targetLoc = list.find(l => l.id === targetId);
+        } else {
+            targetLoc = list.find(l => l.grid_hint === `${r},${c}`);
+        }
         
         if (targetLoc && targetLoc.id !== draggedId) {
             const tempGridHint = draggedLoc.grid_hint || '';
-            draggedLoc.grid_hint = `${r},${c}`;
+            draggedLoc.grid_hint = targetLoc.grid_hint || `${r},${c}`;
             targetLoc.grid_hint = tempGridHint;
         } else {
             draggedLoc.grid_hint = `${r},${c}`;
