@@ -3354,21 +3354,26 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     function setupPromptInjection() {
         loadAiConfig();
-        const PW = window.parent || window;
-        const ctx = PW.SillyTavern && PW.SillyTavern.getContext ? PW.SillyTavern.getContext() : null;
-        if (!ctx || !ctx.eventSource || !ctx.event_types) return;
+        const ctx = window.SillyTavern?.getContext?.() || window;
+        const eventSource = ctx.eventSource || window.eventSource;
+        const event_types = ctx.event_types || window.event_types || {};
+
+        if (!eventSource) {
+            setTimeout(setupPromptInjection, 1000);
+            return;
+        }
 
         // Xóa hook cũ
         if (window._loreMapEventHandlers) {
             window._loreMapEventHandlers.forEach(({ event, handler }) => {
-                if (ctx.eventSource.off) ctx.eventSource.off(event, handler);
+                if (eventSource.off) eventSource.off(event, handler);
             });
         }
         window._loreMapEventHandlers = [];
 
         const addEv = (event, handler) => {
-            if (event && ctx.eventSource.on) {
-                ctx.eventSource.on(event, handler);
+            if (event && eventSource.on) {
+                eventSource.on(event, handler);
                 window._loreMapEventHandlers.push({ event, handler });
             }
         };
@@ -3377,6 +3382,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (!aiConfig.injectEnabled) return;
             const contextStr = buildMapContextString();
             if (!contextStr || contextStr.trim() === '') return;
+            if (!payload) return;
+
+            // Chống bơm kép
+            if (payload._loreMapInjected || (Array.isArray(payload) && payload._loreMapInjected)) return;
 
             let targetArray = null;
             if (Array.isArray(payload)) {
@@ -3387,48 +3396,56 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 targetArray = payload.chat;
             }
 
-            if (!targetArray) return;
-            
-            // Chống trùng
-            if (targetArray.some(m => m && (m._loreMapInjected || (typeof m.content === 'string' && m.content.includes("WORLD MAP LORE"))))) return;
-
             const injectRole = aiConfig.injectRole || 'system';
             const injectDepth = parseInt(aiConfig.injectDepth, 10) || 0;
             const target = aiConfig.injectTarget || 'in_chat';
-            const msgObj = { role: injectRole, content: contextStr, _loreMapInjected: true };
 
-            if (target === 'system_top') {
-                targetArray.unshift(msgObj);
-            } else if (target === 'system_bottom') {
-                let lastSysIdx = -1;
-                for (let i = targetArray.length - 1; i >= 0; i--) {
-                    if (targetArray[i].role === 'system') { lastSysIdx = i; break; }
-                }
-                if (lastSysIdx >= 0) {
-                    targetArray[lastSysIdx].content += `\n\n${contextStr}`;
-                    targetArray[lastSysIdx]._loreMapInjected = true;
-                } else {
+            if (targetArray) {
+                if (targetArray.some(m => m && (m._loreMapInjected || (typeof m.content === 'string' && m.content.includes("WORLD MAP LORE"))))) return;
+
+                targetArray._loreMapInjected = true;
+                if (!payload._loreMapInjected) payload._loreMapInjected = true;
+
+                const msgObj = { role: injectRole, content: contextStr, _loreMapInjected: true };
+
+                if (target === 'system_top') {
                     targetArray.unshift(msgObj);
+                } else if (target === 'system_bottom') {
+                    let lastSysIdx = -1;
+                    for (let i = targetArray.length - 1; i >= 0; i--) {
+                        if (targetArray[i].role === 'system') { lastSysIdx = i; break; }
+                    }
+                    if (lastSysIdx >= 0) {
+                        targetArray[lastSysIdx].content += `\n\n${contextStr}`;
+                        targetArray[lastSysIdx]._loreMapInjected = true;
+                    } else {
+                        targetArray.unshift(msgObj);
+                    }
+                } else if (target === 'authors_note') {
+                    msgObj.content = `[Author's Note: ${contextStr}]`;
+                    let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
+                    targetArray.splice(insertIdx, 0, msgObj);
+                } else {
+                    let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
+                    targetArray.splice(insertIdx, 0, msgObj);
                 }
-            } else if (target === 'authors_note') {
-                // Giả lập Author's Note bằng cách bọc tag
-                msgObj.content = `[Author's Note: ${contextStr}]`;
-                let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
-                targetArray.splice(insertIdx, 0, msgObj);
-            } else { // in_chat
-                let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
-                targetArray.splice(insertIdx, 0, msgObj);
-            }
-            if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+            } else if (payload && typeof payload.prompt === 'string') {
+                if (payload.prompt.includes("WORLD MAP LORE")) return;
                 payload._loreMapInjected = true;
+                const formattedPrompt = `\n[${injectRole.toUpperCase()}: ${contextStr}]\n`;
+                if (target === 'system_top') {
+                    payload.prompt = formattedPrompt + payload.prompt;
+                } else {
+                    payload.prompt = payload.prompt + formattedPrompt;
+                }
             }
         };
 
         const promptEvents = [
-            ctx.event_types.CHAT_COMPLETION_PROMPT_READY,
-            ctx.event_types.GENERATE_AFTER_COMBINE_PROMPTS,
-            ctx.event_types.TEXT_COMPLETION_PROMPT_READY,
-            ctx.event_types.PROMPT_READY,
+            event_types.CHAT_COMPLETION_PROMPT_READY,
+            event_types.GENERATE_AFTER_COMBINE_PROMPTS,
+            event_types.TEXT_COMPLETION_PROMPT_READY,
+            event_types.PROMPT_READY,
             'chat_completion_prompt_ready',
             'generate_after_combine_prompts',
             'text_completion_prompt_ready',
@@ -3449,12 +3466,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 // Gọi quét ẩn danh
                 console.log("[Lore Map] Auto Scan Triggered!");
                 if (typeof triggerAiWorldScan === 'function') {
-                    // Cần chạy ẩn hoặc thông báo nhẹ
                     triggerAiWorldScan(true); // true = auto (nếu hàm hỗ trợ)
                 }
             }
         };
-        addEv(ctx.event_types.MESSAGE_RECEIVED, autoScanHandler);
+        
+        if (event_types.GENERATION_ENDED) addEv(event_types.GENERATION_ENDED, autoScanHandler);
+        else addEv('generation_ended', autoScanHandler);
     }
 
 
