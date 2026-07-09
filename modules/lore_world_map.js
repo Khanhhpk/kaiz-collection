@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.0.5
+ * - Phiên bản: v1.5.0.6
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.5)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.6)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -2672,14 +2672,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (elViewBadges) elViewBadges.style.display = 'none';
             if (elEditBadges) elEditBadges.style.display = 'grid';
 
-            [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'none'; });
-            [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'block'; });
+            [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv].forEach(el => { if (el) el.style.display = 'none'; });
+            [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput].forEach(el => { if (el) el.style.display = 'block'; });
             if (aiConfig.trackDynamicInfo === false) {
                 if (elCharsInput && elCharsInput.parentElement) elCharsInput.parentElement.style.display = 'none';
-                if (elEveInput && elEveInput.parentElement) elEveInput.parentElement.style.display = 'none';
             } else {
                 if (elCharsInput && elCharsInput.parentElement) elCharsInput.parentElement.style.display = 'block';
-                if (elEveInput && elEveInput.parentElement) elEveInput.parentElement.style.display = 'block';
             }
 
             if (elViewActions) elViewActions.style.display = 'none';
@@ -2690,14 +2688,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (elViewBadges) elViewBadges.style.display = 'flex';
             if (elEditBadges) elEditBadges.style.display = 'none';
 
-            [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'block'; });
-            [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'none'; });
+            [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv].forEach(el => { if (el) el.style.display = 'block'; });
+            [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput].forEach(el => { if (el) el.style.display = 'none'; });
             if (aiConfig.trackDynamicInfo === false) {
                 if (elCharsDiv && elCharsDiv.parentElement) elCharsDiv.parentElement.style.display = 'none';
-                if (elEveDiv && elEveDiv.parentElement) elEveDiv.parentElement.style.display = 'none';
             } else {
                 if (elCharsDiv && elCharsDiv.parentElement) elCharsDiv.parentElement.style.display = 'block';
-                if (elEveDiv && elEveDiv.parentElement) elEveDiv.parentElement.style.display = 'block';
             }
 
             if (elViewActions) elViewActions.style.display = 'flex';
