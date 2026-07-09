@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.4.0.1
+ * - Phiên bản: v1.5.0.0
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.4.0.1)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.0)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -48,7 +48,7 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
    - "events": Sự kiện lịch sử nổi bật hay biến cố đang diễn ra ngay lúc này tại địa điểm (chỉ điền nếu theo dõi thông tin động).
    - "characters": Danh sách nhân vật đang đứng/hiện diện tại địa điểm lúc này (chỉ điền nếu theo dõi thông tin động).
 5. KHÔNG TẠO TRÙNG LẶP: Nếu địa điểm đã có trong danh sách hiện có, hãy bổ sung thông tin cho chuẩn xác hơn hoặc thêm các phân khu con (subLocations) bên trong nó.
-6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - CỰC KỲ QUAN TRỌNG): Bản đồ hiển thị dạng LƯỚI 3 CỘT (cột 0=Trái, cột 1=Giữa, cột 2=Phải). Bạn PHẢI chỉ định vị trí bài trí cho mỗi địa điểm bằng trường \`grid_hint\` theo format "row,col" (bắt đầu từ 0). Hãy sắp xếp sao cho đúng vị trí không gian thực tế: VD nếu Quầy Lễ Tân ở trung tâm thì cho "0,1", Khu lò sưởi ở bên trái thì "0,0", Quầy Bar bên phải thì "0,2", Kho chứa ở phía sau/dưới thì "1,1"... THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG PHẢI ĐÚNG THEO THỨ TỰ ĐỌC LƯỚI: từ trái sang phải, từ trên xuống dưới!
+6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI 15x15 (grid_hint - CỰC KỲ QUAN TRỌNG): Bản đồ hiển thị dạng LƯỚI KHÔNG GIAN LỚN 15x15 (Hàng từ 0-14, Cột từ 0-14). Bạn PHẢI chỉ định tọa độ bài trí không gian cho mỗi địa điểm bằng trường \`grid_hint\` theo format "row,col". Hãy sắp xếp sao cho đúng vị trí không gian thực tế, trải rộng ra cho thoải mái: VD nếu Quầy Lễ Tân ở trung tâm thì cho "7,7", Khu lò sưởi ở bên trái thì "7,4", Quầy Bar bên phải thì "7,10", Kho chứa ở phía sau/dưới thì "10,7"... THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG PHẢI ĐÚNG THEO THỨ TỰ ĐỌC LƯỚI: từ trái sang phải, từ trên xuống dưới!
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không markdown ngoài JSON block) theo đúng định dạng sau:
 {
@@ -74,7 +74,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
           "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
           "tags": ["Nhãn riêng tư", "Vật phẩm quý"],
           "context_type": "Loại hình căn phòng/phân khu",
-          "grid_hint": "0,1",
+          "grid_hint": "7,7",
           "controlled_by": "Tên nhân vật chủ phòng/quản lý",
           "status": "Khóa riêng tư / Tự do...",
           "description": "Mô tả chi tiết bố trí nội thất và công dụng",
@@ -93,7 +93,7 @@ CHÚ Ý QUAN TRỌNG:
 - BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), ICON BẢN ĐỒ (\`icon\`) VÀ LIÊN KẾT (\`connections\`)! Hãy sáng tạo tối đa và khách quan theo bối cảnh truyện, tuyệt đối không bị gò bó bởi bất kỳ từ khóa hardcode nào!
 - "controlled_by": Là nhân vật hoặc thế lực CHỦ QUẢN, sở hữu, cai quản, kiểm soát địa điểm này (nhân vật có thể là chủ của nhiều nơi cùng lúc).
 - "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY. Nếu đang ở chế độ bản đồ khách quan tĩnh hoặc không có nhân vật đứng tại đây, hãy để mảng rỗng \`[]\`.
-- "grid_hint": BẠN PHẢI QUYẾT ĐỊNH VỊ TRÍ BÀI TRÍ "row,col" trên lưới 3 cột cho MỌI subLocations! Sắp xếp hợp lý theo vị trí không gian thực: trung tâm = cột 1, trái = cột 0, phải = cột 2. Và THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG phải theo thứ tự đọc lưới: trái→phải, trên→dưới!`;
+- "grid_hint": BẠN PHẢI QUYẾT ĐỊNH VỊ TRÍ BÀI TRÍ "row,col" trên lưới không gian 15x15 cho MỌI subLocations! Sắp xếp hợp lý, trải rộng theo vị trí không gian thực: trung tâm = "7,7", trái = "7,3", phải = "7,11", trên/trước = "3,7", dưới/sau = "11,7". Và THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG phải theo thứ tự đọc lưới: trái→phải, trên→dưới!`;
 
     const DEFAULT_DEEP_DRILL_PROMPT = `Bạn là Kiến Trúc Sư Khám Phá Địa Lý Sâu Đa Tầng (Deep Lore N-Layer Drill-Down Architect).
 Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂN PHÒNG / HẦM NGẦM NẰM BÊN TRONG địa điểm sau một cách KHÁCH QUAN và CHUẨN XÁC:
@@ -115,9 +115,9 @@ CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
 - "controlled_by": Là nhân vật chủ phòng, quản lý hoặc thế lực cai quản.
 - "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống hoặc ở chế độ bản đồ khách quan, để mảng rỗng \`[]\`).
 
-BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - CỰC KỲ QUAN TRỌNG):
-Bản đồ hiển thị dạng LƯỚI 3 CỘT (cột 0=Trái, cột 1=Giữa, cột 2=Phải). Bạn PHẢI chỉ định vị trí bài trí cho mỗi phân khu bằng trường \`grid_hint\` theo format "row,col" (bắt đầu từ 0).
-Hãy sắp xếp sao cho đúng vị trí không gian thực tế bên trong "{{target_name}}": VD nếu Quầy Lễ Tân ở trung tâm thì "0,1", Khu lò sưởi ở bên trái thì "0,0", Quầy Bar bên phải thì "0,2", Kho chứa ở phía sau/dưới thì "1,1"...
+BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI 15x15 (grid_hint - CỰC KỲ QUAN TRỌNG):
+Bản đồ hiển thị dạng LƯỚI KHÔNG GIAN LỚN 15x15 (Hàng từ 0-14, Cột từ 0-14). Bạn PHẢI chỉ định tọa độ bài trí cho mỗi phân khu bằng trường \`grid_hint\` theo format "row,col".
+Hãy sắp xếp sao cho đúng vị trí không gian thực tế, thoải mái rộng rãi bên trong "{{target_name}}": VD nếu Quầy Lễ Tân ở trung tâm thì "7,7", Khu lò sưởi ở bên trái thì "7,4", Quầy Bar bên phải thì "7,10", Kho chứa ở phía sau/dưới thì "10,7"...
 THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG PHẢI ĐÚNG THEO THỨ TỰ ĐỌC LƯỚI: từ trái sang phải, từ trên xuống dưới!
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
@@ -129,7 +129,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
       "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do"],
       "context_type": "Mô tả công năng phòng/phân khu",
-      "grid_hint": "0,1",
+      "grid_hint": "7,7",
       "controlled_by": "Tên nhân vật chủ phòng/quản lý",
       "status": "Khóa riêng tư / Tự do / Tuyệt mật...",
       "description": "Mô tả công năng, kiến trúc và bố trí trong căn phòng/phân khu này",
@@ -539,10 +539,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 display: flex;
                 flex-direction: column;
                 gap: 20px;
-                min-width: 1040px;
-                max-width: 1380px;
+                width: max-content;
+                min-width: 100%;
                 margin: 0 auto;
-                padding: 10px 10px 60px 10px;
+                padding: 40px 40px 80px 40px;
                 transform-origin: top center;
                 transition: transform 0.18s ease-out;
             }
@@ -2207,7 +2207,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             return;
         }
 
-        const COLS = 3;
+        const COLS = 15;
 
         // Kiểm tra xem có bất kỳ location nào có grid_hint từ AI không
         const hasGridHints = currentList.some(loc => loc && loc.grid_hint);
@@ -2216,7 +2216,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         let grid2D; // grid2D[row][col] = location | null
         if (hasGridHints) {
             // Tính số hàng cần thiết từ grid_hint
-            let maxRow = 0;
+            let maxRow = 14; // Default to at least 15 rows for the 15x15 grid
             currentList.forEach(loc => {
                 if (loc && loc.grid_hint) {
                     const parts = loc.grid_hint.split(',').map(Number);
@@ -2225,7 +2225,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             });
             const aiRows = maxRow + 1;
             // +1 hàng cho ô "Thêm Địa Điểm Mới"
-            const totalRows = Math.max(aiRows, Math.ceil((currentList.length + 1) / COLS)) + 1;
+            const totalRows = Math.max(aiRows, Math.ceil((currentList.length + 1) / COLS));
             grid2D = Array.from({ length: totalRows }, () => Array(COLS).fill(null));
 
             // Đặt các location có grid_hint vào đúng vị trí
@@ -2256,8 +2256,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 }
             }
         } else {
-            // Fallback: tuần tự như cũ
-            const totalRows = Math.ceil((currentList.length + 1) / COLS);
+            // Fallback: tuần tự
+            const totalRows = Math.max(15, Math.ceil((currentList.length + 1) / COLS));
             grid2D = Array.from({ length: totalRows }, () => Array(COLS).fill(null));
             currentList.forEach((loc, idx) => {
                 const r = Math.floor(idx / COLS);
