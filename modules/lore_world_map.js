@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.0.1
+ * - Phiên bản: v1.5.0.2
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.1)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.2)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -604,16 +604,29 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             .location-button.danger-button:hover { border-color: #fca5a5; box-shadow: 0 18px 40px rgba(251, 113, 133, 0.35); }
             
             .location-button.empty-location {
-                min-height: 150px;
-                background: rgba(15, 23, 42, 0.4);
-                border: 2px dashed rgba(148, 163, 184, 0.25);
+                min-height: 210px; /* Đồng nhất với location-button */
+                background: rgba(15, 23, 42, 0.2);
+                border: 1px dashed rgba(148, 163, 184, 0.2);
                 color: #64748b;
                 cursor: default;
                 box-shadow: none;
                 justify-content: center;
                 align-items: center;
+                pointer-events: none; /* Mặc định vô hiệu hóa */
+                transition: all 0.2s ease-in-out;
             }
-            .location-button.empty-location:hover { transform: none; border-color: rgba(148, 163, 184, 0.25); background: rgba(15, 23, 42, 0.4); box-shadow: none; }
+            .location-button.empty-location.add-mode-cell {
+                pointer-events: auto;
+                cursor: crosshair;
+                border: 2px dashed rgba(56,189,248,0.4);
+                background: rgba(56,189,248,0.06);
+            }
+            .location-button.empty-location.add-mode-cell:hover {
+                transform: translateY(-5px) scale(1.02);
+                border-color: #38bdf8;
+                background: rgba(56,189,248,0.15);
+                box-shadow: 0 15px 30px rgba(56,189,248,0.2);
+            }
 
             /* CARD HEADER BADGES & ANNOTATIONS */
             .loc-card-header {
@@ -2515,15 +2528,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 } else {
                     if (window._loreAddMode) {
                         html += `
-                            <div class="location-button empty-location add-mode-cell" style="cursor: crosshair; opacity: 0.8; border: 2px dashed #38bdf8; background: rgba(56,189,248,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; transition: all 0.2s;" onclick="window._loreOpenCreateModal(${r}, ${c})" title="Click để tạo địa điểm tại tọa độ (${r}, ${c})" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.borderColor='#7dd3fc';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.borderColor='#38bdf8';">
-                                <i class="fas fa-plus" style="color: #38bdf8; font-size: 24px; margin-bottom: 4px;"></i>
-                                <span style="font-size: 0.85em; font-weight: bold; color: #38bdf8;">Tạo tại đây</span>
-                                <span style="font-size: 0.7em; color: #7dd3fc;">(${r}, ${c})</span>
+                            <div class="location-button empty-location add-mode-cell" onclick="window._loreOpenCreateModal(${r}, ${c})" title="Click để tạo địa điểm tại tọa độ (${r}, ${c})">
+                                <i class="fas fa-plus" style="color: #38bdf8; font-size: 28px; margin-bottom: 8px;"></i>
+                                <span style="font-size: 1em; font-weight: bold; color: #38bdf8;">Tạo tại đây</span>
+                                <span style="font-size: 0.8em; color: #7dd3fc; margin-top: 4px; opacity: 0.8;">Tọa độ (${r}, ${c})</span>
                             </div>
                         `;
                     } else {
                         html += `
-                            <div class="location-button empty-location" style="opacity: 0.12; border: 1px dashed rgba(148,163,184,0.12); pointer-events: none;">
+                            <div class="location-button empty-location">
                             </div>
                         `;
                     }
