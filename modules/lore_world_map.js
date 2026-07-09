@@ -1013,7 +1013,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
         }
     }
-    }
+
 
     // TẠO SƠ ĐỒ CÂY BẢN ĐỒ
     function getMapTreeString(locList, level = 0) {
@@ -1634,7 +1634,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         function openCustomCreateModal(r, c) {
             const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
             
-            let html = \`
+            let html = `
                 <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 100000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
                     <div style="background: #1e293b; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
@@ -1651,11 +1651,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <div style="display: flex; gap: 12px;">
                                 <div style="flex: 1;">
                                     <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Phân Loại (Category)</label>
-                                    <input id="cmod_cat" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Nơi giải trí" value="\${currentParent ? 'sub_location' : 'major_hub'}"/>
+                                    <input id="cmod_cat" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Nơi giải trí" value="${currentParent ? 'sub_location' : 'major_hub'}"/>
                                 </div>
                                 <div style="flex: 1;">
                                     <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Bối cảnh (Context)</label>
-                                    <input id="cmod_context" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Quầy bar" value="\${currentParent ? 'Phân khu tầng sâu' : 'Khu vực lớn'}"/>
+                                    <input id="cmod_context" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Quầy bar" value="${currentParent ? 'Phân khu tầng sâu' : 'Khu vực lớn'}"/>
                                 </div>
                             </div>
 
@@ -1702,7 +1702,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </div>
                     </div>
                 </div>
-            \`;
+            `;
             
             doc.body.insertAdjacentHTML('beforeend', html);
             const modal = doc.getElementById('lore_create_modal');
@@ -1732,7 +1732,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     danger_level: danger || 'An toàn',
                     controlled_by: controlled || 'Chung',
                     status: 'Tự do ra vào',
-                    grid_hint: \`\${r},\${c}\`,
+                    grid_hint: `${r},${c}`,
                     description: desc,
                     characters: chars ? chars.split(',').map(c => c.trim()).filter(Boolean) : [],
                     atmosphere: atmo,
