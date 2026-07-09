@@ -45,15 +45,19 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
    - "secrets": Bí mật, hòm giấu đồ, vật phẩm quan trọng (Loot/Key items), hoặc ghi chép ẩn giấu tại nơi này.
    - "connections": LỐI ĐI & LIÊN KẾT GIAO THÔNG tới các địa điểm khác trong truyện.
    - "status": Trạng thái truy cập hoặc tình trạng kiến trúc ("Tự do ra vào", "Khóa mật mã / Cửa khóa", "Cấm địa / Tuyệt mật", "Đang bị phá hủy"...).
-   - "events": Sự kiện lịch sử nổi bật hay biến cố đang diễn ra ngay lúc này tại địa điểm (chỉ điền nếu theo dõi thông tin động).
-   - "characters": Danh sách nhân vật đang đứng/hiện diện tại địa điểm lúc này (chỉ điền nếu theo dõi thông tin động).
-5. KHÔNG TẠO TRÙNG LẶP: Nếu địa điểm đã có trong danh sách hiện có, hãy bổ sung thông tin cho chuẩn xác hơn hoặc thêm các phân khu con (subLocations) bên trong nó.
+   - "characters": Danh sách nhân vật đang đứng/hiện diện tại địa điểm lúc này.
+5. CẬP NHẬT HOẶC TẠO MỚI (CỰC KỲ QUAN TRỌNG): Bản đồ hiện tại của chúng ta CÓ SẴN các địa điểm sau:
+=== BẢN ĐỒ HIỆN TẠI ===
+{{existing_map}}
+======================
+NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON để HỆ THỐNG CẬP NHẬT THÔNG TIN thay vì tạo mới. Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id".
 6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI 15x15 (grid_hint - CỰC KỲ QUAN TRỌNG): Bản đồ hiển thị dạng LƯỚI KHÔNG GIAN LỚN 15x15 (Hàng từ 0-14, Cột từ 0-14). Bạn PHẢI chỉ định tọa độ bài trí không gian cho mỗi địa điểm bằng trường \`grid_hint\` theo format "row,col". Hãy sắp xếp sao cho đúng vị trí không gian thực tế, trải rộng ra cho thoải mái: VD nếu Quầy Lễ Tân ở trung tâm thì cho "7,7", Khu lò sưởi ở bên trái thì "7,4", Quầy Bar bên phải thì "7,10", Kho chứa ở phía sau/dưới thì "10,7"... THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG PHẢI ĐÚNG THEO THỨ TỰ ĐỌC LƯỚI: từ trái sang phải, từ trên xuống dưới!
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không markdown ngoài JSON block) theo đúng định dạng sau:
 {
   "locations": [
     {
+      "id": "ID_NẾU_MUỐN_CẬP_NHẬT_ĐỊA_ĐIỂM_CŨ (Nếu là địa điểm tạo mới, KHÔNG ĐIỀN TRƯỜNG NÀY)",
       "name": "Tên Khu Vực Lớn / Trung Tâm (VD: Trường Trung Học Sakura / Trạm Vũ Trụ Alpha / Đảo Rồng)",
       "category": "Phân loại chính tự do theo đúng bối cảnh truyện",
       "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
@@ -65,10 +69,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       "atmosphere": "Môi trường, thời tiết, âm thanh, ánh sáng và cảm giác tại khu vực",
       "secrets": "Vật phẩm đặc biệt, bảo vật hoặc bí mật giấu kín tại đây",
       "connections": "Cổng Bắc nối ra Phố Chợ, Hành lang Tây nối tới Khu Nghiên Cứu...",
-      "events": "Sự kiện hoặc biến cố đang diễn ra",
       "characters": ["Tên nhân vật A đang đứng/hiện diện tại đây"],
       "subLocations": [
         {
+          "id": "ID_NẾU_CẬP_NHẬT (Bỏ trống nếu tạo mới)",
           "name": "Tên Căn Phòng / Phân Khu Nhỏ bên trong",
           "category": "Phân loại tập con tự do",
           "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
@@ -81,7 +85,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
           "atmosphere": "Môi trường, ánh sáng dịu nhẹ, mùi hương...",
           "secrets": "Cuốn nhật ký dưới gối...",
           "connections": "Cửa chính thông ra Hành Lang Tầng 2...",
-          "events": "Biến cố đang diễn ra trong phòng",
           "characters": ["Tên nhân vật đang có mặt trong phòng"]
         }
       ]
@@ -108,12 +111,17 @@ Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂ
 ==================================
 
 NHIỆM VỤ CỦA BẠN:
-Hãy sáng tạo và xây dựng 2 đến 6 Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
-BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào! Đặc biệt chú ý mô tả chuẩn lối đi liên kết giữa căn phòng này tới các khu vực bên ngoài (\`connections\`).
+1. KHÔNG TẠO TRÙNG LẶP: Tham khảo các tập con ĐÃ TỒN TẠI bên trong "{{target_name}}" ở dưới đây:
+=== CÁC PHÂN KHU ĐÃ CÓ ===
+{{existing_map}}
+==========================
+NẾU một phân khu đã có, bạn PHẢI ĐIỀN trường "id" để CẬP NHẬT nó (vd sửa lại nhân vật hiện diện, mô tả, bí mật) thay vì tạo mới. Nếu tạo căn phòng mới, BỎ TRỐNG trường "id".
+2. Hãy sáng tạo và xây dựng thêm (hoặc cập nhật) các Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
+3. BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào! Đặc biệt chú ý mô tả chuẩn lối đi liên kết giữa căn phòng này tới các khu vực bên ngoài (\`connections\`).
 
 CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
 - "controlled_by": Là nhân vật chủ phòng, quản lý hoặc thế lực cai quản.
-- "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống hoặc ở chế độ bản đồ khách quan, để mảng rỗng \`[]\`).
+- "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống, để mảng rỗng \`[]\`).
 
 BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI 15x15 (grid_hint - CỰC KỲ QUAN TRỌNG):
 Bản đồ hiển thị dạng LƯỚI KHÔNG GIAN LỚN 15x15 (Hàng từ 0-14, Cột từ 0-14). Bạn PHẢI chỉ định tọa độ bài trí cho mỗi phân khu bằng trường \`grid_hint\` theo format "row,col".
@@ -124,6 +132,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 {
   "subLocations": [
     {
+      "id": "ID_NẾU_CẬP_NHẬT (Bỏ trống nếu tạo mới)",
       "name": "Tên Căn Phòng / Hầm bí mật / Phân khu bên trong",
       "category": "Phân loại tự do (BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
       "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
@@ -136,7 +145,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
       "atmosphere": "Môi trường, ánh sáng, mùi hương, tiếng động tại đây",
       "secrets": "Bí mật, mật thư hoặc vật phẩm quý giá giấu tại đây",
       "connections": "Cửa nối ra phòng chính, lối đi thông gió dẫn ra hiên sau...",
-      "events": "Sự kiện hoặc biến cố đang diễn ra trong phòng",
       "characters": ["Tên nhân vật đang có mặt tại đây"]
     }
   ]
@@ -1005,6 +1013,36 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
         }
     }
+    }
+
+    // TẠO SƠ ĐỒ CÂY BẢN ĐỒ
+    function getMapTreeString(locList, level = 0) {
+        if (!locList || !locList.length) return '';
+        let indent = '  '.repeat(level);
+        let result = '';
+        for (const l of locList) {
+            result += `${indent}- [ID: ${l.id}] ${l.name} (${l.context_type || l.category})`;
+            if (l.characters && l.characters.length) result += ` - Nhân vật đang có mặt: ${l.characters.join(', ')}`;
+            result += '\n';
+            if (l.subLocations && l.subLocations.length) {
+                result += getMapTreeString(l.subLocations, level + 1);
+            }
+        }
+        return result;
+    }
+
+    // TÌM KIẾM ĐỊA ĐIỂM THEO ID TRÊN TOÀN BẢN ĐỒ
+    function findLocationById(locations, id) {
+        if (!locations || !locations.length) return null;
+        for (let l of locations) {
+            if (l.id === id) return l;
+            if (l.subLocations && l.subLocations.length) {
+                let found = findLocationById(l.subLocations, id);
+                if (found) return found;
+            }
+        }
+        return null;
+    }
 
     // EXTRACT HISTORY SIÊU ĐẦY ĐỦ (KHÔNG BỊ CẮT LẸM)
     function extractFullHistoryText(historyCountLimit, maxCharLimit) {
@@ -1172,8 +1210,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét Map
                         </button>
 
-                        <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Thêm địa điểm vào lớp hiện tại">
-                            <i class="fa-solid fa-plus"></i> Thêm Địa Điểm
+                        <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Bật/Tắt chế độ thêm địa điểm">
+                            <i class="fa-solid fa-plus"></i> <span id="lore_btn_add_text">Thêm Địa Điểm</span>
                         </button>
 
                         <button id="lore_btn_saved_maps" class="lore-btn lore-btn-secondary" title="Kiểm tra & Xóa nhanh các bản đồ / chat đang lưu">
@@ -1320,11 +1358,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <textarea id="edit_det_secrets" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #fde047; line-height: 1.4;" placeholder="Bí mật, mật thư hoặc vật phẩm quan trọng giấu tại đây..."></textarea>
                     </div>
 
-                    <div class="deep-info-card">
-                        <div class="deep-info-title"><i class="fa-solid fa-bolt-lightning"></i> Sự kiện hoặc Biến cố đang diễn ra (Active Events)</div>
-                        <div id="det_events" class="deep-info-text" style="color: #fca5a5;">Không có biến cố nào.</div>
-                        <textarea id="edit_det_events" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #fca5a5; line-height: 1.4;" placeholder="Sự kiện, biến cố hoặc xung đột đang diễn ra..."></textarea>
-                    </div>
+
 
                     <!-- ACTIONS BAR (View Mode) -->
                     <div id="det_view_actions" style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center;">
@@ -1552,47 +1586,172 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
         });
 
-        // Xử lý nút Thêm Địa Điểm
+        // Xử lý nút Thêm Địa Điểm (Bật / Tắt Add Mode)
         overlay.querySelector('#lore_btn_add_location').addEventListener('click', () => {
-            const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
-            const name = prompt('Nhập tên địa điểm/phân khu mới:', 'Khu Vực / Căn Phòng Mới');
-            if (!name || !name.trim()) return;
-            const contextType = prompt('Loại địa điểm theo bối cảnh (VD: Phòng học, Trạm vũ trụ, Quán ăn...):', currentParent ? 'Phân khu tầng sâu' : 'Khu vực lớn') || 'Khu vực';
-            const danger = prompt('Mức độ an toàn / rủi ro tại đây:', 'An toàn bình thường') || 'An toàn';
-            const controlled = prompt('Nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này:', 'Chung') || 'Chung';
-            const presentChars = prompt('Nhân vật đang HIỆN DIỆN (đứng tại đây) lúc này (cách nhau dấu phẩy , nếu trống để trống):', '') || '';
-            const desc = prompt('Mô tả chi tiết hoặc sự kiện diễn ra tại đây:', 'Một địa điểm vừa được thêm vào bản đồ.') || '';
-            const connections = prompt('Cổng kết nối / Lối đi liên kết tới các khu vực khác:', 'Đường nối nội bộ, thang máy hay hành lang...') || 'Lối đi thông ra xung quanh.';
-            const atmo = prompt('Môi trường & Bầu không khí (Atmosphere):', 'Không gian yên tĩnh, ánh sáng dịu nhẹ.') || 'Bình thường';
-            const secrets = prompt('Bí mật / Vật phẩm / Tài nguyên ẩn (Secrets & Loot):', 'Chưa có thông tin bí mật.') || 'Chưa phát hiện bí mật nào';
-
-            const newLoc = {
-                id: (currentParent ? 'sub_' : 'loc_') + Date.now(),
-                icon: getIconForCategory(contextType.trim(), name.trim(), contextType.trim()),
-                category: contextType.trim() || (currentParent ? 'sub_location' : 'major_hub'),
-                tags: [],
-                context_type: contextType.trim(),
-                danger_level: danger.trim(),
-                controlled_by: controlled.trim(),
-                status: 'Tự do ra vào',
-                description: desc.trim(),
-                characters: presentChars ? presentChars.split(',').map(c => c.trim()).filter(Boolean) : [],
-                atmosphere: atmo.trim(),
-                secrets: secrets.trim(),
-                events: 'Tình hình ổn định.',
-                connections: connections.trim(),
-                subLocations: []
-            };
-
-            if (currentParent) {
-                currentParent.subLocations = currentParent.subLocations || [];
-                currentParent.subLocations.push(newLoc);
+            window._loreAddMode = !window._loreAddMode;
+            const btnText = overlay.querySelector('#lore_btn_add_text');
+            const btnIcon = overlay.querySelector('#lore_btn_add_location i');
+            const btn = overlay.querySelector('#lore_btn_add_location');
+            if (window._loreAddMode) {
+                btnText.innerText = 'Hủy Thêm';
+                btnIcon.className = 'fa-solid fa-xmark';
+                btn.style.background = 'rgba(239, 68, 68, 0.2)';
+                btn.style.color = '#fca5a5';
+                btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
             } else {
-                mapData.locations.push(newLoc);
+                btnText.innerText = 'Thêm Địa Điểm';
+                btnIcon.className = 'fa-solid fa-plus';
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
             }
-            saveMapData();
             renderAppGrid();
         });
+
+        window._loreOpenCreateModal = function(r, c) {
+            window._loreAddMode = false; // Turn off add mode
+            
+            // Reset button ui
+            const btnText = overlay.querySelector('#lore_btn_add_text');
+            const btnIcon = overlay.querySelector('#lore_btn_add_location i');
+            const btn = overlay.querySelector('#lore_btn_add_location');
+            if(btnText) btnText.innerText = 'Thêm Địa Điểm';
+            if(btnIcon) btnIcon.className = 'fa-solid fa-plus';
+            if(btn) {
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }
+            
+            // Render grid back to normal
+            renderAppGrid();
+            
+            // Open the new custom creation modal instead of prompt
+            openCustomCreateModal(r, c);
+        };
+
+        // UI Form Custom Create Modal
+        function openCustomCreateModal(r, c) {
+            const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+            
+            let html = \`
+                <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 100000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+                    <div style="background: #1e293b; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+                        <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+                            <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><i class="fa-solid fa-plus-square" style="color: #38bdf8; margin-right: 8px;"></i>Tạo Địa Điểm Mới</div>
+                            <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                            
+                            <div>
+                                <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Tên Địa Điểm (*)</label>
+                                <input id="cmod_name" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Quán Rượu Đầu Làng" />
+                            </div>
+                            
+                            <div style="display: flex; gap: 12px;">
+                                <div style="flex: 1;">
+                                    <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Phân Loại (Category)</label>
+                                    <input id="cmod_cat" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Nơi giải trí" value="\${currentParent ? 'sub_location' : 'major_hub'}"/>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Bối cảnh (Context)</label>
+                                    <input id="cmod_context" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Quầy bar" value="\${currentParent ? 'Phân khu tầng sâu' : 'Khu vực lớn'}"/>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 12px;">
+                                <div style="flex: 1;">
+                                    <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Chủ quản</label>
+                                    <input id="cmod_controlled" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Chung" value="Chung"/>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">An toàn / Trạng thái</label>
+                                    <input id="cmod_danger" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: An toàn" value="An toàn"/>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Nhân vật hiện diện (cách nhau dấu phẩy)</label>
+                                <input id="cmod_chars" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="VD: Aqua, Ruby" />
+                            </div>
+
+                            <div>
+                                <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Mô tả tổng quan</label>
+                                <textarea id="cmod_desc" class="lore-input" style="width:100%; height:60px; box-sizing:border-box;" placeholder="Một địa điểm vừa được thêm vào bản đồ..."></textarea>
+                            </div>
+
+                            <div>
+                                <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Bầu không khí (Atmosphere)</label>
+                                <input id="cmod_atmo" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="Không gian yên tĩnh, ánh sáng dịu nhẹ..." />
+                            </div>
+                            
+                            <div>
+                                <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Bí mật & Đồ vật (Secrets)</label>
+                                <input id="cmod_sec" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="Chưa phát hiện bí mật nào..." />
+                            </div>
+
+                            <div>
+                                <label style="display:block; color:#cbd5e1; font-size:0.85em; font-weight:bold; margin-bottom:4px;">Cổng Liên Kết (Connections)</label>
+                                <input id="cmod_conn" type="text" class="lore-input" style="width:100%; box-sizing:border-box;" placeholder="Lối đi thông ra xung quanh..." />
+                            </div>
+
+                            <div style="padding-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
+                                <button class="lore-btn lore-btn-secondary" onclick="document.getElementById('lore_create_modal').remove()">Hủy Bỏ</button>
+                                <button class="lore-btn lore-btn-primary" id="cmod_save"><i class="fa-solid fa-check"></i> Tạo Địa Điểm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            \`;
+            
+            doc.body.insertAdjacentHTML('beforeend', html);
+            const modal = doc.getElementById('lore_create_modal');
+            const nameInput = doc.getElementById('cmod_name');
+            nameInput.focus();
+
+            doc.getElementById('cmod_save').addEventListener('click', () => {
+                const name = nameInput.value.trim();
+                if (!name) { alert("Vui lòng nhập Tên Địa Điểm!"); return; }
+                
+                const cat = doc.getElementById('cmod_cat').value.trim();
+                const context = doc.getElementById('cmod_context').value.trim();
+                const controlled = doc.getElementById('cmod_controlled').value.trim();
+                const danger = doc.getElementById('cmod_danger').value.trim();
+                const chars = doc.getElementById('cmod_chars').value.trim();
+                const desc = doc.getElementById('cmod_desc').value.trim() || 'Một địa điểm vừa được thêm vào bản đồ.';
+                const atmo = doc.getElementById('cmod_atmo').value.trim() || 'Bầu không khí bình thường.';
+                const sec = doc.getElementById('cmod_sec').value.trim() || 'Chưa phát hiện bí mật nào.';
+                const conn = doc.getElementById('cmod_conn').value.trim() || 'Lối đi thông ra xung quanh.';
+
+                const newLoc = {
+                    id: (currentParent ? 'sub_' : 'loc_') + Date.now(),
+                    icon: getIconForCategory(cat, name, context),
+                    category: cat || (currentParent ? 'sub_location' : 'major_hub'),
+                    tags: [],
+                    context_type: context,
+                    danger_level: danger || 'An toàn',
+                    controlled_by: controlled || 'Chung',
+                    status: 'Tự do ra vào',
+                    grid_hint: \`\${r},\${c}\`,
+                    description: desc,
+                    characters: chars ? chars.split(',').map(c => c.trim()).filter(Boolean) : [],
+                    atmosphere: atmo,
+                    secrets: sec,
+                    connections: conn,
+                    subLocations: []
+                };
+
+                if (currentParent) {
+                    currentParent.subLocations = currentParent.subLocations || [];
+                    currentParent.subLocations.push(newLoc);
+                } else {
+                    mapData.locations.push(newLoc);
+                }
+                saveMapData();
+                modal.remove();
+                renderAppGrid();
+            });
+        }
 
         // Xử lý AI Quét Map
         overlay.querySelector('#lore_btn_ai_scan').addEventListener('click', async () => {
@@ -1610,7 +1769,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             overlay.querySelector('#dbg_char_count').innerText = `${histObj.charCount.toLocaleString()} chars`;
             overlay.querySelector('#dbg_token_count').innerText = `~${histObj.estTokens.toLocaleString()} tokens`;
 
-            const existingStr = mapData.locations.map(l => `- ${l.name} (${l.context_type}): [${(l.subLocations||[]).map(s=>s.name).join(', ')}]`).join('\n');
+            const existingStr = getMapTreeString(mapData.locations);
             let template = aiConfig.customPromptWorldScan || DEFAULT_WORLD_SCAN_PROMPT;
             const fullPromptPreview = template.replace('{{history}}', histObj.text).replace('{{existing_map}}', existingStr || '(Chưa có)');
 
@@ -1829,9 +1988,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             selectedDetailLocation.connections = detBox.querySelector('#edit_det_connections')?.value?.trim() || '';
             selectedDetailLocation.atmosphere = detBox.querySelector('#edit_det_atmosphere')?.value?.trim() || '';
             selectedDetailLocation.secrets = detBox.querySelector('#edit_det_secrets')?.value?.trim() || '';
-            if (aiConfig.trackDynamicInfo !== false) {
-                selectedDetailLocation.events = detBox.querySelector('#edit_det_events')?.value?.trim() || '';
-            }
+
 
             saveMapData();
             if (typeof window._loreToggleDetailEditMode === 'function') window._loreToggleDetailEditMode(false);
@@ -2355,22 +2512,21 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             </div>
                         </div>
                     `;
-                } else if (!addBtnPlaced) {
-                    addBtnPlaced = true;
-                    html += `
-                        <div class="location-button empty-location" style="cursor: pointer; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.08);" onclick="document.getElementById('lore_btn_add_location').click()" title="Nhấp chuột trái để thêm địa điểm mới vào ô trống này">
-                            <i class="fas fa-plus" style="color: #38bdf8; font-size: 28px; margin-bottom: 8px;"></i>
-                            <span style="font-size: 1em; font-weight: bold; color: #38bdf8;">+ Thêm Địa Điểm Mới</span>
-                            <span style="font-size: 0.8em; color: #94a3b8; margin-top: 4px;">Tạo thêm phân khu hoặc địa điểm phụ tại lớp này</span>
-                        </div>
-                    `;
                 } else {
-                    html += `
-                        <div class="location-button empty-location" style="opacity: 0.18; border: 1px dashed rgba(148,163,184,0.12);">
-                            <i class="fas fa-cube" style="font-size: 18px;"></i>
-                            <span style="font-size: 0.82em;">Khoảng Trống</span>
-                        </div>
-                    `;
+                    if (window._loreAddMode) {
+                        html += `
+                            <div class="location-button empty-location add-mode-cell" style="cursor: crosshair; opacity: 0.8; border: 2px dashed #38bdf8; background: rgba(56,189,248,0.08); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; transition: all 0.2s;" onclick="window._loreOpenCreateModal(${r}, ${c})" title="Click để tạo địa điểm tại tọa độ (${r}, ${c})" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.borderColor='#7dd3fc';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.borderColor='#38bdf8';">
+                                <i class="fas fa-plus" style="color: #38bdf8; font-size: 24px; margin-bottom: 4px;"></i>
+                                <span style="font-size: 0.85em; font-weight: bold; color: #38bdf8;">Tạo tại đây</span>
+                                <span style="font-size: 0.7em; color: #7dd3fc;">(${r}, ${c})</span>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="location-button empty-location" style="opacity: 0.12; border: 1px dashed rgba(148,163,184,0.12); pointer-events: none;">
+                            </div>
+                        `;
+                    }
                 }
 
                 // Horizontal smart bridge between columns
@@ -2481,8 +2637,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const elAtmoInput = detBox.querySelector('#edit_det_atmosphere');
         const elSecDiv = detBox.querySelector('#det_secrets');
         const elSecInput = detBox.querySelector('#edit_det_secrets');
-        const elEveDiv = detBox.querySelector('#det_events');
-        const elEveInput = detBox.querySelector('#edit_det_events');
+
 
         const elViewActions = detBox.querySelector('#det_view_actions');
         const elEditActions = detBox.querySelector('#det_edit_actions');
@@ -2501,7 +2656,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (elConnInput) elConnInput.value = selectedDetailLocation.connections || '';
             if (elAtmoInput) elAtmoInput.value = selectedDetailLocation.atmosphere || '';
             if (elSecInput) elSecInput.value = selectedDetailLocation.secrets || '';
-            if (elEveInput) elEveInput.value = selectedDetailLocation.events || '';
+
 
             if (elNameSpan) elNameSpan.style.display = 'none';
             if (elNameInput) { elNameInput.style.display = 'inline-block'; elNameInput.focus(); }
@@ -2585,7 +2740,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (statusBadge) statusBadge.innerText = cleanModalLabel(found.status || 'Tự do');
 
         const charBoxEl = doc.getElementById('det_characters')?.parentElement;
-        const eventBoxEl = doc.getElementById('det_events')?.parentElement;
+
         if (aiConfig.trackDynamicInfo === false) {
             if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'none';
             if (eventBoxEl && eventBoxEl.classList.contains('deep-info-card')) eventBoxEl.style.display = 'none';
@@ -2599,8 +2754,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             } else {
                 doc.getElementById('det_characters').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chưa có nhân vật nào đang hiện diện tại đây lúc này</span>`;
             }
-
-            doc.getElementById('det_events').innerText = found.events || 'Tình hình ổn định, không có sự kiện căng thẳng nào.';
         }
 
         const controlledStr = found.controlled_by || 'Chung';
@@ -2650,16 +2803,20 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         try {
             const histObj = extractFullHistoryText(aiConfig.historyCount, aiConfig.historyMaxChars);
             let template = aiConfig.customPromptDeepDrill || DEFAULT_DEEP_DRILL_PROMPT;
+            
+            const existingStr = getMapTreeString(targetLoc.subLocations || []);
+            
             let prompt = template
                 .replace('{{history}}', histObj.text)
                 .replace('{{target_name}}', targetLoc.name || '')
                 .replace('{{target_type}}', targetLoc.context_type || '')
                 .replace('{{target_desc}}', targetLoc.description || '')
                 .replace('{{target_atmo}}', targetLoc.atmosphere || '')
-                .replace('{{target_secrets}}', targetLoc.secrets || '');
+                .replace('{{target_secrets}}', targetLoc.secrets || '')
+                .replace('{{existing_map}}', existingStr || '(Chưa có)');
 
             if (aiConfig.trackDynamicInfo === false) {
-                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới sự kiện hay những gì đang xảy ra hiện tại. Hãy để trường "events": "" và "characters": [] ở tất cả các phân khu con!]`;
+                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới những gì đang xảy ra hiện tại. Hãy để trường "characters": [] ở tất cả các phân khu con!]`;
             }
 
             let responseJson = null;
@@ -2713,10 +2870,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             let added = 0;
             responseJson.subLocations.forEach(sub => {
                 if (!sub || !sub.name) return;
-                const exist = targetLoc.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
+                
+                let exist = null;
+                if (sub.id) exist = targetLoc.subLocations.find(s => s.id === sub.id);
+                if (!exist) exist = targetLoc.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
+                
                 if (!exist) {
                     targetLoc.subLocations.push({
-                        id: 'sub_' + Math.random().toString(36).substr(2, 7),
+                        id: sub.id || ('sub_' + Math.random().toString(36).substr(2, 7)),
                         name: sub.name.trim(),
                         icon: sub.icon ? sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(sub.category || 'sub_location', sub.name, sub.context_type),
                         category: sub.category || 'sub_location',
@@ -2730,11 +2891,24 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         characters: Array.isArray(sub.characters) ? sub.characters : [],
                         atmosphere: sub.atmosphere || 'Không gian yên tĩnh.',
                         secrets: sub.secrets || 'Chưa phát hiện bí mật nào.',
-                        events: sub.events || 'Tình hình ổn định.',
+
                         connections: sub.connections || 'Lối đi nội bộ.',
                         subLocations: []
                     });
                     added++;
+                } else {
+                    if (sub.icon) exist.icon = sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
+                    if (sub.category && sub.category !== 'sub_location') {
+                        exist.category = sub.category;
+                        if (!exist.icon || exist.icon === 'fa-building') exist.icon = getIconForCategory(sub.category, exist.name, exist.context_type);
+                    }
+                    if (Array.isArray(sub.tags)) exist.tags = Array.from(new Set([...(exist.tags||[]), ...sub.tags]));
+                    if (sub.grid_hint) exist.grid_hint = sub.grid_hint;
+                    if (sub.description && exist.description.length < sub.description.length) exist.description = sub.description;
+                    if (sub.atmosphere) exist.atmosphere = sub.atmosphere;
+                    if (sub.secrets) exist.secrets = sub.secrets;
+                    if (sub.connections) exist.connections = sub.connections;
+                    if (Array.isArray(sub.characters)) exist.characters = Array.from(new Set([...(exist.characters||[]), ...sub.characters]));
                 }
             });
 
@@ -2769,14 +2943,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 return;
             }
 
-            const existingStr = mapData.locations.map(l => `- ${l.name} (${l.context_type}): [${(l.subLocations||[]).map(s=>s.name).join(', ')}]`).join('\n');
+            const existingStr = getMapTreeString(mapData.locations);
             let template = aiConfig.customPromptWorldScan || DEFAULT_WORLD_SCAN_PROMPT;
             let prompt = template
                 .replace('{{history}}', histObj.text)
                 .replace('{{existing_map}}', existingStr || '(Chưa có)');
 
             if (aiConfig.trackDynamicInfo === false) {
-                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới sự kiện hay những gì đang xảy ra hiện tại. Hãy để trường "events": "" và "characters": [] ở tất cả các khu vực và phân khu!]`;
+                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới những gì đang xảy ra hiện tại. Hãy để trường "characters": [] ở tất cả các khu vực và phân khu!]`;
             }
 
             let responseJson = null;
@@ -2832,24 +3006,28 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             let addedCount = 0;
             responseJson.locations.forEach(item => {
                 if (!item || !item.name) return;
-                let hub = mapData.locations.find(l => l.name.toLowerCase() === item.name.trim().toLowerCase());
+                
+                let hub = null;
+                if (item.id) hub = findLocationById(mapData.locations, item.id);
+                if (!hub) hub = mapData.locations.find(l => l.name.toLowerCase() === item.name.trim().toLowerCase());
+                
                 if (!hub) {
                     hub = {
-                        id: 'loc_' + Math.random().toString(36).substr(2, 7),
+                        id: item.id || ('loc_' + Math.random().toString(36).substr(2, 7)),
                         name: item.name.trim(),
                         icon: item.icon ? item.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(item.category, item.name, item.context_type),
                         category: item.category || 'major_hub',
                         tags: Array.isArray(item.tags) ? item.tags : (typeof item.tags === 'string' ? item.tags.split(',').map(t=>t.trim()) : []),
                         context_type: item.context_type || 'Khu vực lớn',
+                        grid_hint: item.grid_hint || '',
                         danger_level: item.danger_level || 'An toàn',
                         controlled_by: item.controlled_by || 'Chung',
                         status: item.status || 'Tự do',
-                        grid_hint: item.grid_hint || '',
                         description: item.description || '',
                         characters: Array.isArray(item.characters) ? item.characters : [],
                         atmosphere: item.atmosphere || 'Bầu không khí bình thường.',
                         secrets: item.secrets || 'Chưa phát hiện bí mật nào.',
-                        events: item.events || 'Tình hình ổn định.',
+
                         connections: item.connections || 'Đường nối nội bộ và ngoại vi.',
                         subLocations: []
                     };
@@ -2866,7 +3044,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     if (item.description && hub.description.length < item.description.length) hub.description = item.description;
                     if (item.atmosphere) hub.atmosphere = item.atmosphere;
                     if (item.secrets) hub.secrets = item.secrets;
-                    if (item.events) hub.events = item.events;
+
                     if (item.connections) hub.connections = item.connections;
                     if (Array.isArray(item.characters)) hub.characters = Array.from(new Set([...(hub.characters||[]), ...item.characters]));
                 }
@@ -2875,10 +3053,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     item.subLocations.forEach(sub => {
                         if (!sub || !sub.name) return;
                         hub.subLocations = hub.subLocations || [];
-                        let existSub = hub.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
+                        
+                        let existSub = null;
+                        if (sub.id) existSub = hub.subLocations.find(s => s.id === sub.id);
+                        if (!existSub) existSub = hub.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
+                        
                         if (!existSub) {
                             hub.subLocations.push({
-                                id: 'sub_' + Math.random().toString(36).substr(2, 7),
+                                id: sub.id || ('sub_' + Math.random().toString(36).substr(2, 7)),
                                 name: sub.name.trim(),
                                 icon: sub.icon ? sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(sub.category || 'sub_location', sub.name, sub.context_type),
                                 category: sub.category || 'sub_location',
@@ -2892,10 +3074,23 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 characters: Array.isArray(sub.characters) ? sub.characters : [],
                                 atmosphere: sub.atmosphere || 'Môi trường bình thường.',
                                 secrets: sub.secrets || 'Chưa có bí mật nào.',
-                                events: sub.events || 'Tình hình ổn định.',
+
                                 connections: sub.connections || 'Cửa nối nội bộ ra khu chính.'
                             });
                             addedCount++;
+                        } else {
+                            if (sub.icon) existSub.icon = sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
+                            if (sub.category && sub.category !== 'sub_location') {
+                                existSub.category = sub.category;
+                                if (!existSub.icon || existSub.icon === 'fa-building') existSub.icon = getIconForCategory(sub.category, existSub.name, existSub.context_type);
+                            }
+                            if (Array.isArray(sub.tags)) existSub.tags = Array.from(new Set([...(existSub.tags||[]), ...sub.tags]));
+                            if (sub.grid_hint) existSub.grid_hint = sub.grid_hint;
+                            if (sub.description && existSub.description.length < sub.description.length) existSub.description = sub.description;
+                            if (sub.atmosphere) existSub.atmosphere = sub.atmosphere;
+                            if (sub.secrets) existSub.secrets = sub.secrets;
+                            if (sub.connections) existSub.connections = sub.connections;
+                            if (Array.isArray(sub.characters)) existSub.characters = Array.from(new Set([...(existSub.characters||[]), ...sub.characters]));
                         }
                     });
                 }
