@@ -2815,6 +2815,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <span style="font-size: 0.8em; color: #7dd3fc; margin-top: 4px; opacity: 0.8;">Tọa độ (${r}, ${c})</span>
                             </div>
                         `;
+                    } else if (window._loreDragMode) {
+                        html += `
+                            <div class="location-button empty-location lore-drag-mode-cell" data-row="${r}" data-col="${c}">
+                                <img src="https://api.iconify.design/lucide:move.svg?color=%2394a3b8" style="width:28px;height:28px;margin-bottom:8px;display:inline-block; opacity: 0.5;" />
+                                <span style="font-size: 0.9em; font-weight: bold; color: #94a3b8; opacity: 0.5;">Thả vào đây</span>
+                            </div>
+                        `;
                     } else {
                         html += `
                             <div class="location-button empty-location">
