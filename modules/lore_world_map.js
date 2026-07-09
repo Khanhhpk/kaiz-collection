@@ -3359,6 +3359,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             hasContent = true;
                         }
                     }
+                    if (aiConfig.injAtmosphere && loc.atmosphere) {
+                        locInfo += `  - Bầu không khí: ${loc.atmosphere}\n`;
+                        hasContent = true;
+                    }
+                    if (aiConfig.injSecrets && loc.secrets) {
+                        locInfo += `  - Bí mật/Vật phẩm: ${loc.secrets}\n`;
+                        hasContent = true;
+                    }
                     if (hasContent) s += locInfo + '\n';
                     if (loc.subLocations && loc.subLocations.length > 0) {
                         s += buildDetails(loc.subLocations);
