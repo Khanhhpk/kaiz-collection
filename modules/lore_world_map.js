@@ -199,6 +199,33 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         return 'default_global_chat';
     }
 
+    function sanitizeLocationsData(list) {
+        if (!Array.isArray(list)) return;
+        const cleanStr = (s) => {
+            if (!s && s !== 0) return '';
+            let str = String(s).trim();
+            str = str.replace(/^([^\p{L}\p{N}\s\w,.:;!?'"()-]+)(?:\s*\1)+/gu, '$1').trim();
+            str = str.replace(/^[🔖🏷️]\s*(?=[^\p{L}\p{N}\s\w,.:;!?'"()-]+)/gu, '').trim();
+            return str;
+        };
+        list.forEach(loc => {
+            if (!loc) return;
+            if (loc.category && loc.category !== 'major_hub' && loc.category !== 'sub_location') loc.category = cleanStr(loc.category);
+            if (loc.danger_level) loc.danger_level = cleanStr(loc.danger_level);
+            if (loc.status) loc.status = cleanStr(loc.status);
+            if (loc.controlled_by) loc.controlled_by = cleanStr(loc.controlled_by);
+            if (loc.context_type) loc.context_type = cleanStr(loc.context_type);
+            if (Array.isArray(loc.tags)) {
+                loc.tags = loc.tags.map(t => cleanStr(t)).filter(Boolean);
+            } else if (typeof loc.tags === 'string' && loc.tags) {
+                loc.tags = loc.tags.split(',').map(t => cleanStr(t)).filter(Boolean);
+            }
+            if (Array.isArray(loc.subLocations) && loc.subLocations.length > 0) {
+                sanitizeLocationsData(loc.subLocations);
+            }
+        });
+    }
+
     function loadMapDataForCurrentChat() {
         const newChatId = getActiveChatId();
         if (newChatId !== activeChatId) {
@@ -229,6 +256,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     if (Array.isArray(oldParsed.nodes) && oldParsed.nodes.length > 0) {
                         mapData = convertGraphToGridApp(oldParsed);
                         saveMapData();
+                        sanitizeLocationsData(mapData.locations);
                         updateUI();
                         return;
                     }
@@ -239,6 +267,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             mapData = { locations: [] };
             saveMapData();
         }
+        sanitizeLocationsData(mapData.locations);
         updateUI();
     }
 
@@ -304,6 +333,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
         });
 
+        sanitizeLocationsData(locations);
         return { locations };
     }
 
@@ -1161,10 +1191,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <!-- Badges (View Mode) -->
                     <div id="det_view_badges" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <span id="det_category_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(168,85,247,0.4);">🏢 Khu vực lớn</span>
-                        <span id="det_danger_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(34,197,94,0.2); color: #4ade80; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(34,197,94,0.4);">🛡️ An toàn</span>
-                        <span id="det_status_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(245,158,11,0.2); color: #fcd34d; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(245,158,11,0.4);">🔓 Tự do</span>
-                        <span id="det_type_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(59,130,246,0.2); color: #93c5fd; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(59,130,246,0.4);">🏷️ Khu vực</span>
+                        <span id="det_category_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(168,85,247,0.4);">Khu vực lớn</span>
+                        <span id="det_danger_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(34,197,94,0.2); color: #4ade80; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(34,197,94,0.4);">An toàn</span>
+                        <span id="det_status_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(245,158,11,0.2); color: #fcd34d; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(245,158,11,0.4);">Tự do</span>
+                        <span id="det_type_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(59,130,246,0.2); color: #93c5fd; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(59,130,246,0.4);">Khu vực</span>
                     </div>
 
                     <!-- Badges Edit Form (Edit Mode) -->
@@ -2098,14 +2128,20 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         `;
                     }).join('');
 
-                    // Badges Pill & Flexible Tags logic
-                    const categoryText = (loc.category && loc.category !== 'major_hub' && loc.category !== 'sub_location') ? `🏷️ ${loc.category}` : (loc.category === 'major_hub' || !currentParent ? '⚡ Trung Tâm / Tầng Ngoài' : '📍 Phân Khu / Tầng Sâu');
-                    const dangerText = loc.danger_level ? (isDanger ? `⚠️ ${loc.danger_level}` : `🛡️ ${loc.danger_level}`) : '🛡️ An toàn';
-                    const statusText = (loc.status || loc.access_status) ? `🔓 ${loc.status || loc.access_status}` : '';
-                    const controlledText = (loc.controlled_by && loc.controlled_by !== 'Chung' && loc.controlled_by !== 'Không có' && loc.controlled_by !== 'Không rõ') ? `👑 Chủ quản: ${loc.controlled_by}` : '';
+                    // Badges Pill & Flexible Tags logic (HOÀN TOÀN TỰ DO CHO AI QUYẾT ĐỊNH - KHÔNG TỰ Ý GÁN HOẶC LẶP ICON)
+                    const cleanLabelText = (str) => {
+                        if (!str && str !== 0) return '';
+                        let s = String(str).trim();
+                        s = s.replace(/^([^\p{L}\p{N}\s\w,.:;!?'"()-]+)(?:\s*\1)+/gu, '$1').trim();
+                        return s;
+                    };
+                    const categoryText = cleanLabelText((loc.category && loc.category !== 'major_hub' && loc.category !== 'sub_location') ? loc.category : (loc.category === 'major_hub' || !currentParent ? 'Trung Tâm / Tầng Ngoài' : 'Phân Khu / Tầng Sâu'));
+                    const dangerText = cleanLabelText(loc.danger_level || 'An toàn');
+                    const statusText = cleanLabelText(loc.status || loc.access_status || '');
+                    const controlledText = (loc.controlled_by && loc.controlled_by !== 'Chung' && loc.controlled_by !== 'Không có' && loc.controlled_by !== 'Không rõ') ? cleanLabelText(loc.controlled_by.includes('Chủ quản') ? loc.controlled_by : `Chủ quản: ${loc.controlled_by}`) : '';
                     
                     const tagsList = Array.isArray(loc.tags) ? loc.tags : (typeof loc.tags === 'string' && loc.tags ? loc.tags.split(',').map(t=>t.trim()) : []);
-                    const tagsHTML = tagsList.map(t => `<span class="badge-pill badge-status" style="border-color: #c084fc; color: #e9d5ff; background: rgba(168,85,247,0.22);">🔖 ${t}</span>`).join('');
+                    const tagsHTML = tagsList.map(t => `<span class="badge-pill badge-status" style="border-color: #c084fc; color: #e9d5ff; background: rgba(168,85,247,0.22);">${cleanLabelText(t)}</span>`).join('');
 
                     html += `
                         <div class="${btnClass}" data-loc-id="${loc.id}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem & Đọc Thông Tin Chi Tiết (Deep Info)">
@@ -2321,9 +2357,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         doc.getElementById('det_icon').className = `fas ${found.icon || getIconForCategory(found.category, found.name, found.context_type)}`;
         doc.getElementById('det_name').innerText = found.name;
-        const catBadgeText = (found.category && found.category !== 'major_hub' && found.category !== 'sub_location') ? `🏷️ ${found.category}` : (found.category === 'major_hub' || !currentParent ? '⚡ Khu vực lớn / Tầng ngoài' : '📍 Phân khu / Phòng sâu');
+        const cleanModalLabel = (str) => {
+            if (!str && str !== 0) return '';
+            let s = String(str).trim();
+            s = s.replace(/^([^\p{L}\p{N}\s\w,.:;!?'"()-]+)(?:\s*\1)+/gu, '$1').trim();
+            return s;
+        };
+        const catBadgeText = cleanModalLabel((found.category && found.category !== 'major_hub' && found.category !== 'sub_location') ? found.category : (found.category === 'major_hub' || !currentParent ? 'Trung Tâm / Tầng Ngoài' : 'Phân Khu / Tầng Sâu'));
         doc.getElementById('det_category_badge').innerText = catBadgeText;
-        doc.getElementById('det_type_badge').innerText = `🏷️ ${found.context_type || 'Khu vực'}`;
+        doc.getElementById('det_type_badge').innerText = cleanModalLabel(found.context_type || 'Khu vực');
         
         const tagsList = Array.isArray(found.tags) ? found.tags : (typeof found.tags === 'string' && found.tags ? found.tags.split(',').map(t=>t.trim()) : []);
         let viewBadgesEl = doc.getElementById('det_view_badges');
@@ -2333,13 +2375,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 const span = doc.createElement('span');
                 span.className = 'det-custom-tag-pill';
                 span.style = 'background: rgba(168,85,247,0.22); color: #e9d5ff; border: 1px solid #c084fc; padding: 4px 12px; border-radius: 12px; font-size: 0.82em; font-weight: 800;';
-                span.innerText = `🔖 ${t}`;
+                span.innerText = cleanModalLabel(t);
                 viewBadgesEl.appendChild(span);
             });
         }
         
         const dangerBadge = doc.getElementById('det_danger_badge');
-        dangerBadge.innerText = `🛡️ ${found.danger_level || 'An toàn'}`;
+        dangerBadge.innerText = cleanModalLabel(found.danger_level || 'An toàn');
         const dangerStr = (found.danger_level || '').toLowerCase();
         const isDanger = dangerStr && !dangerStr.includes('an toàn') && !dangerStr.includes('safe') && !dangerStr.includes('bình yên') && (dangerStr.includes('nguy') || dangerStr.includes('cấm') || dangerStr.includes('tử') || dangerStr.includes('hỗn loạn') || dangerStr.includes('rủi ro') || dangerStr.includes('độc') || dangerStr.includes('quái') || dangerStr.includes('bẫy') || dangerStr.includes('cực kỳ') || dangerStr.includes('cảnh giác') || dangerStr.includes('chết'));
         if (isDanger) {
@@ -2353,7 +2395,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
 
         const statusBadge = doc.getElementById('det_status_badge');
-        statusBadge.innerText = `🔓 ${found.status || 'Tự do'}`;
+        statusBadge.innerText = cleanModalLabel(found.status || 'Tự do');
 
         const charArray = Array.isArray(found.characters) ? found.characters.filter(Boolean) : (typeof found.characters === 'string' && found.characters ? found.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
         if (charArray.length > 0) {
@@ -2364,7 +2406,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         const controlledStr = found.controlled_by || 'Chung';
         if (controlledStr && controlledStr !== 'Chung' && controlledStr !== 'Không rõ' && controlledStr !== 'Không có') {
-            doc.getElementById('det_controlled_by').innerHTML = `<span style="background: rgba(168,85,247,0.22); border: 1px solid rgba(168,85,247,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #e9d5ff; display: inline-block; margin: 2px 0;">👑 ${controlledStr}</span>`;
+            doc.getElementById('det_controlled_by').innerHTML = `<span style="background: rgba(168,85,247,0.22); border: 1px solid rgba(168,85,247,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #e9d5ff; display: inline-block; margin: 2px 0;">${cleanModalLabel(controlledStr.includes('Chủ quản') ? controlledStr : 'Chủ quản: ' + controlledStr)}</span>`;
         } else {
             doc.getElementById('det_controlled_by').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chung / Không có thông tin thế lực chủ quản riêng</span>`;
         }
