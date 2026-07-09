@@ -3451,26 +3451,32 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 targetArray._loreMapInjected = true;
                 if (!payload._loreMapInjected) payload._loreMapInjected = true;
 
-                const msgObj = { role: injectRole, content: contextStr, _loreMapInjected: true };
-
-                if (target === 'system_top') {
-                    targetArray.unshift(msgObj);
-                } else if (target === 'system_bottom') {
-                    let lastSysIdx = -1;
-                    for (let i = targetArray.length - 1; i >= 0; i--) {
-                        if (targetArray[i].role === 'system') { lastSysIdx = i; break; }
-                    }
-                    if (lastSysIdx >= 0) {
-                        targetArray[lastSysIdx].content += `\n\n${contextStr}`;
-                        targetArray[lastSysIdx]._loreMapInjected = true;
+                if (target === 'system_top' || target === 'system_bottom') {
+                    const sysMsg = targetArray.find(m => m && (m.role === 'system' || m.role === 0 || m.is_system));
+                    if (sysMsg) {
+                        if (typeof sysMsg.content === 'string') {
+                            if (target === 'system_top') {
+                                sysMsg.content = `${contextStr}\n\n${sysMsg.content}`;
+                            } else {
+                                sysMsg.content += `\n\n${contextStr}`;
+                            }
+                        } else if (typeof sysMsg.mes === 'string') {
+                            if (target === 'system_top') {
+                                sysMsg.mes = `${contextStr}\n\n${sysMsg.mes}`;
+                            } else {
+                                sysMsg.mes += `\n\n${contextStr}`;
+                            }
+                        }
+                        sysMsg._loreMapInjected = true;
                     } else {
-                        targetArray.unshift(msgObj);
+                        targetArray.unshift({ role: injectRole, content: contextStr, _loreMapInjected: true });
                     }
                 } else if (target === 'authors_note') {
-                    msgObj.content = `[Author's Note: ${contextStr}]`;
+                    const msgObj = { role: injectRole, content: `[Author's Note: ${contextStr}]`, _loreMapInjected: true };
                     let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
                     targetArray.splice(insertIdx, 0, msgObj);
                 } else {
+                    const msgObj = { role: injectRole, content: contextStr, _loreMapInjected: true };
                     let insertIdx = Math.max(0, targetArray.length - 1 - injectDepth);
                     targetArray.splice(insertIdx, 0, msgObj);
                 }
