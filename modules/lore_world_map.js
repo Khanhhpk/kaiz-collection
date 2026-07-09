@@ -47,7 +47,7 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
 === BẢN ĐỒ HIỆN TẠI ===
 {{existing_map}}
 ======================
-NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON. ĐỒNG THỜI, BẠN CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN CẬP NHẬT (Ví dụ: chỉ xuất 'characters' nếu có người tới, hoặc 'characters': [] nếu họ đã rời đi). CÁC TRƯỜNG KHÁC (description, atmosphere...) HÃY BỎ QUA (Không ghi vào JSON) để giữ nguyên gốc! Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
+NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON. ĐỒNG THỜI, CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN THAY ĐỔI (ví dụ: thông tin bị outdate, vị trí lưới không hợp lý, hay xuất 'characters' nếu có người tới, hoặc 'characters': [] nếu họ đã rời đi). CÁC TRƯỜNG CÒN LẠI (description, atmosphere, grid_hint...) HÃY BỎ QUA KHỎI JSON (Không ghi vào JSON) để giữ nguyên gốc! Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
 6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - KHÔNG GIAN ĐỊA LÝ): Hệ thống sử dụng mạng lưới không gian 2D (row,col) để phác thảo khoảng cách địa lý. Tọa độ bắt đầu từ 0,0 và BẮT BUỘC PHẢI LÀ SỐ DƯƠNG (>= 0). CHÚ Ý: Lưới không gian bị giới hạn kích thước tối đa là 15x15. Do đó, cả hàng (row) và cột (col) đều chỉ được phép nằm trong khoảng từ 0 đến 14. Bạn PHẢI cấp tọa độ \`grid_hint\` cho TẤT CẢ các địa điểm (Cả Khu Vực Lớn \`locations\` và Phân Khu Nhỏ \`subLocations\`).
    - TƯ DUY KHÔNG GIAN (Chain of Thought): Thay vì áp dụng quy tắc tọa độ cứng nhắc, hãy tự tư duy và phác thảo sơ đồ không gian trong đầu bạn trước:
      + 1. Tâm của bối cảnh hiện tại nằm ở đâu?
@@ -119,7 +119,7 @@ NHIỆM VỤ CỦA BẠN:
 === CÁC PHÂN KHU ĐÃ CÓ ===
 {{existing_map}}
 ==========================
-NẾU một phân khu ĐÃ TỒN TẠI, bạn PHẦI ĐIỀN trường "id" để CẬP NHẬT nó. ĐỒNG THỜI, CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN THAY ĐỔI (ví dụ: chỉ xuất 'characters' nếu có người tới, hoặc 'characters': [] nếu họ đã rời đi), các trường khác (description, atmosphere...) HÃY BỎ QUA KHỎI JSON để giữ nguyên thông tin gốc! NẾU LÀ PHÂN KHU TẠO MỚI: Bỏ trống trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
+NẾU một phân khu ĐÃ TỒN TẠI, bạn PHẦI ĐIỀN trường "id" để CẬP NHẬT nó. ĐỒNG THỜI, CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN THAY ĐỔI (ví dụ: thông tin bị outdate, vị trí lưới không hợp lý, hay xuất 'characters' nếu có người tới, hoặc 'characters': [] nếu họ đã rời đi). CÁC TRƯỜNG CÒN LẠI (description, atmosphere, grid_hint...) HÃY BỎ QUA KHỎI JSON để giữ nguyên thông tin gốc! NẾU LÀ PHÂN KHU TẠO MỚI: Bỏ trống trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
 2. Hãy sáng tạo và xây dựng thêm (hoặc cập nhật) các Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
 3. BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào! Đặc biệt chú ý mô tả chuẩn lối đi liên kết giữa căn phòng này tới các khu vực bên ngoài (\`connections\`).
 
@@ -1066,7 +1066,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         let indent = '  '.repeat(level);
         let result = '';
         for (const l of locList) {
-            result += `${indent}- [ID: ${l.id}] ${l.name} (${l.context_type || l.category})`;
+                        result += `${indent}- [ID: ${l.id}] ${l.name} (${l.context_type || l.category})`;
+            if (l.grid_hint) result += ` [Tọa độ: ${l.grid_hint}]`;
             if (l.characters && l.characters.length) result += ` - Nhân vật đang có mặt: ${l.characters.join(', ')}`;
             result += '\n';
             if (l.subLocations && l.subLocations.length) {
