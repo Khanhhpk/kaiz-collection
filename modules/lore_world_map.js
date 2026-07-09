@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.0.2
+ * - Phiên bản: v1.5.0.3
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.2)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.3)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -1648,7 +1648,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
             
             let html = `
-                <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 100000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+                <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 100000000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
                     <div style="background: #1e293b; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
                             <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><i class="fa-solid fa-plus-square" style="color: #38bdf8; margin-right: 8px;"></i>Tạo Địa Điểm Mới</div>
