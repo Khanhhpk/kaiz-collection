@@ -3540,15 +3540,26 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         setupPromptInjection();
 
         try {
-            const win = window.parent || window;
-            if (win.eventSource && typeof win.eventSource.on === 'function') {
+            const ctx = window.SillyTavern?.getContext?.() || window;
+            const eventSource = ctx.eventSource || window.eventSource;
+            const event_types = ctx.event_types || window.event_types || {};
+            
+            if (eventSource && typeof eventSource.on === 'function') {
                 const reloadAndInject = () => {
-                    loadMapDataForCurrentChat();
-                    if (typeof updateExtensionPrompts === 'function') updateExtensionPrompts();
+                    setTimeout(() => {
+                        loadMapDataForCurrentChat();
+                        if (typeof updateExtensionPrompts === 'function') updateExtensionPrompts();
+                        if (typeof setupPromptInjection === 'function') setupPromptInjection();
+                    }, 200);
                 };
-                win.eventSource.on('chatLoaded', reloadAndInject);
-                win.eventSource.on('chat_changed', reloadAndInject);
-                win.eventSource.on('character_selected', reloadAndInject);
+                
+                const evChatChanged = event_types.CHAT_CHANGED || 'chat_changed';
+                const evCharSelected = event_types.CHARACTER_SELECTED || 'character_selected';
+                const evChatLoaded = event_types.CHAT_LOADED || 'chatLoaded';
+                
+                eventSource.on(evChatChanged, reloadAndInject);
+                eventSource.on(evCharSelected, reloadAndInject);
+                eventSource.on(evChatLoaded, reloadAndInject);
             }
         } catch (e) {}
     }
