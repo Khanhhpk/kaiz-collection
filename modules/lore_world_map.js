@@ -3072,7 +3072,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // AI Khám Phá Sâu & Dựng Phân Khu Con (Infinite Deep Drill Scan v8.3)
     async function triggerAiDeepDrillScan(targetLoc) {
-        if (!targetLoc) return;
+        if (!targetLoc || isAiDrilling) return;
+        isAiDrilling = true;
         showGlobalLoadingIcon();
         loadAiConfig();
         const btnDrill = doc.getElementById('det_btn_ai_drill');
@@ -3163,6 +3164,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         } catch (err) {
             alert('⚠️ Lỗi khi AI khám phá tầng sâu: ' + err.message);
         } finally {
+            isAiDrilling = false;
             hideGlobalLoadingIcon();
             if (btnDrill) {
                 btnDrill.disabled = false;
@@ -3265,6 +3267,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         } catch (err) {
             if (!isAuto) alert('⚠️ Lỗi khi quét bản đồ AI: ' + err.message);
         } finally {
+            isAiScanning = false;
             hideGlobalLoadingIcon();
             if (btnScan) {
                 btnScan.disabled = false;
