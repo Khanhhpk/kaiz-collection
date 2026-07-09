@@ -51,7 +51,7 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
 {{existing_map}}
 ======================
 NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON để HỆ THỐNG CẬP NHẬT THÔNG TIN thay vì tạo mới. Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id".
-6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - KHÔNG GIAN ĐỊA LÝ): Hệ thống sử dụng mạng lưới không gian 2D (row,col) để phác thảo khoảng cách địa lý. Tọa độ bắt đầu từ 0,0 và BẮT BUỘC PHẢI LÀ SỐ DƯƠNG (>= 0). Bạn PHẢI cấp tọa độ \`grid_hint\` cho TẤT CẢ các địa điểm (Cả Khu Vực Lớn \`locations\` và Phân Khu Nhỏ \`subLocations\`).
+6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - KHÔNG GIAN ĐỊA LÝ): Hệ thống sử dụng mạng lưới không gian 2D (row,col) để phác thảo khoảng cách địa lý. Tọa độ bắt đầu từ 0,0 và BẮT BUỘC PHẢI LÀ SỐ DƯƠNG (>= 0). CHÚ Ý: Chiều ngang (col) bị giới hạn tối đa là 14 (từ 0 đến 14), nhưng chiều dọc (row) có thể kéo dài vô hạn xuống dưới. Bạn PHẢI cấp tọa độ \`grid_hint\` cho TẤT CẢ các địa điểm (Cả Khu Vực Lớn \`locations\` và Phân Khu Nhỏ \`subLocations\`).
    - TƯ DUY KHÔNG GIAN (Chain of Thought): Thay vì áp dụng quy tắc tọa độ cứng nhắc, hãy tự tư duy và phác thảo sơ đồ không gian trong đầu bạn trước:
      + 1. Tâm của bối cảnh hiện tại nằm ở đâu?
      + 2. Các khu vực khác nằm ở hướng nào so với tâm?
@@ -131,7 +131,7 @@ CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
 - "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống, để mảng rỗng \`[]\`).
 
 BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - KHÔNG GIAN ĐỊA LÝ):
-Hệ thống sử dụng mạng lưới không gian 2D (row,col) để phác thảo khoảng cách địa lý. Tọa độ bắt đầu từ 0,0 và BẮT BUỘC PHẢI LÀ SỐ DƯƠNG (>= 0). Bạn PHẢI cấp tọa độ \`grid_hint\` cho TẤT CẢ các phân khu.
+Hệ thống sử dụng mạng lưới không gian 2D (row,col) để phác thảo khoảng cách địa lý. Tọa độ bắt đầu từ 0,0 và BẮT BUỘC PHẢI LÀ SỐ DƯƠNG (>= 0). CHÚ Ý: Chiều ngang (col) bị giới hạn tối đa là 14 (từ 0 đến 14), nhưng chiều dọc (row) có thể kéo dài vô hạn xuống dưới. Bạn PHẢI cấp tọa độ \`grid_hint\` cho TẤT CẢ các phân khu.
 - TƯ DUY KHÔNG GIAN (Chain of Thought): Tự tư duy và phác thảo sơ đồ không gian trong đầu bạn trước:
   + 1. Tâm của bối cảnh "{{target_name}}" hiện tại nằm ở đâu?
   + 2. Các phân khu khác nằm ở hướng nào so với tâm?
