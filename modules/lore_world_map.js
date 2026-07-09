@@ -1152,7 +1152,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (!grid || !viewport) return;
 
         let oldZoom = loreGraphZoomLevel;
-        let newZoom = Math.max(0.4, Math.min(2.2, Number((oldZoom + delta).toFixed(2))));
+        let newZoom = Math.max(0.1, Math.min(5.0, Number((oldZoom + delta).toFixed(2))));
         if (oldZoom === newZoom) return;
 
         loreGraphZoomLevel = newZoom;
@@ -2855,6 +2855,39 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             gridContainer.style.transform = 'none';
         }
     }
+
+    window._loreOnDragStart = function(event, locId) {
+        if (!window._loreDragMode) return;
+        event.stopPropagation();
+        event.dataTransfer.setData('text/plain', locId);
+        event.dataTransfer.effectAllowed = 'move';
+    };
+
+    window._loreOnDrop = function(event, r, c) {
+        if (!window._loreDragMode) return;
+        event.preventDefault();
+        const draggedId = event.dataTransfer.getData('text/plain');
+        if (!draggedId) return;
+        
+        const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
+        let list = currentParent ? (currentParent.subLocations || []) : mapData.locations;
+        
+        const draggedLoc = list.find(l => l.id === draggedId);
+        if (!draggedLoc) return;
+
+        let targetLoc = list.find(l => l.grid_hint === `${r},${c}`);
+        
+        if (targetLoc && targetLoc.id !== draggedId) {
+            const tempGridHint = draggedLoc.grid_hint || '';
+            draggedLoc.grid_hint = `${r},${c}`;
+            targetLoc.grid_hint = tempGridHint;
+        } else {
+            draggedLoc.grid_hint = `${r},${c}`;
+        }
+        
+        saveMapData();
+        renderAppGrid();
+    };
 
     // CHUỘT TRÁI: Vào xem tập con / drill-down
     window._loreOnLocationLeftClick = function (event, locId) {
