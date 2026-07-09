@@ -794,6 +794,72 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
             .smart-transit-link:hover { background: #38bdf8; color: #0f172a; transform: scale(1.04); }
 
+            
+            /* LORE SIDEBAR */
+            .lore-sidebar {
+                position: absolute;
+                top: 80px;
+                left: 15px;
+                background: rgba(15, 23, 42, 0.95);
+                border: 1px solid rgba(56,189,248,0.25);
+                border-radius: 12px;
+                z-index: 1000;
+                transition: width 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            }
+            .lore-sidebar.collapsed { width: 44px; height: 44px; }
+            .lore-sidebar.expanded { width: 260px; max-height: calc(100% - 100px); }
+            
+            .lore-sidebar-header {
+                display: flex;
+                align-items: center;
+                padding: 8px;
+                gap: 10px;
+                cursor: pointer;
+                background: rgba(255,255,255,0.05);
+            }
+            .lore-sidebar-header:hover { background: rgba(255,255,255,0.1); }
+            .lore-sidebar-title {
+                font-weight: bold;
+                color: #e2e8f0;
+                white-space: nowrap;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+            .lore-sidebar.expanded .lore-sidebar-title { opacity: 1; }
+            .lore-sidebar-toggle-icon { color: #38bdf8; width: 28px; text-align: center; font-size: 1.1em; }
+            
+            .lore-sidebar-content {
+                display: none;
+                flex-direction: column;
+                padding: 10px;
+                overflow-y: auto;
+                gap: 6px;
+            }
+            .lore-sidebar.expanded .lore-sidebar-content { display: flex; }
+            
+            .lore-sidebar-item {
+                background: rgba(255,255,255,0.04);
+                padding: 8px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 0.85em;
+                color: #cbd5e1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                border: 1px solid transparent;
+                transition: all 0.2s;
+            }
+            .lore-sidebar-item:hover {
+                background: rgba(56,189,248,0.15);
+                border-color: rgba(56,189,248,0.4);
+                color: #38bdf8;
+                transform: translateX(4px);
+            }
             /* GRAPH CONTROLS BAR INSIDE TOP PANEL */
             .lore-graph-controls {
                 position: static;
@@ -1290,6 +1356,18 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <div class="lore-graph-controls" style="position: static; margin-left: auto;">
                             <button class="lore-graph-btn active" id="lore_btn_track_dynamic" onclick="window._loreToggleDynamicTracking()" style="padding: 6px 14px; font-size: 0.88em; border-radius: 20px;" title="Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện đang diễn ra...). Khi TẮT, AI và bản đồ chỉ tập trung vào thông tin địa lý, kiến trúc khách quan và liên kết giao thông chuẩn."><i class="fa-solid fa-bolt-lightning"></i> <span id="lore_label_track_dynamic">Thông tin động: BẬT</span></button>
                         </div>
+                    </div>
+                </div>
+
+                
+                <!-- Thanh Danh Sách Địa Điểm (Sidebar) -->
+                <div id="lore_sidebar" class="lore-sidebar collapsed">
+                    <div class="lore-sidebar-header" onclick="window._loreToggleSidebar()">
+                        <div class="lore-sidebar-toggle-icon"><i class="fa-solid fa-bars"></i></div>
+                        <span class="lore-sidebar-title">Danh sách khu vực</span>
+                    </div>
+                    <div id="lore_sidebar_content" class="lore-sidebar-content">
+                        <!-- Nạp động -->
                     </div>
                 </div>
 
@@ -2265,6 +2343,41 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         renderAppGrid();
     };
 
+    
+    window._loreToggleSidebar = function() {
+        const sb = doc.getElementById('lore_sidebar');
+        if (sb) {
+            sb.classList.toggle('collapsed');
+            sb.classList.toggle('expanded');
+        }
+    };
+
+    window._loreFocusNode = function(locId) {
+        const viewport = doc.getElementById('lore_app_viewport');
+        const nodeBtn = doc.getElementById('loc_btn_' + locId);
+        if (viewport && nodeBtn) {
+            const vpRect = viewport.getBoundingClientRect();
+            const nodeRect = nodeBtn.getBoundingClientRect();
+            
+            // Smooth scroll to target location
+            const targetLeft = viewport.scrollLeft + (nodeRect.left - vpRect.left) - (vpRect.width / 2) + (nodeRect.width / 2);
+            const targetTop = viewport.scrollTop + (nodeRect.top - vpRect.top) - (vpRect.height / 2) + (nodeRect.height / 2);
+
+            viewport.scrollTo({
+                left: targetLeft,
+                top: targetTop,
+                behavior: 'smooth'
+            });
+
+            // Highlight animation
+            const originalShadow = nodeBtn.style.boxShadow;
+            nodeBtn.style.boxShadow = "0 0 0 6px #38bdf8, 0 0 30px #38bdf8";
+            setTimeout(() => {
+                nodeBtn.style.boxShadow = originalShadow;
+            }, 1500);
+        }
+    };
+
     window._loreQuickJumpToLocation = function(event, targetId) {
         if (event && event.stopPropagation) event.stopPropagation();
         const grid = doc.getElementById('lore_grid_container');
@@ -2536,6 +2649,22 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
 
         gridContainer.innerHTML = html;
+        
+        // Nạp danh sách vào Sidebar
+        const sidebarContent = doc.getElementById('lore_sidebar_content');
+        if (sidebarContent) {
+            if (currentList && currentList.length > 0) {
+                sidebarContent.innerHTML = currentList.map(loc => `
+                    <div class="lore-sidebar-item" onclick="window._loreFocusNode('${loc.id}')" title="Nhấp để đi đến ${loc.name}">
+                        <i class="fa-solid fa-location-dot" style="margin-right: 6px; color: #94a3b8;"></i>
+                        ${loc.name}
+                    </div>
+                `).join('');
+            } else {
+                sidebarContent.innerHTML = `<div style="text-align:center; padding:10px; color:#64748b; font-size:0.85em;">Không có địa điểm</div>`;
+            }
+        }
+
         if (typeof loreGraphZoomLevel === 'number' && loreGraphZoomLevel !== 1.0) {
             if ('zoom' in gridContainer.style) {
                 gridContainer.style.zoom = loreGraphZoomLevel;
