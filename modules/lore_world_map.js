@@ -1321,7 +1321,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </button>
 
                         <button id="lore_btn_close_app" class="lore-btn" style="background: rgba(239,68,68,0.22); border: 1px solid rgba(239,68,68,0.45); color: #f87171; padding: 6px 12px; font-size: 1.05em;" title="Đóng bản đồ">
-                            ✕
+                            <img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" />
                         </button>
                     </div>
                 </div>
@@ -1333,7 +1333,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <div>💡 <b style="color:#e2e8f0;">Điều khiển:</b> <span style="color:#38bdf8; font-weight:600;">Chuột Trái</span> vào địa điểm để đi sâu bên trong <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Chuột Phải</span> để xem chi tiết & chỉnh sửa <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Kéo thẻ</span> hoặc dùng con trỏ để di chuyển bản đồ 2D.</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: #34d399; font-weight: 600;"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu tự động</span>
-                            <span style="cursor: pointer; color: #64748b; font-weight: bold; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); transition: all 0.15s;" onclick="this.parentElement.parentElement.style.display='none'" title="Ẩn thanh hướng dẫn để mở rộng không gian">✕ Ẩn</span>
+                            <span style="cursor: pointer; color: #64748b; font-weight: bold; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); transition: all 0.15s;" onclick="this.parentElement.parentElement.style.display='none'" title="Ẩn thanh hướng dẫn để mở rộng không gian"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Ẩn</span>
                         </div>
                     </div>
 
@@ -1396,7 +1396,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <span id="det_name" style="font-size: 1.35em; font-weight: 800; color: #f8fafc;">Tên địa điểm</span>
                             <input id="edit_det_name" class="lore-input" style="display: none; font-size: 1.2em; font-weight: 800; width: 80%; max-width: 450px;" placeholder="Tên địa điểm..." />
                         </div>
-                        <span id="det_close" style="cursor: pointer; color: #f87171; font-size: 1.3em; padding: 4px 8px;">✕</span>
+                        <span id="det_close" style="cursor: pointer; color: #f87171; font-size: 1.3em; padding: 4px 8px;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <!-- Badges (View Mode) -->
@@ -1481,7 +1481,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <i class="fa-solid fa-pen"></i> Sửa Deep Info
                             </button>
                             <button id="det_btn_delete" class="lore-btn lore-btn-danger" style="padding: 8px 16px;">
-                                <i class="fa-solid fa-trash"></i> Xóa
+                                <img src="https://api.iconify.design/lucide:trash-2.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa
                             </button>
                         </div>
                     </div>
@@ -1489,7 +1489,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <!-- ACTIONS BAR (Edit Mode) -->
                     <div id="det_edit_actions" style="display: none; gap: 12px; margin-top: 8px; justify-content: flex-end; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px;">
                         <button id="det_btn_cancel_edit" class="lore-btn lore-btn-secondary" style="padding: 10px 20px; font-size: 0.95em;">
-                            <i class="fa-solid fa-xmark"></i> Hủy Bỏ
+                            <img src="https://api.iconify.design/lucide:x.svg?color=%2394a3b8" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Hủy Bỏ
                         </button>
                         <button id="det_btn_save_edit" class="lore-btn lore-btn-success" style="padding: 10px 24px; font-size: 0.98em; font-weight: 800; box-shadow: 0 0 15px rgba(34,197,94,0.4);">
                             <i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi
@@ -1503,7 +1503,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <div id="lore_saved_maps_box">
                     <div style="font-weight: 800; font-size: 1.18em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
                         <span>🗂️ QUẢN LÝ BẢN ĐỒ LƯU THEO CHAT</span>
-                        <span id="saved_maps_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;">✕</span>
+                        <span id="saved_maps_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <div style="font-size: 0.88em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25);">
@@ -1516,10 +1516,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px; margin-top: 6px; flex-wrap: wrap; gap: 10px;">
                         <button id="btn_delete_all_inactive" class="lore-btn lore-btn-danger" style="padding: 10px 16px;">
-                            <i class="fa-solid fa-broom"></i> Xóa Tất Cả Map Cũ (Giữ lại Chat hiện tại)
+                            <img src="https://api.iconify.design/lucide:eraser.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa Tất Cả Map Cũ (Giữ lại Chat hiện tại)
                         </button>
                         <button id="btn_refresh_saved_list" class="lore-btn lore-btn-secondary" style="padding: 10px 18px;">
-                            <i class="fa-solid fa-rotate"></i> Làm Mới Danh Sách
+                            <img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Làm Mới Danh Sách
                         </button>
                     </div>
                 </div>
@@ -1529,8 +1529,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             <div id="lore_ai_debug_modal">
                 <div id="lore_ai_debug_box">
                     <div style="font-weight: 800; font-size: 1.18em; color: #c084fc; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
-                        <span>🐞 TRÌNH DEBUG & KIỂM TRA REQUEST GỬI CHO AI</span>
-                        <span id="ai_debug_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;">✕</span>
+                        <span><img src="https://api.iconify.design/lucide:bug.svg?color=%23f87171" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> TRÌNH DEBUG & KIỂM TRA REQUEST GỬI CHO AI</span>
+                        <span id="ai_debug_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
@@ -1561,13 +1561,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px;">
                         <button id="dbg_btn_copy" class="lore-btn lore-btn-primary" style="padding: 10px 18px;">
-                            <i class="fa-solid fa-copy"></i> Sao Chép Request
+                            <img src="https://api.iconify.design/lucide:copy.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sao Chép Request
                         </button>
                         <button id="dbg_btn_copy_res" class="lore-btn" style="padding: 10px 18px; background: rgba(74,222,128,0.2); border: 1px solid #4ade80; color: #4ade80;">
-                            <i class="fa-solid fa-copy"></i> Sao Chép Response
+                            <img src="https://api.iconify.design/lucide:copy.svg?color=%234ade80" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sao Chép Response
                         </button>
                         <button id="dbg_btn_refresh" class="lore-btn lore-btn-secondary" style="padding: 10px 18px; margin-left: auto;">
-                            <i class="fa-solid fa-rotate"></i> Làm Mới Preview
+                            <img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Làm Mới Preview
                         </button>
                     </div>
                 </div>
@@ -1577,15 +1577,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
                     <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
-                        <span>🤖 CẤU HÌNH AI & KHUNG TÙY CHỈNH PROMPT (v8.3)</span>
-                        <span id="ai_cfg_close" style="cursor: pointer; color: #f87171; font-size: 1.1em;">✕</span>
+                        <span><img src="https://api.iconify.design/lucide:bot.svg?color=%23c084fc" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> CẤU HÌNH AI & KHUNG TÙY CHỈNH PROMPT (v8.3)</span>
+                        <span id="ai_cfg_close" style="cursor: pointer; color: #f87171; font-size: 1.1em;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <div style="display: flex; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px;">
-                        <button id="tab_btn_conn" class="lore-breadcrumb-btn active" style="font-size: 0.9em; padding: 8px 16px;">🔌 Kết Nối & Model</button>
-                        <button id="tab_btn_prompt_scan" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;">📝 Prompt Quét Toàn Bộ Map</button>
-                        <button id="tab_btn_prompt_drill" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;">📝 Prompt Khám Phá Sâu</button>
-                        <button id="tab_btn_prompt_inject" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;">💉 Tiêm Prompt & Auto</button>
+                        <button id="tab_btn_conn" class="lore-breadcrumb-btn active" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:plug.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Kết Nối & Model</button>
+                        <button id="tab_btn_prompt_scan" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:file-pen-line.svg?color=%23a78bfa" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Prompt Quét Toàn Bộ Map</button>
+                        <button id="tab_btn_prompt_drill" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:file-pen-line.svg?color=%23f472b6" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Prompt Khám Phá Sâu</button>
+                        <button id="tab_btn_prompt_inject" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:syringe.svg?color=%2334d399" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tiêm Prompt & Auto</button>
                     </div>
 
                     <!-- TAB 1: CONNECTION SETTINGS -->
@@ -1661,7 +1661,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <textarea id="cfg_prompt_world_scan" class="lore-input" style="width: 100%; height: 320px; box-sizing: border-box; font-family: monospace; font-size: 0.82em; line-height: 1.45;"></textarea>
                         <div style="display: flex; justify-content: flex-start;">
                             <button id="btn_reset_prompt_scan" class="lore-btn lore-btn-secondary" style="font-size: 0.8em;">
-                                <i class="fa-solid fa-rotate-left"></i> Khôi Phục Prompt Quét Mặc Định
+                                <img src="https://api.iconify.design/lucide:undo-2.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Khôi Phục Prompt Quét Mặc Định
                             </button>
                         </div>
                     </div>
@@ -1674,7 +1674,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <textarea id="cfg_prompt_deep_drill" class="lore-input" style="width: 100%; height: 320px; box-sizing: border-box; font-family: monospace; font-size: 0.82em; line-height: 1.45;"></textarea>
                         <div style="display: flex; justify-content: flex-start;">
                             <button id="btn_reset_prompt_drill" class="lore-btn lore-btn-secondary" style="font-size: 0.8em;">
-                                <i class="fa-solid fa-rotate-left"></i> Khôi Phục Prompt Khám Phá Mặc Định
+                                <img src="https://api.iconify.design/lucide:undo-2.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Khôi Phục Prompt Khám Phá Mặc Định
                             </button>
                         </div>
                     </div>
@@ -1727,7 +1727,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                         <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
                             <div style="font-size: 0.9em; font-weight: bold; color: #fde047; margin-bottom: 6px;">
-                                <i class="fa-solid fa-robot"></i> Tự Động Quét Cập Nhật (Auto Update)
+                                <img src="https://api.iconify.design/lucide:bot.svg?color=%23fde047" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tự Động Quét Cập Nhật (Auto Update)
                             </div>
                             <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 10px;">Khi bật, AI tự động quét lịch sử chat để cập nhật Map sau mỗi N lượt tin nhắn. (0 = Tắt)</div>
                             <div>
@@ -1739,7 +1739,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
                         <button id="ai_cfg_save" class="lore-btn lore-btn-success" style="padding: 10px 20px;">
-                            <i class="fa-solid fa-check"></i> Lưu Toàn Bộ Cấu Hình & Prompt
+                            <img src="https://api.iconify.design/lucide:check.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu Toàn Bộ Cấu Hình & Prompt
                         </button>
                     </div>
                 </div>
@@ -1813,7 +1813,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div style="background: #0f172a; width: 500px; max-width: 90%; margin: 0 auto; flex-shrink: 0; border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); display: flex; flex-direction: column; box-shadow: 0 25px 65px rgba(0,0,0,0.95);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
                             <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><i class="fa-solid fa-plus-square" style="color: #38bdf8; margin-right: 8px;"></i>Tạo Địa Điểm Mới</div>
-                            <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><i class="fa-solid fa-xmark"></i></button>
+                            <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><img src="https://api.iconify.design/lucide:x.svg?color=%2394a3b8" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></button>
                         </div>
                         <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
                             
@@ -2292,13 +2292,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div style="display: flex; gap: 8px;">
                         ${!isCurrent ? `
                             <button class="lore-btn lore-btn-secondary" style="padding: 6px 12px; font-size: 0.82em;" onclick="window._loreLoadSavedMap('${item.chatId}')" title="Chuyển sang xem/sửa bản đồ này">
-                                <i class="fa-solid fa-folder-open"></i> Xem Thử
+                                <img src="https://api.iconify.design/lucide:folder-open.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xem Thử
                             </button>
                         ` : `
                             <span style="font-size: 0.82em; color: #38bdf8; font-weight: bold; padding: 6px 10px;">(Bản đồ hiện tại)</span>
                         `}
                         <button class="lore-btn lore-btn-danger" style="padding: 6px 10px; font-size: 0.82em;" onclick="window._loreDeleteSavedMap('${item.key}', '${item.chatId}')" title="Xóa bản đồ chat này">
-                            <i class="fa-solid fa-trash"></i> Xóa
+                            <img src="https://api.iconify.design/lucide:trash-2.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa
                         </button>
                     </div>
                 </div>
@@ -2713,7 +2713,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <div class="loc-card-footer">
                                 ${subCount > 0 ? `
                                     <div class="loc-sub-folder-pill">
-                                        <span><i class="fa-solid fa-folder-tree" style="color: #60a5fa; margin-right: 6px;"></i> <b>${subCount}</b> tập con bên trong</span>
+                                        <span><img src="https://api.iconify.design/lucide:folder-tree.svg?color=%2360a5fa" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${subCount}</b> tập con bên trong</span>
                                         <i class="fa-solid fa-chevron-right" style="opacity: 0.7;"></i>
                                     </div>
                                 ` : ''}
@@ -2754,7 +2754,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (currentList && currentList.length > 0) {
                 sidebarContent.innerHTML = currentList.map(loc => `
                     <div class="lore-sidebar-item" onclick="window._loreFocusNode('${loc.id}')" title="Nhấp để đi đến ${loc.name}">
-                        <i class="fa-solid fa-location-dot" style="margin-right: 6px; color: #94a3b8;"></i>
+                        <img src="https://api.iconify.design/lucide:map-pin.svg?color=%2394a3b8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />
                         ${loc.name}
                     </div>
                 `).join('');
