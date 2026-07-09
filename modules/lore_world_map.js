@@ -11,7 +11,7 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.0.8
+ * - Phiên bản: v1.5.0.9
  */
 
 (function () {
@@ -51,7 +51,11 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
 {{existing_map}}
 ======================
 NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON để HỆ THỐNG CẬP NHẬT THÔNG TIN thay vì tạo mới. Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id".
-6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI 15x15 (grid_hint - CỰC KỲ QUAN TRỌNG): Bản đồ hiển thị dạng LƯỚI KHÔNG GIAN LỚN 15x15 (Hàng từ 0-14, Cột từ 0-14). Bạn PHẢI chỉ định tọa độ bài trí không gian cho mỗi địa điểm bằng trường \`grid_hint\` theo format "row,col". Hãy sắp xếp sao cho đúng vị trí không gian thực tế, trải rộng ra cho thoải mái: VD nếu Quầy Lễ Tân ở trung tâm thì cho "7,7", Khu lò sưởi ở bên trái thì "7,4", Quầy Bar bên phải thì "7,10", Kho chứa ở phía sau/dưới thì "10,7"... THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG PHẢI ĐÚNG THEO THỨ TỰ ĐỌC LƯỚI: từ trái sang phải, từ trên xuống dưới!
+6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI 15x15 (grid_hint - CỰC KỲ QUAN TRỌNG): Lưới không gian 15x15 (Hàng 0-14, Cột 0-14). Bạn PHẢI chỉ định tọa độ bài trí \`grid_hint\` ("row,col") cho TẤT CẢ các địa điểm (Cả Khu Vực Lớn \`locations\` và Phân Khu Nhỏ \`subLocations\`).
+   - TÍNH LOGIC KHÔNG GIAN & KHOẢNG CÁCH: Khoảng cách trên lưới 15x15 đại diện cho khoảng cách địa lý thực tế.
+     + Các khu vực nối liền, lối đi liền kề (VD: 2 phòng trong cùng tòa nhà, 2 khu sát vách) PHẢI nằm kề sát nhau trên lưới (VD: "7,7" và "7,8").
+     + Các khu vực cách xa nhau về địa lý (VD: 2 thành phố, 2 hành tinh) PHẢI nằm cách rất xa nhau trên lưới (VD: "2,2" và "12,12"). Tránh tình trạng hai nơi xa xôi lại nằm sát cạnh nhau!
+     + Hãy nhóm các khu vực có liên kết/gần nhau thành các cụm (cluster) không gian hợp lý.
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không markdown ngoài JSON block) theo đúng định dạng sau:
 {
@@ -63,6 +67,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do", "Nhãn 3"],
       "context_type": "Mô tả loại hình không gian cụ thể",
+      "grid_hint": "row,col (VD: 2,2 hoặc 7,7)",
       "controlled_by": "Tên nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này",
       "status": "Trạng thái truy cập hoặc tình trạng hiện tại",
       "description": "Mô tả tổng quan kiến trúc, vai trò lịch sử và vị trí địa lý của khu vực",
@@ -96,7 +101,7 @@ CHÚ Ý QUAN TRỌNG:
 - BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), ICON BẢN ĐỒ (\`icon\`) VÀ LIÊN KẾT (\`connections\`)! Hãy sáng tạo tối đa và khách quan theo bối cảnh truyện, tuyệt đối không bị gò bó bởi bất kỳ từ khóa hardcode nào!
 - "controlled_by": Là nhân vật hoặc thế lực CHỦ QUẢN, sở hữu, cai quản, kiểm soát địa điểm này (nhân vật có thể là chủ của nhiều nơi cùng lúc).
 - "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY. Nếu đang ở chế độ bản đồ khách quan tĩnh hoặc không có nhân vật đứng tại đây, hãy để mảng rỗng \`[]\`.
-- "grid_hint": BẠN PHẢI QUYẾT ĐỊNH VỊ TRÍ BÀI TRÍ "row,col" trên lưới không gian 15x15 cho MỌI subLocations! Sắp xếp hợp lý, trải rộng theo vị trí không gian thực: trung tâm = "7,7", trái = "7,3", phải = "7,11", trên/trước = "3,7", dưới/sau = "11,7". Và THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG phải theo thứ tự đọc lưới: trái→phải, trên→dưới!`;
+- "grid_hint": BẠN PHẢI QUYẾT ĐỊNH VỊ TRÍ BÀI TRÍ "row,col" trên lưới không gian 15x15 cho MỌI \`locations\` và \`subLocations\`! Hãy đảm bảo TÍNH LOGIC KHÔNG GIAN: Gần nhau ngoài đời thực -> Sát nhau trên lưới. Xa nhau ngoài đời thực -> Cách xa nhau trên lưới. Phân bố các thành phố/tòa nhà thành từng cụm riêng biệt!`;
 
     const DEFAULT_DEEP_DRILL_PROMPT = `Bạn là Kiến Trúc Sư Khám Phá Địa Lý Sâu Đa Tầng (Deep Lore N-Layer Drill-Down Architect).
 Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂN PHÒNG / HẦM NGẦM NẰM BÊN TRONG địa điểm sau một cách KHÁCH QUAN và CHUẨN XÁC:
