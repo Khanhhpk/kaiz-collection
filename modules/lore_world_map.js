@@ -32,9 +32,6 @@ Nhiệm vụ của bạn là đọc kỹ Lịch Sử Trò Chuyện dưới đây
 {{history}}
 ==================================
 
-Cấu trúc bản đồ hiện có trong hệ thống:
-{{existing_map}}
-
 CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
 1. HIỂU ĐÚNG THỂ LOẠI & BỐI CẢNH KHÁCH QUAN: Phân tích dựa trên thông tin chuẩn xác trong truyện. KHÔNG áp đặt định kiến Fantasy nếu truyện là Học đường hiện đại, Sci-Fi vũ trụ, Horror tâm linh, hay Slice of Life gia đình. Hãy dùng từ ngữ địa lý chuẩn xác với bối cảnh (VD: Trường học thì có Sân thượng, Phòng y tế, Ký túc xá; Vũ trụ thì có Trạm chỉ huy, Phòng phản ứng core...).
 2. TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI & NHÃN (CATEGORY & TAGS): BẠN HOÀN TOÀN TỰ DO ĐẶT TÊN Phân loại (\`category\`) và Nhãn dán (\`tags\`) chuẩn xác theo công năng và kiến trúc địa điểm, KHÔNG bị gò bó vào bất kỳ khuôn mẫu cố định nào! (VD: "Đô thị sa hoa", "Khu quân sự", "Cấm địa tâm linh", "Phòng bí mật", "Quán bar ngầm"...).
