@@ -369,35 +369,35 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             
             /* ============ HEADER TOOLBAR RESPONSIVE ============ */
             #lore_app_header {
-                min-height: 64px;
-                border-bottom: 1px solid rgba(255,255,255,0.15);
+                min-height: 52px;
+                border-bottom: 1px solid rgba(255,255,255,0.12);
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 10px 18px;
+                padding: 6px 14px;
                 flex-shrink: 0;
-                background: rgba(0,0,0,0.65);
-                gap: 12px;
+                background: rgba(10, 15, 28, 0.88);
+                gap: 10px;
                 z-index: 10;
             }
-            .lore-header-left { display: flex; align-items: center; gap: 12px; }
-            .lore-header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+            .lore-header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+            .lore-header-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
             .lore-btn {
-                padding: 8px 14px;
-                border-radius: 10px;
+                padding: 6px 12px;
+                border-radius: 8px;
                 border: none;
                 font-weight: 700;
-                font-size: 0.86em;
+                font-size: 0.83em;
                 cursor: pointer;
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
+                gap: 5px;
                 transition: all 0.15s;
                 color: #fff;
                 white-space: nowrap;
             }
-            .lore-btn-primary { background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4); }
-            .lore-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124, 58, 237, 0.6); }
+            .lore-btn-primary { background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 3px 10px rgba(124, 58, 237, 0.35); }
+            .lore-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.55); }
             .lore-btn-success { background: linear-gradient(135deg, #059669, #10b981); }
             .lore-btn-danger { background: linear-gradient(135deg, #e11d48, #f43f5e); }
             .lore-btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #e2e8f0; }
@@ -409,10 +409,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 flex-shrink: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
-                padding: 14px 22px 10px 22px;
+                gap: 6px;
+                padding: 6px 14px;
                 background: rgba(15, 23, 42, 0.96);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
                 z-index: 20;
                 user-select: none;
             }
@@ -421,7 +421,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 display: flex;
                 flex-direction: column;
                 overflow: auto;
-                padding: 40px 30px 80px 30px;
+                padding: 30px 20px 80px 20px;
                 position: relative;
                 box-sizing: border-box;
                 cursor: grab;
@@ -434,13 +434,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
-                gap: 8px;
-                margin-bottom: 4px;
-                background: rgba(255,255,255,0.06);
-                padding: 10px 16px;
-                border-radius: 14px;
-                border: 1px solid rgba(255,255,255,0.14);
-                font-size: 0.92em;
+                gap: 6px;
+                background: rgba(255,255,255,0.04);
+                padding: 6px 12px;
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.1);
+                font-size: 0.86em;
                 font-weight: bold;
                 flex-shrink: 0;
                 cursor: default;
@@ -449,14 +448,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 background: rgba(56, 189, 248, 0.2);
                 color: #38bdf8;
                 border: 1px solid rgba(56, 189, 248, 0.4);
-                padding: 6px 14px;
-                border-radius: 10px;
+                padding: 4px 10px;
+                border-radius: 8px;
                 cursor: pointer;
                 transition: all 0.15s;
-                font-size: 0.88em;
+                font-size: 0.86em;
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
+                gap: 5px;
             }
             .lore-breadcrumb-btn:hover { background: rgba(56, 189, 248, 0.35); transform: scale(1.02); }
             .lore-breadcrumb-item { cursor: pointer; color: #cbd5e1; padding: 4px 10px; border-radius: 8px; transition: all 0.15s; }
@@ -670,19 +669,18 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             /* SMART ROAD CONNECTORS & NETWORK OVERVIEW */
             .lore-network-overview-bar {
-                background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
-                border: 1px solid rgba(56, 189, 248, 0.35);
-                border-radius: 14px;
-                padding: 10px 16px;
-                margin-bottom: 16px;
+                background: rgba(30, 41, 59, 0.75);
+                border: 1px solid rgba(56, 189, 248, 0.25);
+                border-radius: 10px;
+                padding: 6px 12px;
+                margin-bottom: 10px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 flex-wrap: wrap;
-                gap: 10px;
+                gap: 8px;
                 color: #e0f2fe;
-                font-size: 0.88em;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+                font-size: 0.85em;
             }
             .smart-road-h-cell {
                 display: flex;
@@ -739,28 +737,35 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 letter-spacing: 0.5px;
             }
             .lore-graph-controls {
-                position: sticky;
+                position: absolute;
                 bottom: 20px;
-                left: 100%;
-                margin-top: -46px;
-                margin-right: 18px;
-                z-index: 100;
-                display: inline-flex;
+                right: 24px;
+                z-index: 1000;
+                display: flex;
                 align-items: center;
-                gap: 6px;
-                background: rgba(15, 23, 42, 0.92);
-                border: 1px solid rgba(56, 189, 248, 0.5);
-                padding: 6px 10px;
-                border-radius: 16px;
-                box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+                gap: 5px;
+                background: rgba(15, 23, 42, 0.88);
+                border: 1px solid rgba(56, 189, 248, 0.38);
+                padding: 4px 8px;
+                border-radius: 28px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.75);
+                backdrop-filter: blur(8px);
+                opacity: 0.75;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .lore-graph-controls:hover {
+                opacity: 1;
+                border-color: #38bdf8;
+                box-shadow: 0 12px 30px rgba(56, 189, 248, 0.25);
+                transform: translateY(-2px);
             }
             .lore-graph-btn {
                 background: rgba(255,255,255,0.08);
                 border: 1px solid rgba(255,255,255,0.18);
                 color: #e2e8f0;
-                padding: 6px 11px;
-                border-radius: 10px;
-                font-size: 0.84em;
+                padding: 5px 10px;
+                border-radius: 20px;
+                font-size: 0.82em;
                 font-weight: bold;
                 cursor: pointer;
                 transition: all 0.15s;
@@ -1031,26 +1036,21 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <!-- Header Toolbar Responsive -->
                 <div id="lore_app_header">
                     <div class="lore-header-left">
-                        <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 12px rgba(56,189,248,0.4); flex-shrink: 0;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #38bdf8, #818cf8); display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 10px rgba(56,189,248,0.4); flex-shrink: 0;">
                             ${SVG_GLOBE_ICON}
                         </div>
-                        <div>
-                            <div style="font-weight: 800; font-size: 1.12em; color: #f8fafc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <span>BẢN ĐỒ THẾ GIỚI (v8.7 Graph - v1.3.0.14)</span>
-                                <span id="lore_stats_badge" style="background: rgba(56,189,248,0.18); color: #38bdf8; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3);">0 khu vực</span>
-                                <span id="lore_ai_badge" style="background: rgba(168,85,247,0.18); color: #c084fc; font-size: 0.75em; padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
-                            </div>
-                            <div id="lore_chat_status" style="font-size: 0.78em; color: #94a3b8; margin-top: 2px;">Chat ID: <span style="color: #c084fc;">...</span> | Chuột Trái: Vào Phân Khu | Chuột Phải: Xem Thông Tin</div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span style="font-weight: 800; font-size: 1.08em; color: #f8fafc;">BẢN ĐỒ THẾ GIỚI</span>
+                            <span style="font-size: 0.76em; color: #38bdf8; background: rgba(56,189,248,0.14); padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.28); font-weight: 700;">v8.7 Graph</span>
+                            <span id="lore_stats_badge" style="background: rgba(56,189,248,0.16); color: #38bdf8; font-size: 0.76em; font-weight: 700; padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.3);">0 khu vực</span>
+                            <span id="lore_ai_badge" style="background: rgba(168,85,247,0.16); color: #c084fc; font-size: 0.76em; font-weight: 700; padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(168,85,247,0.3); cursor: pointer;" title="Nhấp để cấu hình AI">🤖 Nguồn AI</span>
+                            <span id="lore_chat_status" style="font-size: 0.76em; color: #94a3b8; background: rgba(255,255,255,0.04); padding: 2px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">💬 Chat: <span style="color: #c084fc;">...</span></span>
                         </div>
                     </div>
 
                     <div class="lore-header-actions">
                         <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat dựng bản đồ chính xác theo bối cảnh">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map
-                        </button>
-
-                        <button id="lore_btn_ai_debug" class="lore-btn" style="background: rgba(168,85,247,0.22); border: 1px solid #c084fc; color: #e9d5ff;" title="Kiểm tra chính xác 100% những gì đang gửi cho AI và lý do bị lẹm history">
-                            <i class="fa-solid fa-bug"></i> Debug Request AI
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét Map
                         </button>
 
                         <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Thêm địa điểm vào lớp hiện tại">
@@ -1058,14 +1058,18 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </button>
 
                         <button id="lore_btn_saved_maps" class="lore-btn lore-btn-secondary" title="Kiểm tra & Xóa nhanh các bản đồ / chat đang lưu">
-                            <i class="fa-solid fa-folder-tree"></i> Quản lý Map Lưu
+                            <i class="fa-solid fa-folder-tree"></i> Map Lưu
                         </button>
 
                         <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI & Chỉnh sửa Prompt tùy biến">
-                            <i class="fa-solid fa-gear"></i> Cấu hình AI & Prompt
+                            <i class="fa-solid fa-gear"></i> Cấu hình AI
                         </button>
 
-                        <button id="lore_btn_close_app" class="lore-btn" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 8px 12px; font-size: 1.05em;" title="Đóng bản đồ">
+                        <button id="lore_btn_ai_debug" class="lore-btn" style="background: rgba(168,85,247,0.18); border: 1px solid rgba(192,132,252,0.4); color: #e9d5ff; padding: 6px 10px;" title="Kiểm tra chính xác những gì gửi cho AI và lý do bị lẹm history">
+                            <i class="fa-solid fa-bug"></i> Debug
+                        </button>
+
+                        <button id="lore_btn_close_app" class="lore-btn" style="background: rgba(239,68,68,0.22); border: 1px solid rgba(239,68,68,0.45); color: #f87171; padding: 6px 12px; font-size: 1.05em;" title="Đóng bản đồ">
                             ✕
                         </button>
                     </div>
@@ -1073,10 +1077,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                 <!-- Fixed Top Panel (Cố định hoàn toàn khi cuộn/kéo bản đồ 2D) -->
                 <div id="lore_fixed_top_panel">
-                    <!-- Instruction Banner Chuột Trái / Chuột Phải -->
-                    <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 8px 14px; font-size: 0.86em; color: #bae6fd; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap;">
-                        <span>💡 <b>Hướng dẫn điều khiển:</b> Nhấp <b>Chuột Trái</b> vào địa điểm để đi sâu vào tập con/phân khu bên trong <i class="fa-solid fa-arrow-right" style="color: #38bdf8; margin: 0 6px;"></i> Nhấp <b>Chuột Phải</b> (hoặc Nhấn Giữ) để xem & đọc Thông Tin Chi Tiết (Deep Info).</span>
-                        <span style="font-size: 0.9em; color: #38bdf8; font-weight: bold;">[ Lưu tự động theo Chat ]</span>
+                    <!-- Instruction Banner Chuột Trái / Chuột Phải siêu gọn -->
+                    <div id="lore_instruction_banner" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 4px 12px; font-size: 0.82em; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                        <div>💡 <b style="color:#e2e8f0;">Điều khiển:</b> <span style="color:#38bdf8; font-weight:600;">Chuột Trái</span> vào địa điểm để đi sâu bên trong <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Chuột Phải</span> để xem chi tiết & chỉnh sửa <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Kéo thẻ</span> hoặc dùng con trỏ để di chuyển bản đồ 2D.</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #34d399; font-weight: 600;"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu tự động</span>
+                            <span style="cursor: pointer; color: #64748b; font-weight: bold; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); transition: all 0.15s;" onclick="this.parentElement.parentElement.style.display='none'" title="Ẩn thanh hướng dẫn để mở rộng không gian">✕ Ẩn</span>
+                        </div>
                     </div>
 
                     <!-- Dynamic Infinite Breadcrumb Bar -->
@@ -1089,20 +1096,21 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div id="lore_smart_roadmap_bar" style="display: none;"></div>
                 </div>
 
-                <!-- Viewport (Chỉ chứa lưới đồ thị 2D & Nút điều khiển Zoom/Pan) -->
+                <!-- Viewport (Chỉ chứa lưới đồ thị 2D) -->
                 <div id="lore_app_viewport">
                     <!-- Lưới Địa Điểm & Đường Đi -->
                     <div id="lore_grid_container" class="lore-grid-container">
                         <!-- Nạp động -->
                     </div>
+                </div>
 
-                    <!-- Thanh điều khiển Graph 2D Zoom / Pan -->
-                    <div class="lore-graph-controls">
-                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to (Zoom In)"><i class="fa-solid fa-plus"></i></button>
-                        <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
-                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
-                        <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt kéo thả di chuyển bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo Bản Đồ 2D</button>
-                    </div>
+                <!-- Thanh điều khiển Graph 2D Zoom / Pan nổi absolute tại góc dưới phải màn hình -->
+                <div class="lore-graph-controls">
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to (Zoom In)"><i class="fa-solid fa-plus"></i></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
+                    <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
+                </div>
                 </div>
             </div>
 
@@ -1967,15 +1975,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         bar.className = 'lore-network-overview-bar';
         bar.innerHTML = `
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="background: rgba(56,189,248,0.22); padding: 5px 12px; border-radius: 12px; color: #38bdf8; font-weight: 800; border: 1px solid rgba(56,189,248,0.4);">
-                    <i class="fa-solid fa-project-diagram"></i> SƠ ĐỒ GIAO THÔNG LIÊN KẾT
+                <span style="background: rgba(56,189,248,0.18); padding: 3px 10px; border-radius: 8px; color: #38bdf8; font-weight: 800; border: 1px solid rgba(56,189,248,0.35); display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-project-diagram"></i> Sơ đồ liên kết
                 </span>
-                <span>
-                    Đang hiển thị <b>${currentList.length}</b> phân khu tại ${currentParent ? `tập con <b>[ ${currentParent.name} ]</b>` : '<b>[ Lớp Bản Đồ Chính ]</b>'} ${totalConns > 0 ? `(có <b>${totalConns}</b> khu ghi nhận cổng nối rõ ràng)` : ''}
+                <span style="color: #cbd5e1;">
+                    Đang hiển thị <b style="color: #fff;">${currentList.length}</b> phân khu tại ${currentParent ? `tập con <b style="color:#38bdf8;">[ ${currentParent.name} ]</b>` : '<b style="color:#38bdf8;">[ Lớp Bản Đồ Chính ]</b>'} ${totalConns > 0 ? `<span style="color:#34d399;">(có <b>${totalConns}</b> khu nối rõ ràng)</span>` : ''}
                 </span>
             </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="lore-btn lore-btn-secondary" style="padding: 5px 12px; font-size: 0.82em; border-radius: 10px;" onclick="window._loreToggleVisualConnectors()">
+            <div>
+                <button class="lore-btn lore-btn-secondary" style="padding: 4px 10px; font-size: 0.82em; border-radius: 8px;" onclick="window._loreToggleVisualConnectors()">
                     <i class="fa-solid fa-route"></i> ${window._loreHideRoads ? 'Bật Cầu Nối Lưới' : 'Ẩn Cầu Nối Lưới'}
                 </button>
             </div>
