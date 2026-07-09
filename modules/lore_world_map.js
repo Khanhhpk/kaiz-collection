@@ -1244,6 +1244,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (!loreGraphDragEnabled || e.button !== 0) return;
             // Cho phép kéo thả trực tiếp trên cả nút địa điểm (.location-button), chỉ loại bỏ các thành phần nhập liệu hoặc nút bấm riêng lẻ
             if (e.target.closest('button, input, textarea, select, a, .smart-transit-link, #lore_location_detail_box, .lore-graph-controls, .lore-zoom-pan-bar')) return;
+            if (window._loreDragMode && e.target.closest('.location-button')) return;
             loreIsDraggingGraph = true;
             loreDidPanDuringDrag = false;
             loreDragStartX = e.clientX;
