@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.0.7
+ * - Phiên bản: v1.5.0.8
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.7)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.8)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -555,6 +555,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 padding: 40px 40px 80px 40px;
                 transform-origin: top center;
                 transition: transform 0.18s ease-out;
+                will-change: transform;
+                transform: translateZ(0);
             }
             .lore-grid-row {
                 display: flex;
@@ -583,6 +585,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
                 color: #f8fafc;
                 box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+                content-visibility: auto;
+                contain-intrinsic-size: var(--lore-node-size) var(--lore-node-size);
+                contain: layout style;
                 overflow: visible;
                 user-select: none;
             }
@@ -1216,10 +1221,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
         });
 
+        let isZooming = false;
         viewport.addEventListener('wheel', (e) => {
             if (e.ctrlKey) {
                 e.preventDefault();
-                window._loreGraphZoom(e.deltaY < 0 ? 0.08 : -0.08, e);
+                if (!isZooming) {
+                    isZooming = true;
+                    requestAnimationFrame(() => {
+                        window._loreGraphZoom(e.deltaY < 0 ? 0.06 : -0.06, e);
+                        isZooming = false;
+                    });
+                }
             }
         }, { passive: false });
     }
