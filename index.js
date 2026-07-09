@@ -253,10 +253,14 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '1.3.0.10';
+const KAIZ_CURRENT_VERSION = '1.3.0.14';
 
 function compareVersions(vA, vB) {
-    const clean = v => String(v || '0').replace(/[^0-9.]/g, '').split('.').map(x => parseInt(x, 10) || 0);
+    if (vA === vB) return 0;
+    const clean = v => String(v || '0').trim().split(/[.-]/).map(x => {
+        const n = parseInt(x, 10);
+        return isNaN(n) ? 0 : n;
+    });
     const partsA = clean(vA);
     const partsB = clean(vB);
     const len = Math.max(partsA.length, partsB.length);
@@ -265,10 +269,6 @@ function compareVersions(vA, vB) {
         const numB = partsB[i] || 0;
         if (numA > numB) return 1;
         if (numA < numB) return -1;
-    }
-    if (vA !== vB) {
-        if (String(vA).includes('-') && !String(vB).includes('-')) return -1;
-        if (!String(vA).includes('-') && String(vB).includes('-')) return 1;
     }
     return 0;
 }
@@ -341,6 +341,46 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
         }
         console.log(`[KAIZ Collection] Đang kiểm tra cập nhật trên nhánh Git hiện tại: "${currentBranch}"`);
 
+        // Lấy chính xác phiên bản cục bộ đang chạy (ưu tiên đọc trực tiếp từ manifest.json cục bộ)
+        let localCurrentVersion = KAIZ_CURRENT_VERSION;
+        try {
+            let selfFolder = 'kaiz-collection';
+            try {
+                if (typeof import.meta !== 'undefined' && import.meta.url) {
+                    const parts = import.meta.url.split('/');
+                    const folder = parts[parts.length - 2];
+                    if (folder && !['third-party', 'extensions', 'scripts'].includes(folder)) {
+                        selfFolder = decodeURIComponent(folder);
+                    }
+                }
+            } catch (e) {}
+
+            const localPathsToTry = [];
+            try {
+                if (typeof import.meta !== 'undefined' && import.meta.url) {
+                    localPathsToTry.push(new URL('manifest.json', import.meta.url).href);
+                }
+            } catch (e) {}
+            localPathsToTry.push(
+                `/scripts/extensions/third-party/${selfFolder}/manifest.json`,
+                `/scripts/extensions/${selfFolder}/manifest.json`,
+                './manifest.json'
+            );
+
+            for (const lp of localPathsToTry) {
+                try {
+                    const resLocal = await fetch(`${lp}?t=${Date.now()}`, { cache: 'no-store' });
+                    if (resLocal.ok) {
+                        const localData = await resLocal.json();
+                        if (localData && localData.version) {
+                            localCurrentVersion = localData.version;
+                            break;
+                        }
+                    }
+                } catch (e) {}
+            }
+        } catch (e) {}
+
         // Lấy manifest từ đúng nhánh Git hiện tại (beta, master, ...) để tránh xung đột
         let remoteManifest = null;
         try {
@@ -348,7 +388,7 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
             if (resRef.ok) remoteManifest = await resRef.json();
         } catch (e) {}
 
-        if (!remoteManifest || compareVersions(remoteManifest.version, KAIZ_CURRENT_VERSION) <= 0) {
+        if (!remoteManifest || compareVersions(remoteManifest.version, localCurrentVersion) <= 0) {
             try {
                 const resApi = await fetch(`https://api.github.com/repos/Khanhhpk/kaiz-collection/contents/manifest.json?ref=${currentBranch}&t=${Date.now()}`, { cache: 'no-store' });
                 if (resApi.ok) {
@@ -368,19 +408,19 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
             if (!res.ok) throw new Error('HTTP ' + res.status);
             remoteManifest = await res.json();
         }
-        const remoteVersion = remoteManifest.version || KAIZ_CURRENT_VERSION;
+        const remoteVersion = remoteManifest.version || localCurrentVersion;
 
-        if (compareVersions(remoteVersion, KAIZ_CURRENT_VERSION) > 0) {
+        if (compareVersions(remoteVersion, localCurrentVersion) > 0) {
             const skippedVer = localStorage.getItem(`kaiz_skip_update_version_${currentBranch}`);
             const dismissedInSession = sessionStorage.getItem(`kaiz_dismissed_session_${currentBranch}_${remoteVersion}`);
             if (!manualCheck && (skippedVer === remoteVersion || dismissedInSession === 'true')) {
                 console.log(`[KAIZ Collection] Bỏ qua thông báo cập nhật v${remoteVersion} trên nhánh ${currentBranch} (đã chọn bỏ qua trong phiên này).`);
                 return;
             }
-            showKaizUpdateModal(targetWin, remoteVersion, remoteManifest.description || '', currentBranch);
+            showKaizUpdateModal(targetWin, remoteVersion, remoteManifest.description || '', currentBranch, localCurrentVersion);
         } else if (manualCheck) {
             if (targetWin.toastr) {
-                targetWin.toastr.success(`✅ KAIZ Collection đang ở phiên bản mới nhất (v${KAIZ_CURRENT_VERSION} - nhánh ${currentBranch})!`);
+                targetWin.toastr.success(`✅ KAIZ Collection đang ở phiên bản mới nhất (v${localCurrentVersion} - nhánh ${currentBranch})!`);
             }
         }
     } catch (err) {
@@ -392,7 +432,7 @@ async function checkKaizCollectionUpdate(targetWin, manualCheck = false) {
 }
 
 
-function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch = 'master') {
+function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch = 'master', localCurrentVersion = KAIZ_CURRENT_VERSION) {
     const doc = targetWin.document || document;
     if (doc.getElementById('kaiz_update_modal_overlay')) {
         doc.getElementById('kaiz_update_modal_overlay').remove();
@@ -418,7 +458,7 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
         <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
             <div>
                 <span style="font-size: 0.78em; color: #64748b; display: block; text-transform: uppercase; font-weight: bold;">Phiên bản hiện tại</span>
-                <span style="font-size: 1.1em; font-weight: 700; color: #cbd5e1;">v${KAIZ_CURRENT_VERSION}</span>
+                <span style="font-size: 1.1em; font-weight: 700; color: #cbd5e1;">v${localCurrentVersion}</span>
             </div>
             <i class="fa-solid fa-arrow-right-long" style="color: #38bdf8; font-size: 1.2em;"></i>
             <div style="text-align: right;">
@@ -626,7 +666,7 @@ function renderExtensionSettings(targetWin, jq) {
         <div class="inline-drawer-toggle inline-drawer-header" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <i class="fa-solid fa-layer-group" style="color: #38bdf8; font-size: 1.1em;"></i>
-                <b style="font-size: 1.02em; color: #f8fafc; letter-spacing: 0.3px;">KAIZ Collection (Hệ sinh thái & Tiện ích)</b>
+                <b style="font-size: 1.02em; color: #f8fafc; letter-spacing: 0.3px;">KAIZ Collection <span style="font-size:11.5px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;font-weight:700;">v${KAIZ_CURRENT_VERSION}</span></b>
             </div>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down" style="color: #64748b;"></div>
         </div>
