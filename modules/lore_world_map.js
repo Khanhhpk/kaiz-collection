@@ -1533,12 +1533,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <span id="ai_debug_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;">✕</span>
                     </div>
 
-                    <div style="font-size: 0.88em; color: #cbd5e1; line-height: 1.5; background: rgba(168,85,247,0.12); padding: 12px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3);">
-                        ℹ️ <b>Vì sao trước đây bạn cảm giác AI bị cắt hay gửi không đầy đủ?</b><br>
-                        - Phiên bản cũ giới hạn cứng cắt chuỗi ở 8,800 ký tự (~2,000 tokens), khiến nếu chat dài thì các tin nhắn bị xén mất phần đầu.<br>
-                        - Từ bản v8.3, hệ thống đã mở rộng giới hạn lên tới <b>65,000+ ký tự</b> và cho phép bạn tùy chỉnh thoải mái trong Cấu hình AI! Dưới đây là chính xác những gì sẽ gửi đi lúc này:
-                    </div>
-
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                         <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); text-align: center;">
                             <div style="font-size: 0.76em; color: #94a3b8; font-weight: bold;">SỐ TIN NHẮN QUÉT</div>
