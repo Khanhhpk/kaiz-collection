@@ -1103,15 +1103,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         const count = historyCountLimit || 30;
         const recentChat = chatArray.slice(-count);
-        const filteredChat = recentChat.filter(m => {
-            if (m.is_system) return false;
-            if (m.extra && m.extra.type === 'hidden') return false;
-            const text = m.mes || m.content || '';
-            if (text.includes('--- TÀI LIỆU BẢN ĐỒ THẾ GIỚI (WORLD MAP LORE) ---')) return false;
-            if (text.includes('[CẤU TRÚC BẢN ĐỒ]')) return false;
-            return true;
-        });
-        let historyText = filteredChat.map(m => {
+        let historyText = recentChat.map(m => {
             const sender = m.is_user ? 'Tôi (User)' : (m.name || 'AI/Nhân vật');
             const mes = m.mes || m.content || '';
             return `${sender}: ${mes}`;
@@ -1958,7 +1950,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             const existingStr = getMapTreeString(mapData.locations);
             let template = aiConfig.customPromptWorldScan || DEFAULT_WORLD_SCAN_PROMPT;
-            const fullPromptPreview = template.replace('{{history}}', histObj.text).replace(/\{\{existing_map\}\}/g, existingStr || '(Chưa có)');
+            const fullPromptPreview = template.replace('{{history}}', histObj.text).replace('{{existing_map}}', existingStr || '(Chưa có)');
 
             overlay.querySelector('#dbg_prompt_textarea').value = fullPromptPreview;
             overlay.querySelector('#dbg_response_textarea').value = window._lastAiResponse || 'Chưa có kết quả phản hồi từ AI trong phiên làm việc này.';
@@ -3103,7 +3095,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 .replace('{{target_desc}}', targetLoc.description || '')
                 .replace('{{target_atmo}}', targetLoc.atmosphere || '')
                 .replace('{{target_secrets}}', targetLoc.secrets || '')
-                .replace(/\{\{existing_map\}\}/g, existingStr || '(Chưa có)');
+                .replace('{{existing_map}}', existingStr || '(Chưa có)');
 
             if (aiConfig.enhancedNLayerMode) {
                 prompt += `\n\n[CHÚ Ý ĐẶC BIỆT: CHẾ ĐỘ TĂNG CƯỜNG (ENHANCED N-LAYER MODE) ĐANG BẬT! Bạn có quyền phân tích ĐA TẦNG sâu vô hạn. Mảng "subLocations" bên trong 1 địa điểm hoàn toàn có thể tiếp tục chứa các "subLocations" khác lồng vào nhau. Hãy tạo ra JSON N-lớp bao quát TẤT CẢ các phân khu!]`;
@@ -3205,7 +3197,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             let template = aiConfig.customPromptWorldScan || DEFAULT_WORLD_SCAN_PROMPT;
             let prompt = template
                 .replace('{{history}}', histObj.text)
-                .replace(/\{\{existing_map\}\}/g, existingStr || '(Chưa có)');
+                .replace('{{existing_map}}', existingStr || '(Chưa có)');
 
             if (aiConfig.enhancedNLayerMode) {
                 prompt += `\n\n[CHÚ Ý ĐẶC BIỆT: CHẾ ĐỘ TĂNG CƯỜNG (ENHANCED N-LAYER MODE) ĐANG BẬT! BẠN KHÔNG BỊ GIỚI HẠN Ở 2 LỚP! Bạn có quyền phân tích ĐA TẦNG sâu vô hạn. Mảng "subLocations" bên trong 1 địa điểm hoàn toàn có thể tiếp tục chứa các "subLocations" khác lồng vào nhau (VD: Thành Phố -> Tòa Nhà -> Căn Hộ -> Gian Phòng). Hãy tạo ra JSON N-lớp bao quát TẤT CẢ các ngóc ngách có trong ngữ cảnh chat!]`;
