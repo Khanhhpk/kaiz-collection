@@ -26,7 +26,7 @@
 
     // ============ DEFAULT SUPER ANALYTICAL PROMPTS ============
     const DEFAULT_WORLD_SCAN_PROMPT = `Bạn là Kiến Trúc Sư Địa Lý & Tác Giả Thiết Kế Thế Giới Chuyên Sâu (Universal Deep Lore & World Map Architect).
-Nhiệm vụ của bạn là đọc kỹ Lịch Sử Trò Chuyện dưới đây, phân tích toàn diện bối cảnh câu chuyện và dựng lên bản đồ các Khu Vực Lớn cùng Phân Khu Tầng Sâu bên trong một cách sống động, chuẩn xác và linh hoạt nhất.
+Nhiệm vụ của bạn là đọc kỹ Lịch Sử Trò Chuyện dưới đây, phân tích toàn diện bối cảnh câu chuyện một cách KHÁCH QUAN, CHUẨN XÁC và dựng lên bản đồ các Khu Vực Lớn cùng Phân Khu Tầng Sâu bên trong cùng hệ thống liên kết giao thông một cách logic, chính xác và sống động nhất.
 
 === LỊCH SỬ TRÒ CHUYỆN GẦN ĐÂY ===
 {{history}}
@@ -35,17 +35,19 @@ Nhiệm vụ của bạn là đọc kỹ Lịch Sử Trò Chuyện dưới đây
 Cấu trúc bản đồ hiện có trong hệ thống:
 {{existing_map}}
 
-CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & TỰ DO PHÂN BỔ:
-1. HIỂU ĐÚNG THỂ LOẠI & BỐI CẢNH: KHÔNG áp đặt định kiến Fantasy nếu truyện là Học đường hiện đại, Sci-Fi vũ trụ, Horror tâm linh, hay Slice of Life gia đình. Hãy dùng từ ngữ địa lý chuẩn xác với bối cảnh truyện (VD: Trường học thì có Sân thượng, Phòng y tế, Ký túc xá; Vũ trụ thì có Trạm chỉ huy, Phòng phản ứng core...).
-2. TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI & NHÃN (CATEGORY & TAGS): BẠN HOÀN TOÀN TỰ DO ĐẶT TÊN Phân loại (\`category\`) và Nhãn dán (\`tags\`) cho phù hợp bối cảnh, KHÔNG bị gò bó vào bất kỳ khuôn mẫu cố định nào! (VD: "Đô thị sa hoa", "Khu quân sự", "Cấm địa tâm linh", "Phòng bí mật", "Quán bar ngầm"...).
-3. THÔNG TIN ĐA CHIỀU (DEEP LORE INFO): Với mỗi khu vực và phòng ban, hãy tổng hợp chi tiết:
-   - "atmosphere": Không gian cảm quan (thời tiết, ánh sáng, mùi hương, tiếng động, nhịp sống tại nơi đó).
+CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
+1. HIỂU ĐÚNG THỂ LOẠI & BỐI CẢNH KHÁCH QUAN: Phân tích dựa trên thông tin chuẩn xác trong truyện. KHÔNG áp đặt định kiến Fantasy nếu truyện là Học đường hiện đại, Sci-Fi vũ trụ, Horror tâm linh, hay Slice of Life gia đình. Hãy dùng từ ngữ địa lý chuẩn xác với bối cảnh (VD: Trường học thì có Sân thượng, Phòng y tế, Ký túc xá; Vũ trụ thì có Trạm chỉ huy, Phòng phản ứng core...).
+2. TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI & NHÃN (CATEGORY & TAGS): BẠN HOÀN TOÀN TỰ DO ĐẶT TÊN Phân loại (\`category\`) và Nhãn dán (\`tags\`) chuẩn xác theo công năng và kiến trúc địa điểm, KHÔNG bị gò bó vào bất kỳ khuôn mẫu cố định nào! (VD: "Đô thị sa hoa", "Khu quân sự", "Cấm địa tâm linh", "Phòng bí mật", "Quán bar ngầm"...).
+3. HỆ THỐNG LIÊN KẾT GIAO THÔNG CHUẨN XÁC (CONNECTIONS - CỰC KỲ QUAN TRỌNG): Với mỗi địa điểm, hãy xác định rõ hướng đi, lối tiếp giáp và đường thông giao thông tới các địa điểm khác (VD: "Cổng phía Đông nối thẳng tới Chợ Trung Tâm, thang máy phía Bắc đi xuống Hầm Ngầm..."). Hệ thống sẽ tự động vẽ sơ đồ mạng lưới dựa trên mô tả liên kết này!
+4. THÔNG TIN ĐA CHIỀU (DEEP LORE INFO): Với mỗi khu vực và phòng ban, tổng hợp chi tiết:
+   - "description": Mô tả tổng quan kiến trúc, vai trò lịch sử và vị trí địa lý chuẩn xác của khu vực.
+   - "atmosphere": Không gian cảm quan cố định (thời tiết đặc trưng, ánh sáng, mùi hương, tiếng động, nhịp sống tại nơi đó).
    - "secrets": Bí mật, hòm giấu đồ, vật phẩm quan trọng (Loot/Key items), hoặc ghi chép ẩn giấu tại nơi này.
-   - "events": Sự kiện lịch sử, xung đột hay biến cố đang diễn ra ngay lúc này tại địa điểm.
-   - "connections": LỐI ĐI & LIÊN KẾT GIAO THÔNG (Mô tả chi tiết và tự do chỉ định các hướng, hành lang, thang máy, cầu nối hoặc cánh cổng thông tới bất kỳ địa điểm nào khác trong truyện để hệ thống tự động liên kết).
-   - "status": Trạng thái truy cập tự do theo ngữ cảnh ("Tự do ra vào", "Khóa mật mã / Cửa khóa", "Cấm địa / Tuyệt mật", "Đang bị phá hủy"...).
-   - "danger_level": Cấp độ nguy hiểm tự nhận định kèm giải thích ngắn (VD: "🛡️ An toàn tuyệt đối", "⚠️ Cảnh giác - Quái thú tuần tra", "☠️ Tử địa phóng xạ", "🔥 Hỗn loạn chiến sự"...).
-4. KHÔNG TẠO TRÙNG LẶP: Nếu địa điểm đã có trong danh sách hiện có, hãy bổ sung thông tin cho phong phú hơn hoặc thêm các phân khu con (subLocations) bên trong nó.
+   - "connections": LỐI ĐI & LIÊN KẾT GIAO THÔNG tới các địa điểm khác trong truyện.
+   - "status": Trạng thái truy cập hoặc tình trạng kiến trúc ("Tự do ra vào", "Khóa mật mã / Cửa khóa", "Cấm địa / Tuyệt mật", "Đang bị phá hủy"...).
+   - "events": Sự kiện lịch sử nổi bật hay biến cố đang diễn ra ngay lúc này tại địa điểm (chỉ điền nếu theo dõi thông tin động).
+   - "characters": Danh sách nhân vật đang đứng/hiện diện tại địa điểm lúc này (chỉ điền nếu theo dõi thông tin động).
+5. KHÔNG TẠO TRÙNG LẶP: Nếu địa điểm đã có trong danh sách hiện có, hãy bổ sung thông tin cho chuẩn xác hơn hoặc thêm các phân khu con (subLocations) bên trong nó.
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không markdown ngoài JSON block) theo đúng định dạng sau:
 {
@@ -56,15 +58,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       "icon": "Tên class FontAwesome icon phản ánh đúng nhất tính chất địa điểm (VD: fa-school, fa-tree, fa-utensils, fa-shield-halved, fa-landmark, fa-flask, fa-space-shuttle, fa-dungeon, fa-store, fa-hospital, fa-building... BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do", "Nhãn 3"],
       "context_type": "Mô tả loại hình không gian cụ thể",
-      "danger_level": "Mức độ an toàn/nguy hiểm tự đánh giá theo bối cảnh",
-      "controlled_by": "Tên nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này (người sở hữu/cai quản)",
-      "status": "Trạng thái truy cập hiện tại",
+      "controlled_by": "Tên nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này (người sở hữu/cai quản cố định)",
+      "status": "Trạng thái truy cập hoặc tình trạng hiện tại",
       "description": "Mô tả tổng quan kiến trúc, vai trò lịch sử và vị trí địa lý của khu vực",
-      "characters": ["Tên nhân vật A đang đứng/hiện diện tại đây", "Tên nhân vật B"],
       "atmosphere": "Môi trường, thời tiết, âm thanh, ánh sáng và cảm giác tại khu vực",
       "secrets": "Vật phẩm đặc biệt, bảo vật hoặc bí mật giấu kín tại đây",
-      "events": "Sự kiện hoặc biến cố đang diễn ra",
       "connections": "Cổng Bắc nối ra Phố Chợ, Hành lang Tây nối tới Khu Nghiên Cứu...",
+      "events": "Sự kiện hoặc biến cố đang diễn ra",
+      "characters": ["Tên nhân vật A đang đứng/hiện diện tại đây"],
       "subLocations": [
         {
           "name": "Tên Căn Phòng / Phân Khu Nhỏ bên trong (VD: Phòng Ngủ / Thư Viện Tầng 3 / Hầm Ngầm)",
@@ -72,28 +73,27 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
           "icon": "Tên class FontAwesome icon cho căn phòng/phân khu (VD: fa-door-open, fa-bed, fa-book, fa-key, fa-flask, fa-utensils, fa-computer, fa-couch... BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
           "tags": ["Nhãn riêng tư", "Vật phẩm quý"],
           "context_type": "Loại hình căn phòng/phân khu",
-          "danger_level": "Mức độ an toàn trong phòng/phân khu",
           "controlled_by": "Tên nhân vật chủ phòng/quản lý",
           "status": "Khóa riêng tư / Tự do...",
           "description": "Mô tả chi tiết bố trí nội thất và công dụng của phòng/phân khu này",
-          "characters": ["Tên nhân vật đang có mặt/hiện diện trong phòng lúc này"],
           "atmosphere": "Môi trường, ánh sáng dịu nhẹ, mùi hương trong phòng...",
           "secrets": "Cuốn nhật ký dưới gối, chìa khóa két sắt giấu sau bức tranh...",
-          "events": "Nhân vật đang làm gì hoặc chuyện gì vừa xảy ra trong phòng",
-          "connections": "Cửa chính thông ra Hành Lang Tầng 2, cửa sổ nhìn ra Sân Sau..."
+          "connections": "Cửa chính thông ra Hành Lang Tầng 2, cửa sổ nhìn ra Sân Sau...",
+          "events": "Biến cố đang diễn ra trong phòng",
+          "characters": ["Tên nhân vật đang có mặt trong phòng lúc này"]
         }
       ]
     }
   ]
 }
 
-CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT & PHÂN LOẠI:
-- BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), ICON BẢN ĐỒ (\`icon\`), MỨC ĐỘ NGUY HIỂM (\`danger_level\`) VÀ LIÊN KẾT (\`connections\`)! Hãy sáng tạo tối đa theo bối cảnh truyện, tuyệt đối không bị gò bó bởi bất kỳ từ khóa hardcode nào!
+CHÚ Ý QUAN TRỌNG:
+- BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), ICON BẢN ĐỒ (\`icon\`) VÀ LIÊN KẾT (\`connections\`)! Hãy sáng tạo tối đa và khách quan theo bối cảnh truyện, tuyệt đối không bị gò bó bởi bất kỳ từ khóa hardcode nào!
 - "controlled_by": Là nhân vật hoặc thế lực CHỦ QUẢN, sở hữu, cai quản, kiểm soát địa điểm này (nhân vật có thể là chủ của nhiều nơi cùng lúc).
-- "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY (chỉ liệt kê nhân vật đang thực sự có mặt/đứng tại đúng địa điểm này ở thời điểm hiện tại của diễn biến story, KHÔNG liệt kê người chủ quản vào danh sách này nếu họ đang đứng ở địa điểm khác!).`;
+- "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY. Nếu đang ở chế độ bản đồ khách quan tĩnh hoặc không có nhân vật đứng tại đây, hãy để mảng rỗng \`[]\`.`;
 
     const DEFAULT_DEEP_DRILL_PROMPT = `Bạn là Kiến Trúc Sư Khám Phá Địa Lý Sâu Đa Tầng (Deep Lore N-Layer Drill-Down Architect).
-Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂN PHÒNG / HẦM NGẦM NẰM BÊN TRONG địa điểm sau:
+Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂN PHÒNG / HẦM NGẦM NẰM BÊN TRONG địa điểm sau một cách KHÁCH QUAN và CHUẨN XÁC:
 - Tên địa điểm cha: "{{target_name}}"
 - Loại / Bối cảnh: "{{target_type}}"
 - Mô tả hiện tại: "{{target_desc}}"
@@ -105,12 +105,12 @@ Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂ
 ==================================
 
 NHIỆM VỤ CỦA BẠN:
-Hãy sáng tạo và xây dựng 2 đến 4 Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho hợp logic với cốt truyện và làm sâu sắc thêm trải nghiệm khám phá.
-BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`), MỨC ĐỘ NGUY HIỂM (\`danger_level\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào!
+Hãy sáng tạo và xây dựng 2 đến 4 Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
+BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào! Đặc biệt chú ý mô tả chuẩn lối đi liên kết giữa căn phòng này tới các khu vực bên ngoài (\`connections\`).
 
 CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
 - "controlled_by": Là nhân vật chủ phòng, quản lý hoặc thế lực cai quản.
-- "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống thì để mảng rỗng \`[]\`).
+- "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống hoặc ở chế độ bản đồ khách quan, để mảng rỗng \`[]\`).
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 {
@@ -121,15 +121,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
       "icon": "Tên class FontAwesome icon (VD: fa-door-open, fa-bed, fa-book, fa-key, fa-flask, fa-utensils, fa-computer, fa-couch... BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do"],
       "context_type": "Mô tả công năng phòng/phân khu",
-      "danger_level": "Đánh giá mức độ an toàn/nguy hiểm theo bối cảnh",
       "controlled_by": "Tên nhân vật chủ phòng/quản lý",
       "status": "Khóa riêng tư / Tự do / Tuyệt mật...",
       "description": "Mô tả công năng, kiến trúc và bố trí trong căn phòng/phân khu này",
-      "characters": ["Tên nhân vật đang có mặt/hiện diện tại đây"],
       "atmosphere": "Môi trường, ánh sáng, mùi hương, tiếng động tại đây",
       "secrets": "Bí mật, mật thư hoặc vật phẩm quý giá giấu tại đây",
+      "connections": "Cửa nối ra phòng chính, lối đi thông gió dẫn ra hiên sau...",
       "events": "Sự kiện hoặc biến cố đang diễn ra trong phòng",
-      "connections": "Cửa nối ra phòng chính, lối đi thông gió dẫn ra hiên sau..."
+      "characters": ["Tên nhân vật đang có mặt tại đây"]
     }
   ]
 }`;
@@ -142,6 +141,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         customModel: 'gpt-4o-mini',
         historyCount: 30,
         historyMaxChars: 0, // 0 = Không giới hạn theo token/ký tự, chỉ giới hạn theo số tin nhắn (mặc định 30)
+        trackDynamicInfo: true, // Bật/Tắt theo dõi thông tin động (Nhân vật hiện diện, Sự kiện đang diễn ra)
         customPromptWorldScan: DEFAULT_WORLD_SCAN_PROMPT,
         customPromptDeepDrill: DEFAULT_DEEP_DRILL_PROMPT
     };
@@ -155,6 +155,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 if (!aiConfig.customPromptWorldScan || !aiConfig.customPromptWorldScan.trim()) aiConfig.customPromptWorldScan = DEFAULT_WORLD_SCAN_PROMPT;
                 if (!aiConfig.customPromptDeepDrill || !aiConfig.customPromptDeepDrill.trim()) aiConfig.customPromptDeepDrill = DEFAULT_DEEP_DRILL_PROMPT;
                 if (aiConfig.historyMaxChars === undefined) aiConfig.historyMaxChars = 0;
+                if (aiConfig.trackDynamicInfo === undefined) aiConfig.trackDynamicInfo = true;
             } catch (e) {}
         }
     }
@@ -713,6 +714,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 color: #cbd5e1;
                 line-height: 1.42;
                 pointer-events: auto;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                max-height: 95px;
+                overflow-y: auto;
             }
             .loc-transit-header { color: #38bdf8; font-weight: 800; font-size: 0.95em; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
             .smart-transit-link {
@@ -758,11 +763,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 justify-content: center;
                 width: 36px;
                 height: 36px;
-                background: linear-gradient(135deg, rgba(56,189,248,0.2) 0%, rgba(124,58,237,0.35) 100%);
-                border: 1px solid rgba(56,189,248,0.55);
                 border-radius: 50%;
-                color: #38bdf8;
-                font-size: 14px;
                 box-shadow: 0 0 16px rgba(56,189,248,0.3);
                 transition: all 0.2s;
                 cursor: help;
@@ -798,28 +799,28 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 color: #7dd3fc;
                 letter-spacing: 0.5px;
             }
+            /* GRAPH CONTROLS BAR INSIDE TOP PANEL */
             .lore-graph-controls {
-                position: absolute;
-                bottom: 20px;
-                right: 24px;
-                z-index: 1000;
+                position: static;
                 display: flex;
                 align-items: center;
                 gap: 5px;
+                flex-wrap: wrap;
                 background: rgba(15, 23, 42, 0.88);
                 border: 1px solid rgba(56, 189, 248, 0.38);
                 padding: 4px 8px;
                 border-radius: 28px;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.75);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.55);
                 backdrop-filter: blur(8px);
-                opacity: 0.75;
-                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             }
             .lore-graph-controls:hover {
-                opacity: 1;
                 border-color: #38bdf8;
-                box-shadow: 0 12px 30px rgba(56, 189, 248, 0.25);
-                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25);
+            }
+            #lore_app_viewport * {
+                user-select: none !important;
+                -webkit-user-drag: none !important;
             }
             .lore-graph-btn {
                 background: rgba(255,255,255,0.08);
@@ -1044,8 +1045,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const viewport = overlay.querySelector('#lore_app_viewport');
         if (!viewport) return;
 
+        viewport.addEventListener('dragstart', (e) => {
+            if (loreGraphDragEnabled && !e.target.closest('input, textarea')) e.preventDefault();
+        });
+
         viewport.addEventListener('mousedown', (e) => {
-            if (!loreGraphDragEnabled) return;
+            if (!loreGraphDragEnabled || e.button !== 0) return;
             // Cho phép kéo thả trực tiếp trên cả nút địa điểm (.location-button), chỉ loại bỏ các thành phần nhập liệu hoặc nút bấm riêng lẻ
             if (e.target.closest('button, input, textarea, select, a, .smart-transit-link, #lore_location_detail_box, .lore-graph-controls')) return;
             loreIsDraggingGraph = true;
@@ -1074,7 +1079,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 loreIsDraggingGraph = false;
                 if (loreGraphDragEnabled && viewport) viewport.style.cursor = 'grab';
                 if (loreDidPanDuringDrag) {
-                    setTimeout(() => { loreDidPanDuringDrag = false; }, 80);
+                    setTimeout(() => { loreDidPanDuringDrag = false; }, 150);
                 }
             }
         });
@@ -1140,7 +1145,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <!-- Fixed Top Panel (Cố định hoàn toàn khi cuộn/kéo bản đồ 2D) -->
                 <div id="lore_fixed_top_panel">
                     <!-- Instruction Banner Chuột Trái / Chuột Phải siêu gọn -->
-                    <div id="lore_instruction_banner" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 4px 12px; font-size: 0.82em; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                    <div id="lore_instruction_banner" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 3px 10px; font-size: 0.78em; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
                         <div>💡 <b style="color:#e2e8f0;">Điều khiển:</b> <span style="color:#38bdf8; font-weight:600;">Chuột Trái</span> vào địa điểm để đi sâu bên trong <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Chuột Phải</span> để xem chi tiết & chỉnh sửa <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Kéo thẻ</span> hoặc dùng con trỏ để di chuyển bản đồ 2D.</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span style="color: #34d399; font-weight: 600;"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu tự động</span>
@@ -1148,14 +1153,27 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </div>
                     </div>
 
-                    <!-- Dynamic Infinite Breadcrumb Bar -->
-                    <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none;">
-                        <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Lùi 1 lớp</button>
-                        <div id="breadcrumb_path_list" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-left: 6px;"></div>
-                    </div>
+                    <!-- Top Navigation and Graph Controls Bar -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; width: 100%;">
+                        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px;">
+                            <!-- Dynamic Infinite Breadcrumb Bar -->
+                            <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none; margin: 0;">
+                                <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Lùi 1 lớp</button>
+                                <div id="breadcrumb_path_list" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-left: 6px;"></div>
+                            </div>
+                            <!-- Smart Roadmap & Inter-connection Overview Bar -->
+                            <div id="lore_smart_roadmap_bar" style="display: none; margin: 0;"></div>
+                        </div>
 
-                    <!-- Smart Roadmap & Inter-connection Overview Bar -->
-                    <div id="lore_smart_roadmap_bar" style="display: none;"></div>
+                        <!-- Thanh điều khiển Graph 2D Zoom / Pan gộp gọn gàng trên góc phải -->
+                        <div class="lore-graph-controls" style="position: static; margin-left: auto;">
+                            <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to (Zoom In)"><i class="fa-solid fa-plus"></i></button>
+                            <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
+                            <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
+                            <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
+                            <button class="lore-graph-btn active" id="lore_btn_track_dynamic" onclick="window._loreToggleDynamicTracking()" title="Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện đang diễn ra...). Khi TẮT, AI và bản đồ chỉ tập trung vào thông tin địa lý, kiến trúc khách quan và liên kết giao thông chuẩn."><i class="fa-solid fa-bolt-lightning"></i> <span id="lore_label_track_dynamic">Thông tin động: BẬT</span></button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Viewport (Chỉ chứa lưới đồ thị 2D) -->
@@ -1164,14 +1182,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div id="lore_grid_container" class="lore-grid-container">
                         <!-- Nạp động -->
                     </div>
-                </div>
-
-                <!-- Thanh điều khiển Graph 2D Zoom / Pan nổi absolute tại góc dưới phải màn hình -->
-                <div class="lore-graph-controls">
-                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to (Zoom In)"><i class="fa-solid fa-plus"></i></button>
-                    <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
-                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
-                    <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
                 </div>
                 </div>
             </div>
@@ -1192,7 +1202,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <!-- Badges (View Mode) -->
                     <div id="det_view_badges" style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <span id="det_category_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(168,85,247,0.2); color: #d8b4fe; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(168,85,247,0.4);">Khu vực lớn</span>
-                        <span id="det_danger_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(34,197,94,0.2); color: #4ade80; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(34,197,94,0.4);">An toàn</span>
                         <span id="det_status_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(245,158,11,0.2); color: #fcd34d; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(245,158,11,0.4);">Tự do</span>
                         <span id="det_type_badge" style="padding: 5px 12px; border-radius: 8px; background: rgba(59,130,246,0.2); color: #93c5fd; font-size: 0.84em; font-weight: bold; border: 1px solid rgba(59,130,246,0.4);">Khu vực</span>
                     </div>
@@ -1210,10 +1219,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <div>
                             <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">Loại hình (Context Type)</label>
                             <input id="edit_det_type" class="lore-input" style="width: 100%; margin-top: 4px;" placeholder="VD: Sân thượng, Phòng thí nghiệm..." />
-                        </div>
-                        <div>
-                            <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">Mức an toàn (Danger Level)</label>
-                            <input id="edit_det_danger" class="lore-input" style="width: 100%; margin-top: 4px;" placeholder="VD: An toàn / Nguy hiểm..." />
                         </div>
                         <div>
                             <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">Trạng thái (Status)</label>
@@ -1478,7 +1483,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         doc.body.appendChild(overlay);
         attachGraphPanListeners(overlay);
 
-        overlay.querySelector('#lore_btn_close_app').addEventListener('click', () => overlay.style.display = 'none');
+        overlay.querySelector('#lore_btn_close_app').addEventListener('click', () => {
+            overlay.style.display = 'none';
+            doc.body.style.overflow = '';
+            if (doc.documentElement) doc.documentElement.style.overflow = '';
+        });
         overlay.querySelector('#btn_back_parent').addEventListener('click', () => {
             if (navStack.length > 0) {
                 navStack.pop();
@@ -2101,14 +2110,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                 if (loc) {
                     const isHub = loc.category === 'major_hub' || (!currentParent && (!loc.category || loc.category === 'major_hub')) || loc.is_hub;
-                    const dangerStr = (loc.danger_level || '').toLowerCase();
-                    const isDanger = dangerStr && !dangerStr.includes('an toàn') && !dangerStr.includes('safe') && !dangerStr.includes('bình yên') && (dangerStr.includes('nguy') || dangerStr.includes('cấm') || dangerStr.includes('tử') || dangerStr.includes('hỗn loạn') || dangerStr.includes('rủi ro') || dangerStr.includes('độc') || dangerStr.includes('quái') || dangerStr.includes('bẫy') || dangerStr.includes('cực kỳ') || dangerStr.includes('cảnh giác') || dangerStr.includes('chết'));
                     let btnClass = 'location-button';
                     if (isHub) btnClass += ' hub-button';
-                    if (isDanger) btnClass += ' danger-button';
 
                     const subCount = Array.isArray(loc.subLocations) ? loc.subLocations.length : 0;
-                    const presentChars = Array.isArray(loc.characters) ? loc.characters.filter(Boolean) : (typeof loc.characters === 'string' && loc.characters ? loc.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
+                    const presentChars = (aiConfig.trackDynamicInfo === false) ? [] : (Array.isArray(loc.characters) ? loc.characters.filter(Boolean) : (typeof loc.characters === 'string' && loc.characters ? loc.characters.split(',').map(c=>c.trim()).filter(Boolean) : []));
                     
                     const charPillsHTML = presentChars.slice(0, 4).map(charName => {
                         const avatarData = getCharacterAvatar(charName);
@@ -2136,7 +2142,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         return s;
                     };
                     const categoryText = cleanLabelText((loc.category && loc.category !== 'major_hub' && loc.category !== 'sub_location') ? loc.category : (loc.category === 'major_hub' || !currentParent ? 'Trung Tâm / Tầng Ngoài' : 'Phân Khu / Tầng Sâu'));
-                    const dangerText = cleanLabelText(loc.danger_level || 'An toàn');
                     const statusText = cleanLabelText(loc.status || loc.access_status || '');
                     const controlledText = (loc.controlled_by && loc.controlled_by !== 'Chung' && loc.controlled_by !== 'Không có' && loc.controlled_by !== 'Không rõ') ? cleanLabelText(loc.controlled_by.includes('Chủ quản') ? loc.controlled_by : `Chủ quản: ${loc.controlled_by}`) : '';
                     
@@ -2148,7 +2153,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <!-- HEADER BADGES -->
                             <div class="loc-card-header">
                                 <span class="badge-pill ${isHub ? 'badge-hub' : 'badge-cat'}">${categoryText}</span>
-                                <span class="badge-pill ${isDanger ? 'badge-danger-warn' : 'badge-danger-safe'}">${dangerText}</span>
                                 ${statusText ? `<span class="badge-pill badge-status">${statusText}</span>` : ''}
                                 ${controlledText ? `<span class="badge-pill" style="border-color: #a855f7; color: #f3e8ff; background: rgba(147, 51, 234, 0.28); font-weight: 800;" title="Nhân vật kiểm soát / Thế lực chủ quản">${controlledText}</span>` : ''}
                                 ${tagsHTML}
@@ -2380,28 +2384,26 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             });
         }
         
-        const dangerBadge = doc.getElementById('det_danger_badge');
-        dangerBadge.innerText = cleanModalLabel(found.danger_level || 'An toàn');
-        const dangerStr = (found.danger_level || '').toLowerCase();
-        const isDanger = dangerStr && !dangerStr.includes('an toàn') && !dangerStr.includes('safe') && !dangerStr.includes('bình yên') && (dangerStr.includes('nguy') || dangerStr.includes('cấm') || dangerStr.includes('tử') || dangerStr.includes('hỗn loạn') || dangerStr.includes('rủi ro') || dangerStr.includes('độc') || dangerStr.includes('quái') || dangerStr.includes('bẫy') || dangerStr.includes('cực kỳ') || dangerStr.includes('cảnh giác') || dangerStr.includes('chết'));
-        if (isDanger) {
-            dangerBadge.style.background = 'rgba(239, 68, 68, 0.2)';
-            dangerBadge.style.color = '#f87171';
-            dangerBadge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-        } else {
-            dangerBadge.style.background = 'rgba(34, 197, 94, 0.2)';
-            dangerBadge.style.color = '#4ade80';
-            dangerBadge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
-        }
-
         const statusBadge = doc.getElementById('det_status_badge');
-        statusBadge.innerText = cleanModalLabel(found.status || 'Tự do');
+        if (statusBadge) statusBadge.innerText = cleanModalLabel(found.status || 'Tự do');
 
-        const charArray = Array.isArray(found.characters) ? found.characters.filter(Boolean) : (typeof found.characters === 'string' && found.characters ? found.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
-        if (charArray.length > 0) {
-            doc.getElementById('det_characters').innerHTML = charArray.map(c => `<span style="background: rgba(56,189,248,0.22); border: 1px solid rgba(56,189,248,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #7dd3fc; display: inline-block; margin: 2px 4px 2px 0;">👤 ${c}</span>`).join(' ');
+        const charBoxEl = doc.getElementById('det_characters')?.parentElement;
+        const eventBoxEl = doc.getElementById('det_events')?.parentElement;
+        if (aiConfig.trackDynamicInfo === false) {
+            if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'none';
+            if (eventBoxEl && eventBoxEl.classList.contains('deep-info-card')) eventBoxEl.style.display = 'none';
         } else {
-            doc.getElementById('det_characters').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chưa có nhân vật nào đang hiện diện tại đây lúc này</span>`;
+            if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'block';
+            if (eventBoxEl && eventBoxEl.classList.contains('deep-info-card')) eventBoxEl.style.display = 'block';
+
+            const charArray = Array.isArray(found.characters) ? found.characters.filter(Boolean) : (typeof found.characters === 'string' && found.characters ? found.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
+            if (charArray.length > 0) {
+                doc.getElementById('det_characters').innerHTML = charArray.map(c => `<span style="background: rgba(56,189,248,0.22); border: 1px solid rgba(56,189,248,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #7dd3fc; display: inline-block; margin: 2px 4px 2px 0;">👤 ${cleanModalLabel(c)}</span>`).join(' ');
+            } else {
+                doc.getElementById('det_characters').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chưa có nhân vật nào đang hiện diện tại đây lúc này</span>`;
+            }
+
+            doc.getElementById('det_events').innerText = found.events || 'Tình hình ổn định, không có sự kiện căng thẳng nào.';
         }
 
         const controlledStr = found.controlled_by || 'Chung';
@@ -2414,7 +2416,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         doc.getElementById('det_connections').innerHTML = formatSmartTransit(found.connections, currentParent ? (currentParent.subLocations || []) : mapData.locations, found.id);
         doc.getElementById('det_atmosphere').innerText = found.atmosphere || 'Bầu không khí bình thường, không có điểm bất thường.';
         doc.getElementById('det_secrets').innerText = found.secrets || 'Chưa phát hiện bí mật hay vật phẩm đặc biệt nào.';
-        doc.getElementById('det_events').innerText = found.events || 'Tình hình ổn định, không có sự kiện căng thẳng nào.';
 
         const btnEnterSub = doc.getElementById('det_btn_enter_sub');
         btnEnterSub.style.display = 'inline-flex';
@@ -2722,8 +2723,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (overlay) {
             if (overlay.style.display === 'flex') {
                 overlay.style.display = 'none';
+                doc.body.style.overflow = '';
+                if (doc.documentElement) doc.documentElement.style.overflow = '';
             } else {
                 overlay.style.display = 'flex';
+                doc.body.style.overflow = 'hidden';
+                if (doc.documentElement) doc.documentElement.style.overflow = 'hidden';
                 navStack = [];
                 renderAppGrid();
             }
