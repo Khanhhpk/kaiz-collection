@@ -206,6 +206,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     let mapData = { locations: [] };
     let navStack = [];
     let selectedDetailLocation = null;
+    let isAiScanning = false;
+    let isAiDrilling = false;
+    let msgCountSinceLastScan = 0;
 
     const SVG_GLOBE_ICON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
 
@@ -3169,6 +3172,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // AI Quét Map Toàn Cảnh (v8.3)
     async function triggerAiWorldScan(isAuto = false) {
+        if (isAiScanning) return;
+        isAiScanning = true;
+        if (!isAuto) msgCountSinceLastScan = 0; // Reset counter if manually triggered
         showGlobalLoadingIcon();
         loadAiConfig();
         const btnScan = doc.getElementById('lore_btn_ai_scan');
@@ -3514,16 +3520,16 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         updateExtensionPrompts();
 
         // AUTO SCAN LOGIC
-        let msgCountSinceLastScan = 0;
         const autoScanHandler = () => {
             if (!aiConfig.injectEnabled || !aiConfig.autoScanTurns || aiConfig.autoScanTurns <= 0) return;
             msgCountSinceLastScan++;
             if (msgCountSinceLastScan >= aiConfig.autoScanTurns) {
                 msgCountSinceLastScan = 0;
-                // Gọi quét ẩn danh
-                console.log("[Lore Map] Auto Scan Triggered!");
-                if (typeof triggerAiWorldScan === 'function') {
-                    triggerAiWorldScan(true); // true = auto (nếu hàm hỗ trợ)
+                if (!isAiScanning) {
+                    console.log("[Lore Map] Auto Scan Triggered!");
+                    if (typeof triggerAiWorldScan === 'function') {
+                        triggerAiWorldScan(true); // true = auto (nếu hàm hỗ trợ)
+                    }
                 }
             }
         };
