@@ -170,7 +170,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         customModel: 'gpt-4o-mini',
         historyCount: 30,
         historyMaxChars: 0, // 0 = Không giới hạn theo token/ký tự, chỉ giới hạn theo số tin nhắn (mặc định 30)
-        trackDynamicInfo: true, // Bật/Tắt theo dõi thông tin động (Nhân vật hiện diện, Sự kiện đang diễn ra)
         customPromptWorldScan: DEFAULT_WORLD_SCAN_PROMPT,
         customPromptDeepDrill: DEFAULT_DEEP_DRILL_PROMPT
     };
@@ -184,7 +183,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 if (!aiConfig.customPromptWorldScan || !aiConfig.customPromptWorldScan.trim()) aiConfig.customPromptWorldScan = DEFAULT_WORLD_SCAN_PROMPT;
                 if (!aiConfig.customPromptDeepDrill || !aiConfig.customPromptDeepDrill.trim()) aiConfig.customPromptDeepDrill = DEFAULT_DEEP_DRILL_PROMPT;
                 if (aiConfig.historyMaxChars === undefined) aiConfig.historyMaxChars = 0;
-                if (aiConfig.trackDynamicInfo === undefined) aiConfig.trackDynamicInfo = true;
             } catch (e) {}
         }
     }
@@ -1202,13 +1200,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         window._loreChangeNodeSize(340);
     };
 
-    window._loreToggleDynamicTracking = function() {
-        loadAiConfig();
-        aiConfig.trackDynamicInfo = !aiConfig.trackDynamicInfo;
-        saveAiConfig();
-        updateUI();
-        renderAppGrid();
-    };
+
 
     let loreDidPanDuringDrag = false;
 
@@ -1342,10 +1334,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             </div>
                             </div>
 
-                        <!-- Nút Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện...) -->
-                        <div class="lore-graph-controls" style="position: static; margin-left: auto;">
-                            <button class="lore-graph-btn active" id="lore_btn_track_dynamic" onclick="window._loreToggleDynamicTracking()" style="padding: 6px 14px; font-size: 0.88em; border-radius: 20px;" title="Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện đang diễn ra...). Khi TẮT, AI và bản đồ chỉ tập trung vào thông tin địa lý, kiến trúc khách quan và liên kết giao thông chuẩn."><i class="fa-solid fa-bolt-lightning"></i> <span id="lore_label_track_dynamic">Thông tin động: BẬT</span></button>
-                        </div>
                     </div>
                 </div>
 
@@ -2089,10 +2077,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             selectedDetailLocation.danger_level = detBox.querySelector('#edit_det_danger')?.value?.trim() || 'An toàn';
             selectedDetailLocation.status = detBox.querySelector('#edit_det_status')?.value?.trim() || 'Tự do';
 
-            if (aiConfig.trackDynamicInfo !== false) {
-                const charsRaw = detBox.querySelector('#edit_det_characters')?.value?.trim() || '';
-                selectedDetailLocation.characters = charsRaw ? charsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
-            }
+            const charsRaw = detBox.querySelector('#edit_det_characters')?.value?.trim() || '';
+            selectedDetailLocation.characters = charsRaw ? charsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
 
             const controlledRaw = detBox.querySelector('#edit_det_controlled_by')?.value?.trim() || '';
             selectedDetailLocation.controlled_by = controlledRaw || 'Chung';
@@ -2239,8 +2225,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const statusBox = doc.getElementById('lore_chat_status');
         const badgeStats = doc.getElementById('lore_stats_badge');
         const badgeAi = doc.getElementById('lore_ai_badge');
-        const btnDynamic = doc.getElementById('lore_btn_track_dynamic');
-        const labelDynamic = doc.getElementById('lore_label_track_dynamic');
 
         if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span> | Chuột Trái: Vào Phân Khu | Chuột Phải: Xem Thông Tin`;
         if (badgeStats) {
@@ -2250,17 +2234,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (badgeAi) {
             badgeAi.innerText = aiConfig.source === 'custom' ? `⚡ Custom AI (${aiConfig.customModel || 'model'})` : `⭐ SillyTavern AI`;
         }
-        // Cập nhật trạng thái nút Bật/Tắt Thông tin động
-        if (btnDynamic) {
-            const isOn = aiConfig.trackDynamicInfo !== false;
-            btnDynamic.classList.toggle('active', isOn);
-            btnDynamic.style.background = isOn ? 'rgba(14, 165, 233, 0.4)' : 'rgba(100, 116, 139, 0.25)';
-            btnDynamic.style.borderColor = isOn ? '#38bdf8' : '#64748b';
-            if (labelDynamic) {
-                labelDynamic.innerText = isOn ? 'Thông tin động: BẬT' : 'Thông tin động: TẮT';
-                labelDynamic.style.color = isOn ? '#38bdf8' : '#94a3b8';
-            }
-        }
+
     }
 
     function renderBreadcrumb() {
@@ -2549,7 +2523,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     if (isHub) btnClass += ' hub-button';
 
                     const subCount = Array.isArray(loc.subLocations) ? loc.subLocations.length : 0;
-                    const presentCharsList = (aiConfig.trackDynamicInfo === false) ? [] : getAggregatedCharactersInfo(loc);
+                    const presentCharsList = getAggregatedCharactersInfo(loc);
                     
                     const charPillsHTML = presentCharsList.slice(0, 5).map(item => {
                         const avatarData = getCharacterAvatar(item.charName);
@@ -2757,11 +2731,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv].forEach(el => { if (el) el.style.display = 'none'; });
             [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput].forEach(el => { if (el) el.style.display = 'block'; });
-            if (aiConfig.trackDynamicInfo === false) {
-                if (elCharsInput && elCharsInput.parentElement) elCharsInput.parentElement.style.display = 'none';
-            } else {
-                if (elCharsInput && elCharsInput.parentElement) elCharsInput.parentElement.style.display = 'block';
-            }
+            if (elCharsInput && elCharsInput.parentElement) elCharsInput.parentElement.style.display = 'block';
 
             if (elViewActions) elViewActions.style.display = 'none';
             if (elEditActions) elEditActions.style.display = 'flex';
@@ -2773,11 +2743,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv].forEach(el => { if (el) el.style.display = 'block'; });
             [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput].forEach(el => { if (el) el.style.display = 'none'; });
-            if (aiConfig.trackDynamicInfo === false) {
-                if (elCharsDiv && elCharsDiv.parentElement) elCharsDiv.parentElement.style.display = 'none';
-            } else {
-                if (elCharsDiv && elCharsDiv.parentElement) elCharsDiv.parentElement.style.display = 'block';
-            }
+            if (elCharsDiv && elCharsDiv.parentElement) elCharsDiv.parentElement.style.display = 'block';
 
             if (elViewActions) elViewActions.style.display = 'flex';
             if (elEditActions) elEditActions.style.display = 'none';
@@ -2828,17 +2794,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (statusBadge) statusBadge.innerText = cleanModalLabel(found.status || 'Tự do');
 
         const charBoxEl = doc.getElementById('det_characters')?.parentElement;
-        if (aiConfig.trackDynamicInfo === false) {
-            if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'none';
-        } else {
-            if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'block';
+        if (charBoxEl && charBoxEl.classList.contains('deep-info-card')) charBoxEl.style.display = 'block';
 
-            const charArray = Array.isArray(found.characters) ? found.characters.filter(Boolean) : (typeof found.characters === 'string' && found.characters ? found.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
-            if (charArray.length > 0) {
-                doc.getElementById('det_characters').innerHTML = charArray.map(c => `<span style="background: rgba(56,189,248,0.22); border: 1px solid rgba(56,189,248,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #7dd3fc; display: inline-block; margin: 2px 4px 2px 0;">👤 ${cleanModalLabel(c)}</span>`).join(' ');
-            } else {
-                doc.getElementById('det_characters').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chưa có nhân vật nào đang hiện diện tại đây lúc này</span>`;
-            }
+        const charArray = Array.isArray(found.characters) ? found.characters.filter(Boolean) : (typeof found.characters === 'string' && found.characters ? found.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
+        if (charArray.length > 0) {
+            doc.getElementById('det_characters').innerHTML = charArray.map(c => `<span style="background: rgba(56,189,248,0.22); border: 1px solid rgba(56,189,248,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #7dd3fc; display: inline-block; margin: 2px 4px 2px 0;">👤 ${cleanModalLabel(c)}</span>`).join(' ');
+        } else {
+            doc.getElementById('det_characters').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chưa có nhân vật nào đang hiện diện tại đây lúc này</span>`;
         }
 
         const controlledStr = found.controlled_by || 'Chung';
@@ -2953,10 +2915,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 .replace('{{target_secrets}}', targetLoc.secrets || '')
                 .replace('{{existing_map}}', existingStr || '(Chưa có)');
 
-            if (aiConfig.trackDynamicInfo === false) {
-                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới những gì đang xảy ra hiện tại. Hãy để trường "characters": [] ở tất cả các phân khu con!]`;
-            }
-
             if (aiConfig.enhancedNLayerMode) {
                 prompt += `\n\n[CHÚ Ý ĐẶC BIỆT: CHẾ ĐỘ TĂNG CƯỜNG (ENHANCED N-LAYER MODE) ĐANG BẬT! Bạn có quyền phân tích ĐA TẦNG sâu vô hạn. Mảng "subLocations" bên trong 1 địa điểm hoàn toàn có thể tiếp tục chứa các "subLocations" khác lồng vào nhau. Hãy tạo ra JSON N-lớp bao quát TẤT CẢ các phân khu!]`;
             }
@@ -3050,10 +3008,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             let prompt = template
                 .replace('{{history}}', histObj.text)
                 .replace('{{existing_map}}', existingStr || '(Chưa có)');
-
-            if (aiConfig.trackDynamicInfo === false) {
-                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới những gì đang xảy ra hiện tại. Hãy để trường "characters": [] ở tất cả các khu vực và phân khu!]`;
-            }
 
             if (aiConfig.enhancedNLayerMode) {
                 prompt += `\n\n[CHÚ Ý ĐẶC BIỆT: CHẾ ĐỘ TĂNG CƯỜNG (ENHANCED N-LAYER MODE) ĐANG BẬT! BẠN KHÔNG BỊ GIỚI HẠN Ở 2 LỚP! Bạn có quyền phân tích ĐA TẦNG sâu vô hạn. Mảng "subLocations" bên trong 1 địa điểm hoàn toàn có thể tiếp tục chứa các "subLocations" khác lồng vào nhau (VD: Thành Phố -> Tòa Nhà -> Căn Hộ -> Gian Phòng). Hãy tạo ra JSON N-lớp bao quát TẤT CẢ các ngóc ngách có trong ngữ cảnh chat!]`;
