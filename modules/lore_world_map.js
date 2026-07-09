@@ -1764,17 +1764,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         overlay.querySelector('#lore_btn_add_location').addEventListener('click', () => {
             window._loreAddMode = !window._loreAddMode;
             const btnText = overlay.querySelector('#lore_btn_add_text');
-            const btnIcon = overlay.querySelector('#lore_btn_add_location i');
+            const btnIcon = overlay.querySelector('#lore_btn_add_location img');
             const btn = overlay.querySelector('#lore_btn_add_location');
             if (window._loreAddMode) {
                 btnText.innerText = 'Hủy Thêm';
-                btnIcon.className = 'fa-solid fa-xmark';
+                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:x.svg?color=%23fca5a5';
                 btn.style.background = 'rgba(239, 68, 68, 0.2)';
                 btn.style.color = '#fca5a5';
                 btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
             } else {
                 btnText.innerText = 'Thêm Địa Điểm';
-                btnIcon.className = 'fa-solid fa-plus';
+                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1';
                 btn.style.background = '';
                 btn.style.color = '';
                 btn.style.borderColor = '';
@@ -1787,10 +1787,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             
             // Reset button ui
             const btnText = overlay.querySelector('#lore_btn_add_text');
-            const btnIcon = overlay.querySelector('#lore_btn_add_location i');
+            const btnIcon = overlay.querySelector('#lore_btn_add_location img');
             const btn = overlay.querySelector('#lore_btn_add_location');
             if(btnText) btnText.innerText = 'Thêm Địa Điểm';
-            if(btnIcon) btnIcon.className = 'fa-solid fa-plus';
+            if(btnIcon) if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1';
             if(btn) {
                 btn.style.background = '';
                 btn.style.color = '';
