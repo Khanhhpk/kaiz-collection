@@ -47,7 +47,7 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
 === BẢN ĐỒ HIỆN TẠI ===
 {{existing_map}}
 ======================
-NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON. ĐỒNG THỜI, BẠN CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN CẬP NHẬT (Ví dụ: chỉ xuất 'characters' nếu có người tới). CÁC TRƯỜNG KHÁC (description, atmosphere...) HÃY BỎ QUA (Không ghi vào JSON) để giữ nguyên gốc! Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
+NẾU một địa điểm đã tồn tại trong danh sách trên, bạn PHẢI BỔ SUNG trường "id" của nó vào JSON. ĐỒNG THỜI, BẠN CHỈ CẦN XUẤT CÁC TRƯỜNG MUỐN CẬP NHẬT (Ví dụ: chỉ xuất 'characters' nếu có người tới, hoặc 'characters': [] nếu họ đã rời đi). CÁC TRƯỜNG KHÁC (description, atmosphere...) HÃY BỎ QUA (Không ghi vào JSON) để giữ nguyên gốc! Nếu là địa điểm mới hoàn toàn, HÃY BỎ TRỐNG trường "id" và PHẢI ĐIỀN ĐẦY ĐỦ tất cả các trường.
 6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - KHÔNG GIAN ĐỊA LÝ): Hệ thống sử dụng mạng lưới không gian 2D (row,col) để phác thảo khoảng cách địa lý. Tọa độ bắt đầu từ 0,0 và BẮT BUỘC PHẢI LÀ SỐ DƯƠNG (>= 0). CHÚ Ý: Lưới không gian bị giới hạn kích thước tối đa là 15x15. Do đó, cả hàng (row) và cột (col) đều chỉ được phép nằm trong khoảng từ 0 đến 14. Bạn PHẢI cấp tọa độ \`grid_hint\` cho TẤT CẢ các địa điểm (Cả Khu Vực Lớn \`locations\` và Phân Khu Nhỏ \`subLocations\`).
    - TƯ DUY KHÔNG GIAN (Chain of Thought): Thay vì áp dụng quy tắc tọa độ cứng nhắc, hãy tự tư duy và phác thảo sơ đồ không gian trong đầu bạn trước:
      + 1. Tâm của bối cảnh hiện tại nằm ở đâu?
@@ -3000,13 +3000,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 node.category = sourceItem.category;
                 if (!node.icon || node.icon === 'fa-building') node.icon = getIconForCategory(sourceItem.category, node.name, node.context_type);
             }
-            if (Array.isArray(sourceItem.tags)) node.tags = Array.from(new Set([...(node.tags||[]), ...sourceItem.tags]));
+            if (Array.isArray(sourceItem.tags)) node.tags = sourceItem.tags;
             if (sourceItem.grid_hint) node.grid_hint = sourceItem.grid_hint;
             if (sourceItem.description && node.description.length < sourceItem.description.length) node.description = sourceItem.description;
             if (sourceItem.atmosphere) node.atmosphere = sourceItem.atmosphere;
             if (sourceItem.secrets) node.secrets = sourceItem.secrets;
             if (sourceItem.connections) node.connections = sourceItem.connections;
-            if (Array.isArray(sourceItem.characters)) node.characters = Array.from(new Set([...(node.characters||[]), ...sourceItem.characters]));
+            if (Array.isArray(sourceItem.characters)) node.characters = sourceItem.characters;
         }
         
         if (Array.isArray(sourceItem.subLocations)) {
@@ -3028,7 +3028,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             globalLoadingIcon.style.cssText = `
                 position: fixed;
                 top: 70px;
-                left: calc(100vw - 60px);
+                right: 20px;
                 z-index: 2147483647;
                 background: rgba(15, 23, 42, 0.85);
                 border: 1px solid #38bdf8;
@@ -3130,7 +3130,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const win = window.parent || window;
             if (!responseJson && win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
                 try {
-                    const rawRes = await win.SillyTavern.getContext().generateRaw(prompt);
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                      const rawRes = await Promise.race([win.SillyTavern.getContext().generateRaw(prompt), timeoutPromise]);
                     window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
@@ -3138,10 +3139,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             if (!responseJson && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
                 try {
-                    const rawRes = await win.PhoneSystem.callExternalAPI([
-                        { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
-                        { role: 'user', content: prompt }
-                    ], { maxTokens: 4000, temperature: 0.75 });
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                      const rawRes = await Promise.race([win.PhoneSystem.callExternalAPI([
+                          { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
+                          { role: 'user', content: prompt }
+                      ], { maxTokens: 4000, temperature: 0.7 }), timeoutPromise]);
                     window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
@@ -3236,7 +3238,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const win = window.parent || window;
             if (!responseJson && win.SillyTavern && typeof win.SillyTavern.getContext === 'function' && typeof win.SillyTavern.getContext().generateRaw === 'function') {
                 try {
-                    const rawRes = await win.SillyTavern.getContext().generateRaw(prompt);
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                      const rawRes = await Promise.race([win.SillyTavern.getContext().generateRaw(prompt), timeoutPromise]);
                     window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
@@ -3244,10 +3247,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             if (!responseJson && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
                 try {
-                    const rawRes = await win.PhoneSystem.callExternalAPI([
-                        { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
-                        { role: 'user', content: prompt }
-                    ], { maxTokens: 4000, temperature: 0.7 });
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout 120s')), 120000));
+                      const rawRes = await Promise.race([win.PhoneSystem.callExternalAPI([
+                          { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
+                          { role: 'user', content: prompt }
+                      ], { maxTokens: 4000, temperature: 0.7 }), timeoutPromise]);
                     window._lastAiResponse = rawRes;
                     responseJson = parseJsonFromText(rawRes);
                 } catch (e) {}
