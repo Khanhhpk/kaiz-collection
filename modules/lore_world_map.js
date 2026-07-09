@@ -1301,23 +1301,23 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div class="lore-header-actions">
                         <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat dựng bản đồ chính xác theo bối cảnh">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét Map
+                            <img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Quét Map
                         </button>
 
                         <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Bật/Tắt chế độ thêm địa điểm">
-                            <i class="fa-solid fa-plus"></i> <span id="lore_btn_add_text">Thêm Địa Điểm</span>
+                            <img src="https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <span id="lore_btn_add_text">Thêm Địa Điểm</span>
                         </button>
 
                         <button id="lore_btn_saved_maps" class="lore-btn lore-btn-secondary" title="Kiểm tra & Xóa nhanh các bản đồ / chat đang lưu">
-                            <i class="fa-solid fa-folder-tree"></i> Map Lưu
+                            <img src="https://api.iconify.design/lucide:folder-tree.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Map Lưu
                         </button>
 
                         <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI & Chỉnh sửa Prompt tùy biến">
-                            <i class="fa-solid fa-gear"></i> Cấu hình AI
+                            <img src="https://api.iconify.design/lucide:settings.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cấu hình AI
                         </button>
 
                         <button id="lore_btn_ai_debug" class="lore-btn" style="background: rgba(168,85,247,0.18); border: 1px solid rgba(192,132,252,0.4); color: #e9d5ff; padding: 6px 10px;" title="Kiểm tra chính xác những gì gửi cho AI và lý do bị lẹm history">
-                            <i class="fa-solid fa-bug"></i> Debug
+                            <img src="https://api.iconify.design/lucide:bug.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Debug
                         </button>
 
                         <button id="lore_btn_close_app" class="lore-btn" style="background: rgba(239,68,68,0.22); border: 1px solid rgba(239,68,68,0.45); color: #f87171; padding: 6px 12px; font-size: 1.05em;" title="Đóng bản đồ">
@@ -1332,7 +1332,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div id="lore_instruction_banner" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 3px 10px; font-size: 0.78em; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
                         <div>💡 <b style="color:#e2e8f0;">Điều khiển:</b> <span style="color:#38bdf8; font-weight:600;">Chuột Trái</span> vào địa điểm để đi sâu bên trong <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Chuột Phải</span> để xem chi tiết & chỉnh sửa <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Kéo thẻ</span> hoặc dùng con trỏ để di chuyển bản đồ 2D.</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: #34d399; font-weight: 600;"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu tự động</span>
+                            <span style="color: #34d399; font-weight: 600;"><img src="https://api.iconify.design/lucide:cloud-upload.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu tự động</span>
                             <span style="cursor: pointer; color: #64748b; font-weight: bold; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); transition: all 0.15s;" onclick="this.parentElement.parentElement.style.display='none'" title="Ẩn thanh hướng dẫn để mở rộng không gian"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Ẩn</span>
                         </div>
                     </div>
@@ -1342,7 +1342,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px;">
                             <!-- Dynamic Infinite Breadcrumb Bar -->
                             <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none; margin: 0;">
-                                <button id="btn_back_parent" class="lore-breadcrumb-btn"><i class="fa-solid fa-arrow-left"></i> Lùi 1 lớp</button>
+                                <button id="btn_back_parent" class="lore-breadcrumb-btn"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lùi 1 lớp</button>
                                 <div id="breadcrumb_path_list" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-left: 6px;"></div>
                             </div>
                             </div>
@@ -1354,7 +1354,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 
                 <!-- Thanh Danh Sách Địa Điểm (Sidebar) -->
                 <div id="lore_sidebar" class="lore-sidebar" style="display: none;">
-                    <span class="lore-sidebar-title"><i class="fa-solid fa-list-ul"></i> Danh sách khu vực</span>
+                    <span class="lore-sidebar-title"><img src="https://api.iconify.design/lucide:list.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Danh sách khu vực</span>
                     <div id="lore_sidebar_content" class="lore-sidebar-content">
                         <!-- Nạp động -->
                     </div>
@@ -1372,17 +1372,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) - Ghim ở góc phải dưới modal -->
                 <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
                     <div style="display: flex; align-items: center; gap: 8px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.18); margin-right: 4px;">
-                        <span style="font-size: 0.8em; color: #cbd5e1; font-weight: bold;"><i class="fa-solid fa-expand"></i> Cỡ ô</span>
-                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(-0.1)" title="Thu nhỏ cỡ ô (-10%)"><i class="fa-solid fa-minus"></i></button>
+                        <span style="font-size: 0.8em; color: #cbd5e1; font-weight: bold;"><img src="https://api.iconify.design/lucide:maximize.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cỡ ô</span>
+                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(-0.1)" title="Thu nhỏ cỡ ô (-10%)"><img src="https://api.iconify.design/lucide:minus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                         <button class="lore-graph-btn" onclick="window._loreResetNodeSize()" title="Đặt lại cỡ ô (100%)"><span id="lore_node_size_label">${Math.round(((aiConfig.nodeSize||340)/340)*100)}%</span></button>
-                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(0.1)" title="Phóng to cỡ ô (+10%)"><i class="fa-solid fa-plus"></i></button>
+                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(0.1)" title="Phóng to cỡ ô (+10%)"><img src="https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                     </div>
-                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><i class="fa-solid fa-plus"></i></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><img src="https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                     <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
-                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><img src="https://api.iconify.design/lucide:minus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                     <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.18); margin: 0 3px;"></div>
-                    <button class="lore-graph-btn active" id="lore_btn_sidebar_toggle" onclick="window._loreToggleSidebar()" title="Bật/Tắt Danh Sách Khu Vực"><i class="fa-solid fa-list"></i></button>
-                    <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
+                    <button class="lore-graph-btn active" id="lore_btn_sidebar_toggle" onclick="window._loreToggleSidebar()" title="Bật/Tắt Danh Sách Khu Vực"><img src="https://api.iconify.design/lucide:list.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
+                    <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><img src="https://api.iconify.design/lucide:hand.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Kéo 2D</button>
                 </div>
             </div>
 
@@ -1428,37 +1428,37 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <!-- DEEP INFO SECTIONS & CONNECTIONS -->
                     <div class="deep-info-card" style="background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.3);">
-                        <div class="deep-info-title" style="color: #38bdf8;"><i class="fa-solid fa-user-check"></i> Nhân vật hiện diện (Đang có mặt tại đây)</div>
+                        <div class="deep-info-title" style="color: #38bdf8;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật hiện diện (Đang có mặt tại đây)</div>
                         <div id="det_characters" class="deep-info-text" style="color: #7dd3fc; font-weight: bold;">Chưa có nhân vật nào ở đây</div>
                         <input id="edit_det_characters" class="lore-input" style="display: none; width: 100%; margin-top: 6px; font-weight: bold; color: #38bdf8;" placeholder="Nhập tên nhân vật đang có mặt lúc này (cách nhau dấu phẩy ,)..." />
                     </div>
 
                     <div class="deep-info-card" style="background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3);">
-                        <div class="deep-info-title" style="color: #c084fc;"><i class="fa-solid fa-shield-halved"></i> Nhân vật kiểm soát / Thế lực chủ quản</div>
+                        <div class="deep-info-title" style="color: #c084fc;"><img src="https://api.iconify.design/lucide:shield-half.svg?color=%23c084fc" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật kiểm soát / Thế lực chủ quản</div>
                         <div id="det_controlled_by" class="deep-info-text" style="color: #e9d5ff; font-weight: bold;">Chung / Tự do</div>
                         <input id="edit_det_controlled_by" class="lore-input" style="display: none; width: 100%; margin-top: 6px; font-weight: bold; color: #c084fc;" placeholder="Nhập tên nhân vật/thế lực sở hữu, quản lý khu vực này..." />
                     </div>
 
                     <div class="deep-info-card">
-                        <div class="deep-info-title"><i class="fa-solid fa-scroll"></i> Mô tả chi tiết vai trò & Cảnh quan</div>
+                        <div class="deep-info-title"><img src="https://api.iconify.design/lucide:scroll.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Mô tả chi tiết vai trò & Cảnh quan</div>
                         <div id="det_description" class="deep-info-text" style="white-space: pre-wrap;">Không có mô tả.</div>
                         <textarea id="edit_det_description" class="lore-input" style="display: none; width: 100%; height: 95px; box-sizing: border-box; margin-top: 6px; line-height: 1.4;" placeholder="Mô tả công năng, kiến trúc và vai trò..."></textarea>
                     </div>
 
                     <div class="deep-info-card" style="background: rgba(56,189,248,0.06); border-color: rgba(56,189,248,0.25);">
-                        <div class="deep-info-title" style="color: #38bdf8;"><i class="fa-solid fa-route"></i> Cổng Kết Nối & Lối Đi Giao Thông Liên Vùng (Connections)</div>
+                        <div class="deep-info-title" style="color: #38bdf8;"><img src="https://api.iconify.design/lucide:route.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cổng Kết Nối & Lối Đi Giao Thông Liên Vùng (Connections)</div>
                         <div id="det_connections" class="deep-info-text" style="color: #7dd3fc; font-weight: 600;">Đường nối nội bộ, chưa rõ lối ra tiếp theo.</div>
                         <textarea id="edit_det_connections" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #7dd3fc; line-height: 1.4;" placeholder="Mô tả cổng kết nối, thang máy, hành lang dẫn tới khu vực nào..."></textarea>
                     </div>
 
                     <div class="deep-info-card">
-                        <div class="deep-info-title"><i class="fa-solid fa-cloud-sun"></i> Môi trường & Bầu không khí (Atmosphere)</div>
+                        <div class="deep-info-title"><img src="https://api.iconify.design/lucide:cloud-sun.svg?color=%23a7f3d0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Môi trường & Bầu không khí (Atmosphere)</div>
                         <div id="det_atmosphere" class="deep-info-text" style="color: #a7f3d0;">Bình thường, yên tĩnh.</div>
                         <textarea id="edit_det_atmosphere" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #a7f3d0; line-height: 1.4;" placeholder="Môi trường, thời tiết, âm thanh, mùi hương..."></textarea>
                     </div>
 
                     <div class="deep-info-card">
-                        <div class="deep-info-title"><i class="fa-solid fa-gem"></i> Bí mật / Vật phẩm / Tài nguyên ẩn (Secrets & Loot)</div>
+                        <div class="deep-info-title"><img src="https://api.iconify.design/lucide:gem.svg?color=%23fde047" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Bí mật / Vật phẩm / Tài nguyên ẩn (Secrets & Loot)</div>
                         <div id="det_secrets" class="deep-info-text" style="color: #fde047;">Chưa phát hiện bí mật hay vật phẩm đặc biệt.</div>
                         <textarea id="edit_det_secrets" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #fde047; line-height: 1.4;" placeholder="Bí mật, mật thư hoặc vật phẩm quan trọng giấu tại đây..."></textarea>
                     </div>
@@ -1469,16 +1469,16 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div id="det_view_actions" style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center;">
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                             <button id="det_btn_enter_sub" class="lore-btn lore-btn-success" style="padding: 10px 18px; font-size: 0.95em;" title="Đi vào tập con / phân khu bên trong của địa điểm này">
-                                <i class="fa-solid fa-door-open"></i> Vào Tập Con / Phân Khu
+                                <img src="https://api.iconify.design/lucide:door-open.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con / Phân Khu
                             </button>
                             <button id="det_btn_ai_drill" class="lore-btn lore-btn-primary" style="padding: 10px 16px; font-size: 0.9em; background: linear-gradient(135deg, #0284c7, #9333ea);" title="Dùng AI khám phá & tạo tự động các phân khu nhỏ/hầm ngầm bên trong địa điểm này">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Khám Phá Sâu
+                                <img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Khám Phá Sâu
                             </button>
                         </div>
 
                         <div style="display: flex; gap: 8px;">
                             <button id="det_btn_edit" class="lore-btn lore-btn-secondary" style="padding: 8px 16px;">
-                                <i class="fa-solid fa-pen"></i> Sửa Deep Info
+                                <img src="https://api.iconify.design/lucide:pen.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sửa Deep Info
                             </button>
                             <button id="det_btn_delete" class="lore-btn lore-btn-danger" style="padding: 8px 16px;">
                                 <img src="https://api.iconify.design/lucide:trash-2.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa
@@ -1492,7 +1492,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <img src="https://api.iconify.design/lucide:x.svg?color=%2394a3b8" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Hủy Bỏ
                         </button>
                         <button id="det_btn_save_edit" class="lore-btn lore-btn-success" style="padding: 10px 24px; font-size: 0.98em; font-weight: 800; box-shadow: 0 0 15px rgba(34,197,94,0.4);">
-                            <i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi
+                            <img src="https://api.iconify.design/lucide:save.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu Thay Đổi
                         </button>
                     </div>
                 </div>
@@ -1611,7 +1611,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                                     <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">Tên Model (Model Name)</label>
                                     <button id="cfg_btn_fetch_models" class="lore-btn" style="background: rgba(56,189,248,0.2); border: 1px solid #38bdf8; color: #38bdf8; padding: 4px 10px; font-size: 0.78em;">
-                                        <i class="fa-solid fa-arrows-rotate"></i> Tải danh sách Model
+                                        <img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tải danh sách Model
                                     </button>
                                 </div>
                                 <div style="display: flex; gap: 6px; margin-top: 6px;">
@@ -1812,7 +1812,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); z-index: 100000000; display:flex; align-items: flex-start; justify-content: center; overflow-y:auto; padding: 40px 0; box-sizing: border-box; backdrop-filter: blur(8px);">
                     <div style="background: #0f172a; width: 500px; max-width: 90%; margin: 0 auto; flex-shrink: 0; border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); display: flex; flex-direction: column; box-shadow: 0 25px 65px rgba(0,0,0,0.95);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
-                            <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><i class="fa-solid fa-plus-square" style="color: #38bdf8; margin-right: 8px;"></i>Tạo Địa Điểm Mới</div>
+                            <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><img src="https://api.iconify.design/lucide:plus-square.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />Tạo Địa Điểm Mới</div>
                             <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><img src="https://api.iconify.design/lucide:x.svg?color=%2394a3b8" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></button>
                         </div>
                         <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
@@ -1871,7 +1871,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                             <div style="padding-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
                                 <button class="lore-btn lore-btn-secondary" onclick="document.getElementById('lore_create_modal').remove()">Hủy Bỏ</button>
-                                <button class="lore-btn lore-btn-primary" id="cmod_save"><i class="fa-solid fa-check"></i> Tạo Địa Điểm</button>
+                                <button class="lore-btn lore-btn-primary" id="cmod_save"><img src="https://api.iconify.design/lucide:check.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tạo Địa Điểm</button>
                             </div>
                         </div>
                     </div>
@@ -2106,7 +2106,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (!url) { alert('Vui lòng nhập API Endpoint URL trước!'); return; }
 
             btnFetchModels.disabled = true;
-            btnFetchModels.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang tải...`;
+            btnFetchModels.innerHTML = `<img src="https://api.iconify.design/lucide:loader-2.svg?color=%23cbd5e1" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang tải...`;
 
             try {
                 let modelsUrl = url;
@@ -2138,7 +2138,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 alert('⚠️ Lỗi tải model: ' + err.message);
             } finally {
                 btnFetchModels.disabled = false;
-                btnFetchModels.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Tải danh sách Model`;
+                btnFetchModels.innerHTML = `<img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tải danh sách Model`;
             }
         });
 
@@ -2527,7 +2527,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 const placeholder = `__LORE_LINK_${linkReplacements.length}__`;
                 linkReplacements.push({
                     placeholder,
-                    html: `<span class="smart-transit-link" title="Chuyển nhanh tới ${cleanName}" onclick="window._loreQuickJumpToLocation(event, '${otherLoc.id}')"><i class="fa-solid fa-link" style="font-size:0.85em;"></i> ${cleanName}</span>`
+                    html: `<span class="smart-transit-link" title="Chuyển nhanh tới ${cleanName}" onclick="window._loreQuickJumpToLocation(event, '${otherLoc.id}')"><img src="https://api.iconify.design/lucide:link.svg?color=%23cbd5e1" style="width:14px;height:14px;vertical-align:-3px;display:inline-block;" /> ${cleanName}</span>`
                 });
                 formatted = formatted.replace(reg, placeholder);
             }
@@ -2568,7 +2568,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (currentList.length === 0) {
             gridContainer.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px; color: #64748b; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px dashed rgba(255,255,255,0.12);">
-                    <i class="fa-solid fa-map-location-dot" style="font-size: 3.5em; color: #38bdf8; opacity: 0.5; margin-bottom: 12px;"></i>
+                    <img src="https://api.iconify.design/lucide:map.svg?color=%2338bdf8" style="width:64px;height:64px;opacity:0.5;margin-bottom:12px;display:inline-block;" />
                     <div style="font-size: 1.1em; font-weight: bold; color: #cbd5e1;">Lớp phân khu này hiện chưa có địa điểm nào</div>
                     <div style="font-size: 0.88em; margin-top: 6px;">Nhấp <b>Chuột Phải</b> vào lớp cha để dùng <b>[ ⚡ AI Khám Phá Sâu ]</b> hoặc bấm nút <b>[ Thêm Địa Điểm ]</b> ở trên!</div>
                 </div>
@@ -2703,7 +2703,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <div class="loc-desc-snippet">${loc.description || loc.atmosphere || 'Chưa có ghi chép chi tiết về bối cảnh hay không khí tại đây...'}</div>
                                 ${charPillsHTML ? `
                                     <div style="font-size: 0.77em; color: #7dd3fc; font-weight: 700; margin: 6px 0 2px 0; display: flex; align-items: center; gap: 5px;">
-                                        <i class="fa-solid fa-user-check"></i> Nhân vật hiện diện:
+                                        <img src="https://api.iconify.design/lucide:user-check.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật hiện diện:
                                     </div>
                                     <div class="loc-char-pills">${charPillsHTML}</div>
                                 ` : ''}
@@ -2714,11 +2714,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 ${subCount > 0 ? `
                                     <div class="loc-sub-folder-pill">
                                         <span><img src="https://api.iconify.design/lucide:folder-tree.svg?color=%2360a5fa" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${subCount}</b> tập con bên trong</span>
-                                        <i class="fa-solid fa-chevron-right" style="opacity: 0.7;"></i>
+                                        <img src="https://api.iconify.design/lucide:chevron-right.svg?color=%2394a3b8" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;" />
                                     </div>
                                 ` : ''}
                                 <div class="loc-transit-box">
-                                    <div class="loc-transit-header"><i class="fa-solid fa-route"></i> Cổng & Lối Nối:</div>
+                                    <div class="loc-transit-header"><img src="https://api.iconify.design/lucide:route.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cổng & Lối Nối:</div>
                                     <div>${formatSmartTransit(loc.connections, currentList, loc.id)}</div>
                                 </div>
                             </div>
@@ -2728,7 +2728,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     if (window._loreAddMode) {
                         html += `
                             <div class="location-button empty-location add-mode-cell" onclick="window._loreOpenCreateModal(${r}, ${c})" title="Click để tạo địa điểm tại tọa độ (${r}, ${c})">
-                                <i class="fas fa-plus" style="color: #38bdf8; font-size: 28px; margin-bottom: 8px;"></i>
+                                <img src="https://api.iconify.design/lucide:plus.svg?color=%2338bdf8" style="width:28px;height:28px;margin-bottom:8px;display:inline-block;" />
                                 <span style="font-size: 1em; font-weight: bold; color: #38bdf8;">Tạo tại đây</span>
                                 <span style="font-size: 0.8em; color: #7dd3fc; margin-top: 4px; opacity: 0.8;">Tọa độ (${r}, ${c})</span>
                             </div>
@@ -2945,9 +2945,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const btnEnterSub = doc.getElementById('det_btn_enter_sub');
         btnEnterSub.style.display = 'inline-flex';
         if (Array.isArray(found.subLocations) && found.subLocations.length > 0) {
-            btnEnterSub.innerHTML = `<i class="fa-solid fa-door-open"></i> Vào Tập Con (${found.subLocations.length})`;
+            btnEnterSub.innerHTML = `<img src="https://api.iconify.design/lucide:door-open.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con (${found.subLocations.length})`;
         } else {
-            btnEnterSub.innerHTML = `<i class="fa-solid fa-folder-plus"></i> Vào Tập Con (Tạo mới)`;
+            btnEnterSub.innerHTML = `<img src="https://api.iconify.design/lucide:folder-plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con (Tạo mới)`;
         }
 
         detModal.style.display = 'flex';
@@ -3046,7 +3046,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 opacity: 0;
                 animation: lore-globe-pulse 1.5s infinite;
             `;
-            globalLoadingIcon.innerHTML = '<i class="fa-solid fa-globe fa-spin"></i>';
+            globalLoadingIcon.innerHTML = '<img src="https://api.iconify.design/lucide:globe.svg?color=%2338bdf8" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />';
             if (!doc.getElementById('lore_globe_pulse_style')) {
                 const style = doc.createElement('style');
                 style.id = 'lore_globe_pulse_style';
@@ -3078,7 +3078,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const btnDrill = doc.getElementById('det_btn_ai_drill');
         if (btnDrill) {
             btnDrill.disabled = true;
-            btnDrill.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> AI đang suy luận & tạo tầng sâu bên trong "${targetLoc.name}"...`;
+            btnDrill.innerHTML = `<img src="https://api.iconify.design/lucide:loader-2.svg?color=%23cbd5e1" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI đang suy luận & tạo tầng sâu bên trong "${targetLoc.name}"...`;
         }
 
         try {
@@ -3166,7 +3166,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             hideGlobalLoadingIcon();
             if (btnDrill) {
                 btnDrill.disabled = false;
-                btnDrill.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> AI Khám Phá Sâu`;
+                btnDrill.innerHTML = `<img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Khám Phá Sâu`;
             }
         }
     }
@@ -3182,7 +3182,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (btnScan) {
             btnScan.disabled = true;
             btnScan.classList.add('lore-ai-loading');
-            btnScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang đọc chat & dựng lưới bản đồ...`;
+            btnScan.innerHTML = `<img src="https://api.iconify.design/lucide:loader-2.svg?color=%23cbd5e1" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang đọc chat & dựng lưới bản đồ...`;
         }
 
         try {
@@ -3269,7 +3269,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (btnScan) {
                 btnScan.disabled = false;
                 btnScan.classList.remove('lore-ai-loading');
-                btnScan.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> AI Quét & Xây Map`;
+                btnScan.innerHTML = `<img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Quét & Xây Map`;
             }
         }
     }
