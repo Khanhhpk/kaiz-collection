@@ -1746,8 +1746,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
             
             let html = `
-                <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 100000000; display:flex; overflow-y:auto; padding: 40px 16px; box-sizing: border-box; backdrop-filter: blur(4px);">
-                    <div style="background: #1e293b; width: 500px; max-width: 100%; margin: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+                <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); z-index: 100000000; display:flex; align-items: flex-start; justify-content: center; overflow-y:auto; padding: 40px 0; box-sizing: border-box; backdrop-filter: blur(8px);">
+                    <div style="background: #0f172a; width: 500px; max-width: 90%; margin: 0 auto; flex-shrink: 0; border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); display: flex; flex-direction: column; box-shadow: 0 25px 65px rgba(0,0,0,0.95);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
                             <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><i class="fa-solid fa-plus-square" style="color: #38bdf8; margin-right: 8px;"></i>Tạo Địa Điểm Mới</div>
                             <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><i class="fa-solid fa-xmark"></i></button>
