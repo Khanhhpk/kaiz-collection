@@ -649,6 +649,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         .lore-drag-mode-cell {
             border: 2px dashed rgba(255, 255, 255, 0.2) !important;
             background: rgba(255, 255, 255, 0.05) !important;
+            pointer-events: auto !important;
         }
         .lore-drag-mode-cell:hover {
             border-color: rgba(56, 189, 248, 0.5) !important;
