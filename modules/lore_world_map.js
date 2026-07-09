@@ -1639,6 +1639,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 </select>
                             </div>
                         </div>
+                        <div style="margin-top: 6px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="cfg_enhanced_n_layer" style="width: 18px; height: 18px; accent-color: #38bdf8;" title="Dành cho các LLM lớn (như GPT-4o, Claude 3.5 Sonnet) với số token output cực khủng. Mở khóa tạo bản đồ sâu N-lớp ngay từ vòng quét đầu.">
+                                <span style="font-size: 0.9em; font-weight: bold; color: #7dd3fc;">🚀 Chế độ Tăng cường N-Lớp (Dành cho model mạnh)</span>
+                            </label>
+                            <div style="font-size: 0.75em; color: #94a3b8; margin-top: 4px; margin-left: 26px;">Khi bật, nút 'AI Quét Map' sẽ yêu cầu AI tự do chèn "subLocations" thành nhiều tầng (Lớp 1 -> Lớp 2 -> Lớp 3...). Không giới hạn độ sâu.</div>
+                        </div>
                     </div>
 
                     <!-- TAB 2: PROMPT WORLD SCAN EDITOR -->
@@ -1929,6 +1936,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             overlay.querySelector('#cfg_model').value = aiConfig.customModel || 'gpt-4o-mini';
             overlay.querySelector('#cfg_history_count').value = String(aiConfig.historyCount || 30);
             overlay.querySelector('#cfg_history_max_chars').value = String(aiConfig.historyMaxChars !== undefined ? aiConfig.historyMaxChars : 65000);
+            overlay.querySelector('#cfg_enhanced_n_layer').checked = aiConfig.enhancedNLayerMode || false;
 
             overlay.querySelector('#cfg_prompt_world_scan').value = aiConfig.customPromptWorldScan || DEFAULT_WORLD_SCAN_PROMPT;
             overlay.querySelector('#cfg_prompt_deep_drill').value = aiConfig.customPromptDeepDrill || DEFAULT_DEEP_DRILL_PROMPT;
@@ -2038,6 +2046,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             aiConfig.customModel = overlay.querySelector('#cfg_model').value.trim();
             aiConfig.historyCount = parseInt(overlay.querySelector('#cfg_history_count').value, 10) || 30;
             aiConfig.historyMaxChars = parseInt(overlay.querySelector('#cfg_history_max_chars').value, 10) || 0;
+            aiConfig.enhancedNLayerMode = overlay.querySelector('#cfg_enhanced_n_layer').checked;
             aiConfig.customPromptWorldScan = overlay.querySelector('#cfg_prompt_world_scan').value.trim() || DEFAULT_WORLD_SCAN_PROMPT;
             aiConfig.customPromptDeepDrill = overlay.querySelector('#cfg_prompt_deep_drill').value.trim() || DEFAULT_DEEP_DRILL_PROMPT;
 
@@ -2882,6 +2891,59 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         return null;
     }
 
+    function mergeLocationRecursive(sourceItem, targetArray, isRoot) {
+        if (!sourceItem || !sourceItem.name) return 0;
+        
+        let node = null;
+        if (sourceItem.id) node = targetArray.find(s => s.id === sourceItem.id);
+        if (!node) node = targetArray.find(s => s.name.toLowerCase() === sourceItem.name.trim().toLowerCase());
+        
+        let count = 0;
+        if (!node) {
+            node = {
+                id: sourceItem.id || ((isRoot ? 'loc_' : 'sub_') + Math.random().toString(36).substr(2, 7)),
+                name: sourceItem.name.trim(),
+                icon: sourceItem.icon ? sourceItem.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(sourceItem.category || (isRoot ? 'major_hub' : 'sub_location'), sourceItem.name, sourceItem.context_type),
+                category: sourceItem.category || (isRoot ? 'major_hub' : 'sub_location'),
+                tags: Array.isArray(sourceItem.tags) ? sourceItem.tags : (typeof sourceItem.tags === 'string' ? sourceItem.tags.split(',').map(t=>t.trim()) : []),
+                context_type: sourceItem.context_type || (isRoot ? 'Khu vực lớn' : 'Phòng / Phân khu'),
+                grid_hint: sourceItem.grid_hint || '',
+                danger_level: sourceItem.danger_level || 'An toàn',
+                controlled_by: sourceItem.controlled_by || 'Chung',
+                status: sourceItem.status || (isRoot ? 'Tự do' : 'Khóa riêng tư'),
+                description: sourceItem.description || '',
+                characters: Array.isArray(sourceItem.characters) ? sourceItem.characters : [],
+                atmosphere: sourceItem.atmosphere || 'Bầu không khí bình thường.',
+                secrets: sourceItem.secrets || 'Chưa phát hiện bí mật nào.',
+                connections: sourceItem.connections || 'Đường nối nội bộ.',
+                subLocations: []
+            };
+            targetArray.push(node);
+            count++;
+        } else {
+            if (sourceItem.icon) node.icon = sourceItem.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
+            if (sourceItem.category && sourceItem.category !== (isRoot ? 'major_hub' : 'sub_location')) {
+                node.category = sourceItem.category;
+                if (!node.icon || node.icon === 'fa-building') node.icon = getIconForCategory(sourceItem.category, node.name, node.context_type);
+            }
+            if (Array.isArray(sourceItem.tags)) node.tags = Array.from(new Set([...(node.tags||[]), ...sourceItem.tags]));
+            if (sourceItem.grid_hint) node.grid_hint = sourceItem.grid_hint;
+            if (sourceItem.description && node.description.length < sourceItem.description.length) node.description = sourceItem.description;
+            if (sourceItem.atmosphere) node.atmosphere = sourceItem.atmosphere;
+            if (sourceItem.secrets) node.secrets = sourceItem.secrets;
+            if (sourceItem.connections) node.connections = sourceItem.connections;
+            if (Array.isArray(sourceItem.characters)) node.characters = Array.from(new Set([...(node.characters||[]), ...sourceItem.characters]));
+        }
+        
+        if (Array.isArray(sourceItem.subLocations)) {
+            node.subLocations = node.subLocations || [];
+            sourceItem.subLocations.forEach(sub => {
+                count += mergeLocationRecursive(sub, node.subLocations, false);
+            });
+        }
+        return count;
+    }
+
     // AI Khám Phá Sâu & Dựng Phân Khu Con (Infinite Deep Drill Scan v8.3)
     async function triggerAiDeepDrillScan(targetLoc) {
         if (!targetLoc) return;
@@ -2909,6 +2971,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             if (aiConfig.trackDynamicInfo === false) {
                 prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới những gì đang xảy ra hiện tại. Hãy để trường "characters": [] ở tất cả các phân khu con!]`;
+            }
+
+            if (aiConfig.enhancedNLayerMode) {
+                prompt += `\n\n[CHÚ Ý ĐẶC BIỆT: CHẾ ĐỘ TĂNG CƯỜNG (ENHANCED N-LAYER MODE) ĐANG BẬT! Bạn có quyền phân tích ĐA TẦNG sâu vô hạn. Mảng "subLocations" bên trong 1 địa điểm hoàn toàn có thể tiếp tục chứa các "subLocations" khác lồng vào nhau. Hãy tạo ra JSON N-lớp bao quát TẤT CẢ các phân khu!]`;
             }
 
             let responseJson = null;
@@ -2961,47 +3027,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             targetLoc.subLocations = targetLoc.subLocations || [];
             let added = 0;
             responseJson.subLocations.forEach(sub => {
-                if (!sub || !sub.name) return;
-                
-                let exist = null;
-                if (sub.id) exist = targetLoc.subLocations.find(s => s.id === sub.id);
-                if (!exist) exist = targetLoc.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
-                
-                if (!exist) {
-                    targetLoc.subLocations.push({
-                        id: sub.id || ('sub_' + Math.random().toString(36).substr(2, 7)),
-                        name: sub.name.trim(),
-                        icon: sub.icon ? sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(sub.category || 'sub_location', sub.name, sub.context_type),
-                        category: sub.category || 'sub_location',
-                        tags: Array.isArray(sub.tags) ? sub.tags : (typeof sub.tags === 'string' ? sub.tags.split(',').map(t=>t.trim()) : []),
-                        context_type: sub.context_type || 'Phân khu tầng sâu',
-                        grid_hint: sub.grid_hint || '',
-                        danger_level: sub.danger_level || 'An toàn',
-                        controlled_by: sub.controlled_by || 'Chung',
-                        status: sub.status || 'Tự do',
-                        description: sub.description || '',
-                        characters: Array.isArray(sub.characters) ? sub.characters : [],
-                        atmosphere: sub.atmosphere || 'Không gian yên tĩnh.',
-                        secrets: sub.secrets || 'Chưa phát hiện bí mật nào.',
-
-                        connections: sub.connections || 'Lối đi nội bộ.',
-                        subLocations: []
-                    });
-                    added++;
-                } else {
-                    if (sub.icon) exist.icon = sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
-                    if (sub.category && sub.category !== 'sub_location') {
-                        exist.category = sub.category;
-                        if (!exist.icon || exist.icon === 'fa-building') exist.icon = getIconForCategory(sub.category, exist.name, exist.context_type);
-                    }
-                    if (Array.isArray(sub.tags)) exist.tags = Array.from(new Set([...(exist.tags||[]), ...sub.tags]));
-                    if (sub.grid_hint) exist.grid_hint = sub.grid_hint;
-                    if (sub.description && exist.description.length < sub.description.length) exist.description = sub.description;
-                    if (sub.atmosphere) exist.atmosphere = sub.atmosphere;
-                    if (sub.secrets) exist.secrets = sub.secrets;
-                    if (sub.connections) exist.connections = sub.connections;
-                    if (Array.isArray(sub.characters)) exist.characters = Array.from(new Set([...(exist.characters||[]), ...sub.characters]));
-                }
+                added += mergeLocationRecursive(sub, targetLoc.subLocations, false);
             });
 
             saveMapData();
@@ -3043,6 +3069,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             if (aiConfig.trackDynamicInfo === false) {
                 prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới những gì đang xảy ra hiện tại. Hãy để trường "characters": [] ở tất cả các khu vực và phân khu!]`;
+            }
+
+            if (aiConfig.enhancedNLayerMode) {
+                prompt += `\n\n[CHÚ Ý ĐẶC BIỆT: CHẾ ĐỘ TĂNG CƯỜNG (ENHANCED N-LAYER MODE) ĐANG BẬT! BẠN KHÔNG BỊ GIỚI HẠN Ở 2 LỚP! Bạn có quyền phân tích ĐA TẦNG sâu vô hạn. Mảng "subLocations" bên trong 1 địa điểm hoàn toàn có thể tiếp tục chứa các "subLocations" khác lồng vào nhau (VD: Thành Phố -> Tòa Nhà -> Căn Hộ -> Gian Phòng). Hãy tạo ra JSON N-lớp bao quát TẤT CẢ các ngóc ngách có trong ngữ cảnh chat!]`;
             }
 
             let responseJson = null;
@@ -3097,95 +3127,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             let addedCount = 0;
             responseJson.locations.forEach(item => {
-                if (!item || !item.name) return;
-                
-                let hub = null;
-                if (item.id) hub = findLocationById(mapData.locations, item.id);
-                if (!hub) hub = mapData.locations.find(l => l.name.toLowerCase() === item.name.trim().toLowerCase());
-                
-                if (!hub) {
-                    hub = {
-                        id: item.id || ('loc_' + Math.random().toString(36).substr(2, 7)),
-                        name: item.name.trim(),
-                        icon: item.icon ? item.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(item.category, item.name, item.context_type),
-                        category: item.category || 'major_hub',
-                        tags: Array.isArray(item.tags) ? item.tags : (typeof item.tags === 'string' ? item.tags.split(',').map(t=>t.trim()) : []),
-                        context_type: item.context_type || 'Khu vực lớn',
-                        grid_hint: item.grid_hint || '',
-                        danger_level: item.danger_level || 'An toàn',
-                        controlled_by: item.controlled_by || 'Chung',
-                        status: item.status || 'Tự do',
-                        description: item.description || '',
-                        characters: Array.isArray(item.characters) ? item.characters : [],
-                        atmosphere: item.atmosphere || 'Bầu không khí bình thường.',
-                        secrets: item.secrets || 'Chưa phát hiện bí mật nào.',
-
-                        connections: item.connections || 'Đường nối nội bộ và ngoại vi.',
-                        subLocations: []
-                    };
-                    mapData.locations.push(hub);
-                    addedCount++;
-                } else {
-                    if (item.icon) hub.icon = item.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
-                    if (item.category && item.category !== 'major_hub') {
-                        hub.category = item.category;
-                        if (!hub.icon || hub.icon === 'fa-building') hub.icon = getIconForCategory(item.category, hub.name, hub.context_type);
-                    }
-                    if (Array.isArray(item.tags)) hub.tags = Array.from(new Set([...(hub.tags||[]), ...item.tags]));
-                    if (item.grid_hint) hub.grid_hint = item.grid_hint;
-                    if (item.description && hub.description.length < item.description.length) hub.description = item.description;
-                    if (item.atmosphere) hub.atmosphere = item.atmosphere;
-                    if (item.secrets) hub.secrets = item.secrets;
-
-                    if (item.connections) hub.connections = item.connections;
-                    if (Array.isArray(item.characters)) hub.characters = Array.from(new Set([...(hub.characters||[]), ...item.characters]));
-                }
-
-                if (Array.isArray(item.subLocations)) {
-                    item.subLocations.forEach(sub => {
-                        if (!sub || !sub.name) return;
-                        hub.subLocations = hub.subLocations || [];
-                        
-                        let existSub = null;
-                        if (sub.id) existSub = hub.subLocations.find(s => s.id === sub.id);
-                        if (!existSub) existSub = hub.subLocations.find(s => s.name.toLowerCase() === sub.name.trim().toLowerCase());
-                        
-                        if (!existSub) {
-                            hub.subLocations.push({
-                                id: sub.id || ('sub_' + Math.random().toString(36).substr(2, 7)),
-                                name: sub.name.trim(),
-                                icon: sub.icon ? sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(sub.category || 'sub_location', sub.name, sub.context_type),
-                                category: sub.category || 'sub_location',
-                                tags: Array.isArray(sub.tags) ? sub.tags : (typeof sub.tags === 'string' ? sub.tags.split(',').map(t=>t.trim()) : []),
-                                context_type: sub.context_type || 'Phòng / Phân khu',
-                                grid_hint: sub.grid_hint || '',
-                                danger_level: sub.danger_level || 'An toàn',
-                                controlled_by: sub.controlled_by || 'Chung',
-                                status: sub.status || 'Khóa riêng tư',
-                                description: sub.description || '',
-                                characters: Array.isArray(sub.characters) ? sub.characters : [],
-                                atmosphere: sub.atmosphere || 'Môi trường bình thường.',
-                                secrets: sub.secrets || 'Chưa có bí mật nào.',
-
-                                connections: sub.connections || 'Cửa nối nội bộ ra khu chính.'
-                            });
-                            addedCount++;
-                        } else {
-                            if (sub.icon) existSub.icon = sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim();
-                            if (sub.category && sub.category !== 'sub_location') {
-                                existSub.category = sub.category;
-                                if (!existSub.icon || existSub.icon === 'fa-building') existSub.icon = getIconForCategory(sub.category, existSub.name, existSub.context_type);
-                            }
-                            if (Array.isArray(sub.tags)) existSub.tags = Array.from(new Set([...(existSub.tags||[]), ...sub.tags]));
-                            if (sub.grid_hint) existSub.grid_hint = sub.grid_hint;
-                            if (sub.description && existSub.description.length < sub.description.length) existSub.description = sub.description;
-                            if (sub.atmosphere) existSub.atmosphere = sub.atmosphere;
-                            if (sub.secrets) existSub.secrets = sub.secrets;
-                            if (sub.connections) existSub.connections = sub.connections;
-                            if (Array.isArray(sub.characters)) existSub.characters = Array.from(new Set([...(existSub.characters||[]), ...sub.characters]));
-                        }
-                    });
-                }
+                addedCount += mergeLocationRecursive(item, mapData.locations, true);
             });
 
             saveMapData();
