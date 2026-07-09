@@ -818,6 +818,28 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 border-color: #38bdf8;
                 box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25);
             }
+            /* DEDICATED FLOATING 2D ZOOM & PAN TOOLBAR */
+            .lore-zoom-pan-bar {
+                position: absolute;
+                bottom: 24px;
+                right: 28px;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(15, 23, 42, 0.94);
+                border: 1px solid rgba(56, 189, 248, 0.45);
+                border-radius: 28px;
+                padding: 6px 14px;
+                box-shadow: 0 10px 32px rgba(0, 0, 0, 0.85), 0 0 15px rgba(56, 189, 248, 0.18);
+                backdrop-filter: blur(12px);
+                user-select: none;
+                transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .lore-zoom-pan-bar:hover {
+                border-color: #38bdf8;
+                box-shadow: 0 12px 36px rgba(0, 0, 0, 0.9), 0 0 22px rgba(56, 189, 248, 0.3);
+            }
             #lore_app_viewport * {
                 user-select: none !important;
                 -webkit-user-drag: none !important;
@@ -1019,7 +1041,16 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         loreGraphZoomLevel = Math.max(0.4, Math.min(2.2, Number((loreGraphZoomLevel + delta).toFixed(2))));
         const grid = doc.getElementById('lore_grid_container');
         const label = doc.getElementById('lore_graph_zoom_label');
-        if (grid) grid.style.transform = `scale(${loreGraphZoomLevel})`;
+        if (grid) {
+            // Sử dụng zoom thay cho scale để trình duyệt tự căn lại chính xác kích thước scrollWidth/scrollHeight không bị rìa vô hình chặn cắt
+            if ('zoom' in grid.style) {
+                grid.style.zoom = loreGraphZoomLevel;
+                grid.style.transform = 'none';
+            } else {
+                grid.style.transform = `scale(${loreGraphZoomLevel})`;
+                grid.style.transformOrigin = 'top left';
+            }
+        }
         if (label) label.innerText = `${Math.round(loreGraphZoomLevel * 100)}%`;
     };
 
@@ -1027,7 +1058,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         loreGraphZoomLevel = 1.0;
         const grid = doc.getElementById('lore_grid_container');
         const label = doc.getElementById('lore_graph_zoom_label');
-        if (grid) grid.style.transform = `scale(1.0)`;
+        if (grid) {
+            if ('zoom' in grid.style) grid.style.zoom = '1';
+            grid.style.transform = 'none';
+        }
         if (label) label.innerText = `100%`;
     };
 
@@ -1037,6 +1071,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const viewport = doc.getElementById('lore_app_viewport');
         if (btn) btn.classList.toggle('active', loreGraphDragEnabled);
         if (viewport) viewport.style.cursor = loreGraphDragEnabled ? 'grab' : 'default';
+    };
+
+    window._loreToggleDynamicTracking = function() {
+        loadAiConfig();
+        aiConfig.trackDynamicInfo = !aiConfig.trackDynamicInfo;
+        saveAiConfig();
+        updateUI();
+        renderAppGrid();
     };
 
     let loreDidPanDuringDrag = false;
@@ -1052,7 +1094,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         viewport.addEventListener('mousedown', (e) => {
             if (!loreGraphDragEnabled || e.button !== 0) return;
             // Cho phép kéo thả trực tiếp trên cả nút địa điểm (.location-button), chỉ loại bỏ các thành phần nhập liệu hoặc nút bấm riêng lẻ
-            if (e.target.closest('button, input, textarea, select, a, .smart-transit-link, #lore_location_detail_box, .lore-graph-controls')) return;
+            if (e.target.closest('button, input, textarea, select, a, .smart-transit-link, #lore_location_detail_box, .lore-graph-controls, .lore-zoom-pan-bar')) return;
             loreIsDraggingGraph = true;
             loreDidPanDuringDrag = false;
             loreDragStartX = e.clientX;
@@ -1153,8 +1195,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         </div>
                     </div>
 
-                    <!-- Top Navigation and Graph Controls Bar -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; width: 100%;">
+                    <!-- Top Navigation and Dynamic Action Bar -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%;">
                         <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px;">
                             <!-- Dynamic Infinite Breadcrumb Bar -->
                             <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none; margin: 0;">
@@ -1165,19 +1207,24 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <div id="lore_smart_roadmap_bar" style="display: none; margin: 0;"></div>
                         </div>
 
-                        <!-- Thanh điều khiển Graph 2D Zoom / Pan gộp gọn gàng trên góc phải -->
+                        <!-- Nút Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện...) -->
                         <div class="lore-graph-controls" style="position: static; margin-left: auto;">
-                            <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to (Zoom In)"><i class="fa-solid fa-plus"></i></button>
-                            <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
-                            <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
-                            <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
-                            <button class="lore-graph-btn active" id="lore_btn_track_dynamic" onclick="window._loreToggleDynamicTracking()" title="Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện đang diễn ra...). Khi TẮT, AI và bản đồ chỉ tập trung vào thông tin địa lý, kiến trúc khách quan và liên kết giao thông chuẩn."><i class="fa-solid fa-bolt-lightning"></i> <span id="lore_label_track_dynamic">Thông tin động: BẬT</span></button>
+                            <button class="lore-graph-btn active" id="lore_btn_track_dynamic" onclick="window._loreToggleDynamicTracking()" style="padding: 6px 14px; font-size: 0.88em; border-radius: 20px;" title="Bật/Tắt chế độ theo dõi thông tin động (Nhân vật hiện diện, Sự kiện đang diễn ra...). Khi TẮT, AI và bản đồ chỉ tập trung vào thông tin địa lý, kiến trúc khách quan và liên kết giao thông chuẩn."><i class="fa-solid fa-bolt-lightning"></i> <span id="lore_label_track_dynamic">Thông tin động: BẬT</span></button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Viewport (Chỉ chứa lưới đồ thị 2D) -->
                 <div id="lore_app_viewport">
+                    <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) -->
+                    <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
+                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><i class="fa-solid fa-plus"></i></button>
+                        <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
+                        <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
+                        <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.18); margin: 0 3px;"></div>
+                        <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
+                    </div>
+
                     <!-- Lưới Địa Điểm & Đường Đi -->
                     <div id="lore_grid_container" class="lore-grid-container">
                         <!-- Nạp động -->
@@ -1760,8 +1807,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             selectedDetailLocation.danger_level = detBox.querySelector('#edit_det_danger')?.value?.trim() || 'An toàn';
             selectedDetailLocation.status = detBox.querySelector('#edit_det_status')?.value?.trim() || 'Tự do';
 
-            const charsRaw = detBox.querySelector('#edit_det_characters')?.value?.trim() || '';
-            selectedDetailLocation.characters = charsRaw ? charsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
+            if (aiConfig.trackDynamicInfo !== false) {
+                const charsRaw = detBox.querySelector('#edit_det_characters')?.value?.trim() || '';
+                selectedDetailLocation.characters = charsRaw ? charsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
+            }
 
             const controlledRaw = detBox.querySelector('#edit_det_controlled_by')?.value?.trim() || '';
             selectedDetailLocation.controlled_by = controlledRaw || 'Chung';
@@ -1770,7 +1819,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             selectedDetailLocation.connections = detBox.querySelector('#edit_det_connections')?.value?.trim() || '';
             selectedDetailLocation.atmosphere = detBox.querySelector('#edit_det_atmosphere')?.value?.trim() || '';
             selectedDetailLocation.secrets = detBox.querySelector('#edit_det_secrets')?.value?.trim() || '';
-            selectedDetailLocation.events = detBox.querySelector('#edit_det_events')?.value?.trim() || '';
+            if (aiConfig.trackDynamicInfo !== false) {
+                selectedDetailLocation.events = detBox.querySelector('#edit_det_events')?.value?.trim() || '';
+            }
 
             saveMapData();
             if (typeof window._loreToggleDetailEditMode === 'function') window._loreToggleDetailEditMode(false);
@@ -1932,16 +1983,51 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         breadcrumb.style.display = 'flex';
         let html = `<span class="lore-breadcrumb-item" onclick="window._loreNavJump(-1)">🌍 Thế Giới / Lớp Gốc</span>`;
         
-        navStack.forEach((loc, idx) => {
+        navStack.forEach((item, idx) => {
             html += `<span style="color: #64748b; font-weight: bold;">/</span>`;
             if (idx === navStack.length - 1) {
-                html += `<span class="lore-breadcrumb-item active">📍 ${loc.name}</span>`;
+                html += `<span class="lore-breadcrumb-item active">📍 ${item.name}</span>`;
             } else {
-                html += `<span class="lore-breadcrumb-item" onclick="window._loreNavJump(${idx})">${loc.name}</span>`;
+                html += `<span class="lore-breadcrumb-item" onclick="window._loreNavJump(${idx})">${item.name}</span>`;
             }
         });
 
         pathList.innerHTML = html;
+    }
+
+    function getAggregatedCharactersInfo(loc) {
+        if (!loc) return [];
+        let mapByChar = new Map();
+
+        if (Array.isArray(loc.characters)) {
+            loc.characters.forEach(c => {
+                if (c && typeof c === 'string' && c.trim()) {
+                    const name = c.trim();
+                    mapByChar.set(name.toLowerCase(), { charName: name, locationName: loc.name || 'Trực tiếp tại đây', isDirect: true });
+                }
+            });
+        }
+
+        function traverse(subList, parentName) {
+            if (!Array.isArray(subList)) return;
+            subList.forEach(sub => {
+                if (!sub) return;
+                if (Array.isArray(sub.characters)) {
+                    sub.characters.forEach(c => {
+                        if (c && typeof c === 'string' && c.trim()) {
+                            const name = c.trim();
+                            mapByChar.set(name.toLowerCase(), { charName: name, locationName: sub.name || parentName, isDirect: false });
+                        }
+                    });
+                }
+                if (Array.isArray(sub.subLocations) && sub.subLocations.length > 0) {
+                    traverse(sub.subLocations, sub.name);
+                }
+            });
+        }
+        traverse(loc.subLocations, loc.name);
+
+        return Array.from(mapByChar.values());
     }
 
     window._loreNavJump = function (stackIdx) {
@@ -2114,22 +2200,23 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     if (isHub) btnClass += ' hub-button';
 
                     const subCount = Array.isArray(loc.subLocations) ? loc.subLocations.length : 0;
-                    const presentChars = (aiConfig.trackDynamicInfo === false) ? [] : (Array.isArray(loc.characters) ? loc.characters.filter(Boolean) : (typeof loc.characters === 'string' && loc.characters ? loc.characters.split(',').map(c=>c.trim()).filter(Boolean) : []));
+                    const presentCharsList = (aiConfig.trackDynamicInfo === false) ? [] : getAggregatedCharactersInfo(loc);
                     
-                    const charPillsHTML = presentChars.slice(0, 4).map(charName => {
-                        const avatarData = getCharacterAvatar(charName);
+                    const charPillsHTML = presentCharsList.slice(0, 5).map(item => {
+                        const avatarData = getCharacterAvatar(item.charName);
                         let inner = '';
                         if (typeof avatarData === 'string' && avatarData) {
-                            inner = `<img src="${avatarData}" alt="${charName}" onerror="this.style.display='none'; this.parentNode.innerHTML='${charName.substring(0,2).toUpperCase()}'">`;
+                            inner = `<img src="${avatarData}" alt="${item.charName}" onerror="this.style.display='none'; this.parentNode.innerHTML='${item.charName.substring(0,2).toUpperCase()}'">`;
                         } else if (typeof avatarData === 'object') {
                             inner = `<span style="background:${avatarData.bg}; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">${avatarData.text}</span>`;
                         } else {
-                            inner = `<span>${charName.substring(0,2).toUpperCase()}</span>`;
+                            inner = `<span>${item.charName.substring(0,2).toUpperCase()}</span>`;
                         }
+                        const locSubTag = item.isDirect ? '' : ` <span style="color:#7dd3fc; font-size:0.84em; font-weight:normal; margin-left:3px;">➔ [${item.locationName}]</span>`;
                         return `
-                            <div class="loc-char-pill" title="Nhân vật hiện diện tại đây: ${charName} (Nhấp để mở Deep Info)" onclick="event.stopPropagation(); window._loreShowDetail('${loc.id}')">
+                            <div class="loc-char-pill" title="Nhân vật hiện diện: ${item.charName} ${item.isDirect ? `(Trực tiếp tại ${loc.name})` : `(Đang ở bên trong ${item.locationName})`} - Nhấp để mở Deep Info" onclick="event.stopPropagation(); window._loreShowDetail('${loc.id}')">
                                 <div class="loc-char-avatar">${inner}</div>
-                                <span>${charName}</span>
+                                <span>${item.charName}${locSubTag}</span>
                             </div>
                         `;
                     }).join('');
@@ -2327,6 +2414,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'none'; });
             [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'block'; });
+            if (aiConfig.trackDynamicInfo === false) {
+                if (elCharsInput && elCharsInput.parentElement) elCharsInput.parentElement.style.display = 'none';
+                if (elEveInput && elEveInput.parentElement) elEveInput.parentElement.style.display = 'none';
+            } else {
+                if (elCharsInput && elCharsInput.parentElement) elCharsInput.parentElement.style.display = 'block';
+                if (elEveInput && elEveInput.parentElement) elEveInput.parentElement.style.display = 'block';
+            }
 
             if (elViewActions) elViewActions.style.display = 'none';
             if (elEditActions) elEditActions.style.display = 'flex';
@@ -2338,6 +2432,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'block'; });
             [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'none'; });
+            if (aiConfig.trackDynamicInfo === false) {
+                if (elCharsDiv && elCharsDiv.parentElement) elCharsDiv.parentElement.style.display = 'none';
+                if (elEveDiv && elEveDiv.parentElement) elEveDiv.parentElement.style.display = 'none';
+            } else {
+                if (elCharsDiv && elCharsDiv.parentElement) elCharsDiv.parentElement.style.display = 'block';
+                if (elEveDiv && elEveDiv.parentElement) elEveDiv.parentElement.style.display = 'block';
+            }
 
             if (elViewActions) elViewActions.style.display = 'flex';
             if (elEditActions) elEditActions.style.display = 'none';
@@ -2453,13 +2554,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         try {
             const histObj = extractFullHistoryText(aiConfig.historyCount, aiConfig.historyMaxChars);
             let template = aiConfig.customPromptDeepDrill || DEFAULT_DEEP_DRILL_PROMPT;
-            const prompt = template
+            let prompt = template
                 .replace('{{history}}', histObj.text)
                 .replace('{{target_name}}', targetLoc.name || '')
                 .replace('{{target_type}}', targetLoc.context_type || '')
                 .replace('{{target_desc}}', targetLoc.description || '')
                 .replace('{{target_atmo}}', targetLoc.atmosphere || '')
                 .replace('{{target_secrets}}', targetLoc.secrets || '');
+
+            if (aiConfig.trackDynamicInfo === false) {
+                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới sự kiện hay những gì đang xảy ra hiện tại. Hãy để trường "events": "" và "characters": [] ở tất cả các phân khu con!]`;
+            }
 
             let responseJson = null;
             if (aiConfig.source === 'custom' && aiConfig.customUrl) {
@@ -2569,9 +2674,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
             const existingStr = mapData.locations.map(l => `- ${l.name} (${l.context_type}): [${(l.subLocations||[]).map(s=>s.name).join(', ')}]`).join('\n');
             let template = aiConfig.customPromptWorldScan || DEFAULT_WORLD_SCAN_PROMPT;
-            const prompt = template
+            let prompt = template
                 .replace('{{history}}', histObj.text)
                 .replace('{{existing_map}}', existingStr || '(Chưa có)');
+
+            if (aiConfig.trackDynamicInfo === false) {
+                prompt += `\n\n[CHÚ Ý QUAN TRỌNG: Chế độ theo dõi thông tin động hiện ĐANG TẮT. BẠN CHỈ TẬP TRUNG HOÀN TOÀN VÀO BẢN ĐỒ MANG TÍNH KHÁCH QUAN, CHI TIẾT MANG TÍNH ĐỊA ĐIỂM VÀ LIÊN KẾT GIAO THÔNG NHẤT CÓ THỂ. KHÔNG liên quan tới sự kiện hay những gì đang xảy ra hiện tại. Hãy để trường "events": "" và "characters": [] ở tất cả các khu vực và phân khu!]`;
+            }
 
             let responseJson = null;
 
