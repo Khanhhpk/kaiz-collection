@@ -2966,14 +2966,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     }
 
     function mergeLocationRecursive(sourceItem, targetArray, isRoot) {
-        if (!sourceItem || !sourceItem.name) return 0;
+        if (!sourceItem) return 0;
         
         let node = null;
         if (sourceItem.id) node = targetArray.find(s => s.id === sourceItem.id);
-        if (!node) node = targetArray.find(s => s.name.toLowerCase() === sourceItem.name.trim().toLowerCase());
+        if (!node && sourceItem.name) node = targetArray.find(s => s.name && s.name.toLowerCase() === sourceItem.name.trim().toLowerCase());
         
         let count = 0;
         if (!node) {
+            if (!sourceItem.name) return 0;
             node = {
                 id: sourceItem.id || ((isRoot ? 'loc_' : 'sub_') + Math.random().toString(36).substr(2, 7)),
                 name: sourceItem.name.trim(),
