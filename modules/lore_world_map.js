@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.3.0.17
+ * - Phiên bản: v1.3.0.18
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.3.0.17)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.3.0.18)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -2375,9 +2375,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 }
 
                 // Horizontal smart bridge between columns
-                if (!window._loreHideRoads && c < COLS - 1 && currentList[idx] && currentList[idx + 1]) {
+                if (!window._loreHideRoads && c < COLS - 1 && grid2D[r][c] && grid2D[r][c + 1]) {
                     html += `
-                        <div class="smart-road-h-cell" title="Cổng nối ngang thông trực tiếp giữa ${currentList[idx].name} và ${currentList[idx+1].name}">
+                        <div class="smart-road-h-cell" title="Cổng nối ngang thông trực tiếp giữa ${grid2D[r][c].name} và ${grid2D[r][c + 1].name}">
                             <div class="smart-road-h-badge">
                                 <i class="fa-solid fa-right-left"></i>
                             </div>
@@ -2388,17 +2388,21 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             html += `</div>`;
 
             // Vertical smart bridge between rows
-            if (!window._loreHideRoads && r < rowsCount - 1 && (r * COLS + COLS < currentList.length + 1)) {
-                html += `
-                    <div class="smart-road-v">
-                        <div class="road-line"></div>
-                        <div class="road-pill">
-                            <i class="fa-solid fa-route" style="color: #38bdf8;"></i>
-                            <span>${getSmartInterRowText(currentList, r, COLS, currentParent)}</span>
+            if (!window._loreHideRoads && r < rowsCount - 1) {
+                // Kiểm tra xem hàng tiếp theo có nội dung gì không
+                const hasNextRowContent = grid2D[r + 1] && grid2D[r + 1].some(item => item !== null) || (r === rowsCount - 2 && !addBtnPlaced);
+                if (hasNextRowContent || addBtnPlaced) {
+                    html += `
+                        <div class="smart-road-v">
+                            <div class="road-line"></div>
+                            <div class="road-pill">
+                                <i class="fa-solid fa-route" style="color: #38bdf8;"></i>
+                                <span>${getSmartInterRowText(currentList, r, COLS, currentParent)}</span>
+                            </div>
+                            <div class="road-line"></div>
                         </div>
-                        <div class="road-line"></div>
-                    </div>
-                `;
+                    `;
+                }
             } else if (r < rowsCount - 1) {
                 html += `<div class="lore-zone-divider"><span style="background: rgba(255,255,255,0.04); padding: 4px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">--- Hết Phân Khu ---</span></div>`;
             }
