@@ -654,10 +654,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             border-color: rgba(56, 189, 248, 0.5) !important;
             background: rgba(56, 189, 248, 0.1) !important;
         }
-        .location-button[draggable="true"]:active {
+        .location-button.lore-drag-active {
             cursor: grabbing !important;
-            opacity: 0.8;
+            opacity: 0.5 !important;
             transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
         }
 \n        .location-button.empty-location {
                 background: rgba(15, 23, 42, 0.2);
@@ -2870,11 +2871,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         // Prevent default to stop native selections
         e.preventDefault();
+        e.stopPropagation();
+        
+        targetElement.classList.add('lore-drag-active');
         
         // Disable pointer events on the overlay so we don't accidentally hover things while dragging
         const overlay = document.getElementById('lore_world_map_overlay');
         
         customDragClone = targetElement.cloneNode(true);
+        customDragClone.classList.remove('lore-drag-active');
         customDragClone.style.position = 'fixed';
         customDragClone.style.pointerEvents = 'none';
         customDragClone.style.zIndex = '9999999';
@@ -2887,7 +2892,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         customDragClone.style.width = rect.width + 'px';
         customDragClone.style.height = rect.height + 'px';
         
-        document.body.appendChild(customDragClone);
+        overlay.appendChild(customDragClone);
         
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
@@ -2906,6 +2911,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const onMouseUp = (upEvent) => {
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
+            
+            if (targetElement) {
+                targetElement.classList.remove('lore-drag-active');
+            }
             
             if (customDragClone) {
                 customDragClone.remove();
