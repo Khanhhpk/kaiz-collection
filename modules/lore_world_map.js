@@ -56,10 +56,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do", "Nhãn 3"],
       "context_type": "Mô tả loại hình không gian cụ thể",
       "danger_level": "Mức độ an toàn/nguy hiểm tự đánh giá theo bối cảnh",
-      "controlled_by": "Tên nhân vật hoặc thế lực quản lý/kiểm soát nơi này",
+      "controlled_by": "Tên nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này (người sở hữu/cai quản)",
       "status": "Trạng thái truy cập hiện tại",
       "description": "Mô tả tổng quan kiến trúc, vai trò lịch sử và vị trí địa lý của khu vực",
-      "characters": ["Tên nhân vật A đang ở đây", "Tên nhân vật B"],
+      "characters": ["Tên nhân vật A đang đứng/hiện diện tại đây", "Tên nhân vật B"],
       "atmosphere": "Môi trường, thời tiết, âm thanh, ánh sáng và cảm giác tại khu vực",
       "secrets": "Vật phẩm đặc biệt, bảo vật hoặc bí mật giấu kín tại đây",
       "events": "Sự kiện hoặc biến cố đang diễn ra",
@@ -74,7 +74,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
           "controlled_by": "Tên nhân vật chủ phòng/quản lý",
           "status": "Khóa riêng tư / Tự do...",
           "description": "Mô tả chi tiết bố trí nội thất và công dụng của phòng/phân khu này",
-          "characters": ["Tên nhân vật đang có mặt trong phòng"],
+          "characters": ["Tên nhân vật đang có mặt/hiện diện trong phòng lúc này"],
           "atmosphere": "Môi trường, ánh sáng dịu nhẹ, mùi hương trong phòng...",
           "secrets": "Cuốn nhật ký dưới gối, chìa khóa két sắt giấu sau bức tranh...",
           "events": "Nhân vật đang làm gì hoặc chuyện gì vừa xảy ra trong phòng",
@@ -83,7 +83,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       ]
     }
   ]
-}`;
+}
+
+CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
+- "controlled_by": Là nhân vật hoặc thế lực CHỦ QUẢN, sở hữu, cai quản, kiểm soát địa điểm này (nhân vật có thể là chủ của nhiều nơi cùng lúc).
+- "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY (chỉ liệt kê nhân vật đang thực sự có mặt/đứng tại đúng địa điểm này ở thời điểm hiện tại của diễn biến story, KHÔNG liệt kê người chủ quản vào danh sách này nếu họ đang đứng ở địa điểm khác!).`;
 
     const DEFAULT_DEEP_DRILL_PROMPT = `Bạn là Kiến Trúc Sư Khám Phá Địa Lý Sâu Đa Tầng (Deep Lore N-Layer Drill-Down Architect).
 Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂN PHÒNG / HẦM NGẦM NẰM BÊN TRONG địa điểm sau:
@@ -101,6 +105,10 @@ NHIỆM VỤ CỦA BẠN:
 Hãy sáng tạo và xây dựng 2 đến 4 Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho hợp logic với cốt truyện và làm sâu sắc thêm trải nghiệm khám phá.
 BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), MỨC ĐỘ NGUY HIỂM (\`danger_level\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc nào!
 
+CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
+- "controlled_by": Là nhân vật chủ phòng, quản lý hoặc thế lực cai quản.
+- "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống thì để mảng rỗng \`[]\`).
+
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 {
   "subLocations": [
@@ -110,10 +118,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do"],
       "context_type": "Mô tả công năng phòng/phân khu",
       "danger_level": "Đánh giá mức độ an toàn/nguy hiểm theo bối cảnh",
-      "controlled_by": "Tên nhân vật quản lý phòng",
+      "controlled_by": "Tên nhân vật chủ phòng/quản lý",
       "status": "Khóa riêng tư / Tự do / Tuyệt mật...",
       "description": "Mô tả công năng, kiến trúc và bố trí trong căn phòng/phân khu này",
-      "characters": ["Tên nhân vật đang ở đây"],
+      "characters": ["Tên nhân vật đang có mặt/hiện diện tại đây"],
       "atmosphere": "Môi trường, ánh sáng, mùi hương, tiếng động tại đây",
       "secrets": "Bí mật, mật thư hoặc vật phẩm quý giá giấu tại đây",
       "events": "Sự kiện hoặc biến cố đang diễn ra trong phòng",
@@ -253,7 +261,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 controlled_by: h.controlled_by || 'Chung',
                 status: h.status || 'Tự do',
                 description: h.description || '',
-                characters: h.controlled_by && h.controlled_by !== 'Chung' ? [h.controlled_by] : [],
+                characters: Array.isArray(h.characters) ? h.characters.filter(Boolean) : (typeof h.characters === 'string' && h.characters ? h.characters.split(',').map(c=>c.trim()).filter(Boolean) : []),
                 atmosphere: 'Bầu không khí bình thường.',
                 secrets: 'Chưa phát hiện vật phẩm hay bí mật nào.',
                 events: 'Tình hình ổn định.',
@@ -273,7 +281,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 controlled_by: s.controlled_by || 'Chung',
                 status: s.status || 'Tự do',
                 description: s.description || '',
-                characters: s.controlled_by && s.controlled_by !== 'Chung' ? [s.controlled_by] : [],
+                characters: Array.isArray(s.characters) ? s.characters.filter(Boolean) : (typeof s.characters === 'string' && s.characters ? s.characters.split(',').map(c=>c.trim()).filter(Boolean) : []),
                 atmosphere: 'Không gian yên tĩnh.',
                 secrets: 'Chưa có thông tin bí mật.',
                 events: 'Không có biến cố đặc biệt.',
@@ -1160,10 +1168,16 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     </div>
 
                     <!-- DEEP INFO SECTIONS & CONNECTIONS -->
-                    <div class="deep-info-card">
-                        <div class="deep-info-title"><i class="fa-solid fa-users"></i> Nhân vật kiểm soát / Hiện diện tại địa điểm</div>
-                        <div id="det_characters" class="deep-info-text" style="color: #38bdf8; font-weight: bold;">Chung / Không rõ</div>
-                        <input id="edit_det_characters" class="lore-input" style="display: none; width: 100%; margin-top: 6px; font-weight: bold; color: #38bdf8;" placeholder="Nhập tên nhân vật (cách nhau bằng dấu phẩy ,)..." />
+                    <div class="deep-info-card" style="background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.3);">
+                        <div class="deep-info-title" style="color: #38bdf8;"><i class="fa-solid fa-user-check"></i> Nhân vật hiện diện (Đang có mặt tại đây)</div>
+                        <div id="det_characters" class="deep-info-text" style="color: #7dd3fc; font-weight: bold;">Chưa có nhân vật nào ở đây</div>
+                        <input id="edit_det_characters" class="lore-input" style="display: none; width: 100%; margin-top: 6px; font-weight: bold; color: #38bdf8;" placeholder="Nhập tên nhân vật đang có mặt lúc này (cách nhau dấu phẩy ,)..." />
+                    </div>
+
+                    <div class="deep-info-card" style="background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3);">
+                        <div class="deep-info-title" style="color: #c084fc;"><i class="fa-solid fa-shield-halved"></i> Nhân vật kiểm soát / Thế lực chủ quản</div>
+                        <div id="det_controlled_by" class="deep-info-text" style="color: #e9d5ff; font-weight: bold;">Chung / Tự do</div>
+                        <input id="edit_det_controlled_by" class="lore-input" style="display: none; width: 100%; margin-top: 6px; font-weight: bold; color: #c084fc;" placeholder="Nhập tên nhân vật/thế lực sở hữu, quản lý khu vực này..." />
                     </div>
 
                     <div class="deep-info-card">
@@ -1425,7 +1439,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (!name || !name.trim()) return;
             const contextType = prompt('Loại địa điểm theo bối cảnh (VD: Phòng học, Trạm vũ trụ, Quán ăn...):', currentParent ? 'Phân khu tầng sâu' : 'Khu vực lớn') || 'Khu vực';
             const danger = prompt('Mức độ an toàn / rủi ro tại đây:', 'An toàn bình thường') || 'An toàn';
-            const controlled = prompt('Nhân vật nào đang đứng tại hoặc quản lý nơi này? (Nhập tên để hiện Avatar):', 'Tôi') || 'Chung';
+            const controlled = prompt('Nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này:', 'Chung') || 'Chung';
+            const presentChars = prompt('Nhân vật đang HIỆN DIỆN (đứng tại đây) lúc này (cách nhau dấu phẩy , nếu trống để trống):', '') || '';
             const desc = prompt('Mô tả chi tiết hoặc sự kiện diễn ra tại đây:', 'Một địa điểm vừa được thêm vào bản đồ.') || '';
             const connections = prompt('Cổng kết nối / Lối đi liên kết tới các khu vực khác:', 'Đường nối nội bộ, thang máy hay hành lang...') || 'Lối đi thông ra xung quanh.';
             const atmo = prompt('Môi trường & Bầu không khí (Atmosphere):', 'Không gian yên tĩnh, ánh sáng dịu nhẹ.') || 'Bình thường';
@@ -1442,7 +1457,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 controlled_by: controlled.trim(),
                 status: 'Tự do ra vào',
                 description: desc.trim(),
-                characters: controlled && controlled !== 'Chung' ? controlled.split(',').map(c => c.trim()).filter(Boolean) : [],
+                characters: presentChars ? presentChars.split(',').map(c => c.trim()).filter(Boolean) : [],
                 atmosphere: atmo.trim(),
                 secrets: secrets.trim(),
                 events: 'Tình hình ổn định.',
@@ -1684,8 +1699,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             selectedDetailLocation.status = detBox.querySelector('#edit_det_status')?.value?.trim() || 'Tự do';
 
             const charsRaw = detBox.querySelector('#edit_det_characters')?.value?.trim() || '';
-            selectedDetailLocation.controlled_by = charsRaw || 'Chung';
             selectedDetailLocation.characters = charsRaw ? charsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
+
+            const controlledRaw = detBox.querySelector('#edit_det_controlled_by')?.value?.trim() || '';
+            selectedDetailLocation.controlled_by = controlledRaw || 'Chung';
 
             selectedDetailLocation.description = detBox.querySelector('#edit_det_description')?.value?.trim() || '';
             selectedDetailLocation.connections = detBox.querySelector('#edit_det_connections')?.value?.trim() || '';
@@ -2038,9 +2055,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     if (isDanger) btnClass += ' danger-button';
 
                     const subCount = Array.isArray(loc.subLocations) ? loc.subLocations.length : 0;
-                    const charNames = (loc.characters && loc.characters.length > 0 ? loc.characters : (loc.controlled_by && loc.controlled_by !== 'Chung' ? [loc.controlled_by] : []));
+                    const presentChars = Array.isArray(loc.characters) ? loc.characters.filter(Boolean) : (typeof loc.characters === 'string' && loc.characters ? loc.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
                     
-                    const charPillsHTML = charNames.slice(0, 4).map(charName => {
+                    const charPillsHTML = presentChars.slice(0, 4).map(charName => {
                         const avatarData = getCharacterAvatar(charName);
                         let inner = '';
                         if (typeof avatarData === 'string' && avatarData) {
@@ -2051,7 +2068,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             inner = `<span>${charName.substring(0,2).toUpperCase()}</span>`;
                         }
                         return `
-                            <div class="loc-char-pill" title="Nhân vật hiện diện: ${charName} (Nhấp để mở Deep Info)" onclick="event.stopPropagation(); window._loreShowDetail('${loc.id}')">
+                            <div class="loc-char-pill" title="Nhân vật hiện diện tại đây: ${charName} (Nhấp để mở Deep Info)" onclick="event.stopPropagation(); window._loreShowDetail('${loc.id}')">
                                 <div class="loc-char-avatar">${inner}</div>
                                 <span>${charName}</span>
                             </div>
@@ -2062,6 +2079,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     const categoryText = (loc.category && loc.category !== 'major_hub' && loc.category !== 'sub_location') ? `🏷️ ${loc.category}` : (loc.category === 'major_hub' || !currentParent ? '⚡ Trung Tâm / Tầng Ngoài' : '📍 Phân Khu / Tầng Sâu');
                     const dangerText = loc.danger_level ? (isDanger ? `⚠️ ${loc.danger_level}` : `🛡️ ${loc.danger_level}`) : '🛡️ An toàn';
                     const statusText = (loc.status || loc.access_status) ? `🔓 ${loc.status || loc.access_status}` : '';
+                    const controlledText = (loc.controlled_by && loc.controlled_by !== 'Chung' && loc.controlled_by !== 'Không có' && loc.controlled_by !== 'Không rõ') ? `👑 Chủ quản: ${loc.controlled_by}` : '';
                     
                     const tagsList = Array.isArray(loc.tags) ? loc.tags : (typeof loc.tags === 'string' && loc.tags ? loc.tags.split(',').map(t=>t.trim()) : []);
                     const tagsHTML = tagsList.map(t => `<span class="badge-pill badge-status" style="border-color: #c084fc; color: #e9d5ff; background: rgba(168,85,247,0.22);">🔖 ${t}</span>`).join('');
@@ -2073,6 +2091,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <span class="badge-pill ${isHub ? 'badge-hub' : 'badge-cat'}">${categoryText}</span>
                                 <span class="badge-pill ${isDanger ? 'badge-danger-warn' : 'badge-danger-safe'}">${dangerText}</span>
                                 ${statusText ? `<span class="badge-pill badge-status">${statusText}</span>` : ''}
+                                ${controlledText ? `<span class="badge-pill" style="border-color: #a855f7; color: #f3e8ff; background: rgba(147, 51, 234, 0.28); font-weight: 800;" title="Nhân vật kiểm soát / Thế lực chủ quản">${controlledText}</span>` : ''}
                                 ${tagsHTML}
                             </div>
 
@@ -2081,7 +2100,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <i class="fas ${loc.icon || 'fa-location-dot'}"></i>
                                 <div class="loc-name">${loc.name}</div>
                                 <div class="loc-desc-snippet">${loc.description || loc.atmosphere || 'Chưa có ghi chép chi tiết về bối cảnh hay không khí tại đây...'}</div>
-                                ${charPillsHTML ? `<div class="loc-char-pills">${charPillsHTML}</div>` : ''}
+                                ${charPillsHTML ? `
+                                    <div style="font-size: 0.77em; color: #7dd3fc; font-weight: 700; margin: 6px 0 2px 0; display: flex; align-items: center; gap: 5px;">
+                                        <i class="fa-solid fa-user-check"></i> Nhân vật hiện diện:
+                                    </div>
+                                    <div class="loc-char-pills">${charPillsHTML}</div>
+                                ` : ''}
                             </div>
 
                             <!-- FOOTER & TRANSIT CONNECTIONS -->
@@ -2201,6 +2225,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
         const elCharsDiv = detBox.querySelector('#det_characters');
         const elCharsInput = detBox.querySelector('#edit_det_characters');
+        const elControlledDiv = detBox.querySelector('#det_controlled_by');
+        const elControlledInput = detBox.querySelector('#edit_det_controlled_by');
         const elDescDiv = detBox.querySelector('#det_description');
         const elDescInput = detBox.querySelector('#edit_det_description');
         const elConnDiv = detBox.querySelector('#det_connections');
@@ -2223,7 +2249,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (detBox.querySelector('#edit_det_danger')) detBox.querySelector('#edit_det_danger').value = selectedDetailLocation.danger_level || '';
             if (detBox.querySelector('#edit_det_status')) detBox.querySelector('#edit_det_status').value = selectedDetailLocation.status || '';
 
-            if (elCharsInput) elCharsInput.value = Array.isArray(selectedDetailLocation.characters) && selectedDetailLocation.characters.length > 0 ? selectedDetailLocation.characters.join(', ') : (selectedDetailLocation.controlled_by || '');
+            if (elCharsInput) elCharsInput.value = Array.isArray(selectedDetailLocation.characters) ? selectedDetailLocation.characters.join(', ') : (selectedDetailLocation.characters || '');
+            if (elControlledInput) elControlledInput.value = selectedDetailLocation.controlled_by || '';
             if (elDescInput) elDescInput.value = selectedDetailLocation.description || '';
             if (elConnInput) elConnInput.value = selectedDetailLocation.connections || '';
             if (elAtmoInput) elAtmoInput.value = selectedDetailLocation.atmosphere || '';
@@ -2235,8 +2262,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (elViewBadges) elViewBadges.style.display = 'none';
             if (elEditBadges) elEditBadges.style.display = 'grid';
 
-            [elCharsDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'none'; });
-            [elCharsInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'block'; });
+            [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'none'; });
+            [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'block'; });
 
             if (elViewActions) elViewActions.style.display = 'none';
             if (elEditActions) elEditActions.style.display = 'flex';
@@ -2246,8 +2273,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (elViewBadges) elViewBadges.style.display = 'flex';
             if (elEditBadges) elEditBadges.style.display = 'none';
 
-            [elCharsDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'block'; });
-            [elCharsInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'none'; });
+            [elCharsDiv, elControlledDiv, elDescDiv, elConnDiv, elAtmoDiv, elSecDiv, elEveDiv].forEach(el => { if (el) el.style.display = 'block'; });
+            [elCharsInput, elControlledInput, elDescInput, elConnInput, elAtmoInput, elSecInput, elEveInput].forEach(el => { if (el) el.style.display = 'none'; });
 
             if (elViewActions) elViewActions.style.display = 'flex';
             if (elEditActions) elEditActions.style.display = 'none';
@@ -2305,11 +2332,18 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const statusBadge = doc.getElementById('det_status_badge');
         statusBadge.innerText = `🔓 ${found.status || 'Tự do'}`;
 
-        const charArray = found.characters && found.characters.length > 0 ? found.characters : (found.controlled_by && found.controlled_by !== 'Chung' ? [found.controlled_by] : []);
+        const charArray = Array.isArray(found.characters) ? found.characters.filter(Boolean) : (typeof found.characters === 'string' && found.characters ? found.characters.split(',').map(c=>c.trim()).filter(Boolean) : []);
         if (charArray.length > 0) {
-            doc.getElementById('det_characters').innerHTML = charArray.map(c => `<span style="background: rgba(56,189,248,0.2); border: 1px solid rgba(56,189,248,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #7dd3fc; display: inline-block; margin: 2px 4px 2px 0;">👤 ${c}</span>`).join(' ');
+            doc.getElementById('det_characters').innerHTML = charArray.map(c => `<span style="background: rgba(56,189,248,0.22); border: 1px solid rgba(56,189,248,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #7dd3fc; display: inline-block; margin: 2px 4px 2px 0;">👤 ${c}</span>`).join(' ');
         } else {
-            doc.getElementById('det_characters').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Khu vực sinh hoạt chung / Không có thông tin nhân vật sở hữu riêng</span>`;
+            doc.getElementById('det_characters').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chưa có nhân vật nào đang hiện diện tại đây lúc này</span>`;
+        }
+
+        const controlledStr = found.controlled_by || 'Chung';
+        if (controlledStr && controlledStr !== 'Chung' && controlledStr !== 'Không rõ' && controlledStr !== 'Không có') {
+            doc.getElementById('det_controlled_by').innerHTML = `<span style="background: rgba(168,85,247,0.22); border: 1px solid rgba(168,85,247,0.4); padding: 3px 10px; border-radius: 12px; font-weight: bold; color: #e9d5ff; display: inline-block; margin: 2px 0;">👑 ${controlledStr}</span>`;
+        } else {
+            doc.getElementById('det_controlled_by').innerHTML = `<span style="color: #94a3b8; font-style: italic;">Chung / Không có thông tin thế lực chủ quản riêng</span>`;
         }
         doc.getElementById('det_description').innerText = found.description || 'Không có thông tin mô tả chi tiết.';
         doc.getElementById('det_connections').innerHTML = formatSmartTransit(found.connections, currentParent ? (currentParent.subLocations || []) : mapData.locations, found.id);
