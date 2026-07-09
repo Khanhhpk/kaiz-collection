@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.4.0.0
+ * - Phiên bản: v1.4.0.1
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.4.0.0)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.4.0.1)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -2844,6 +2844,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         danger_level: item.danger_level || 'An toàn',
                         controlled_by: item.controlled_by || 'Chung',
                         status: item.status || 'Tự do',
+                        grid_hint: item.grid_hint || '',
                         description: item.description || '',
                         characters: Array.isArray(item.characters) ? item.characters : [],
                         atmosphere: item.atmosphere || 'Bầu không khí bình thường.',
@@ -2861,6 +2862,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         if (!hub.icon || hub.icon === 'fa-building') hub.icon = getIconForCategory(item.category, hub.name, hub.context_type);
                     }
                     if (Array.isArray(item.tags)) hub.tags = Array.from(new Set([...(hub.tags||[]), ...item.tags]));
+                    if (item.grid_hint) hub.grid_hint = item.grid_hint;
                     if (item.description && hub.description.length < item.description.length) hub.description = item.description;
                     if (item.atmosphere) hub.atmosphere = item.atmosphere;
                     if (item.secrets) hub.secrets = item.secrets;
