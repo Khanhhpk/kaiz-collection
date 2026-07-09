@@ -3028,9 +3028,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             globalLoadingIcon.id = 'lore_global_loading_icon';
             globalLoadingIcon.style.cssText = `
                 position: fixed;
-                bottom: 20px;
+                top: 70px;
                 right: 20px;
-                z-index: 99999;
+                z-index: 2147483647;
                 background: rgba(15, 23, 42, 0.85);
                 border: 1px solid #38bdf8;
                 border-radius: 50%;
