@@ -2768,7 +2768,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     const tagsHTML = tagsList.map(t => `<span class="badge-pill badge-status" style="border-color: #c084fc; color: #e9d5ff; background: rgba(168,85,247,0.22);">${cleanLabelText(t)}</span>`).join('');
 
                     html += `
-                        <div class="${btnClass}" ${window._loreDragMode ? 'style="cursor: grab;" onmousedown="window._loreCustomDragStart(event, \''+loc.id+'\')"' : ''} data-loc-id="${loc.id}" data-row="${r}" data-col="${c}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem & Đọc Thông Tiết Chi Tiết (Deep Info)">
+                        <div class="${btnClass}" ${window._loreDragMode ? 'style="cursor: grab;" onpointerdown="window._loreCustomDragStart(event, \''+loc.id+'\')"' : ''} data-loc-id="${loc.id}" data-row="${r}" data-col="${c}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem & Đọc Thông Tiết Chi Tiết (Deep Info)">
                             <!-- HEADER BADGES -->
                             <div class="loc-card-header">
                                 <span class="badge-pill ${isHub ? 'badge-hub' : 'badge-cat'}">${categoryText}</span>
@@ -2873,15 +2873,19 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         e.preventDefault();
         e.stopPropagation();
         
+        // Capture pointer to ensure we receive all subsequent pointer events
+        if (typeof targetElement.setPointerCapture === 'function' && e.pointerId !== undefined) {
+            targetElement.setPointerCapture(e.pointerId);
+        }
+        
         targetElement.classList.add('lore-drag-active');
         
         const rect = targetElement.getBoundingClientRect();
         
         customDragCloneWrapper = document.createElement('div');
-        customDragCloneWrapper.id = 'lore_grid_container';
         customDragCloneWrapper.style.position = 'fixed';
         customDragCloneWrapper.style.pointerEvents = 'none';
-        customDragCloneWrapper.style.zIndex = '9999999';
+        customDragCloneWrapper.style.zIndex = '2147483647';
         customDragCloneWrapper.style.margin = '0';
         customDragCloneWrapper.style.padding = '0';
         customDragCloneWrapper.style.background = 'transparent';
@@ -2901,15 +2905,18 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         customDragClone.classList.remove('lore-drag-active');
         customDragClone.style.margin = '0';
         customDragClone.style.transform = 'scale(1.05)';
-        customDragClone.style.opacity = '0.9';
-        customDragClone.style.boxShadow = '0 20px 40px rgba(0,0,0,0.5)';
+        customDragClone.style.opacity = '1.0';
+        customDragClone.style.boxShadow = '0 25px 50px rgba(0,0,0,0.8)';
         customDragClone.style.width = '100%';
         customDragClone.style.height = '100%';
         customDragClone.style.flex = '1';
         
         rowWrapper.appendChild(customDragClone);
         customDragCloneWrapper.appendChild(rowWrapper);
-        document.body.appendChild(customDragCloneWrapper);
+        
+        const overlay = document.getElementById('lore_world_map_overlay');
+        if (overlay) overlay.appendChild(customDragCloneWrapper);
+        else document.body.appendChild(customDragCloneWrapper);
         
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
@@ -2926,8 +2933,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         };
         
         const onMouseUp = (upEvent) => {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
+            window.removeEventListener('pointermove', onMouseMove);
+            window.removeEventListener('pointerup', onMouseUp);
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+            
+            if (typeof targetElement.releasePointerCapture === 'function' && e.pointerId !== undefined) {
+                try { targetElement.releasePointerCapture(e.pointerId); } catch(err) {}
+            }
             
             if (targetElement) {
                 targetElement.classList.remove('lore-drag-active');
@@ -2957,8 +2970,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
         };
         
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
+        window.addEventListener('pointermove', onMouseMove, {passive: false});
+        window.addEventListener('pointerup', onMouseUp, {passive: false});
+        window.addEventListener('mousemove', onMouseMove, {passive: false});
+        window.addEventListener('mouseup', onMouseUp, {passive: false});
     };
 
     window._lorePerformDrop = function(draggedId, targetId, r, c) {
