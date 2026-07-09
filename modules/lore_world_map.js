@@ -409,6 +409,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     function saveMapData() {
         activeChatId = getActiveChatId();
         try { localStorage.setItem(STORAGE_PREFIX + activeChatId, JSON.stringify(mapData)); } catch (e) {}
+        if (typeof updateExtensionPrompts === 'function') updateExtensionPrompts();
     }
 
     function getCharacterAvatar(charName) {
@@ -3352,6 +3353,50 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         return out.join('\n');
     }
 
+    function updateExtensionPrompts() {
+        try {
+            const ctx = window.SillyTavern?.getContext?.();
+            if (!ctx) return;
+            
+            // ST versions might have extension_prompts directly on context or window
+            const extPrompts = ctx.extension_prompts || window.extension_prompts;
+            const extRoles = ctx.extension_prompt_roles || window.extension_prompt_roles;
+            const extTypes = ctx.extension_prompt_types || window.extension_prompt_types;
+            const extDepths = ctx.extension_prompt_depth || window.extension_prompt_depth;
+
+            if (!extPrompts) return;
+
+            if (!aiConfig.injectEnabled) {
+                delete extPrompts['lore_world_map'];
+                return;
+            }
+
+            const contextStr = buildMapContextString();
+            if (!contextStr || contextStr.trim() === '') {
+                delete extPrompts['lore_world_map'];
+                return;
+            }
+
+            extPrompts['lore_world_map'] = contextStr;
+
+            if (extRoles) {
+                extRoles['lore_world_map'] = aiConfig.injectRole || 'system';
+            }
+
+            if (extTypes) {
+                let stTarget = 'in_chat';
+                if (aiConfig.injectTarget === 'system_top' || aiConfig.injectTarget === 'system_bottom') {
+                    stTarget = 'in_prompt';
+                }
+                extTypes['lore_world_map'] = stTarget;
+            }
+
+            if (extDepths) {
+                extDepths['lore_world_map'] = parseInt(aiConfig.injectDepth, 10) || 0;
+            }
+        } catch (e) {}
+    }
+
     function setupPromptInjection() {
         loadAiConfig();
         const ctx = window.SillyTavern?.getContext?.() || window;
@@ -3455,6 +3500,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         promptEvents.forEach(evt => {
             if (evt) addEv(evt, injectHandler);
         });
+
+        updateExtensionPrompts();
 
         // AUTO SCAN LOGIC
         let msgCountSinceLastScan = 0;
