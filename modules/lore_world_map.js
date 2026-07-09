@@ -1,5 +1,5 @@
 /**
- * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Map) - v8.5 Smart Network Connectors & Rich Cards (v1.3.0.12)
+ * KAIZ Collection - Bản Đồ Thế Giới AI (Universal World Map) - v8.7 Graph & Compact UI/UX (v1.3.0.15)
  * - [🚀 Cải thiện toàn diện UI/UX Thẻ Địa Điểm (`Rich Geographic Cards & Header Badges`)]:
  *   - Thẻ địa điểm có bố cục hiện đại, hiển thị Huy hiệu Phân loại (`Category Pill`), Huy hiệu Mức độ An toàn (`Danger Level Pill`), và Trạng thái truy cập.
  *   - Danh sách nhân vật hiển thị dạng Pill kèm Avatar rực rỡ, dễ bấm, dễ quan sát.
@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.3.0.12
+ * - Phiên bản: v1.3.0.15
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.5 Smart Network Connectors & Rich Cards (v1.3.0.12)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.7 Graph & Compact UI/UX (v1.3.0.15)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
