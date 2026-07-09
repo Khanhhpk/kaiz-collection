@@ -2890,15 +2890,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         customDragCloneWrapper.style.padding = '0';
         customDragCloneWrapper.style.background = 'transparent';
         customDragCloneWrapper.style.border = 'none';
-        customDragCloneWrapper.style.width = rect.width + 'px';
-        customDragCloneWrapper.style.height = rect.height + 'px';
+        customDragCloneWrapper.style.width = 'fit-content';
+        customDragCloneWrapper.style.height = 'fit-content';
+        customDragCloneWrapper.style.transformOrigin = 'top left';
+        customDragCloneWrapper.style.transform = `scale(${typeof loreGraphZoomLevel !== 'undefined' ? loreGraphZoomLevel : 1.0})`;
         
         const rowWrapper = document.createElement('div');
         rowWrapper.className = 'lore-grid-row';
         rowWrapper.style.margin = '0';
         rowWrapper.style.padding = '0';
-        rowWrapper.style.width = '100%';
-        rowWrapper.style.height = '100%';
+        rowWrapper.style.width = 'fit-content';
+        rowWrapper.style.height = 'fit-content';
         rowWrapper.style.display = 'flex';
         
         const customDragClone = targetElement.cloneNode(true);
@@ -2907,9 +2909,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         customDragClone.style.transform = 'scale(1.05)';
         customDragClone.style.opacity = '1.0';
         customDragClone.style.boxShadow = '0 25px 50px rgba(0,0,0,0.8)';
-        customDragClone.style.width = '100%';
-        customDragClone.style.height = '100%';
-        customDragClone.style.flex = '1';
         
         rowWrapper.appendChild(customDragClone);
         customDragCloneWrapper.appendChild(rowWrapper);
@@ -3004,6 +3003,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // CHUỘT TRÁI: Vào xem tập con / drill-down
     window._loreOnLocationLeftClick = function (event, locId) {
+        if (window._loreDragMode) {
+            if (event && event.stopPropagation) event.stopPropagation();
+            if (event && event.preventDefault) event.preventDefault();
+            return;
+        }
         if (loreDidPanDuringDrag) {
             if (event && event.stopPropagation) event.stopPropagation();
             return;
@@ -3026,6 +3030,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // CHUỘT PHẢI: Mở xem thông tin chi tiết (Deep Lore Info)
     window._loreOnLocationRightClick = function (event, locId) {
+        if (window._loreDragMode) {
+            if (event) {
+                if (event.preventDefault) event.preventDefault();
+                if (event.stopPropagation) event.stopPropagation();
+            }
+            return;
+        }
         if (event) {
             if (event.preventDefault) event.preventDefault();
             if (event.stopPropagation) event.stopPropagation();
