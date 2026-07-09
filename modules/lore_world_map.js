@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.3.0.15
+ * - Phiên bản: v1.3.0.16
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.7 Graph & Compact UI/UX (v1.3.0.15)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.3.0.16)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -48,17 +48,18 @@ CÁC YÊU CẦU PHÂN TÍCH CHUYÊN SÂU & THÔNG TIN CHUẨN:
    - "events": Sự kiện lịch sử nổi bật hay biến cố đang diễn ra ngay lúc này tại địa điểm (chỉ điền nếu theo dõi thông tin động).
    - "characters": Danh sách nhân vật đang đứng/hiện diện tại địa điểm lúc này (chỉ điền nếu theo dõi thông tin động).
 5. KHÔNG TẠO TRÙNG LẶP: Nếu địa điểm đã có trong danh sách hiện có, hãy bổ sung thông tin cho chuẩn xác hơn hoặc thêm các phân khu con (subLocations) bên trong nó.
+6. BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - CỰC KỲ QUAN TRỌNG): Bản đồ hiển thị dạng LƯỚI 3 CỘT (cột 0=Trái, cột 1=Giữa, cột 2=Phải). Bạn PHẢI chỉ định vị trí bài trí cho mỗi địa điểm bằng trường \`grid_hint\` theo format "row,col" (bắt đầu từ 0). Hãy sắp xếp sao cho đúng vị trí không gian thực tế: VD nếu Quầy Lễ Tân ở trung tâm thì cho "0,1", Khu lò sưởi ở bên trái thì "0,0", Quầy Bar bên phải thì "0,2", Kho chứa ở phía sau/dưới thì "1,1"... THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG PHẢI ĐÚNG THEO THỨ TỰ ĐỌC LƯỚI: từ trái sang phải, từ trên xuống dưới!
 
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không markdown ngoài JSON block) theo đúng định dạng sau:
 {
   "locations": [
     {
       "name": "Tên Khu Vực Lớn / Trung Tâm (VD: Trường Trung Học Sakura / Trạm Vũ Trụ Alpha / Đảo Rồng)",
-      "category": "Phân loại chính tự do theo đúng bối cảnh truyện (VD: Tông môn / Chiến hạm / Đô thị ngầm / Học viện / Thần điện / Quán bar...)",
-      "icon": "Tên class FontAwesome icon phản ánh đúng nhất tính chất địa điểm (VD: fa-school, fa-tree, fa-utensils, fa-shield-halved, fa-landmark, fa-flask, fa-space-shuttle, fa-dungeon, fa-store, fa-hospital, fa-building... BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
+      "category": "Phân loại chính tự do theo đúng bối cảnh truyện",
+      "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do", "Nhãn 3"],
       "context_type": "Mô tả loại hình không gian cụ thể",
-      "controlled_by": "Tên nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này (người sở hữu/cai quản cố định)",
+      "controlled_by": "Tên nhân vật hoặc thế lực CHỦ QUẢN/KIỂM SOÁT nơi này",
       "status": "Trạng thái truy cập hoặc tình trạng hiện tại",
       "description": "Mô tả tổng quan kiến trúc, vai trò lịch sử và vị trí địa lý của khu vực",
       "atmosphere": "Môi trường, thời tiết, âm thanh, ánh sáng và cảm giác tại khu vực",
@@ -68,19 +69,20 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
       "characters": ["Tên nhân vật A đang đứng/hiện diện tại đây"],
       "subLocations": [
         {
-          "name": "Tên Căn Phòng / Phân Khu Nhỏ bên trong (VD: Phòng Ngủ / Thư Viện Tầng 3 / Hầm Ngầm)",
-          "category": "Phân loại tập con tự do (VD: Phòng riêng / Hầm ngầm / Gác mái / Kho chứa / Vườn hoa / Phòng thí nghiệm...)",
-          "icon": "Tên class FontAwesome icon cho căn phòng/phân khu (VD: fa-door-open, fa-bed, fa-book, fa-key, fa-flask, fa-utensils, fa-computer, fa-couch... BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
+          "name": "Tên Căn Phòng / Phân Khu Nhỏ bên trong",
+          "category": "Phân loại tập con tự do",
+          "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH ICON!)",
           "tags": ["Nhãn riêng tư", "Vật phẩm quý"],
           "context_type": "Loại hình căn phòng/phân khu",
+          "grid_hint": "0,1",
           "controlled_by": "Tên nhân vật chủ phòng/quản lý",
           "status": "Khóa riêng tư / Tự do...",
-          "description": "Mô tả chi tiết bố trí nội thất và công dụng của phòng/phân khu này",
-          "atmosphere": "Môi trường, ánh sáng dịu nhẹ, mùi hương trong phòng...",
-          "secrets": "Cuốn nhật ký dưới gối, chìa khóa két sắt giấu sau bức tranh...",
-          "connections": "Cửa chính thông ra Hành Lang Tầng 2, cửa sổ nhìn ra Sân Sau...",
+          "description": "Mô tả chi tiết bố trí nội thất và công dụng",
+          "atmosphere": "Môi trường, ánh sáng dịu nhẹ, mùi hương...",
+          "secrets": "Cuốn nhật ký dưới gối...",
+          "connections": "Cửa chính thông ra Hành Lang Tầng 2...",
           "events": "Biến cố đang diễn ra trong phòng",
-          "characters": ["Tên nhân vật đang có mặt trong phòng lúc này"]
+          "characters": ["Tên nhân vật đang có mặt trong phòng"]
         }
       ]
     }
@@ -90,7 +92,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ (Không kèm lời dẫn, không 
 CHÚ Ý QUAN TRỌNG:
 - BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), ICON BẢN ĐỒ (\`icon\`) VÀ LIÊN KẾT (\`connections\`)! Hãy sáng tạo tối đa và khách quan theo bối cảnh truyện, tuyệt đối không bị gò bó bởi bất kỳ từ khóa hardcode nào!
 - "controlled_by": Là nhân vật hoặc thế lực CHỦ QUẢN, sở hữu, cai quản, kiểm soát địa điểm này (nhân vật có thể là chủ của nhiều nơi cùng lúc).
-- "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY. Nếu đang ở chế độ bản đồ khách quan tĩnh hoặc không có nhân vật đứng tại đây, hãy để mảng rỗng \`[]\`.`;
+- "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY. Nếu đang ở chế độ bản đồ khách quan tĩnh hoặc không có nhân vật đứng tại đây, hãy để mảng rỗng \`[]\`.
+- "grid_hint": BẠN PHẢI QUYẾT ĐỊNH VỊ TRÍ BÀI TRÍ "row,col" trên lưới 3 cột cho MỌI subLocations! Sắp xếp hợp lý theo vị trí không gian thực: trung tâm = cột 1, trái = cột 0, phải = cột 2. Và THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG phải theo thứ tự đọc lưới: trái→phải, trên→dưới!`;
 
     const DEFAULT_DEEP_DRILL_PROMPT = `Bạn là Kiến Trúc Sư Khám Phá Địa Lý Sâu Đa Tầng (Deep Lore N-Layer Drill-Down Architect).
 Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂN PHÒNG / HẦM NGẦM NẰM BÊN TRONG địa điểm sau một cách KHÁCH QUAN và CHUẨN XÁC:
@@ -105,22 +108,28 @@ Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂ
 ==================================
 
 NHIỆM VỤ CỦA BẠN:
-Hãy sáng tạo và xây dựng 2 đến 4 Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
+Hãy sáng tạo và xây dựng 2 đến 6 Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
 BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào! Đặc biệt chú ý mô tả chuẩn lối đi liên kết giữa căn phòng này tới các khu vực bên ngoài (\`connections\`).
 
 CHÚ Ý QUAN TRỌNG VỀ NHÂN VẬT:
 - "controlled_by": Là nhân vật chủ phòng, quản lý hoặc thế lực cai quản.
 - "characters": Là danh sách nhân vật ĐANG THỰC SỰ HIỆN DIỆN/ĐỨNG TRONG PHÒNG NÀY tại thời điểm hiện tại (nếu phòng trống hoặc ở chế độ bản đồ khách quan, để mảng rỗng \`[]\`).
 
+BÀI TRÍ TRÊN BẢN ĐỒ LƯỚI (grid_hint - CỰC KỲ QUAN TRỌNG):
+Bản đồ hiển thị dạng LƯỚI 3 CỘT (cột 0=Trái, cột 1=Giữa, cột 2=Phải). Bạn PHẢI chỉ định vị trí bài trí cho mỗi phân khu bằng trường \`grid_hint\` theo format "row,col" (bắt đầu từ 0).
+Hãy sắp xếp sao cho đúng vị trí không gian thực tế bên trong "{{target_name}}": VD nếu Quầy Lễ Tân ở trung tâm thì "0,1", Khu lò sưởi ở bên trái thì "0,0", Quầy Bar bên phải thì "0,2", Kho chứa ở phía sau/dưới thì "1,1"...
+THỨ TỰ CÁC ĐỊA ĐIỂM TRONG MẢNG PHẢI ĐÚNG THEO THỨ TỰ ĐỌC LƯỚI: từ trái sang phải, từ trên xuống dưới!
+
 TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 {
   "subLocations": [
     {
       "name": "Tên Căn Phòng / Hầm bí mật / Phân khu bên trong",
-      "category": "Phân loại tự do (VD: Phòng riêng / Hầm bí mật / Gác xép / Trung tâm điều khiển / Phòng lab...)",
-      "icon": "Tên class FontAwesome icon (VD: fa-door-open, fa-bed, fa-book, fa-key, fa-flask, fa-utensils, fa-computer, fa-couch... BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
+      "category": "Phân loại tự do (BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
+      "icon": "Tên class FontAwesome icon (BẠN TOÀN QUYỀN QUYẾT ĐỊNH!)",
       "tags": ["Nhãn 1 tự do", "Nhãn 2 tự do"],
       "context_type": "Mô tả công năng phòng/phân khu",
+      "grid_hint": "0,1",
       "controlled_by": "Tên nhân vật chủ phòng/quản lý",
       "status": "Khóa riêng tư / Tự do / Tuyệt mật...",
       "description": "Mô tả công năng, kiến trúc và bố trí trong căn phòng/phân khu này",
@@ -820,20 +829,22 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
             /* DEDICATED FLOATING 2D ZOOM & PAN TOOLBAR */
             .lore-zoom-pan-bar {
-                position: absolute;
-                bottom: 24px;
-                right: 28px;
+                position: sticky;
+                bottom: 18px;
+                align-self: flex-end;
+                margin-top: auto;
                 z-index: 1000;
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                background: rgba(15, 23, 42, 0.94);
+                background: rgba(15, 23, 42, 0.96);
                 border: 1px solid rgba(56, 189, 248, 0.45);
                 border-radius: 28px;
                 padding: 6px 14px;
                 box-shadow: 0 10px 32px rgba(0, 0, 0, 0.85), 0 0 15px rgba(56, 189, 248, 0.18);
                 backdrop-filter: blur(12px);
                 user-select: none;
+                pointer-events: auto;
                 transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             }
             .lore-zoom-pan-bar:hover {
@@ -1216,18 +1227,18 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                 <!-- Viewport (Chỉ chứa lưới đồ thị 2D) -->
                 <div id="lore_app_viewport">
-                    <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) -->
+                    <!-- Lưới Địa Điểm & Đường Đi -->
+                    <div id="lore_grid_container" class="lore-grid-container">
+                        <!-- Nạp động -->
+                    </div>
+
+                    <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) - Luôn dính ở đáy viewport -->
                     <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
                         <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><i class="fa-solid fa-plus"></i></button>
                         <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
                         <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
                         <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.18); margin: 0 3px;"></div>
                         <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
-                    </div>
-
-                    <!-- Lưới Địa Điểm & Đường Đi -->
-                    <div id="lore_grid_container" class="lore-grid-container">
-                        <!-- Nạp động -->
                     </div>
                 </div>
                 </div>
@@ -1959,6 +1970,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const statusBox = doc.getElementById('lore_chat_status');
         const badgeStats = doc.getElementById('lore_stats_badge');
         const badgeAi = doc.getElementById('lore_ai_badge');
+        const btnDynamic = doc.getElementById('lore_btn_track_dynamic');
+        const labelDynamic = doc.getElementById('lore_label_track_dynamic');
 
         if (statusBox) statusBox.innerHTML = `Chat ID: <span style="color: #c084fc;">${activeChatId}</span> | Chuột Trái: Vào Phân Khu | Chuột Phải: Xem Thông Tin`;
         if (badgeStats) {
@@ -1967,6 +1980,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
         if (badgeAi) {
             badgeAi.innerText = aiConfig.source === 'custom' ? `⚡ Custom AI (${aiConfig.customModel || 'model'})` : `⭐ SillyTavern AI`;
+        }
+        // Cập nhật trạng thái nút Bật/Tắt Thông tin động
+        if (btnDynamic) {
+            const isOn = aiConfig.trackDynamicInfo !== false;
+            btnDynamic.classList.toggle('active', isOn);
+            btnDynamic.style.background = isOn ? 'rgba(14, 165, 233, 0.4)' : 'rgba(100, 116, 139, 0.25)';
+            btnDynamic.style.borderColor = isOn ? '#38bdf8' : '#64748b';
+            if (labelDynamic) {
+                labelDynamic.innerText = isOn ? 'Thông tin động: BẬT' : 'Thông tin động: TẮT';
+                labelDynamic.style.color = isOn ? '#38bdf8' : '#94a3b8';
+            }
         }
     }
 
@@ -2185,14 +2209,73 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
 
         const COLS = 3;
-        const rowsCount = Math.ceil((currentList.length + 1) / COLS);
+
+        // Kiểm tra xem có bất kỳ location nào có grid_hint từ AI không
+        const hasGridHints = currentList.some(loc => loc && loc.grid_hint);
+
+        // Xây dựng grid 2D: nếu có grid_hint thì dùng AI layout, không thì tuần tự
+        let grid2D; // grid2D[row][col] = location | null
+        if (hasGridHints) {
+            // Tính số hàng cần thiết từ grid_hint
+            let maxRow = 0;
+            currentList.forEach(loc => {
+                if (loc && loc.grid_hint) {
+                    const parts = loc.grid_hint.split(',').map(Number);
+                    if (parts.length >= 2 && !isNaN(parts[0])) maxRow = Math.max(maxRow, parts[0]);
+                }
+            });
+            const aiRows = maxRow + 1;
+            // +1 hàng cho ô "Thêm Địa Điểm Mới"
+            const totalRows = Math.max(aiRows, Math.ceil((currentList.length + 1) / COLS)) + 1;
+            grid2D = Array.from({ length: totalRows }, () => Array(COLS).fill(null));
+
+            // Đặt các location có grid_hint vào đúng vị trí
+            let unplaced = [];
+            currentList.forEach(loc => {
+                if (loc && loc.grid_hint) {
+                    const parts = loc.grid_hint.split(',').map(Number);
+                    if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1]) && parts[0] < totalRows && parts[1] < COLS) {
+                        if (!grid2D[parts[0]][parts[1]]) {
+                            grid2D[parts[0]][parts[1]] = loc;
+                        } else {
+                            unplaced.push(loc);
+                        }
+                    } else {
+                        unplaced.push(loc);
+                    }
+                } else if (loc) {
+                    unplaced.push(loc);
+                }
+            });
+            // Điền các location chưa được đặt vào ô trống
+            let upIdx = 0;
+            for (let r = 0; r < totalRows && upIdx < unplaced.length; r++) {
+                for (let c = 0; c < COLS && upIdx < unplaced.length; c++) {
+                    if (!grid2D[r][c]) {
+                        grid2D[r][c] = unplaced[upIdx++];
+                    }
+                }
+            }
+        } else {
+            // Fallback: tuần tự như cũ
+            const totalRows = Math.ceil((currentList.length + 1) / COLS);
+            grid2D = Array.from({ length: totalRows }, () => Array(COLS).fill(null));
+            currentList.forEach((loc, idx) => {
+                const r = Math.floor(idx / COLS);
+                const c = idx % COLS;
+                grid2D[r][c] = loc;
+            });
+        }
+
+        // Tìm ô trống đầu tiên để đặt nút "Thêm Địa Điểm Mới"
+        let addBtnPlaced = false;
+        const rowsCount = grid2D.length;
         let html = '';
 
         for (let r = 0; r < rowsCount; r++) {
             html += `<div class="lore-grid-row">`;
             for (let c = 0; c < COLS; c++) {
-                const idx = r * COLS + c;
-                const loc = currentList[idx];
+                const loc = grid2D[r][c];
 
                 if (loc) {
                     const isHub = loc.category === 'major_hub' || (!currentParent && (!loc.category || loc.category === 'major_hub')) || loc.is_hub;
@@ -2273,7 +2356,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             </div>
                         </div>
                     `;
-                } else if (idx === currentList.length) {
+                } else if (!addBtnPlaced) {
+                    addBtnPlaced = true;
                     html += `
                         <div class="location-button empty-location" style="cursor: pointer; border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.08);" onclick="document.getElementById('lore_btn_add_location').click()" title="Nhấp chuột trái để thêm địa điểm mới vào ô trống này">
                             <i class="fas fa-plus" style="color: #38bdf8; font-size: 28px; margin-bottom: 8px;"></i>
@@ -2321,8 +2405,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         }
 
         gridContainer.innerHTML = html;
-        if (typeof loreGraphZoomLevel === 'number') {
-            gridContainer.style.transform = `scale(${loreGraphZoomLevel})`;
+        if (typeof loreGraphZoomLevel === 'number' && loreGraphZoomLevel !== 1.0) {
+            if ('zoom' in gridContainer.style) {
+                gridContainer.style.zoom = loreGraphZoomLevel;
+                gridContainer.style.transform = 'none';
+            } else {
+                gridContainer.style.transform = `scale(${loreGraphZoomLevel})`;
+                gridContainer.style.transformOrigin = 'top left';
+            }
+        } else {
+            gridContainer.style.zoom = '';
+            gridContainer.style.transform = 'none';
         }
     }
 
@@ -2622,10 +2715,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     targetLoc.subLocations.push({
                         id: 'sub_' + Math.random().toString(36).substr(2, 7),
                         name: sub.name.trim(),
-                        icon: 'fa-door-open',
+                        icon: sub.icon ? sub.icon.replace(/^fas\s+|^far\s+|^fab\s+/i, '').trim() : getIconForCategory(sub.category || 'sub_location', sub.name, sub.context_type),
                         category: sub.category || 'sub_location',
                         tags: Array.isArray(sub.tags) ? sub.tags : (typeof sub.tags === 'string' ? sub.tags.split(',').map(t=>t.trim()) : []),
                         context_type: sub.context_type || 'Phân khu tầng sâu',
+                        grid_hint: sub.grid_hint || '',
                         danger_level: sub.danger_level || 'An toàn',
                         controlled_by: sub.controlled_by || 'Chung',
                         status: sub.status || 'Tự do',
@@ -2785,6 +2879,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 category: sub.category || 'sub_location',
                                 tags: Array.isArray(sub.tags) ? sub.tags : (typeof sub.tags === 'string' ? sub.tags.split(',').map(t=>t.trim()) : []),
                                 context_type: sub.context_type || 'Phòng / Phân khu',
+                                grid_hint: sub.grid_hint || '',
                                 danger_level: sub.danger_level || 'An toàn',
                                 controlled_by: sub.controlled_by || 'Chung',
                                 status: sub.status || 'Khóa riêng tư',
