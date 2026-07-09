@@ -795,52 +795,41 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             .smart-transit-link:hover { background: #38bdf8; color: #0f172a; transform: scale(1.04); }
 
             
+            
             /* LORE SIDEBAR */
             .lore-sidebar {
                 position: absolute;
                 top: 80px;
                 left: 15px;
+                width: 280px;
+                max-width: 90%;
+                max-height: calc(100% - 150px);
                 background: rgba(15, 23, 42, 0.95);
                 border: 1px solid rgba(56,189,248,0.25);
                 border-radius: 12px;
                 z-index: 1000;
-                transition: width 0.3s ease;
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
                 box-shadow: 0 4px 20px rgba(0,0,0,0.6);
             }
-            .lore-sidebar.collapsed { width: 44px; height: 44px; }
-            .lore-sidebar.expanded { width: 260px; max-height: calc(100% - 100px); }
-            
-            .lore-sidebar-header {
-                display: flex;
-                align-items: center;
-                padding: 8px;
-                gap: 10px;
-                cursor: pointer;
-                background: rgba(255,255,255,0.05);
-            }
-            .lore-sidebar-header:hover { background: rgba(255,255,255,0.1); }
             .lore-sidebar-title {
+                display: block;
+                padding: 12px;
                 font-weight: bold;
-                color: #e2e8f0;
-                white-space: nowrap;
-                opacity: 0;
-                transition: opacity 0.2s;
+                color: #38bdf8;
+                font-size: 1.05em;
+                text-align: center;
+                background: rgba(255,255,255,0.05);
+                border-bottom: 1px solid rgba(255,255,255,0.1);
             }
-            .lore-sidebar.expanded .lore-sidebar-title { opacity: 1; }
-            .lore-sidebar-toggle-icon { color: #38bdf8; width: 28px; text-align: center; font-size: 1.1em; }
-            
             .lore-sidebar-content {
-                display: none;
+                display: flex;
                 flex-direction: column;
                 padding: 10px;
                 overflow-y: auto;
                 gap: 6px;
             }
-            .lore-sidebar.expanded .lore-sidebar-content { display: flex; }
-            
             .lore-sidebar-item {
                 background: rgba(255,255,255,0.04);
                 padding: 8px 12px;
@@ -971,6 +960,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 box-shadow: 0 25px 65px rgba(0,0,0,0.95);
                 display: flex;
                 flex-direction: column;
+                margin: auto;
                 gap: 16px;
                 margin: auto;
                 flex-shrink: 0;
@@ -1360,12 +1350,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 </div>
 
                 
+                
                 <!-- Thanh Danh Sách Địa Điểm (Sidebar) -->
-                <div id="lore_sidebar" class="lore-sidebar collapsed">
-                    <div class="lore-sidebar-header" onclick="window._loreToggleSidebar()">
-                        <div class="lore-sidebar-toggle-icon"><i class="fa-solid fa-bars"></i></div>
-                        <span class="lore-sidebar-title">Danh sách khu vực</span>
-                    </div>
+                <div id="lore_sidebar" class="lore-sidebar" style="display: none;">
+                    <span class="lore-sidebar-title"><i class="fa-solid fa-list-ul"></i> Danh sách khu vực</span>
                     <div id="lore_sidebar_content" class="lore-sidebar-content">
                         <!-- Nạp động -->
                     </div>
@@ -1392,6 +1380,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
                     <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><i class="fa-solid fa-minus"></i></button>
                     <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.18); margin: 0 3px;"></div>
+                    <button class="lore-graph-btn active" id="lore_btn_sidebar_toggle" onclick="window._loreToggleSidebar()" title="Bật/Tắt Danh Sách Khu Vực"><i class="fa-solid fa-list"></i></button>
                     <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><i class="fa-solid fa-hand"></i> Kéo 2D</button>
                 </div>
             </div>
@@ -1757,8 +1746,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const currentParent = navStack.length > 0 ? navStack[navStack.length - 1] : null;
             
             let html = `
-                <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 100000000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
-                    <div style="background: #1e293b; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+                <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 100000000; display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding: 40px 0; box-sizing: border-box; backdrop-filter: blur(4px);">
+                    <div style="background: #1e293b; width: 500px; max-width: 90%; margin: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
                             <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><i class="fa-solid fa-plus-square" style="color: #38bdf8; margin-right: 8px;"></i>Tạo Địa Điểm Mới</div>
                             <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><i class="fa-solid fa-xmark"></i></button>
@@ -2344,17 +2333,24 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     };
 
     
+    
     window._loreToggleSidebar = function() {
         const sb = doc.getElementById('lore_sidebar');
+        const btn = doc.getElementById('lore_btn_sidebar_toggle');
         if (sb) {
-            sb.classList.toggle('collapsed');
-            sb.classList.toggle('expanded');
+            if (sb.style.display === 'none') {
+                sb.style.display = 'flex';
+                if(btn) btn.classList.add('active');
+            } else {
+                sb.style.display = 'none';
+                if(btn) btn.classList.remove('active');
+            }
         }
     };
 
     window._loreFocusNode = function(locId) {
         const viewport = doc.getElementById('lore_app_viewport');
-        const nodeBtn = doc.getElementById('loc_btn_' + locId);
+        const nodeBtn = doc.querySelector(`[data-loc-id="${locId}"]`);
         if (viewport && nodeBtn) {
             const vpRect = viewport.getBoundingClientRect();
             const nodeRect = nodeBtn.getBoundingClientRect();
