@@ -11,7 +11,7 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.1.2
+ * - Phiên bản: v1.5.1.3
  */
 
 (function () {
@@ -599,8 +599,22 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 content-visibility: auto;
                 contain-intrinsic-size: var(--lore-node-size) var(--lore-node-size);
                 contain: layout style;
-                overflow: visible;
+                overflow-y: auto;
+                overflow-x: hidden;
                 user-select: none;
+            }
+            .location-button::-webkit-scrollbar {
+                width: 6px;
+            }
+            .location-button::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .location-button::-webkit-scrollbar-thumb {
+                background: rgba(56, 189, 248, 0.25);
+                border-radius: 4px;
+            }
+            .location-button::-webkit-scrollbar-thumb:hover {
+                background: rgba(56, 189, 248, 0.6);
             }
             @media (max-width: 880px) {
                 #lore_app_header { flex-direction: column; align-items: stretch; max-height: 42vh; overflow-y: auto; gap: 10px; }
