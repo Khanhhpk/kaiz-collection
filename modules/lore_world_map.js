@@ -3107,10 +3107,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     const headers = { 'Content-Type': 'application/json' };
                     if (aiConfig.customKey) headers['Authorization'] = `Bearer ${aiConfig.customKey}`;
 
-                    const res = await fetch(aiConfig.customUrl, {
-                        method: 'POST',
-                        headers,
-                        body: JSON.stringify({
+                    const controller = new AbortController();
+                      const timeoutId = setTimeout(() => controller.abort(), 300000);
+                      const res = await fetch(aiConfig.customUrl, {
+                          method: 'POST',
+                          headers,
+                          signal: controller.signal,
+                          body: JSON.stringify({
                             model: aiConfig.customModel || 'gpt-4o-mini',
                             messages: [
                                 { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
@@ -3120,6 +3123,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         })
                     });
                     const data = await res.json();
+                      clearTimeout(timeoutId);
                     if (data && data.choices && data.choices[0] && data.choices[0].message) {
                         window._lastAiResponse = data.choices[0].message.content;
                         responseJson = parseJsonFromText(data.choices[0].message.content);
@@ -3213,10 +3217,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     const headers = { 'Content-Type': 'application/json' };
                     if (aiConfig.customKey) headers['Authorization'] = `Bearer ${aiConfig.customKey}`;
 
-                    const res = await fetch(aiConfig.customUrl, {
-                        method: 'POST',
-                        headers,
-                        body: JSON.stringify({
+                    const controller = new AbortController();
+                      const timeoutId = setTimeout(() => controller.abort(), 300000);
+                      const res = await fetch(aiConfig.customUrl, {
+                          method: 'POST',
+                          headers,
+                          signal: controller.signal,
+                          body: JSON.stringify({
                             model: aiConfig.customModel || 'gpt-4o-mini',
                             messages: [
                                 { role: 'system', content: 'Bạn là chuyên gia xuất JSON bản đồ App Lưới chuẩn xác 100%.' },
@@ -3226,6 +3233,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         })
                     });
                     const data = await res.json();
+                      clearTimeout(timeoutId);
                     if (data && data.choices && data.choices[0] && data.choices[0].message) {
                         window._lastAiResponse = data.choices[0].message.content;
                         responseJson = parseJsonFromText(data.choices[0].message.content);
