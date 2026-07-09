@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.0.3
+ * - Phiên bản: v1.5.0.4
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.3)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.4)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -564,9 +564,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 flex-wrap: nowrap;
             }
             .lore-grid-row > .location-button {
-                flex: 1 1 340px;
-                min-width: 300px;
-                max-width: 440px;
+                flex: 0 0 340px;
+                width: 340px;
             }
             @media (max-width: 880px) {
                 #lore_app_header { flex-direction: column; align-items: stretch; max-height: 42vh; overflow-y: auto; gap: 10px; }
@@ -2615,11 +2614,6 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
     // CHUỘT PHẢI: Mở xem thông tin chi tiết (Deep Lore Info)
     window._loreOnLocationRightClick = function (event, locId) {
-        if (loreDidPanDuringDrag) {
-            if (event && event.preventDefault) event.preventDefault();
-            if (event && event.stopPropagation) event.stopPropagation();
-            return false;
-        }
         if (event) {
             if (event.preventDefault) event.preventDefault();
             if (event.stopPropagation) event.stopPropagation();
