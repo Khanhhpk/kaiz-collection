@@ -1237,6 +1237,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (!viewport) return;
 
         viewport.addEventListener('dragstart', (e) => {
+            if (window._loreDragMode && e.target.closest('.location-button')) return; // Allow native drag
             if (loreGraphDragEnabled && !e.target.closest('input, textarea')) e.preventDefault();
         });
 
