@@ -2859,7 +2859,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     }
 
     let customDragSourceId = null;
-    let customDragClone = null;
+    let customDragCloneWrapper = null;
 
     window._loreCustomDragStart = function(e, locId) {
         if (!window._loreDragMode) return;
@@ -2875,36 +2875,53 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         
         targetElement.classList.add('lore-drag-active');
         
-        // Disable pointer events on the overlay so we don't accidentally hover things while dragging
-        const overlay = document.getElementById('lore_world_map_overlay');
-        
-        customDragClone = targetElement.cloneNode(true);
-        customDragClone.classList.remove('lore-drag-active');
-        customDragClone.style.position = 'fixed';
-        customDragClone.style.pointerEvents = 'none';
-        customDragClone.style.zIndex = '9999999';
-        customDragClone.style.opacity = '0.8';
-        customDragClone.style.transform = 'scale(0.95)';
-        customDragClone.style.transition = 'none';
-        customDragClone.style.margin = '0';
-        
         const rect = targetElement.getBoundingClientRect();
-        customDragClone.style.width = rect.width + 'px';
-        customDragClone.style.height = rect.height + 'px';
         
-        overlay.appendChild(customDragClone);
+        customDragCloneWrapper = document.createElement('div');
+        customDragCloneWrapper.id = 'lore_grid_container';
+        customDragCloneWrapper.style.position = 'fixed';
+        customDragCloneWrapper.style.pointerEvents = 'none';
+        customDragCloneWrapper.style.zIndex = '9999999';
+        customDragCloneWrapper.style.margin = '0';
+        customDragCloneWrapper.style.padding = '0';
+        customDragCloneWrapper.style.background = 'transparent';
+        customDragCloneWrapper.style.border = 'none';
+        customDragCloneWrapper.style.width = rect.width + 'px';
+        customDragCloneWrapper.style.height = rect.height + 'px';
+        
+        const rowWrapper = document.createElement('div');
+        rowWrapper.className = 'lore-grid-row';
+        rowWrapper.style.margin = '0';
+        rowWrapper.style.padding = '0';
+        rowWrapper.style.width = '100%';
+        rowWrapper.style.height = '100%';
+        rowWrapper.style.display = 'flex';
+        
+        const customDragClone = targetElement.cloneNode(true);
+        customDragClone.classList.remove('lore-drag-active');
+        customDragClone.style.margin = '0';
+        customDragClone.style.transform = 'scale(1.05)';
+        customDragClone.style.opacity = '0.9';
+        customDragClone.style.boxShadow = '0 20px 40px rgba(0,0,0,0.5)';
+        customDragClone.style.width = '100%';
+        customDragClone.style.height = '100%';
+        customDragClone.style.flex = '1';
+        
+        rowWrapper.appendChild(customDragClone);
+        customDragCloneWrapper.appendChild(rowWrapper);
+        document.body.appendChild(customDragCloneWrapper);
         
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
         
         // Set initial position
-        customDragClone.style.left = (e.clientX - offsetX) + 'px';
-        customDragClone.style.top = (e.clientY - offsetY) + 'px';
+        customDragCloneWrapper.style.left = (e.clientX - offsetX) + 'px';
+        customDragCloneWrapper.style.top = (e.clientY - offsetY) + 'px';
         
         const onMouseMove = (moveEvent) => {
-            if (customDragClone) {
-                customDragClone.style.left = (moveEvent.clientX - offsetX) + 'px';
-                customDragClone.style.top = (moveEvent.clientY - offsetY) + 'px';
+            if (customDragCloneWrapper) {
+                customDragCloneWrapper.style.left = (moveEvent.clientX - offsetX) + 'px';
+                customDragCloneWrapper.style.top = (moveEvent.clientY - offsetY) + 'px';
             }
         };
         
@@ -2916,9 +2933,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 targetElement.classList.remove('lore-drag-active');
             }
             
-            if (customDragClone) {
-                customDragClone.remove();
-                customDragClone = null;
+            if (customDragCloneWrapper) {
+                customDragCloneWrapper.remove();
+                customDragCloneWrapper = null;
             }
             
             if (customDragSourceId) {
