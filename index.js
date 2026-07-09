@@ -679,7 +679,7 @@ function renderExtensionSettings(targetWin, jq) {
             <!-- Tab Navigation Buttons -->
             <div style="display: flex; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
                 <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.12); color: #38bdf8; transition: all 0.2s; box-shadow: 0 0 12px rgba(56, 189, 248, 0.12); font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i class="fa-solid fa-cubes-stacked"></i><span>Quản lý Module (28)</span>
+                    <i class="fa-solid fa-cubes-stacked"></i><span>Quản lý Module (${CORE_MODULES.length + PHONE_APPS.length + UTILITY_MODULES.length})</span>
                 </button>
                 <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <i class="fa-solid fa-terminal"></i><span>Nhật ký & Console</span>
