@@ -11,13 +11,13 @@
  *   - Hỗ trợ nút `Bật/Ẩn Cầu Nối Lưới` (`window._loreToggleVisualConnectors`) và hiệu ứng chuyển nhanh tới địa điểm (`window._loreQuickJumpToLocation`).
  * - [🔥 Chế độ Sửa trực tiếp trên Modal (`Inline Modal Editor`)]:
  *   - Sửa thông tin nhanh ngay trực tiếp trên Modal Deep Info mà không cần pop-up làm phiền.
- * - Phiên bản: v1.5.1.1
+ * - Phiên bản: v1.5.1.2
  */
 
 (function () {
     'use strict';
 
-    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.0.8)...');
+    console.log('[Lore World Map] Đang khởi tạo Bản Đồ Thế Giới v8.8 Graph & Smart Grid Layout (v1.5.1.2)...');
 
     const MODULE_ID = 'lore_world_map_app';
     const MODULE_TITLE = 'Bản Đồ Thế Giới (App Lưới)';
@@ -103,7 +103,7 @@ CHÚ Ý QUAN TRỌNG:
 - BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), NHÃN DÁN (\`tags\`), ICON BẢN ĐỒ (\`icon\`) VÀ LIÊN KẾT (\`connections\`)! Hãy sáng tạo tối đa và khách quan theo bối cảnh truyện, tuyệt đối không bị gò bó bởi bất kỳ từ khóa hardcode nào!
 - "controlled_by": Là nhân vật hoặc thế lực CHỦ QUẢN, sở hữu, cai quản, kiểm soát địa điểm này (nhân vật có thể là chủ của nhiều nơi cùng lúc).
 - "characters": Là DANH SÁCH NHÂN VẬT ĐANG HIỆN DIỆN TẠI ĐÂY LÚC NÀY. Nếu đang ở chế độ bản đồ khách quan tĩnh hoặc không có nhân vật đứng tại đây, hãy để mảng rỗng \`[]\`.
-- "grid_hint": BẠN PHẢI QUYẾT ĐỊNH VỊ TRÍ BÀI TRÍ "row,col" trên lưới không gian cho MỌI \`locations\` và \`subLocations\` dựa trên kết quả \`geography_thought_process\`! Hãy đảm bảo TÍNH LOGIC KHÔNG GIAN: Gần nhau ngoài đời thực -> Sát nhau trên lưới. Xa nhau ngoài đời thực -> Cách xa nhau trên lưới. Phân bố các thành phố/tòa nhà thành từng cụm riêng biệt!`;
+- "grid_hint": BẠN PHẦN QUYẾT ĐỊNH VỊ TRÍ BÀI TRÍ "row,col" trên lưới không gian cho MỌI \`locations\` và \`subLocations\` dựa trên kết quả \`geography_thought_process\`! Hãy đảm bảo TÍNH LOGIC KHÔNG GIAN: Gần nhau ngoài đời thực -> Sát nhau trên lưới. Xa nhau ngoài đời thực -> Cách xa nhau trên lưới. Phân bố các thành phố/tòa nhà thành từng cụm riêng biệt!`;
 
     const DEFAULT_DEEP_DRILL_PROMPT = `Bạn là Kiến Trúc Sư Khám Phá Địa Lý Sâu Đa Tầng (Deep Lore N-Layer Drill-Down Architect).
 Chúng ta đang muốn KHÁM PHÁ SÂU VÀ DỰNG THÊM CÁC PHÂN KHU CON / CĂN PHÒNG / HẦM NGẦM NẰM BÊN TRONG địa điểm sau một cách KHÁCH QUAN và CHUẨN XÁC:
@@ -122,7 +122,7 @@ NHIỆM VỤ CỦA BẠN:
 === CÁC PHÂN KHU ĐÃ CÓ ===
 {{existing_map}}
 ==========================
-NẾU một phân khu đã có, bạn PHẢI ĐIỀN trường "id" để CẬP NHẬT nó (vd sửa lại nhân vật hiện diện, mô tả, bí mật) thay vì tạo mới. Nếu tạo căn phòng mới, BỎ TRỐNG trường "id".
+NẾU một phân khu đã có, bạn PHẦI ĐIỀN trường "id" để CẬP NHẬT nó (vd sửa lại nhân vật hiện diện, mô tả, bí mật) thay vì tạo mới. Nếu tạo căn phòng mới, BỎ TRỐNG trường "id".
 2. Hãy sáng tạo và xây dựng thêm (hoặc cập nhật) các Phân Khu Con / Căn Phòng / Góc Bí Mật / Hầm Ngầm NẰM BÊN TRONG "{{target_name}}" sao cho chuẩn xác, hợp logic với kiến trúc và cốt truyện để làm sâu sắc thêm trải nghiệm khám phá.
 3. BẠN HOÀN TOÀN TOÀN QUYỀN QUYẾT ĐỊNH PHÂN LOẠI (\`category\`), ICON (\`icon\`), NHÃN DÁN (\`tags\`) VÀ LIÊN KẾT (\`connections\`) cho từng căn phòng/phân khu mới! Không bị giới hạn trong bất kỳ từ khóa cứng nhắc hay hardcode nào! Đặc biệt chú ý mô tả chuẩn lối đi liên kết giữa căn phòng này tới các khu vực bên ngoài (\`connections\`).
 
@@ -1177,6 +1177,24 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         saveAiConfig();
         const overlay = doc.getElementById('lore_app_modal_overlay');
         if (overlay) overlay.style.setProperty('--lore-node-size', `${aiConfig.nodeSize}px`);
+        
+        const label = doc.getElementById('lore_node_size_label');
+        if (label) {
+            label.textContent = Math.round((aiConfig.nodeSize / 340) * 100) + '%';
+        }
+    };
+
+    window._loreChangeNodeSizeStep = function(deltaPercent) {
+        const base = 340;
+        let currentPercent = (aiConfig.nodeSize || base) / base;
+        currentPercent += deltaPercent;
+        if (currentPercent < 0.5) currentPercent = 0.5; // Min 50%
+        if (currentPercent > 2.5) currentPercent = 2.5; // Max 250%
+        window._loreChangeNodeSize(Math.round(base * currentPercent));
+    };
+
+    window._loreResetNodeSize = function() {
+        window._loreChangeNodeSize(340);
     };
 
     window._loreToggleDynamicTracking = function() {
@@ -1341,7 +1359,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
                     <div style="display: flex; align-items: center; gap: 8px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.18); margin-right: 4px;">
                         <span style="font-size: 0.8em; color: #cbd5e1; font-weight: bold;"><i class="fa-solid fa-expand"></i> Cỡ ô</span>
-                        <input type="range" id="lore_node_size_slider" min="200" max="800" step="20" value="${aiConfig.nodeSize || 340}" style="width: 80px; accent-color: #38bdf8;" oninput="window._loreChangeNodeSize(this.value)" title="Điều chỉnh kích thước ô vuông địa điểm" />
+                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(-0.1)" title="Thu nhỏ cỡ ô (-10%)"><i class="fa-solid fa-minus"></i></button>
+                        <button class="lore-graph-btn" onclick="window._loreResetNodeSize()" title="Đặt lại cỡ ô (100%)"><span id="lore_node_size_label">${Math.round(((aiConfig.nodeSize||340)/340)*100)}%</span></button>
+                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(0.1)" title="Phóng to cỡ ô (+10%)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><i class="fa-solid fa-plus"></i></button>
                     <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
