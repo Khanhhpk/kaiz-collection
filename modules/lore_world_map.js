@@ -645,7 +645,21 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             .location-button.danger-button { border-color: #fb7185; background: linear-gradient(145deg, rgba(136, 19, 55, 0.72), rgba(15, 23, 42, 0.96)); }
             .location-button.danger-button:hover { border-color: #fca5a5; box-shadow: 0 18px 40px rgba(251, 113, 133, 0.35); }
             
-            .location-button.empty-location {
+            
+        .lore-drag-mode-cell {
+            border: 2px dashed rgba(255, 255, 255, 0.2) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+        .lore-drag-mode-cell:hover {
+            border-color: rgba(56, 189, 248, 0.5) !important;
+            background: rgba(56, 189, 248, 0.1) !important;
+        }
+        .location-button[draggable="true"]:active {
+            cursor: grabbing !important;
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
+\n        .location-button.empty-location {
                 background: rgba(15, 23, 42, 0.2);
                 border: 1px dashed rgba(148, 163, 184, 0.2);
                 color: #64748b;
@@ -1307,7 +1321,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                         <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Bật/Tắt chế độ thêm địa điểm">
                             <img src="https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <span id="lore_btn_add_text">Thêm Địa Điểm</span>
+                        </button>\n
+                        <button id="lore_btn_drag_mode" class="lore-btn lore-btn-secondary" title="Sắp xếp kéo thả vị trí">
+                            <img src="https://api.iconify.design/lucide:move.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <span id="lore_btn_drag_text">Sắp Xếp</span>
                         </button>
+
 
                         <button id="lore_btn_saved_maps" class="lore-btn lore-btn-secondary" title="Kiểm tra & Xóa nhanh các bản đồ / chat đang lưu">
                             <img src="https://api.iconify.design/lucide:folder-tree.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Map Lưu
@@ -1761,9 +1779,64 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             }
         });
 
+        
+        // Xử lý nút Sắp Xếp (Bật / Tắt Drag Mode)
+        overlay.querySelector('#lore_btn_drag_mode').addEventListener('click', () => {
+            window._loreDragMode = !window._loreDragMode;
+            if (window._loreAddMode) {
+                window._loreAddMode = false;
+            window._loreDragMode = false;
+            const dragBtnReset = overlay.querySelector('#lore_btn_drag_mode'); if(dragBtnReset) { dragBtnReset.style.background = ''; dragBtnReset.style.color = ''; dragBtnReset.style.borderColor = ''; }
+            const dragBtnTextReset = overlay.querySelector('#lore_btn_drag_text'); if(dragBtnTextReset) dragBtnTextReset.innerText = 'Sắp Xếp';
+            const dragBtnIconReset = overlay.querySelector('#lore_btn_drag_mode img'); if(dragBtnIconReset) dragBtnIconReset.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1';
+                const addBtn = overlay.querySelector('#lore_btn_add_location');
+                if (addBtn) {
+                    addBtn.style.background = '';
+                    addBtn.style.color = '';
+                    addBtn.style.borderColor = '';
+                }
+                const addBtnText = overlay.querySelector('#lore_btn_add_text');
+                if(addBtnText) addBtnText.innerText = 'Thêm Địa Điểm';
+                const addBtnIcon = overlay.querySelector('#lore_btn_add_location img');
+                if(addBtnIcon) addBtnIcon.src = 'https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1';
+            }
+            const btnText = overlay.querySelector('#lore_btn_drag_text');
+            const btnIcon = overlay.querySelector('#lore_btn_drag_mode img');
+            const btn = overlay.querySelector('#lore_btn_drag_mode');
+            if (window._loreDragMode) {
+                btnText.innerText = 'Đang Sắp Xếp';
+                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:check.svg?color=%23fca5a5';
+                btn.style.background = 'rgba(239, 68, 68, 0.15)';
+                btn.style.color = '#fca5a5';
+                btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            } else {
+                btnText.innerText = 'Sắp Xếp';
+                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1';
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }
+            renderAppGrid();
+        });
+
         // Xử lý nút Thêm Địa Điểm (Bật / Tắt Add Mode)
         overlay.querySelector('#lore_btn_add_location').addEventListener('click', () => {
             window._loreAddMode = !window._loreAddMode;
+
+            if (window._loreDragMode) {
+                window._loreDragMode = false;
+                const dragBtn = overlay.querySelector('#lore_btn_drag_mode');
+                if (dragBtn) {
+                    dragBtn.style.background = '';
+                    dragBtn.style.color = '';
+                    dragBtn.style.borderColor = '';
+                }
+                const dragBtnText = overlay.querySelector('#lore_btn_drag_text');
+                if(dragBtnText) dragBtnText.innerText = 'Sắp Xếp';
+                const dragBtnIcon = overlay.querySelector('#lore_btn_drag_mode img');
+                if(dragBtnIcon) dragBtnIcon.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1';
+            }
+
             const btnText = overlay.querySelector('#lore_btn_add_text');
             const btnIcon = overlay.querySelector('#lore_btn_add_location img');
             const btn = overlay.querySelector('#lore_btn_add_location');
@@ -1784,7 +1857,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         });
 
         window._loreOpenCreateModal = function(r, c) {
-            window._loreAddMode = false; // Turn off add mode
+            window._loreAddMode = false;
+            window._loreDragMode = false;
+            const dragBtnReset = overlay.querySelector('#lore_btn_drag_mode'); if(dragBtnReset) { dragBtnReset.style.background = ''; dragBtnReset.style.color = ''; dragBtnReset.style.borderColor = ''; }
+            const dragBtnTextReset = overlay.querySelector('#lore_btn_drag_text'); if(dragBtnTextReset) dragBtnTextReset.innerText = 'Sắp Xếp';
+            const dragBtnIconReset = overlay.querySelector('#lore_btn_drag_mode img'); if(dragBtnIconReset) dragBtnIconReset.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1'; // Turn off add mode
             
             // Reset button ui
             const btnText = overlay.querySelector('#lore_btn_add_text');
@@ -2688,7 +2765,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     const tagsHTML = tagsList.map(t => `<span class="badge-pill badge-status" style="border-color: #c084fc; color: #e9d5ff; background: rgba(168,85,247,0.22);">${cleanLabelText(t)}</span>`).join('');
 
                     html += `
-                        <div class="${btnClass}" data-loc-id="${loc.id}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem & Đọc Thông Tin Chi Tiết (Deep Info)">
+                        <div class="${btnClass}" ${window._loreDragMode ? 'style="cursor: grab;" draggable="true" ondragstart="window._loreOnDragStart(event, \''+loc.id+'\')" ondragover="event.preventDefault()" ondrop="window._loreOnDrop(event, '+r+', '+c+')"' : ''} data-loc-id="${loc.id}" onclick="window._loreOnLocationLeftClick(event, '${loc.id}')" oncontextmenu="window._loreOnLocationRightClick(event, '${loc.id}')" title="🖱️ Chuột Trái: Vào Phân Khu (${subCount} tập con) | 🖱️ Chuột Phải: Xem & Đọc Thông Tin Chi Tiết (Deep Info)">
                             <!-- HEADER BADGES -->
                             <div class="loc-card-header">
                                 <span class="badge-pill ${isHub ? 'badge-hub' : 'badge-cat'}">${categoryText}</span>
