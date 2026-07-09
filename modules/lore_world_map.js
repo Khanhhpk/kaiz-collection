@@ -1502,12 +1502,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             <div id="lore_saved_maps_modal">
                 <div id="lore_saved_maps_box">
                     <div style="font-weight: 800; font-size: 1.18em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
-                        <span>🗂️ QUẢN LÝ BẢN ĐỒ LƯU THEO CHAT</span>
+                        <span><img src="https://api.iconify.design/lucide:folder-open.svg?color=%23facc15" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> QUẢN LÝ BẢN ĐỒ LƯU THEO CHAT</span>
                         <span id="saved_maps_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <div style="font-size: 0.88em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25);">
-                        ℹ️ Tất cả bản đồ thế giới đều được **tự động lưu riêng biệt theo từng Chat ID** của bạn. Dưới đây là danh sách các bản đồ hiện có trong hệ thống:
+                        <img src="https://api.iconify.design/lucide:info.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tất cả bản đồ thế giới đều được **tự động lưu riêng biệt theo từng Chat ID** của bạn. Dưới đây là danh sách các bản đồ hiện có trong hệ thống:
                     </div>
 
                     <div id="saved_maps_list" style="display: flex; flex-direction: column; gap: 10px; max-height: 52vh; overflow-y: auto; padding-right: 4px;">
@@ -2282,11 +2282,11 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <div class="saved-map-item" style="${isCurrent ? 'border-color: #38bdf8; background: rgba(56,189,248,0.12);' : ''}">
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <div style="font-weight: 800; color: #f8fafc; font-size: 0.98em;">
-                            💬 Chat ID: <span style="color: #c084fc;">${item.chatId}</span>
-                            ${isCurrent ? `<span style="background: #38bdf8; color: #000; font-size: 0.72em; padding: 2px 6px; border-radius: 6px; margin-left: 6px;">⭐ Đang mở</span>` : ''}
+                            <img src="https://api.iconify.design/lucide:message-square.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Chat ID: <span style="color: #c084fc;">${item.chatId}</span>
+                            ${isCurrent ? `<span style="background: #38bdf8; color: #000; font-size: 0.72em; padding: 2px 6px; border-radius: 6px; margin-left: 6px;"><img src="https://api.iconify.design/lucide:star.svg?color=%23facc15" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang mở</span>` : ''}
                         </div>
                         <div style="font-size: 0.82em; color: #94a3b8;">
-                            📍 <b>${item.count}</b> khu vực / phân khu | 📦 <b>${item.sizeKB} KB</b>
+                            <img src="https://api.iconify.design/lucide:map-pin.svg?color=%23f43f5e" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${item.count}</b> khu vực / phân khu | <img src="https://api.iconify.design/lucide:archive.svg?color=%23d97706" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${item.sizeKB} KB</b>
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
@@ -2381,7 +2381,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         navStack.forEach((item, idx) => {
             html += `<span style="color: #64748b; font-weight: bold;">/</span>`;
             if (idx === navStack.length - 1) {
-                html += `<span class="lore-breadcrumb-item active">📍 ${item.name}</span>`;
+                html += `<span class="lore-breadcrumb-item active"><img src="https://api.iconify.design/lucide:map-pin.svg?color=%23f43f5e" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> ${item.name}</span>`;
             } else {
                 html += `<span class="lore-breadcrumb-item" onclick="window._loreNavJump(${idx})">${item.name}</span>`;
             }
