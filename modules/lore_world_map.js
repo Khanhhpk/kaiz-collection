@@ -3326,7 +3326,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 let s = "";
                 locs.forEach(loc => {
                     let hasContent = false;
-                    let locInfo = `* Địa điểm: ${loc.name || 'Unknown'} (${loc.type || ''})\n`;
+                    const typeStr = loc.type ? ` (${loc.type})` : '';
+                    let locInfo = `* Địa điểm: ${loc.name || 'Unknown'}${typeStr}\n`;
                     if (aiConfig.injLocDetails && loc.description) {
                         locInfo += `  - Mô tả: ${loc.description}\n`;
                         hasContent = true;
@@ -3535,15 +3536,19 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
     function init() {
         injectStyles();
         registerToMasterBall();
-        setupPromptInjection();
         loadMapDataForCurrentChat();
+        setupPromptInjection();
 
         try {
             const win = window.parent || window;
             if (win.eventSource && typeof win.eventSource.on === 'function') {
-                win.eventSource.on('chatLoaded', () => loadMapDataForCurrentChat());
-                win.eventSource.on('chat_changed', () => loadMapDataForCurrentChat());
-                win.eventSource.on('character_selected', () => loadMapDataForCurrentChat());
+                const reloadAndInject = () => {
+                    loadMapDataForCurrentChat();
+                    if (typeof updateExtensionPrompts === 'function') updateExtensionPrompts();
+                };
+                win.eventSource.on('chatLoaded', reloadAndInject);
+                win.eventSource.on('chat_changed', reloadAndInject);
+                win.eventSource.on('character_selected', reloadAndInject);
             }
         } catch (e) {}
     }
