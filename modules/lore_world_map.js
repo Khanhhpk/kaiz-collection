@@ -3029,7 +3029,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             globalLoadingIcon.style.cssText = `
                 position: fixed;
                 top: 70px;
-                right: 20px;
+                left: calc(100vw - 60px);
                 z-index: 2147483647;
                 background: rgba(15, 23, 42, 0.85);
                 border: 1px solid #38bdf8;
@@ -3060,6 +3060,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 `;
                 doc.head.appendChild(style);
             }
+        }
+        if (globalLoadingIcon.parentNode !== doc.body) {
             doc.body.appendChild(globalLoadingIcon);
         }
         globalLoadingIcon.style.opacity = '1';
