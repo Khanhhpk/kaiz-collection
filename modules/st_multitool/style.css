@@ -1091,19 +1091,20 @@
   border: 1px solid var(--st-multitool-border);
 }
 .st-multitool-nav-tab {
-  flex: 1;
-  min-width: 120px;
+  flex: 1 1 auto;
+  min-width: 90px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 6px;
+  padding: 8px 10px;
   border-radius: 10px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--st-multitool-text-muted);
   font-weight: 600;
-  font-size: 0.86em;
+  font-size: 0.84em;
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
 }

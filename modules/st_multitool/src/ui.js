@@ -35,6 +35,20 @@ export function initUIElements() {
     manageRegexView: $('#st-multitool-manage-regex-view'),
     overlay: $('#st-multitool-popup-overlay'),
   };
+
+  $('#st-multitool-popup').off('click touchend', '.st-multitool-nav-tab').on('click touchend', '.st-multitool-nav-tab', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $('.st-multitool-nav-tab').removeClass('active');
+    $(this).addClass('active');
+    const filter = $(this).data('filter');
+    if (filter === 'all') {
+      $('.st-multitool-dash-card').css('display', 'flex').hide().fadeIn(180);
+    } else {
+      $('.st-multitool-dash-card').hide();
+      $(`.st-multitool-dash-card[data-category="${filter}"]`).css('display', 'flex').hide().fadeIn(180);
+    }
+  });
 }
 
 export function showLoader() {
