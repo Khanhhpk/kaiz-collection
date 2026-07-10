@@ -9,7 +9,6 @@ import { initManageWorldbook, renderManageWorldbookList } from "./features/manag
 import { initManageScripts, renderManageScriptLists } from "./features/manage-scripts.js";
 import { initManageRegex, renderManageRegexLists } from "./features/manage-regex.js";
 import { initManagePrompt } from "./features/manage-prompt.js";
-import { initExplorer } from "./features/explorer.js";
 import {
   closePopup,
   elements,
@@ -59,7 +58,7 @@ async function init() {
     }
 
 
-    $("#st-multitool-popup"). on(
+    $("#st-multitool-popup").on(
       "click",
       ".st-multitool-section-header:has(.st-multitool-collapse-icon)",
       function () {
@@ -91,7 +90,7 @@ async function init() {
     $("#st-multitool-goto-modify-btn").on("click", () =>
       showSubView("st-multitool-modify-view"),
     );
-    $("#st-multitool-goto-transfer-btn"). on("click", () =>
+    $("#st-multitool-goto-transfer-btn").on("click", () =>
       showSubView("st-multitool-transfer-view"),
     );
     $("#st-multitool-goto-duplicate-btn").on("click", () =>
@@ -162,7 +161,6 @@ async function init() {
     initManageScripts();
     initManageRegex();
     initManagePrompt();
-    initExplorer();
 
     showMainView();
     console.log(`[${MODULE_NAME}] Khởi tạo hoàn tất`);

@@ -59,9 +59,6 @@
           <button class="st-multitool-nav-tab" data-filter="prompt">
             <i data-lucide="bot"></i> Prompt AI
           </button>
-          <button class="st-multitool-nav-tab" data-filter="explorer">
-            <i data-lucide="terminal"></i> Sys Explorer
-          </button>
           <button class="st-multitool-nav-tab" data-filter="sync">
             <i data-lucide="settings-2"></i> Đồng bộ & Tiện ích
           </button>
@@ -249,25 +246,7 @@
             </div>
           </div>
 
-          <!-- Card 5: System Explorer -->
-          <div class="st-multitool-dash-card" data-category="explorer">
-            <div class="st-multitool-dash-card-header">
-              <div class="st-multitool-card-icon" style="background: rgba(33, 150, 243, 0.15); color: #2196f3;"><i data-lucide="terminal"></i></div>
-              <h3>System Explorer</h3>
-            </div>
-            <div class="st-multitool-dash-card-desc">
-              Trình gỡ lỗi nâng cao. Khám phá toàn bộ biến, hàm và API của SillyTavern.
-            </div>
-            <div class="st-multitool-dash-card-body">
-              <div class="st-multitool-card-actions-grid">
-                <button class="st-multitool-btn-hero primary" id="st-multitool-manage-explorer-btn">
-                  <i data-lucide="terminal"></i> Mở Explorer
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 6: Sync & Settings -->
+          <!-- Card 5: Sync & Settings -->
           <div class="st-multitool-dash-card" data-category="sync">
             <div class="st-multitool-dash-card-header">
               <div class="st-multitool-card-icon sync"><i data-lucide="refresh-cw"></i></div>
@@ -1326,62 +1305,6 @@
               <button id="st-multitool-manage-regex-render-btn" class="st-multitool-button st-multitool-btn-small"><i data-lucide="eye"></i> Render</button>
             </div>
             <div id="st-multitool-manage-regex-preview-container" style="display: none; margin-top: 15px; border: 1px solid var(--st-multitool-border); border-radius: 5px; background: #fff; min-height: 300px; overflow: auto;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MANAGE PROMPT AI VIEW -->
-      <div id="st-multitool-manage-prompt-view" class="st-multitool-section" style="display: none; display: flex; flex-direction: column; gap: 15px; height: 100%;">
-        <div class="st-multitool-section-header">
-          <h4><i data-lucide="bot"></i> Quản lý Prompt Preset</h4>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <p style="margin: 0;">Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.</p>
-        </div>
-        
-        <button class="st-multitool-btn-primary" id="st-multitool-save-prompt-btn" style="width: 100%; padding: 12px; font-weight: bold; background: #00d2b4; color: #111;">
-          <i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt
-        </button>
-
-        <div id="st-multitool-prompt-list-container" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
-          <!-- Items will be generated here -->
-        </div>
-      </div>
-
-      <!-- SYSTEM EXPLORER VIEW -->
-      <div id="st-multitool-explorer-view" class="st-multitool-section" style="display: none; display: flex; flex-direction: column; gap: 15px; height: 100%;">
-        <div class="st-multitool-section-header">
-          <h4><i data-lucide="terminal"></i> System Explorer</h4>
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <div style="flex: 1; position: relative;">
-            <i data-lucide="search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #aaa; width: 16px; height: 16px;"></i>
-            <input type="text" id="st-multitool-explorer-search" class="st-multitool-input" placeholder="Tìm kiếm biến, hàm (VD: prompts, power_user...)" style="padding-left: 32px; width: 100%;">
-          </div>
-          <button class="st-multitool-btn-secondary" id="st-multitool-explorer-refresh-btn" title="Tải lại">
-            <i data-lucide="refresh-cw"></i>
-          </button>
-        </div>
-
-        <div style="display: flex; gap: 10px;">
-          <button class="st-multitool-btn-secondary" id="st-multitool-explorer-tab-ctx" style="flex: 1; border-bottom: 2px solid #00d2b4; border-radius: 0;">ST Context</button>
-          <button class="st-multitool-btn-secondary" id="st-multitool-explorer-tab-win" style="flex: 1; border-radius: 0; opacity: 0.7;">Window (Global)</button>
-        </div>
-
-        <div id="st-multitool-explorer-tree-container" style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 13px; line-height: 1.5; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.1);">
-          <!-- JSON Tree will be rendered here -->
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 5px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 12px; font-weight: bold; color: #aaa;">Mini Console</span>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <span style="color: #00d2b4; font-family: monospace; display: flex; align-items: center;">&gt;</span>
-            <input type="text" id="st-multitool-explorer-console-input" class="st-multitool-input" placeholder="Nhập mã JS để đánh giá (VD: Object.keys(window))" style="flex: 1; font-family: monospace; font-size: 12px; background: rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.05);">
-            <button class="st-multitool-btn-primary" id="st-multitool-explorer-console-run" style="padding: 0 12px;"><i data-lucide="play" style="width: 14px; height: 14px;"></i></button>
-          </div>
-          <div id="st-multitool-explorer-console-output" style="font-family: monospace; font-size: 12px; color: #a5d6ff; margin-top: 5px; word-break: break-all; max-height: 80px; overflow-y: auto;">
           </div>
         </div>
       </div>
