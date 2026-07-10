@@ -75,12 +75,13 @@ export function renderPromptBlocks() {
     return;
   }
 
-  let allHtml = '';
+  let activeHtml = '';
+  let inactiveHtml = '';
 
   prompts.forEach((block, idx) => {
     const isEnabled = block.enabled;
     const blockHtml = `
-      <div class="st-multitool-wb-item" data-idx="${idx}">
+      <div class="st-multitool-wb-item" data-idx="${idx}" style="${isEnabled ? '' : 'opacity: 0.75;'}">
         <div class="st-multitool-wb-item-header st-multitool-accordion-header" style="cursor: pointer; user-select: none;">
           <div class="st-multitool-wb-item-title-col">
             <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
@@ -142,10 +143,22 @@ export function renderPromptBlocks() {
       </div>
     `;
     
-    allHtml += blockHtml;
+    if (isEnabled) activeHtml += blockHtml;
+    else inactiveHtml += blockHtml;
   });
 
-  $promptListContainer.html(allHtml);
+  const layoutHtml = `
+    <h5 style="margin: 0 0 10px 0; color: #34d399; font-size: 0.95em;"><i class="fa-solid fa-link"></i> Linked / Active Prompts</h5>
+    <div id="st-multitool-prompt-list-active" class="st-multitool-prompt-sortable-list" style="min-height: 50px; border: 1px dashed rgba(52, 211, 153, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
+      ${activeHtml}
+    </div>
+    <h5 style="margin: 0 0 10px 0; color: #aaa; font-size: 0.95em;"><i class="fa-solid fa-unlink"></i> Unlinked / Inactive Prompts</h5>
+    <div id="st-multitool-prompt-list-inactive" class="st-multitool-prompt-sortable-list" style="min-height: 50px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
+      ${inactiveHtml}
+    </div>
+  `;
+
+  $promptListContainer.html(layoutHtml);
 
   // Bind accordion click
   $promptListContainer.find('.st-multitool-accordion-header').on('click', function(e) {
@@ -165,12 +178,37 @@ export function renderPromptBlocks() {
     this.style.height = (this.scrollHeight + 2) + 'px';
   });
 
-  // Enable Sortable
+  // Handle manual toggle switch click to move between lists
+  $promptListContainer.find('.st-multitool-prompt-enabled').on('change', function(e) {
+    const isChecked = $(this).is(':checked');
+    const $item = $(this).closest('.st-multitool-wb-item');
+    if (isChecked) {
+      $item.css('opacity', '1');
+      $('#st-multitool-prompt-list-active').append($item);
+    } else {
+      $item.css('opacity', '0.75');
+      $('#st-multitool-prompt-list-inactive').append($item);
+    }
+    savePromptBlocks();
+  });
+
+  // Enable Sortable with connected lists
   if (typeof $promptListContainer.sortable === 'function') {
-    $promptListContainer.sortable({
+    $promptListContainer.find('.st-multitool-prompt-sortable-list').sortable({
+      connectWith: '.st-multitool-prompt-sortable-list',
       handle: '.st-multitool-drag-handle',
-      update: function() {
-        savePromptBlocks(); // Auto save when order changes
+      receive: function(event, ui) {
+        // Fired when an item is dropped into a different list
+        const isNowActive = $(this).attr('id') === 'st-multitool-prompt-list-active';
+        ui.item.find('.st-multitool-prompt-enabled').prop('checked', isNowActive);
+        ui.item.css('opacity', isNowActive ? '1' : '0.75');
+        savePromptBlocks();
+      },
+      update: function(event, ui) {
+        // Prevent double saving when moving between lists
+        if (!ui.sender) {
+          savePromptBlocks(); 
+        }
       }
     });
   }
