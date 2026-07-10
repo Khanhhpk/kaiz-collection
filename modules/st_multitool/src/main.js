@@ -9,6 +9,7 @@ import { initManageWorldbook, renderManageWorldbookList } from "./features/manag
 import { initManageScripts, renderManageScriptLists } from "./features/manage-scripts.js";
 import { initManageRegex, renderManageRegexLists } from "./features/manage-regex.js";
 import { initManagePrompt } from "./features/manage-prompt.js";
+import { initVarInspector } from "./features/var-inspector.js";
 import {
   closePopup,
   elements,
@@ -161,6 +162,7 @@ async function init() {
     initManageScripts();
     initManageRegex();
     initManagePrompt();
+    initVarInspector();
 
     showMainView();
     console.log(`[${MODULE_NAME}] Khởi tạo hoàn tất`);
