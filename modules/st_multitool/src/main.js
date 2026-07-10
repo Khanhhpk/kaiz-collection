@@ -14,6 +14,7 @@ import {
   initUIElements,
   showMainView,
   showSubView,
+  showPopup,
 } from "./ui.js";
 
 const MODULE_NAME = "Đồng bộ Sổ thế giới";
@@ -47,11 +48,12 @@ async function init() {
         onClick: showPopup
     };
     
-    if (window.FloatingMenuManager) {
-        window.FloatingMenuManager.registerButton(stMultitoolBtnConfig);
+    const win = window.parent || window;
+    if (win.FloatingMenuManager) {
+        win.FloatingMenuManager.registerButton(stMultitoolBtnConfig);
     } else {
-        window._fmmPendingRegistrations = window._fmmPendingRegistrations || [];
-        window._fmmPendingRegistrations.push(stMultitoolBtnConfig);
+        win._fmmPendingRegistrations = win._fmmPendingRegistrations || [];
+        win._fmmPendingRegistrations.push(stMultitoolBtnConfig);
     }
 
 
