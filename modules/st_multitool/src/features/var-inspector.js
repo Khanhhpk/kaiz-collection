@@ -476,7 +476,8 @@ export function initVarInspector() {
     panel.style.display = isHidden ? 'block' : 'none';
     if (isHidden) {
       if (!$('#st-multitool-vi-edit-mode-btn').length) {
-        $('#st-multitool-vi-search').after(`<button id="st-multitool-vi-edit-mode-btn" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #aaa;" title="Bật/Tắt chế độ chỉnh sửa tên và giá trị biến">✏️ Edit Mode</button>`);
+        $('#st-multitool-vi-search').parent().after(`<button id="st-multitool-vi-edit-mode-btn" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #aaa; flex-shrink: 0;" title="Bật/Tắt chế độ chỉnh sửa tên và giá trị biến"><i data-lucide="edit" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Edit Mode</button>`);
+        if (window.lucide) window.lucide.createIcons();
       }
       doRefresh();
     }
