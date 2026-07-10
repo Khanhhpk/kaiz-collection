@@ -623,7 +623,8 @@ export function handleFrontendRender(cardId) {
   
   if ($container.is(':visible')) {
     $container.empty().hide();
-    $btn.html('👁️ Render frontend');
+    $btn.html('<i data-lucide="eye"></i> Render frontend');
+    if (window.lucide) window.lucide.createIcons();
     return;
   }
 
@@ -723,9 +724,9 @@ export function renderFrontendCards() {
           <button class="st-multitool-button fe-import-global-btn" data-id="${card.id}">Nhập vào regex toàn cục</button>
           <button class="st-multitool-button fe-import-preset-btn" data-id="${card.id}">Nhập vào regex preset</button>
           <button class="st-multitool-button fe-import-character-btn" data-id="${card.id}">Nhập vào regex cục bộ</button>
-          <button class="st-multitool-button fe-render-btn" data-id="${card.id}">👁️ Render frontend</button>
-          <button class="st-multitool-button st-multitool-btn-primary fe-download-btn" data-id="${card.id}"><i class="fa-solid fa-download"></i> Tải xuống thành script regex</button>
-          <button class="st-multitool-button st-multitool-btn-small abandon fe-delete-btn" data-id="${card.id}">🗑️ Xóa</button>
+          <button class="st-multitool-button fe-render-btn" data-id="${card.id}"><i data-lucide="eye"></i> Render frontend</button>
+          <button class="st-multitool-button st-multitool-btn-primary fe-download-btn" data-id="${card.id}"><i data-lucide="download"></i> Tải xuống thành script regex</button>
+          <button class="st-multitool-button st-multitool-btn-small abandon fe-delete-btn" data-id="${card.id}"><i data-lucide="trash-2"></i> Xóa</button>
         </div>
         <div id="st-multitool-fe-preview-container-${card.id}" style="display: none; margin-top: 15px; border: 1px solid var(--st-multitool-border); border-radius: 5px; padding: 10px; background: #fff; color: #000; overflow: auto; min-height: 300px;"></div>
       </div>
@@ -734,6 +735,7 @@ export function renderFrontendCards() {
   });
 
   $feCardsContainer.html(html);
+  if (window.lucide) window.lucide.createIcons();
 }
 
 export function renderScriptCards(prefix) {
@@ -776,8 +778,8 @@ export function renderScriptCards(prefix) {
           <button class="st-multitool-button ss-import-global-btn" data-id="${card.id}" style="background-color: var(--st-multitool-primary); color: #000; opacity: 1">Nhập vào thư viện script toàn cục</button>
           <button class="st-multitool-button ss-import-preset-btn" data-id="${card.id}" style="background-color: var(--st-multitool-primary); color: #000; opacity: 1">Nhập vào thư viện script preset</button>
           <button class="st-multitool-button ss-import-character-btn" data-id="${card.id}" style="background-color: var(--st-multitool-primary); color: #000; opacity: 1">Nhập vào thư viện script nhân vật</button>
-          <button class="st-multitool-button st-multitool-btn-primary ss-download-btn" data-id="${card.id}" style="opacity: 1">⬇️ Tải script</button>
-          <button class="st-multitool-button st-multitool-btn-small abandon ss-delete-btn" data-id="${card.id}">🗑️ Xóa</button>
+          <button class="st-multitool-button st-multitool-btn-primary ss-download-btn" data-id="${card.id}" style="opacity: 1"><i data-lucide="download"></i> Tải script</button>
+          <button class="st-multitool-button st-multitool-btn-small abandon ss-delete-btn" data-id="${card.id}"><i data-lucide="trash-2"></i> Xóa</button>
         </div>
       </div>
     </div>

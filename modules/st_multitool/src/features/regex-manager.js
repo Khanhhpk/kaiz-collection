@@ -311,7 +311,8 @@ function handleRenderToFrontend() {
 
   if ($container.is(':visible')) {
     $container.empty().hide();
-    $btn.html('👁️ Render');
+    $btn.html('<i data-lucide="eye"></i> Render');
+    if (window.lucide) window.lucide.createIcons();
     return;
   }
 

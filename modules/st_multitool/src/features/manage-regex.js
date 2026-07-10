@@ -120,7 +120,7 @@ function renderRegexList($container, regexes, type) {
         <span class="st-multitool-manage-regex-name">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
       </div>
       <div class="st-multitool-manage-regex-actions">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download"><i class="fa-solid fa-download"></i> Tải xuống thành script regex</button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download"><i data-lucide="download"></i> Tải xuống thành script regex</button>
         <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete">Xóa</button>
       </div>
     `;
@@ -272,7 +272,8 @@ function handleRenderToFrontend() {
 
   if ($container.is(':visible')) {
     $container.empty().hide();
-    $btn.html('👁️ Render');
+    $btn.html('<i data-lucide="eye"></i> Render');
+    if (window.lucide) window.lucide.createIcons();
     return;
   }
 

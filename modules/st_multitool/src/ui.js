@@ -101,7 +101,7 @@ export function showMainView() {
   $('.st-multitool-nav-tab[data-filter="all"]').addClass('active');
   $('.st-multitool-dash-card').css('display', 'flex');
 
-  $('#st-multitool-header-title').text('ST Multitool - Menu chính');
+  $('#st-multitool-header-title').html('<i data-lucide="layout-dashboard" style="margin-right: 8px; vertical-align: -2px;"></i> ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
   setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 100);
@@ -138,37 +138,37 @@ export async function showSubView(viewId) {
 
   let title = 'ST Multitool';
   if (viewId === 'st-multitool-select-view') {
-    title = '✅ Chọn Sổ thế giới cần bật';
+    title = '<i data-lucide="check-square" style="margin-right: 8px; vertical-align: -2px;"></i> Chọn Sổ thế giới cần bật';
     renderWorldBooks();
   }
   if (viewId === 'st-multitool-modify-view') {
-    title = '📝 Chỉnh sửa mục của Sổ thế giới';
+    title = '<i data-lucide="file-edit" style="margin-right: 8px; vertical-align: -2px;"></i> Chỉnh sửa mục của Sổ thế giới';
     populateModifyWorldbookSelect();
   }
   if (viewId === 'st-multitool-transfer-view') {
-    title = '🔄 Chuyển mục';
+    title = '<i data-lucide="arrow-right-left" style="margin-right: 8px; vertical-align: -2px;"></i> Chuyển mục Sổ thế giới';
     populateTransferSelects();
   }
   if (viewId === 'st-multitool-sync-view') {
-    title = '⚡ Đồng bộ Sổ thế giới';
+    title = '<i data-lucide="refresh-cw" style="margin-right: 8px; vertical-align: -2px;"></i> Đồng bộ Sổ thế giới';
     populateSyncWorldbooks();
   }
   if (viewId === 'st-multitool-duplicate-view') {
-    title = '📑 Sao chép Sổ thế giới';
+    title = '<i data-lucide="copy" style="margin-right: 8px; vertical-align: -2px;"></i> Sao chép Sổ thế giới';
     populateDuplicateSelect();
   }
   if (viewId === 'st-multitool-rename-view') {
-    title = '✏️ Đổi tên';
+    title = '<i data-lucide="edit-2" style="margin-right: 8px; vertical-align: -2px;"></i> Đổi tên Sổ thế giới';
     populateRenameSelect();
   }
   if (viewId === 'st-multitool-delete-view') {
-    title = '🗑️ Xóa Sổ thế giới và mục';
+    title = '<i data-lucide="trash-2" style="margin-right: 8px; vertical-align: -2px;"></i> Xóa Sổ thế giới và mục';
     renderDeleteView();
   }
-  if (viewId === 'st-multitool-frontend-view') title = '💻 Trình đồng bộ frontend';
-  if (viewId === 'st-multitool-script-sync-view') title = '💻 Trình đồng bộ script';
+  if (viewId === 'st-multitool-frontend-view') title = '<i data-lucide="monitor" style="margin-right: 8px; vertical-align: -2px;"></i> Trình đồng bộ frontend';
+  if (viewId === 'st-multitool-script-sync-view') title = '<i data-lucide="terminal" style="margin-right: 8px; vertical-align: -2px;"></i> Trình đồng bộ script';
   if (viewId === 'st-multitool-create-regex-view') {
-    title = '💻 Tạo script regex';
+    title = '<i data-lucide="file-plus-2" style="margin-right: 8px; vertical-align: -2px;"></i> Tạo script regex';
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
       $('#st-multitool-cr-import-character-btn').show();
@@ -177,7 +177,7 @@ export async function showSubView(viewId) {
     }
   }
   if (viewId === 'st-multitool-create-script-view') {
-    title = '💻 Tạo script Trợ lý Tavern';
+    title = '<i data-lucide="file-code" style="margin-right: 8px; vertical-align: -2px;"></i> Tạo script Trợ lý Tavern';
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
       $('#st-multitool-cs-import-character-script-btn').show();
@@ -185,9 +185,9 @@ export async function showSubView(viewId) {
       $('#st-multitool-cs-import-character-script-btn').hide();
     }
   }
-  if (viewId === 'st-multitool-settings-view') title = '⚙️ Cài đặt tiện ích';
+  if (viewId === 'st-multitool-settings-view') title = '<i data-lucide="sliders" style="margin-right: 8px; vertical-align: -2px;"></i> Cài đặt tiện ích';
   if (viewId === 'st-multitool-manage-wb-view') {
-    title = '📚 Quản lý Sổ thế giới';
+    title = '<i data-lucide="library" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý Sổ thế giới';
     renderManageWorldbookList();
     restoreWbCardStates();
     $('#st-multitool-manage-wb-refresh-btn').show();
@@ -195,7 +195,7 @@ export async function showSubView(viewId) {
     $('#st-multitool-manage-wb-refresh-btn').hide();
   }
   if (viewId === 'st-multitool-manage-script-view') {
-    title = '🤖 Quản lý script Trợ lý Tavern';
+    title = '<i data-lucide="cpu" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý script Trợ lý Tavern';
     renderManageScriptLists();
     restoreScriptCardStates();
     $('#st-multitool-manage-script-refresh-btn').show();
@@ -209,7 +209,7 @@ export async function showSubView(viewId) {
     $('#st-multitool-manage-script-refresh-btn').hide();
   }
   if (viewId === 'st-multitool-manage-regex-view') {
-    title = '📋 Quản lý script regex';
+    title = '<i data-lucide="filter" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý script regex';
     renderManageRegexLists();
     restoreRegexCardStates();
     $('#st-multitool-manage-regex-refresh-btn').show();
@@ -223,7 +223,7 @@ export async function showSubView(viewId) {
     $('#st-multitool-manage-regex-refresh-btn').hide();
   }
 
-  $('#st-multitool-header-title').text(title);
+  $('#st-multitool-header-title').html(title);
   $('#st-multitool-popup-back-btn').show();
   $(`#${viewId}`).show();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, viewId);
