@@ -27,7 +27,7 @@ async function init() {
   try {
     const html = await $.get(new URL("panel.html", extensionBaseUrl).href);
     $("body").append(html);
-    $("head").append(`<link rel="stylesheet" href="${new URL("style.css", extensionBaseUrl).href}">`);
+    $("head").append(`<link rel="stylesheet" href="${new URL("style.css?v=" + Date.now(), extensionBaseUrl).href}">`);
     $("head").append('<script src="https://unpkg.com/lucide@latest"></script>');
 
     initUIElements();
