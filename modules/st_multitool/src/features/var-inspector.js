@@ -10,42 +10,59 @@ import { escapeHtml } from '../utils.js';
 // ─── Edit Mode & State ───────────────────────────────────────────────────────────
 let _isEditMode = false;
 let _pendingRenames = {}; // { originalName: newName }
-let _pendingValues = {};  // { originalName: newValue }
+let _pendingSourceValues = {}; // { sourceId: { promptId, fullMatch, oldName, newVal, type } }
 
 export function getPendingVarChanges() {
-  return { renames: _pendingRenames, values: _pendingValues };
+  return { renames: _pendingRenames, valuesBySource: _pendingSourceValues };
 }
 
 export function clearPendingVarChanges() {
   _pendingRenames = {};
-  _pendingValues = {};
+  _pendingSourceValues = {};
   doRefresh();
 }
 
 /**
- * Applies pending renames and value changes to a prompt string.
+ * Applies pending value changes per source, then renames.
  */
-export function applyVarChangesToContent(content, renames, values) {
+export function applyVarChangesToContent(content, promptId, renames, valuesBySource) {
   if (!content) return content;
   let newContent = content;
 
-  const namesToProcess = new Set([...Object.keys(renames), ...Object.keys(values)]);
-  
-  for (const oldName of namesToProcess) {
-    const newName = renames[oldName] || oldName;
-    const hasNewVal = oldName in values;
-    const newVal = hasNewVal ? values[oldName] : null;
+  // 1. Apply value changes for this specific prompt block FIRST
+  for (const [sourceId, valInfo] of Object.entries(valuesBySource)) {
+    if (valInfo.promptId === promptId) {
+      // Reconstruct the macro with the OLD name but NEW value
+      let constructedMatch = '';
+      if (valInfo.fullMatch.startsWith('{{setvar::')) {
+        constructedMatch = `{{setvar::${valInfo.oldName}::${valInfo.newVal}}}`;
+      } else if (valInfo.fullMatch.startsWith('{{addvar::')) {
+        constructedMatch = `{{addvar::${valInfo.oldName}::${valInfo.newVal}}}`;
+      } else if (valInfo.fullMatch.startsWith('/setvar')) {
+        constructedMatch = `/setvar key=${valInfo.oldName} ${valInfo.newVal}`;
+      }
+      
+      if (constructedMatch) {
+        newContent = newContent.replace(valInfo.fullMatch, constructedMatch);
+      }
+    }
+  }
 
-    // {{setvar::oldName::oldVal}}
+  // 2. Apply global renames SECOND
+  const namesToProcess = Object.keys(renames);
+  for (const oldName of namesToProcess) {
+    const newName = renames[oldName];
+
+    // {{setvar::oldName::val}}
     newContent = newContent.replace(
       new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
-      (match, val) => `{{setvar::${newName}::${hasNewVal ? newVal : val}}}`
+      (match, val) => `{{setvar::${newName}::${val}}}`
     );
 
-    // {{addvar::oldName::oldVal}}
+    // {{addvar::oldName::val}}
     newContent = newContent.replace(
       new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
-      (match, val) => `{{addvar::${newName}::${hasNewVal ? newVal : val}}}`
+      (match, val) => `{{addvar::${newName}::${val}}}`
     );
 
     // {{getvar::oldName}}
@@ -54,10 +71,10 @@ export function applyVarChangesToContent(content, renames, values) {
       `{{getvar::${newName}}}`
     );
 
-    // /setvar key=oldName oldVal
+    // /setvar key=oldName val
     newContent = newContent.replace(
       new RegExp(`\\/setvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
-      (match, val) => `/setvar key=${newName} ${hasNewVal ? newVal : val}`
+      (match, val) => `/setvar key=${newName} ${val}`
     );
 
     // /getvar key=oldName
@@ -89,7 +106,8 @@ function scanPromptContent(content, promptName, promptId) {
   if (!content) return refs;
 
   const add = (name, type, value, scope, matchStr) => {
-    refs.push({ name: name.trim(), type, value: value?.trim(), scope, promptName, promptId, excerpt: truncate(matchStr, 80) });
+    const id = 'src_' + Math.random().toString(36).substr(2, 9);
+    refs.push({ id, name: name.trim(), type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: truncate(matchStr, 80) });
   };
 
   let m;
@@ -197,7 +215,7 @@ function analyse() {
     const hasGet = v.sources.some(s => s.type === 'get');
     v.isUnused = hasSet && !hasGet && v.scope === 'local';
     
-    // Find the first preset value definition for edit mode
+    // Find the first preset value definition for edit mode (no longer used for top-level input, but good for reference)
     const firstSet = v.sources.find(s => s.type === 'set' || s.type === 'addvar');
     v.presetValue = firstSet && firstSet.value !== undefined ? firstSet.value : '';
     
@@ -228,7 +246,6 @@ function renderVarList(vars) {
     
     // Live display vs Edit display
     const currentName = _pendingRenames[v.name] || v.name;
-    const currentVal = v.name in _pendingValues ? _pendingValues[v.name] : v.presetValue;
     
     let headerHtml = `<span class="st-multitool-vi-var-name">${escapeHtml(v.name)}</span>`;
     let valueHtml = v.liveValue !== null
@@ -237,21 +254,30 @@ function renderVarList(vars) {
 
     if (_isEditMode && v.scope === 'local') {
       headerHtml = `<input type="text" class="st-multitool-vi-edit-name" data-oldname="${escapeHtml(v.name)}" value="${escapeHtml(currentName)}" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid #00e6b8; color:#e2e8f0; padding:2px 6px; border-radius:4px; font-family:monospace; margin-right:8px;" placeholder="Tên biến...">`;
-      const valColor = v.name in _pendingValues ? '#fde68a' : '#888';
-      valueHtml = `<input type="text" class="st-multitool-vi-edit-val" data-oldname="${escapeHtml(v.name)}" value="${escapeHtml(currentVal)}" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid ${valColor}; color:#86efac; padding:4px 6px; border-radius:4px; font-family:monospace; margin-top:4px;" placeholder="Nội dung/giá trị preset...">`;
     }
 
     const warningHtml = v.isUnused ? `<span title="Khai báo nhưng chưa được getvar ở đâu trong preset" style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:2px 6px; border-radius:4px; font-size:0.7em; margin-right:6px;">⚠️ Unused</span>` : '';
 
     const sourcesHtml = v.sources.length === 0
       ? '<div class="st-multitool-vi-no-src">Không tìm thấy trong prompt nào (biến runtime)</div>'
-      : v.sources.map(s => `
+      : v.sources.map(s => {
+          const isSetOrAdd = s.type === 'set' || s.type === 'addvar';
+          let valDisplay = s.value !== undefined ? `<span class="st-multitool-vi-src-val"> = ${escapeHtml(truncate(s.value, 40))}</span>` : '';
+          
+          if (_isEditMode && isSetOrAdd && v.scope === 'local') {
+            const currentVal = s.id in _pendingSourceValues ? _pendingSourceValues[s.id].newVal : s.value;
+            const valColor = s.id in _pendingSourceValues ? '#fde68a' : '#00e6b8';
+            valDisplay = ` = <input type="text" class="st-multitool-vi-edit-source-val" data-sourceid="${s.id}" value="${escapeHtml(currentVal)}" style="width:150px; background:rgba(0,0,0,0.3); border:1px solid ${valColor}; color:#86efac; padding:2px 4px; border-radius:4px; font-family:monospace;">`;
+          }
+
+          return `
           <div class="st-multitool-vi-src-item">
             <span class="st-multitool-vi-src-type">${typeLabel(s.type)}</span>
             <span class="st-multitool-vi-src-prompt" title="${escapeHtml(s.promptId)}">${escapeHtml(s.promptName)}</span>
-            ${s.value !== undefined ? `<span class="st-multitool-vi-src-val"> = ${escapeHtml(truncate(s.value, 40))}</span>` : ''}
+            ${valDisplay}
             <div class="st-multitool-vi-src-excerpt">${escapeHtml(s.excerpt)}</div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
 
     return `
       <div class="st-multitool-vi-card" style="border-left:3px solid ${borderColor} !important;">
@@ -477,16 +503,42 @@ export function initVarInspector() {
     $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt (Có thay đổi Var)');
   });
 
-  $popup.on('input', '.st-multitool-vi-edit-val', function(e) {
+  $popup.on('input', '.st-multitool-vi-edit-source-val', function(e) {
     e.stopPropagation();
-    const oldName = $(this).data('oldname');
+    const sourceId = $(this).data('sourceid');
     const newVal = $(this).val();
-    _pendingValues[oldName] = newVal;
-    $(this).css('border-color', '#fde68a'); // Highlight edited
-    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt (Có thay đổi Var)');
+    
+    // Find source info
+    let sourceObj = null;
+    let varObj = null;
+    for (const v of _allVars) {
+      const src = v.sources.find(s => s.id === sourceId);
+      if (src) {
+        sourceObj = src;
+        varObj = v;
+        break;
+      }
+    }
+
+    if (sourceObj && varObj) {
+      if (newVal === sourceObj.value) {
+        delete _pendingSourceValues[sourceId];
+        $(this).css('border-color', '#00e6b8');
+      } else {
+        _pendingSourceValues[sourceId] = {
+          promptId: sourceObj.promptId,
+          fullMatch: sourceObj.fullMatch,
+          oldName: varObj.name, // keep original name for construct
+          newVal: newVal,
+          type: sourceObj.type
+        };
+        $(this).css('border-color', '#fde68a'); // Highlight edited
+      }
+      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt (Có thay đổi Var)');
+    }
   });
 
-  $popup.on('click', '.st-multitool-vi-edit-name, .st-multitool-vi-edit-val', function(e) {
+  $popup.on('click', '.st-multitool-vi-edit-name, .st-multitool-vi-edit-source-val', function(e) {
     e.stopPropagation(); // Prevent accordion from toggling when clicking input
   });
 

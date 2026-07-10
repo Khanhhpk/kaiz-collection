@@ -304,7 +304,7 @@ export function savePromptBlocks() {
 
       let content = $item.find('.st-multitool-prompt-content').val();
       if (hasVarChanges) {
-        content = applyVarChangesToContent(content, renames, values);
+        content = applyVarChangesToContent(content, identifier, renames, values);
       }
 
       const newBlock = {
