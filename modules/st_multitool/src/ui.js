@@ -33,6 +33,7 @@ export function initUIElements() {
     manageWbView: $('#st-multitool-manage-wb-view'),
     manageScriptView: $('#st-multitool-manage-script-view'),
     manageRegexView: $('#st-multitool-manage-regex-view'),
+    managePromptView: $('#st-multitool-manage-prompt-view'),
     overlay: $('#st-multitool-popup-overlay'),
   };
 
@@ -91,6 +92,7 @@ export function showMainView() {
     elements.manageWbView,
     elements.manageScriptView,
     elements.manageRegexView,
+    elements.managePromptView,
   ].forEach(v => v && v.hide());
   
   $('#st-multitool-preset-list-container').hide();
@@ -134,6 +136,7 @@ export async function showSubView(viewId) {
     elements.manageWbView,
     elements.manageScriptView,
     elements.manageRegexView,
+    elements.managePromptView,
   ].forEach(v => v && v.hide());
 
   let title = 'ST Multitool';
@@ -215,12 +218,15 @@ export async function showSubView(viewId) {
     $('#st-multitool-manage-regex-refresh-btn').show();
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
-      $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-script-card').show();
+      $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-regex-card').show();
     } else {
-      $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-script-card').hide();
+      $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-regex-card').hide();
     }
   } else {
     $('#st-multitool-manage-regex-refresh-btn').hide();
+  }
+  if (viewId === 'st-multitool-manage-prompt-view') {
+    title = '<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Preset Editor';
   }
 
   $('#st-multitool-header-title').html(title);

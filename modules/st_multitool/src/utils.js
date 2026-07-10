@@ -1,6 +1,11 @@
 export const escapeHtml = unsafe => {
   if (unsafe === null || typeof unsafe === 'undefined') return '';
-  return $('<div>').text(String(unsafe)).html();
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 };
 
 export const delay = ms => new Promise(res => setTimeout(res, ms));
