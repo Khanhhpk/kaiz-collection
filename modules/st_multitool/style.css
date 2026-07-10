@@ -364,7 +364,7 @@
 }
 
 .st-multitool-preset-list-container {
-  margin: auto;
+  margin-top: 10px;
   background-color: var(--st-multitool-section-bg);
   border-radius: 5px;
   padding: 5px;
@@ -910,12 +910,7 @@
   .st-multitool-readme-content {
     width: 95vw;
     height: 85vh;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    margin: auto;
-    position: absolute;
+    max-height: 85vh;
   }
   .st-multitool-popup-container {
     width: 95vw;
