@@ -18,25 +18,30 @@
 
 .st-multitool-popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  width: 100dvw;
+  height: 100dvh;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 10001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .st-multitool-popup-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  width: 90vw;
+  max-width: calc(100vw - 32px);
+  height: 85vh;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  min-height: 0;
+  min-width: 0;
   margin: auto;
   z-index: 2147483646;
-  width: 90vw;
-  height: 85vh;
-  max-height: 85vh;
   background-color: var(--st-multitool-main-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
