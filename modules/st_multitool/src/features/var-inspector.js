@@ -302,6 +302,10 @@ let _initialized = false;
 let _allVars = [];
 let _currentScope = 'all';
 
+export function refreshVarInspector() {
+  doRefresh();
+}
+
 function doRefresh() {
   _allVars = analyse();
   applyFilter();

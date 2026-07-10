@@ -1,6 +1,6 @@
 import { escapeHtml } from '../utils.js';
 import { showLoader, hideLoader, showSubView } from '../ui.js';
-import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent } from './var-inspector.js';
+import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent, refreshVarInspector } from './var-inspector.js';
 
 let $promptListContainer;
 let $saveBtn;
@@ -235,7 +235,14 @@ export function renderPromptBlocks() {
     if ($(e.target).closest('.st-multitool-toggle-switch').length || $(e.target).closest('.st-multitool-drag-handle').length) return; // Ignore click on toggle switch or drag handle
     const $body = $(this).next('.st-multitool-accordion-body');
     const $icon = $(this).find('.st-multitool-accordion-icon');
-    $body.slideToggle(200);
+    $body.slideToggle(200, function() {
+      if ($(this).is(':visible')) {
+        $(this).find('textarea.st-multitool-prompt-content').each(function() {
+          this.style.height = 'auto';
+          this.style.height = (this.scrollHeight + 2) + 'px';
+        });
+      }
+    });
     $icon.css('transform', $body.is(':visible') ? 'rotate(180deg)' : 'rotate(0deg)');
   });
 
@@ -377,6 +384,8 @@ export function savePromptBlocks() {
       clearPendingVarChanges();
       $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt');
       if (window.lucide) window.lucide.createIcons();
+      refreshVarInspector();
+      renderPromptBlocks();
     }
 
     toastr.success('Đã lưu cấu hình Prompt Preset.');
