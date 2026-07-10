@@ -7,7 +7,6 @@ const MAGIC_MENU_ID = 'st-multitool-extension-menu-item';
 let magicMenuRetryTimer = null;
 let magicMenuRetryCount = 0;
 
-let $showFloatingBtn;
 let $showMagicWandBtn;
 let $showQrBtn;
 let $defaultCollapseBtn;
@@ -16,7 +15,6 @@ let $manageScriptCollapsedBtn;
 let $manageRegexCollapsedBtn;
 
 export function initSettings() {
-  $showFloatingBtn = $('#st-multitool-setting-show-floating-btn');
   $showMagicWandBtn = $('#st-multitool-setting-show-magic-wand-btn');
   $showQrBtn = $('#st-multitool-setting-show-qr-btn');
   $defaultCollapseBtn = $('#st-multitool-setting-default-collapse');
@@ -24,11 +22,6 @@ export function initSettings() {
   $manageScriptCollapsedBtn = $('#st-multitool-setting-manage-script-collapsed');
   $manageRegexCollapsedBtn = $('#st-multitool-setting-manage-regex-collapsed');
 
-  $showFloatingBtn
-    .on('mousedown', function () {
-      $(this).data('last-checked', $(this).is(':checked'));
-    })
-    .on('change', saveSettings);
   $showMagicWandBtn
     .on('mousedown', function () {
       $(this).data('last-checked', $(this).is(':checked'));
@@ -45,14 +38,12 @@ export function initSettings() {
   $manageRegexCollapsedBtn.on('change', saveSettings);
 
   loadSettings();
-  initFloatingButton();
   initMagicWandMenu();
   initQrMenu();
 }
 
 function normalizeSettings(raw = {}) {
   const settings = {
-    showFloatingBtn: raw.showFloatingBtn !== false,
     showMagicWandBtn: raw.showMagicWandBtn !== false,
     showQrBtn: raw.showQrBtn !== false,
     defaultCollapse: raw.defaultCollapse !== false,
@@ -62,15 +53,15 @@ function normalizeSettings(raw = {}) {
   };
 
   // Never allow all entry points to be disabled, otherwise users cannot reopen the UI.
-  if (!settings.showFloatingBtn && !settings.showMagicWandBtn && !settings.showQrBtn) {
-    settings.showFloatingBtn = true;
+  if (!settings.showMagicWandBtn && !settings.showQrBtn) {
+    settings.showMagicWandBtn = true;
   }
 
   return settings;
 }
 
 function getMagicMenuContainer() {
-  return $('#extensionsMenu, #extensions-menu, #extensions_settings, #extensions-settings, .extensionsMenu, .extensions-menu').first();
+  return $('#extensionsMenu, #extensions-menu, #extensions_settings, #extensions-settings, .extensionsMenu, .extensions-menu, #rm_extension_settings .list-group, #rm_extensions_block .list-group').first();
 }
 
 function createMagicWandMenuIfPossible() {
@@ -108,73 +99,8 @@ function initMagicWandMenu() {
   }, 500);
 }
 
-export function initFloatingButton() {
-  const $btn = $('#st-multitool-floating-btn');
-
-  function enforceBounds() {
-    if (!$btn.length) return;
-    const maxLeft = $(window).width() - $btn.outerWidth();
-    const maxTop = $(window).height() - $btn.outerHeight();
-    let pos = $btn.position();
-    let newLeft = Math.max(0, Math.min(pos.left, maxLeft));
-    let newTop = Math.max(0, Math.min(pos.top, maxTop));
-    $btn.css({ left: `${newLeft}px`, top: `${newTop}px`, right: 'auto', bottom: 'auto' });
-  }
-
-  const savedPos = JSON.parse(localStorage.getItem(STORAGE_KEY_BUTTON_POS));
-  if (savedPos) {
-    $btn.css({ top: savedPos.top, left: savedPos.left, right: 'auto', bottom: 'auto' });
-    setTimeout(enforceBounds, 100);
-  } else {
-    $btn.css({ bottom: '20px', right: '20px' });
-  }
-
-  $(window).on('resize', enforceBounds);
-
-  let isDragging = false,
-    offset = { x: 0, y: 0 },
-    wasDragged = false;
-
-  $btn.on('mousedown touchstart', e => {
-    isDragging = true;
-    wasDragged = false;
-    const touch = e.originalEvent.touches ? e.originalEvent.touches[0] : e;
-    const rect = $btn[0].getBoundingClientRect();
-    offset = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
-  });
-
-  $(document).on('mousemove touchmove', e => {
-    if (!isDragging) return;
-    wasDragged = true;
-    e.preventDefault();
-    const touch = e.originalEvent.touches ? e.originalEvent.touches[0] : e;
-    let newLeft = touch.clientX - offset.x;
-    let newTop = touch.clientY - offset.y;
-    const maxLeft = $(window).width() - $btn.outerWidth();
-    const maxTop = $(window).height() - $btn.outerHeight();
-    $btn.css({
-      left: `${Math.max(0, Math.min(newLeft, maxLeft))}px`,
-      top: `${Math.max(0, Math.min(newTop, maxTop))}px`,
-      right: 'auto',
-      bottom: 'auto',
-    });
-  });
-
-  $(document).on('mouseup touchend', () => {
-    if (!isDragging) return;
-    isDragging = false;
-    localStorage.setItem(STORAGE_KEY_BUTTON_POS, JSON.stringify({ top: $btn.css('top'), left: $btn.css('left') }));
-  });
-
-  $btn.on('click', e => {
-    if (wasDragged) e.preventDefault();
-    else showPopup();
-  });
-}
-
 export function loadSettings() {
-  if (!$showFloatingBtn) {
-    $showFloatingBtn = $('#st-multitool-setting-show-floating-btn');
+  if (!$showMagicWandBtn) {
     $showMagicWandBtn = $('#st-multitool-setting-show-magic-wand-btn');
     $showQrBtn = $('#st-multitool-setting-show-qr-btn');
     $defaultCollapseBtn = $('#st-multitool-setting-default-collapse');
@@ -191,7 +117,6 @@ export function loadSettings() {
     localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   }
 
-  $showFloatingBtn.prop('checked', settings.showFloatingBtn);
   $showMagicWandBtn.prop('checked', settings.showMagicWandBtn);
   $showQrBtn.prop('checked', settings.showQrBtn);
   $defaultCollapseBtn.prop('checked', settings.defaultCollapse);
@@ -204,7 +129,6 @@ export function loadSettings() {
 export function saveSettings(event) {
   const $changedCheckbox = $(event.target);
   const settings = normalizeSettings({
-    showFloatingBtn: $showFloatingBtn.is(':checked'),
     showMagicWandBtn: $showMagicWandBtn.is(':checked'),
     showQrBtn: $showQrBtn.is(':checked'),
     defaultCollapse: $defaultCollapseBtn.is(':checked'),
@@ -213,7 +137,7 @@ export function saveSettings(event) {
     manageRegexCollapsed: $manageRegexCollapsedBtn.is(':checked'),
   });
 
-  if (!settings.showFloatingBtn && !settings.showMagicWandBtn && !settings.showQrBtn) {
+  if (!settings.showMagicWandBtn && !settings.showQrBtn) {
     toastr.warning('Cần giữ lại ít nhất một lối vào tiện ích!');
     $changedCheckbox.prop('checked', true);
     return;
@@ -246,8 +170,6 @@ export function isManageRegexCollapsed() {
 
 export function applySettings(settings) {
   const normalized = normalizeSettings(settings);
-
-  $('#st-multitool-floating-btn').toggle(normalized.showFloatingBtn);
 
   if (normalized.showMagicWandBtn) {
     if (!createMagicWandMenuIfPossible()) {
