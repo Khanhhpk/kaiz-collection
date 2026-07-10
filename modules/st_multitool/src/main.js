@@ -8,6 +8,7 @@ import { populateSyncWorldbooks } from "./features/sync.js";
 import { initManageWorldbook, renderManageWorldbookList } from "./features/manage-worldbook.js";
 import { initManageScripts, renderManageScriptLists } from "./features/manage-scripts.js";
 import { initManageRegex, renderManageRegexLists } from "./features/manage-regex.js";
+import { initManagePrompt } from "./features/manage-prompt.js";
 import {
   closePopup,
   elements,
@@ -159,6 +160,7 @@ async function init() {
     initManageWorldbook();
     initManageScripts();
     initManageRegex();
+    initManagePrompt();
 
     showMainView();
     console.log(`[${MODULE_NAME}] Khởi tạo hoàn tất`);
