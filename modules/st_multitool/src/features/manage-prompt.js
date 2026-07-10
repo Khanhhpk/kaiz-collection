@@ -125,11 +125,8 @@ export function renderPromptBlocks() {
   
   if (Array.isArray(rawOrder) && rawOrder.length > 0) {
     if (typeof rawOrder[0] === 'object' && Array.isArray(rawOrder[0].order)) {
-      // ST 1.18.0 format: [ { character_id: ..., order: [...] } ]
-      const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
-      const charId = ctx.characterId;
-      let currentOrderObj = rawOrder.find(o => o.character_id === charId);
-      if (!currentOrderObj) currentOrderObj = rawOrder[0];
+      // Lấy trực tiếp order từ phần tử đầu tiên, bỏ qua character_id
+      let currentOrderObj = rawOrder[0];
       if (currentOrderObj && Array.isArray(currentOrderObj.order)) {
         promptOrder = currentOrderObj.order.map(item => item.identifier);
       }
@@ -359,11 +356,8 @@ export function savePromptBlocks() {
     
     // Check if it was ST 1.18.0 format originally
     if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0].order)) {
-      const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
-      const charId = ctx.characterId;
-      
-      let targetOrderObj = container.prompt_order.find(o => o.character_id === charId);
-      if (!targetOrderObj) targetOrderObj = container.prompt_order.length > 0 ? container.prompt_order[0] : null;
+      // Ghi đè trực tiếp vào phần tử đầu tiên, bỏ qua character_id
+      let targetOrderObj = container.prompt_order[0];
 
       if (targetOrderObj) {
         // newPromptOrder currently has [{identifier: '...'}, ...] from processItem
