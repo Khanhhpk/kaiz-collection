@@ -265,15 +265,3 @@ $(document).on('input', '.st-multitool-search-input', function() {
     }, 120);
 });
 
-$(document).on('click', '.st-multitool-nav-tab', function() {
-    $('.st-multitool-nav-tab').removeClass('active');
-    $(this).addClass('active');
-    const filter = $(this).data('filter');
-    if (filter === 'all') {
-        $('.st-multitool-dash-card').css('display', 'flex').hide().fadeIn(180);
-    } else {
-        $('.st-multitool-dash-card').hide();
-        $(`.st-multitool-dash-card[data-category="${filter}"]`).css('display', 'flex').hide().fadeIn(180);
-    }
-});
-
