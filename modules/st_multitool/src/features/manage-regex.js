@@ -246,7 +246,7 @@ async function handleSaveRegex() {
   }
 }
 
-function restoreRegexCardStates() {
+export function restoreRegexCardStates() {
   const cards = [
     'st-multitool-manage-regex-global-list',
     'st-multitool-manage-regex-preset-list',
@@ -257,8 +257,11 @@ function restoreRegexCardStates() {
 
   cards.forEach(cardId => {
     const savedState = localStorage.getItem(`st-multitool-regex-card-${cardId}`);
+    const $card = $(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`).closest('.st-multitool-manage-script-card');
     if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
-      $(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`).closest('.st-multitool-manage-script-card').addClass('collapsed');
+      $card.addClass('collapsed');
+    } else {
+      $card.removeClass('collapsed');
     }
   });
 }

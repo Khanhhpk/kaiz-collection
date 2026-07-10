@@ -1,4 +1,7 @@
 import { showPopup } from '../ui.js';
+import { restoreWbCardStates } from './manage-worldbook.js';
+import { restoreScriptCardStates } from './manage-scripts.js';
+import { restoreRegexCardStates } from './manage-regex.js';
 
 export const STORAGE_KEY_BUTTON_POS = 'st-multitool-btn-pos';
 export const STORAGE_KEY_SETTINGS = 'st-multitool-settings';
@@ -136,6 +139,7 @@ export function loadSettings() {
 }
 
 export function saveSettings(event) {
+  const oldSettings = normalizeSettings(JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS)) || {});
   const rawSettings = {
     showMagicWandBtn: $showMagicWandBtn.is(':checked'),
     showQrBtn: $showQrBtn.is(':checked'),
@@ -147,6 +151,31 @@ export function saveSettings(event) {
 
   const settings = normalizeSettings(rawSettings);
   localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+
+  if (oldSettings.manageWbCollapsed !== settings.manageWbCollapsed) {
+    [
+      'st-multitool-manage-wb-books-card',
+      'st-multitool-manage-wb-entries-card'
+    ].forEach(id => localStorage.removeItem(`st-multitool-wb-card-${id}`));
+    restoreWbCardStates();
+  }
+  if (oldSettings.manageScriptCollapsed !== settings.manageScriptCollapsed) {
+    [
+      'st-multitool-manage-script-global-list',
+      'st-multitool-manage-script-preset-list',
+      'st-multitool-manage-script-character-list'
+    ].forEach(id => localStorage.removeItem(`st-multitool-script-card-${id}`));
+    restoreScriptCardStates();
+  }
+  if (oldSettings.manageRegexCollapsed !== settings.manageRegexCollapsed) {
+    [
+      'st-multitool-manage-regex-global-list',
+      'st-multitool-manage-regex-preset-list',
+      'st-multitool-manage-regex-character-list'
+    ].forEach(id => localStorage.removeItem(`st-multitool-regex-card-${id}`));
+    restoreRegexCardStates();
+  }
+
   applySettings(settings);
   toastr.success('Đã lưu cài đặt!');
 }

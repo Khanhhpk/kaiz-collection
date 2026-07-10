@@ -341,7 +341,7 @@ async function handleCreateEntry() {
   }
 }
 
-function restoreWbCardStates() {
+export function restoreWbCardStates() {
   const cards = [
     'st-multitool-manage-wb-books-card',
     'st-multitool-manage-wb-entries-card'
@@ -351,8 +351,11 @@ function restoreWbCardStates() {
 
   cards.forEach(cardId => {
     const savedState = localStorage.getItem(`st-multitool-wb-card-${cardId}`);
+    const $card = $(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`).closest('.st-multitool-manage-script-card');
     if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
-      $(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`).closest('.st-multitool-manage-script-card').addClass('collapsed');
+      $card.addClass('collapsed');
+    } else {
+      $card.removeClass('collapsed');
     }
   });
 }

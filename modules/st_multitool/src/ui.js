@@ -6,9 +6,9 @@ import { populateModifyWorldbookSelect } from './features/entries.js';
 import { populateTransferSelects } from './features/entries.js';
 import { populateSyncWorldbooks } from './features/sync.js';
 import { populateDuplicateSelect, populateRenameSelect, renderDeleteView } from './features/worldbook.js';
-import { renderManageWorldbookList } from './features/manage-worldbook.js';
-import { renderManageScriptLists } from './features/manage-scripts.js';
-import { renderManageRegexLists } from './features/manage-regex.js';
+import { renderManageWorldbookList, restoreWbCardStates } from './features/manage-worldbook.js';
+import { renderManageScriptLists, restoreScriptCardStates } from './features/manage-scripts.js';
+import { renderManageRegexLists, restoreRegexCardStates } from './features/manage-regex.js';
 
 export const STORAGE_KEY_LAST_VIEW = 'st-multitool-last-view';
 
@@ -170,6 +170,7 @@ export async function showSubView(viewId) {
   if (viewId === 'st-multitool-manage-wb-view') {
     title = '📚 Quản lý Sổ thế giới';
     renderManageWorldbookList();
+    restoreWbCardStates();
     $('#st-multitool-manage-wb-refresh-btn').show();
   } else {
     $('#st-multitool-manage-wb-refresh-btn').hide();
@@ -177,6 +178,7 @@ export async function showSubView(viewId) {
   if (viewId === 'st-multitool-manage-script-view') {
     title = '🤖 Quản lý script Trợ lý Tavern';
     renderManageScriptLists();
+    restoreScriptCardStates();
     $('#st-multitool-manage-script-refresh-btn').show();
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
@@ -190,6 +192,7 @@ export async function showSubView(viewId) {
   if (viewId === 'st-multitool-manage-regex-view') {
     title = '📋 Quản lý script regex';
     renderManageRegexLists();
+    restoreRegexCardStates();
     $('#st-multitool-manage-regex-refresh-btn').show();
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
