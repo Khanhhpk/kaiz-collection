@@ -33,7 +33,6 @@
   position: relative;
   z-index: 2147483646;
   width: 90vw;
-  max-width: 90vw;
   height: 85vh;
   max-height: 85vh;
   background-color: var(--st-multitool-main-bg);
@@ -287,8 +286,6 @@
 .st-multitool-select,
 .st-multitool-textarea {
   width: 100%;
-  max-width: 100%;
-  text-overflow: ellipsis;
   padding: 10px;
   background-color: var(--st-multitool-main-bg);
   color: white;
@@ -487,10 +484,6 @@
   font-size: 13px;
   outline: none;
   transition: border-color 0.2s;
-  width: 100%;
-  max-width: 100%;
-  text-overflow: ellipsis;
-  box-sizing: border-box;
 }
 
 .st-multitool-input:focus {
