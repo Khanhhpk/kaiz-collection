@@ -212,28 +212,36 @@ export async function showSubView(viewId) {
 }
 
 $(document).on('input', '.st-multitool-search-input', function() {
-    const targetId = $(this).data('target');
-    const searchTerm = $(this).val().toLowerCase();
-    const $target = $(`#${targetId}`);
+    const inputElem = this;
+    const targetId = $(inputElem).data('target');
+    const searchTerm = inputElem.value.toLowerCase().trim();
     
-    if ($target.is('select')) {
-        $target.find('option').each(function() {
-            if ($(this).val() === '') return; // Skip placeholder
-            const text = $(this).text().toLowerCase();
-            if (text.includes(searchTerm)) {
-                $(this).show();
+    if (inputElem._searchTimeout) clearTimeout(inputElem._searchTimeout);
+    inputElem._searchTimeout = setTimeout(() => {
+        const target = document.getElementById(targetId);
+        if (!target) return;
+
+        requestAnimationFrame(() => {
+            if (target.tagName.toLowerCase() === 'select') {
+                const options = target.options;
+                const len = options.length;
+                for (let i = 0; i < len; i++) {
+                    const opt = options[i];
+                    if (opt.value === '') continue; // Skip placeholder
+                    const text = (opt.textContent || opt.innerText || '').toLowerCase();
+                    const shouldShow = text.includes(searchTerm);
+                    opt.style.display = shouldShow ? '' : 'none';
+                    opt.hidden = !shouldShow;
+                }
             } else {
-                $(this).hide();
+                const children = target.children;
+                const len = children.length;
+                for (let i = 0; i < len; i++) {
+                    const child = children[i];
+                    const text = (child.textContent || child.innerText || '').toLowerCase();
+                    child.style.display = text.includes(searchTerm) ? '' : 'none';
+                }
             }
         });
-    } else {
-        $target.children().each(function() {
-            const text = $(this).text().toLowerCase();
-            if (text.includes(searchTerm)) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    }
+    }, 120);
 });
