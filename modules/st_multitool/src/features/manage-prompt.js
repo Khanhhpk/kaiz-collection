@@ -1,5 +1,5 @@
 import { escapeHtml } from '../utils.js';
-import { showLoader, hideLoader } from '../ui.js';
+import { showLoader, hideLoader, showSubView } from '../ui.js';
 
 let $promptListContainer;
 let $saveBtn;
@@ -9,12 +9,8 @@ export function initManagePrompt() {
   $saveBtn = $('#st-multitool-save-prompt-btn');
 
   $('#st-multitool-manage-prompt-btn').on('click', () => {
-    // switch view
-    $('.st-multitool-section').hide();
-    $('#st-multitool-manage-prompt-view').fadeIn(180);
-    $('#st-multitool-header-title').html('<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý Prompt Preset');
-    $('#st-multitool-popup-back-btn').show();
-    
+    showSubView('st-multitool-manage-prompt-view');
+    renderPromptBlocks();
     if (window.lucide) {
       window.lucide.createIcons();
     }
