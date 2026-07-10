@@ -558,7 +558,13 @@ export function initVarInspector() {
 
   // Search filter (live on input)
   $popup.on('input', '#st-multitool-vi-search', function () {
+    const val = $(this).val();
+    $('#st-multitool-vi-search-clear').css('display', val.length > 0 ? 'block' : 'none');
     applyFilter();
+  });
+  
+  $popup.on('click', '#st-multitool-vi-search-clear', function () {
+    $('#st-multitool-vi-search').val('').trigger('input');
   });
 
   // Init scope button default styles

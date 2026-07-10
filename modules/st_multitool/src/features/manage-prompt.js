@@ -12,7 +12,7 @@ export function initManagePrompt() {
   $('#st-multitool-manage-prompt-btn').on('click', () => {
     showSubView('st-multitool-manage-prompt-view');
     renderPromptBlocks();
-    $('#st-multitool-prompt-search').val(''); // Clear search on open
+    $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on open
     if (window.lucide) {
       window.lucide.createIcons();
     }
@@ -25,7 +25,7 @@ export function initManagePrompt() {
   
   $('#st-multitool-reset-prompt-btn').on('click', () => {
     renderPromptBlocks();
-    $('#st-multitool-prompt-search').val(''); // Clear search on reset
+    $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on reset
     toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
   });
 
@@ -55,10 +55,18 @@ export function initManagePrompt() {
   };
 
   $('#st-multitool-prompt-search-btn').on('click', performSearch);
-  $('#st-multitool-prompt-search').on('keypress', function(e) {
+  $('#st-multitool-prompt-search').on('input', function() {
+    const val = $(this).val();
+    $('#st-multitool-prompt-search-clear').css('display', val.length > 0 ? 'block' : 'none');
+  }).on('keypress', function(e) {
     if (e.which === 13) {
       performSearch();
     }
+  });
+  
+  $('#st-multitool-prompt-search-clear').on('click', function() {
+    $('#st-multitool-prompt-search').val('').trigger('input');
+    performSearch();
   });
 }
 

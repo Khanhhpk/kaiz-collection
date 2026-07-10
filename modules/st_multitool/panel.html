@@ -1368,7 +1368,10 @@
           Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
         </div>
         <div style="margin-top: 15px; display: flex; gap: 10px;">
-          <input type="text" id="st-multitool-prompt-search" class="st-multitool-input" placeholder="Tìm kiếm theo Tên hoặc Nội dung Prompt..." style="flex: 1; padding: 10px; border-radius: 8px;">
+          <div style="flex: 1; position: relative; display: flex; align-items: center;">
+            <input type="text" id="st-multitool-prompt-search" class="st-multitool-input" placeholder="Tìm kiếm theo Tên hoặc Nội dung Prompt..." style="width: 100%; padding: 10px; padding-right: 35px; border-radius: 8px;">
+            <button id="st-multitool-prompt-search-clear" style="position: absolute; right: 10px; background: none; border: none; color: #888; cursor: pointer; display: none;" title="Xóa tìm kiếm"><i class="fa-solid fa-times"></i></button>
+          </div>
           <button id="st-multitool-prompt-search-btn" class="st-multitool-btn-hero primary" style="padding: 10px 15px; flex: 0 0 auto;" title="Tìm kiếm">
             <i data-lucide="search"></i>
           </button>
@@ -1387,7 +1390,10 @@
           </button>
           <div id="st-multitool-var-inspector-panel" style="display: none; margin-top: 10px;">
             <div id="st-multitool-var-inspector-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
-              <input type="text" id="st-multitool-vi-search" class="st-multitool-input" placeholder="Tìm tên biến…" style="flex: 1; padding: 8px 10px; border-radius: 8px;">
+              <div style="flex: 1; position: relative; display: flex; align-items: center;">
+                <input type="text" id="st-multitool-vi-search" class="st-multitool-input" placeholder="Tìm tên biến…" style="width: 100%; padding: 8px 10px; padding-right: 30px; border-radius: 8px;">
+                <button id="st-multitool-vi-search-clear" style="position: absolute; right: 8px; background: none; border: none; color: #888; cursor: pointer; display: none;" title="Xóa tìm kiếm"><i class="fa-solid fa-times"></i></button>
+              </div>
               <button class="st-multitool-vi-scope-btn active" data-scope="all" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Tất cả</button>
               <button class="st-multitool-vi-scope-btn" data-scope="local" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Local</button>
               <button class="st-multitool-vi-scope-btn" data-scope="global" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Global</button>
