@@ -280,8 +280,8 @@ export function savePromptBlocks() {
   }
   showLoader();
   try {
-    const { renames, values } = getPendingVarChanges();
-    const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(values).length > 0;
+    const { renames, valuesBySource } = getPendingVarChanges();
+    const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(valuesBySource || {}).length > 0;
     
     const newPrompts = [];
     const newPromptOrder = [];
@@ -304,7 +304,7 @@ export function savePromptBlocks() {
 
       let content = $item.find('.st-multitool-prompt-content').val();
       if (hasVarChanges) {
-        content = applyVarChangesToContent(content, identifier, renames, values);
+        content = applyVarChangesToContent(content, identifier, renames, valuesBySource);
       }
 
       const newBlock = {
