@@ -75,28 +75,32 @@ export function renderPromptBlocks() {
     return;
   }
 
+  let allHtml = '';
+
   prompts.forEach((block, idx) => {
     const isEnabled = block.enabled;
     const blockHtml = `
       <div class="st-multitool-wb-item" data-idx="${idx}">
-        <div class="st-multitool-wb-item-header">
+        <div class="st-multitool-wb-item-header st-multitool-accordion-header" style="cursor: pointer; user-select: none;">
           <div class="st-multitool-wb-item-title-col">
+            <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
+              <i class="fa-solid fa-grip-vertical"></i>
+            </span>
             <span class="st-multitool-wb-item-title" style="font-weight: 600;">${escapeHtml(block.name || 'Unnamed Block')}</span>
             <span class="st-multitool-wb-item-desc">Role: ${escapeHtml(block.role || '')} | Depth: ${block.injection_depth} | ID: ${escapeHtml(block.identifier || '')}</span>
           </div>
           <div class="st-multitool-wb-item-controls">
-            <button class="st-multitool-btn-icon st-multitool-toggle-advanced" title="Cài đặt nâng cao">
-              <i data-lucide="settings"></i>
-            </button>
-            <label class="st-multitool-toggle-switch">
+            <label class="st-multitool-toggle-switch" style="margin-right: 10px;" title="Bật/Tắt khối Prompt này">
               <input type="checkbox" class="st-multitool-prompt-enabled" ${isEnabled ? 'checked' : ''}>
               <span class="st-multitool-toggle-slider"></span>
             </label>
+            <i class="fa-solid fa-chevron-down st-multitool-accordion-icon" style="color: #888; transition: transform 0.2s;"></i>
           </div>
         </div>
         
-        <div class="st-multitool-prompt-advanced-settings" style="display: none; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; margin: 10px 0; font-size: 0.9em; border: 1px solid var(--st-multitool-border);">
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+        <div class="st-multitool-accordion-body" style="display: none; padding-top: 10px;">
+          <div class="st-multitool-prompt-advanced-settings" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; font-size: 0.9em; border: 1px solid var(--st-multitool-border);">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
             <div style="flex: 1; min-width: 120px;">
               <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Position</label>
               <input type="number" class="st-multitool-input st-prompt-pos" value="${block.injection_position}" style="width: 100%;">
@@ -133,11 +137,23 @@ export function renderPromptBlocks() {
 
         <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px;">
           <textarea class="st-multitool-input st-multitool-prompt-content" style="width: 100%; min-height: 80px; resize: vertical; font-family: monospace; padding: 10px; line-height: 1.4;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
+          </div>
         </div>
       </div>
     `;
     
-    $promptListContainer.append(blockHtml);
+    allHtml += blockHtml;
+  });
+
+  $promptListContainer.html(allHtml);
+
+  // Bind accordion click
+  $promptListContainer.find('.st-multitool-accordion-header').on('click', function(e) {
+    if ($(e.target).closest('.st-multitool-toggle-switch').length || $(e.target).closest('.st-multitool-drag-handle').length) return; // Ignore click on toggle switch or drag handle
+    const $body = $(this).next('.st-multitool-accordion-body');
+    const $icon = $(this).find('.st-multitool-accordion-icon');
+    $body.slideToggle(200);
+    $icon.css('transform', $body.is(':visible') ? 'rotate(180deg)' : 'rotate(0deg)');
   });
 
   // Attach auto-resize to textareas
@@ -149,11 +165,15 @@ export function renderPromptBlocks() {
     this.style.height = (this.scrollHeight + 2) + 'px';
   });
 
-  // Attach advanced toggle
-  $promptListContainer.find('.st-multitool-toggle-advanced').on('click', function(e) {
-    e.stopPropagation();
-    $(this).closest('.st-multitool-wb-item').find('.st-multitool-prompt-advanced-settings').slideToggle(200);
-  });
+  // Enable Sortable
+  if (typeof $promptListContainer.sortable === 'function') {
+    $promptListContainer.sortable({
+      handle: '.st-multitool-drag-handle',
+      update: function() {
+        savePromptBlocks(); // Auto save when order changes
+      }
+    });
+  }
 
   if (window.lucide) {
     window.lucide.createIcons();
