@@ -216,7 +216,8 @@ const UTILITY_MODULES = [
     { file: 'shimeji.js', path: './modules/shimeji.js', name: 'Shimeji v14.21', desc: 'Thú cưng tương tác chạy nhảy trên màn hình' },
     { file: 'storage_inspector.js', path: './modules/storage_inspector.js', name: 'Storage Inspector', desc: 'Kiểm tra và quản lý dung lượng lưu trữ' },
     { file: 'visual_novel_dialogue.js', path: './modules/visual_novel_dialogue.js', name: 'Visual Novel Dialogue', desc: 'Hiển thị hội thoại phong cách Visual Novel' },
-    { file: 'vtuber_assistant.js', path: './modules/vtuber_assistant.js', name: 'Vtuber Assistant', desc: 'Trợ lý ảo Vtuber hỗ trợ tương tác' }
+    { file: 'vtuber_assistant.js', path: './modules/vtuber_assistant.js', name: 'Vtuber Assistant', desc: 'Trợ lý ảo Vtuber hỗ trợ tương tác' },
+    { file: 'st_multitool', path: './modules/st_multitool/src/main.js', name: 'ST Multitool', desc: 'Công cụ đồng bộ đa năng (Worldbook, Regex, Script...)' }
 ];
 
 function getPhoneConfig() {
