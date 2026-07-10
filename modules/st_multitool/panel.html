@@ -1381,6 +1381,21 @@
             <i data-lucide="rotate-ccw"></i> Hoàn tác (Undo)
           </button>
         </div>
+        <div style="margin-bottom: 12px;">
+          <button id="st-multitool-var-inspector-btn" class="st-multitool-btn-hero" style="width: 100%; background: linear-gradient(135deg, rgba(0,230,184,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(0,230,184,0.3);" title="Quét và hiển thị biến setvar/getvar trong preset">
+            <i data-lucide="search-code"></i> Variable Inspector – Quét biến trong Preset
+          </button>
+          <div id="st-multitool-var-inspector-panel" style="display: none; margin-top: 10px;">
+            <div id="st-multitool-var-inspector-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
+              <input type="text" id="st-multitool-vi-search" class="st-multitool-input" placeholder="Tìm tên biến…" style="flex: 1; padding: 8px 10px; border-radius: 8px;">
+              <button class="st-multitool-vi-scope-btn active" data-scope="all" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Tất cả</button>
+              <button class="st-multitool-vi-scope-btn" data-scope="local" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Local</button>
+              <button class="st-multitool-vi-scope-btn" data-scope="global" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Global</button>
+            </div>
+            <div id="st-multitool-var-inspector-status" style="font-size: 0.8em; color: #888; margin-bottom: 8px;"></div>
+            <div id="st-multitool-var-inspector-body" style="display: flex; flex-direction: column; gap: 8px; max-height: 500px; overflow-y: auto; padding-right: 4px;"></div>
+          </div>
+        </div>
         <div id="st-multitool-prompt-list-container" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;"></div>
       </div>
 
