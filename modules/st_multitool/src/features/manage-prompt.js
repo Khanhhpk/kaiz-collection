@@ -28,18 +28,33 @@ export function initManagePrompt() {
     toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
   });
 
+  let searchTimeout;
   $('#st-multitool-prompt-search').on('input', function() {
+    clearTimeout(searchTimeout);
     const searchTerm = $(this).val().toLowerCase();
-    $promptListContainer.find('.st-multitool-wb-item').each(function() {
-      const title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
-      const desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
-      const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
-      if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
-        $(this).show();
+    
+    // Tắt kéo thả khi đang tìm kiếm để tránh lỗi thứ tự
+    const $sortableLists = $promptListContainer.find('.st-multitool-prompt-sortable-list');
+    if (typeof $sortableLists.sortable === 'function') {
+      if (searchTerm === '') {
+        $sortableLists.sortable('enable');
       } else {
-        $(this).hide();
+        $sortableLists.sortable('disable');
       }
-    });
+    }
+
+    searchTimeout = setTimeout(() => {
+      $promptListContainer.find('.st-multitool-wb-item').each(function() {
+        const title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
+        const desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
+        const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
+        if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
+          $(this).show();
+        } else {
+          $(this).hide();
+        }
+      });
+    }, 250);
   });
 }
 
