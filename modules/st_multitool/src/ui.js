@@ -34,6 +34,7 @@ export function initUIElements() {
     manageScriptView: $('#st-multitool-manage-script-view'),
     manageRegexView: $('#st-multitool-manage-regex-view'),
     managePromptView: $('#st-multitool-manage-prompt-view'),
+    explorerView: $('#st-multitool-explorer-view'),
     overlay: $('#st-multitool-popup-overlay'),
   };
 
@@ -136,6 +137,7 @@ export async function showSubView(viewId) {
     elements.manageScriptView,
     elements.manageRegexView,
     elements.managePromptView,
+    elements.explorerView,
   ].forEach(v => v && v.hide());
 
   let title = 'ST Multitool';
@@ -226,6 +228,9 @@ export async function showSubView(viewId) {
   }
   if (viewId === 'st-multitool-manage-prompt-view') {
     title = '<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý Prompt Preset';
+  }
+  if (viewId === 'st-multitool-explorer-view') {
+    title = '<i data-lucide="terminal" style="margin-right: 8px; vertical-align: -2px;"></i> System Explorer';
   }
 
   $('#st-multitool-header-title').html(title);
