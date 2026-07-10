@@ -28,10 +28,8 @@ export function initManagePrompt() {
     toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
   });
 
-  let searchTimeout;
-  $('#st-multitool-prompt-search').on('input', function() {
-    clearTimeout(searchTimeout);
-    const searchTerm = $(this).val().toLowerCase();
+  const performSearch = () => {
+    const searchTerm = $('#st-multitool-prompt-search').val().toLowerCase();
     
     // Tắt kéo thả khi đang tìm kiếm để tránh lỗi thứ tự
     const $sortableLists = $promptListContainer.find('.st-multitool-prompt-sortable-list');
@@ -43,18 +41,23 @@ export function initManagePrompt() {
       }
     }
 
-    searchTimeout = setTimeout(() => {
-      $promptListContainer.find('.st-multitool-wb-item').each(function() {
-        const title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
-        const desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
-        const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
-        if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
-          $(this).show();
-        } else {
-          $(this).hide();
-        }
-      });
-    }, 250);
+    $promptListContainer.find('.st-multitool-wb-item').each(function() {
+      const title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
+      const desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
+      const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
+      if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
+        $(this).show();
+      } else {
+        $(this).hide();
+      }
+    });
+  };
+
+  $('#st-multitool-prompt-search-btn').on('click', performSearch);
+  $('#st-multitool-prompt-search').on('keypress', function(e) {
+    if (e.which === 13) {
+      performSearch();
+    }
   });
 }
 
@@ -334,9 +337,8 @@ export function savePromptBlocks() {
       const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
       const charId = ctx.characterId;
       
-      const fullOrder = JSON.parse(JSON.stringify(container.prompt_order)); // clone
-      let targetOrderObj = fullOrder.find(o => o.character_id === charId);
-      if (!targetOrderObj) targetOrderObj = fullOrder.length > 0 ? fullOrder[0] : null;
+      let targetOrderObj = container.prompt_order.find(o => o.character_id === charId);
+      if (!targetOrderObj) targetOrderObj = container.prompt_order.length > 0 ? container.prompt_order[0] : null;
 
       if (targetOrderObj) {
         // newPromptOrder currently has [{identifier: '...'}, ...] from processItem
@@ -346,7 +348,6 @@ export function savePromptBlocks() {
            return { enabled: promptBlock ? promptBlock.enabled : true, identifier: item.identifier };
         });
       }
-      container.prompt_order = fullOrder;
     } else {
       container.prompt_order = newPromptOrder;
     }

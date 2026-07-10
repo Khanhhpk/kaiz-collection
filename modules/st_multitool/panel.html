@@ -1370,8 +1370,11 @@
         <div class="st-multitool-section-desc">
           Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
         </div>
-        <div style="margin-top: 15px;">
-          <input type="text" id="st-multitool-prompt-search" class="st-multitool-input" placeholder="Tìm kiếm theo Tên hoặc Nội dung Prompt..." style="width: 100%; padding: 10px; border-radius: 8px;">
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+          <input type="text" id="st-multitool-prompt-search" class="st-multitool-input" placeholder="Tìm kiếm theo Tên hoặc Nội dung Prompt..." style="flex: 1; padding: 10px; border-radius: 8px;">
+          <button id="st-multitool-prompt-search-btn" class="st-multitool-btn-hero primary" style="padding: 10px 15px; flex: 0 0 auto;" title="Tìm kiếm">
+            <i data-lucide="search"></i>
+          </button>
         </div>
         <div class="st-multitool-search-container" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 10px;">
           <button id="st-multitool-save-prompt-btn" class="st-multitool-btn-hero primary" style="flex: 1;">
