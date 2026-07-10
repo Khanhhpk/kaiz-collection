@@ -23,123 +23,251 @@
       </div>
     </div>
     <div class="st-multitool-popup-body" id="st-multitool-popup-body">
-      <div id="st-multitool-main-view" style="display: flex; flex-direction: column; gap: 15px; min-height: min-content">
-        <div class="st-multitool-section">
-          <div class="st-multitool-section-header">
-            <h4><i data-lucide="globe"></i> Tải Sổ thế giới toàn cục</h4>
-          </div>
-          <div class="st-multitool-section-content">
-            <div class="st-multitool-actions">
-              <button id="st-multitool-select-book-btn" class="st-multitool-button">Chọn Sổ thế giới (toàn cục)</button>
-              <button id="st-multitool-load-preset-btn" class="st-multitool-button">Tải preset</button>
+      <div id="st-multitool-main-view" style="display: flex; flex-direction: column; gap: 18px; min-height: min-content">
+        <div class="st-multitool-dash-header">
+          <div class="st-multitool-hero-banner">
+            <div class="st-multitool-hero-content">
+              <div class="st-multitool-hero-badge">✦ KAIZ MULTITOOL SUITE V2</div>
+              <h3>Hệ Sinh Thái Trợ Lý & Sổ Thế Giới</h3>
+              <p>Quản lý toàn diện Sổ thế giới, Script macro, Regex và Đồng bộ hóa trong một giao diện hợp nhất.</p>
             </div>
-            <div id="st-multitool-preset-list-container" class="st-multitool-preset-list-container" style="display: none"></div>
+            <div class="st-multitool-hero-actions">
+              <button id="st-multitool-select-book-btn" class="st-multitool-btn-hero primary">
+                <i data-lucide="check-square"></i> Chọn Sổ toàn cục
+              </button>
+              <button id="st-multitool-load-preset-btn" class="st-multitool-btn-hero secondary">
+                <i data-lucide="layers"></i> Tải preset
+              </button>
+            </div>
           </div>
+          <div id="st-multitool-preset-list-container" class="st-multitool-preset-list-container" style="display: none; margin-top: 14px;"></div>
         </div>
 
-        <div class="st-multitool-section">
-          <div class="st-multitool-section-header">
-            <h4><i data-lucide="edit"></i> Quản lý Sổ thế giới</h4>
-          </div>
-          <div class="st-multitool-section-content">
-            <div id="st-multitool-edit-actions-container" class="st-multitool-actions">
-              <button id="st-multitool-goto-manage-wb-btn" class="st-multitool-button"><i data-lucide="book-open"></i> Quản lý Sổ thế giới</button>
-              <button id="st-multitool-create-wb-btn" class="st-multitool-button"><i data-lucide="plus-circle"></i> Tạo Sổ thế giới</button>
-              <button id="st-multitool-goto-rename-btn" class="st-multitool-button"><i data-lucide="edit-2"></i> Đổi tên</button>
-              <button id="st-multitool-goto-duplicate-btn" class="st-multitool-button"><i data-lucide="copy"></i> Sao chép Sổ thế giới</button>
-              <button id="st-multitool-goto-modify-btn" class="st-multitool-button"><i data-lucide="file-edit"></i> Sửa mục</button>
-              <button id="st-multitool-goto-delete-btn" class="st-multitool-button"><i data-lucide="trash-2"></i> Xóa Sổ thế giới và mục</button>
-              <button id="st-multitool-goto-transfer-btn" class="st-multitool-button"><i data-lucide="arrow-right-left"></i> Chuyển mục</button>
-            </div>
-          </div>
+        <div class="st-multitool-dash-nav">
+          <button class="st-multitool-nav-tab active" data-filter="all">
+            <i data-lucide="grid"></i> Tất cả
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="worldbook">
+            <i data-lucide="book-open"></i> Sổ thế giới
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="scripts">
+            <i data-lucide="bot"></i> Script Trợ lý
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="regex">
+            <i data-lucide="code"></i> Script Regex
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="sync">
+            <i data-lucide="refresh-cw"></i> Đồng bộ & Tiện ích
+          </button>
         </div>
 
-        <div class="st-multitool-section">
-          <div class="st-multitool-section-header">
-            <h4><i data-lucide="bot"></i> Tính năng Trợ lý Tavern</h4>
-          </div>
-          <div class="st-multitool-section-content">
-            <div class="st-multitool-actions">
-              <button id="st-multitool-goto-manage-script-btn" class="st-multitool-button"><i data-lucide="bot"></i> Quản lý script Trợ lý Tavern</button>
-              <button id="st-multitool-goto-create-script-btn" class="st-multitool-button"><i data-lucide="code"></i> Tạo script Trợ lý Tavern</button>
-              <button id="st-multitool-main-import-script-btn" class="st-multitool-button"><i data-lucide="folder-open"></i> Nhập script</button>
+        <div class="st-multitool-dash-grid">
+          <!-- Card 1: Worldbook -->
+          <div class="st-multitool-dash-card" data-category="worldbook">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon worldbook"><i data-lucide="book-open"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Quản lý Sổ thế giới</h4>
+                <span class="st-multitool-card-tag">7 Công cụ</span>
+              </div>
             </div>
-            <div
-              id="st-multitool-main-import-script-options"
-              style="
-                display: none;
-                margin-top: 10px;
-                padding: 10px;
-                background: rgba(0, 0, 0, 0.2);
-                border-radius: 5px;
-                border: 1px dashed var(--st-multitool-border);
-              "
-            >
-              <span class="st-multitool-label" style="display: block; margin-bottom: 8px">Chọn đích nhập:</span>
-              <div class="st-multitool-actions" style="margin-top: 0">
-                <button id="st-multitool-main-import-script-global-btn" class="st-multitool-button st-multitool-btn-small">
-                  Thư viện script toàn cục
+            <div class="st-multitool-dash-card-desc">
+              Xem, bật/tắt, thêm, sửa, xóa và di chuyển các mục trong Sổ thế giới một cách trực quan.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-manage-wb-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="book-open"></i>
+                  <div>
+                    <span>Quản lý Sổ thế giới</span>
+                    <small>Bật/tắt & sắp xếp mục</small>
+                  </div>
                 </button>
-                <button id="st-multitool-main-import-script-preset-btn" class="st-multitool-button st-multitool-btn-small">
-                  Thư viện script preset
+                <button id="st-multitool-create-wb-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="plus-circle"></i>
+                  <div>
+                    <span>Tạo Sổ thế giới</span>
+                    <small>Tạo mới Sổ trống</small>
+                  </div>
                 </button>
-                <button id="st-multitool-main-import-script-character-btn" class="st-multitool-button st-multitool-btn-small">
-                  Thư viện script nhân vật
+                <button id="st-multitool-goto-rename-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="edit-2"></i>
+                  <div>
+                    <span>Đổi tên</span>
+                    <small>Đổi tên Sổ hiện có</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-duplicate-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="copy"></i>
+                  <div>
+                    <span>Sao chép Sổ</span>
+                    <small>Nhân bản dữ liệu</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-modify-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="file-edit"></i>
+                  <div>
+                    <span>Sửa mục Sổ</span>
+                    <small>Chỉnh sửa nâng cao</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-transfer-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="arrow-right-left"></i>
+                  <div>
+                    <span>Chuyển mục</span>
+                    <small>Di chuyển qua lại</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-delete-btn" class="st-multitool-dash-btn danger">
+                  <i data-lucide="trash-2"></i>
+                  <div>
+                    <span>Xóa Sổ & Mục</span>
+                    <small>Dọn dẹp triệt để</small>
+                  </div>
                 </button>
               </div>
-              <input type="file" id="st-multitool-main-script-file-input" style="display: none" accept=".json" />
             </div>
           </div>
-        </div>
 
-        <div class="st-multitool-section">
-          <div class="st-multitool-section-header">
-            <h4><i data-lucide="code"></i> Tính năng regex</h4>
-          </div>
-          <div class="st-multitool-section-content">
-            <div class="st-multitool-actions">
-              <button id="st-multitool-goto-manage-regex-btn" class="st-multitool-button"><i data-lucide="file-text"></i> Quản lý script regex</button>
-              <button id="st-multitool-goto-create-regex-btn" class="st-multitool-button"><i data-lucide="code"></i> Tạo script regex</button>
-              <button id="st-multitool-main-import-regex-btn" class="st-multitool-button"><i data-lucide="folder-open"></i> Nhập regex</button>
+          <!-- Card 2: Scripts -->
+          <div class="st-multitool-dash-card" data-category="scripts">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon scripts"><i data-lucide="bot"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Script Trợ lý Tavern</h4>
+                <span class="st-multitool-card-tag">Tự động hóa</span>
+              </div>
             </div>
-            <div
-              id="st-multitool-main-import-regex-options"
-              style="
-                display: none;
-                margin-top: 10px;
-                padding: 10px;
-                background: rgba(0, 0, 0, 0.2);
-                border-radius: 5px;
-                border: 1px dashed var(--st-multitool-border);
-              "
-            >
-              <span class="st-multitool-label" style="display: block; margin-bottom: 8px">Chọn đích nhập:</span>
-              <div class="st-multitool-actions" style="margin-top: 0">
-                <button id="st-multitool-main-import-regex-global-btn" class="st-multitool-button st-multitool-btn-small">
-                  Script regex toàn cục
+            <div class="st-multitool-dash-card-desc">
+              Quản lý script macro, nút bấm quick-reply và hành vi tùy biến cho nhân vật & preset.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-manage-script-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="bot"></i>
+                  <div>
+                    <span>Quản lý Script</span>
+                    <small>Toàn cục, preset & nhân vật</small>
+                  </div>
                 </button>
-                <button id="st-multitool-main-import-regex-preset-btn" class="st-multitool-button st-multitool-btn-small">
-                  Script regex preset
+                <button id="st-multitool-goto-create-script-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="code"></i>
+                  <div>
+                    <span>Tạo Script mới</span>
+                    <small>Thêm macro Trợ lý</small>
+                  </div>
                 </button>
-                <button id="st-multitool-main-import-regex-character-btn" class="st-multitool-button st-multitool-btn-small">
-                  Script regex cục bộ
+                <button id="st-multitool-main-import-script-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="folder-open"></i>
+                  <div>
+                    <span>Nhập Script</span>
+                    <small>Từ tệp tin .json</small>
+                  </div>
                 </button>
               </div>
-              <input type="file" id="st-multitool-main-regex-file-input" style="display: none" accept=".json" />
+              <div id="st-multitool-main-import-script-options" class="st-multitool-import-drawer" style="display: none;">
+                <span class="st-multitool-label">Chọn đích nhập script:</span>
+                <div class="st-multitool-drawer-btns">
+                  <button id="st-multitool-main-import-script-global-btn" class="st-multitool-dash-btn-small">Toàn cục</button>
+                  <button id="st-multitool-main-import-script-preset-btn" class="st-multitool-dash-btn-small">Preset</button>
+                  <button id="st-multitool-main-import-script-character-btn" class="st-multitool-dash-btn-small">Nhân vật</button>
+                </div>
+                <input type="file" id="st-multitool-main-script-file-input" style="display: none" accept=".json" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="st-multitool-section">
-          <div class="st-multitool-section-header">
-            <h4><i data-lucide="plug"></i> Tính năng tiện ích</h4>
+          <!-- Card 3: Regex -->
+          <div class="st-multitool-dash-card" data-category="regex">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon regex"><i data-lucide="code"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Script Regex</h4>
+                <span class="st-multitool-card-tag">Xử lý văn bản</span>
+              </div>
+            </div>
+            <div class="st-multitool-dash-card-desc">
+              Thiết lập quy tắc biểu thức chính quy (Regex) để tự động hóa chỉnh sửa văn bản AI.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-manage-regex-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="file-text"></i>
+                  <div>
+                    <span>Quản lý Regex</span>
+                    <small>Xem và bật/tắt quy tắc</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-create-regex-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="plus"></i>
+                  <div>
+                    <span>Tạo Regex mới</span>
+                    <small>Thêm quy tắc mới</small>
+                  </div>
+                </button>
+                <button id="st-multitool-main-import-regex-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="folder-open"></i>
+                  <div>
+                    <span>Nhập Regex</span>
+                    <small>Từ tệp tin .json</small>
+                  </div>
+                </button>
+              </div>
+              <div id="st-multitool-main-import-regex-options" class="st-multitool-import-drawer" style="display: none;">
+                <span class="st-multitool-label">Chọn đích nhập regex:</span>
+                <div class="st-multitool-drawer-btns">
+                  <button id="st-multitool-main-import-regex-global-btn" class="st-multitool-dash-btn-small">Toàn cục</button>
+                  <button id="st-multitool-main-import-regex-preset-btn" class="st-multitool-dash-btn-small">Preset</button>
+                  <button id="st-multitool-main-import-regex-character-btn" class="st-multitool-dash-btn-small">Nhân vật</button>
+                </div>
+                <input type="file" id="st-multitool-main-regex-file-input" style="display: none" accept=".json" />
+              </div>
+            </div>
           </div>
-          <div class="st-multitool-section-content">
-            <div class="st-multitool-actions">
-              <button id="st-multitool-goto-sync-btn" class="st-multitool-button"><i data-lucide="zap"></i> Đồng bộ Sổ thế giới</button>
-              <button id="st-multitool-goto-frontend-btn" class="st-multitool-button"><i data-lucide="layout"></i> Trình đồng bộ frontend</button>
-              <button id="st-multitool-goto-script-sync-btn" class="st-multitool-button"><i data-lucide="braces"></i> Trình đồng bộ script</button>
-              <button id="st-multitool-goto-settings-btn" class="st-multitool-button"><i data-lucide="settings"></i> Cài đặt tiện ích</button>
+
+          <!-- Card 4: Sync & Settings -->
+          <div class="st-multitool-dash-card" data-category="sync">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon sync"><i data-lucide="refresh-cw"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Đồng bộ & Cài đặt tiện ích</h4>
+                <span class="st-multitool-card-tag">Hệ thống</span>
+              </div>
+            </div>
+            <div class="st-multitool-dash-card-desc">
+              Đồng bộ hóa dữ liệu trực tuyến qua máy chủ, cấu hình phím tắt đũa phép và bóng truy cập.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-sync-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="zap"></i>
+                  <div>
+                    <span>Đồng bộ Sổ thế giới</span>
+                    <small>Kết nối máy chủ</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-frontend-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="layout"></i>
+                  <div>
+                    <span>Đồng bộ Frontend</span>
+                    <small>Cấu hình giao diện</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-script-sync-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="braces"></i>
+                  <div>
+                    <span>Đồng bộ Script</span>
+                    <small>Cập nhật kịch bản</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-settings-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="settings"></i>
+                  <div>
+                    <span>Cài đặt Tiện ích</span>
+                    <small>Bóng truy cập & menu</small>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>

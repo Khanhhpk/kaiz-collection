@@ -82,6 +82,11 @@ export function showMainView() {
   $('#st-multitool-preset-list-container').hide();
   renderPresets(false);
 
+  // Reset Dashboard V2 tabs & card visibility
+  $('.st-multitool-nav-tab').removeClass('active');
+  $('.st-multitool-nav-tab[data-filter="all"]').addClass('active');
+  $('.st-multitool-dash-card').css('display', 'flex');
+
   $('#st-multitool-header-title').text('ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
@@ -245,3 +250,16 @@ $(document).on('input', '.st-multitool-search-input', function() {
         });
     }, 120);
 });
+
+$(document).on('click', '.st-multitool-nav-tab', function() {
+    $('.st-multitool-nav-tab').removeClass('active');
+    $(this).addClass('active');
+    const filter = $(this).data('filter');
+    if (filter === 'all') {
+        $('.st-multitool-dash-card').css('display', 'flex').hide().fadeIn(180);
+    } else {
+        $('.st-multitool-dash-card').hide();
+        $(`.st-multitool-dash-card[data-category="${filter}"]`).css('display', 'flex').hide().fadeIn(180);
+    }
+});
+
