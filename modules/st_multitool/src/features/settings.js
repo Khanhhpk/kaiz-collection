@@ -52,11 +52,6 @@ function normalizeSettings(raw = {}) {
     manageRegexCollapsed: raw.manageRegexCollapsed === true,
   };
 
-  // Never allow all entry points to be disabled, otherwise users cannot reopen the UI.
-  if (!settings.showMagicWandBtn && !settings.showQrBtn) {
-    settings.showMagicWandBtn = true;
-  }
-
   return settings;
 }
 
@@ -126,7 +121,6 @@ export function loadSettings() {
 }
 
 export function saveSettings(event) {
-  const $changedCheckbox = $(event.target);
   const rawSettings = {
     showMagicWandBtn: $showMagicWandBtn.is(':checked'),
     showQrBtn: $showQrBtn.is(':checked'),
@@ -135,12 +129,6 @@ export function saveSettings(event) {
     manageScriptCollapsed: $manageScriptCollapsedBtn.is(':checked'),
     manageRegexCollapsed: $manageRegexCollapsedBtn.is(':checked'),
   };
-
-  if (!rawSettings.showMagicWandBtn && !rawSettings.showQrBtn) {
-    toastr.warning('Cần giữ lại ít nhất một lối vào tiện ích!');
-    $changedCheckbox.prop('checked', true);
-    return;
-  }
 
   const settings = normalizeSettings(rawSettings);
   localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
