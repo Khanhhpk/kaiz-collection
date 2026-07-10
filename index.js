@@ -254,7 +254,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '1.6.5.0';
+const KAIZ_CURRENT_VERSION = '2.0.0.0';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -590,6 +590,63 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
     });
 }
 
+function showKaizPatchNotes(targetWin) {
+    const doc = targetWin.document || document;
+    if (doc.getElementById('kaiz_patch_notes_overlay')) {
+        doc.getElementById('kaiz_patch_notes_overlay').remove();
+    }
+
+    const overlay = doc.createElement('div');
+    overlay.id = 'kaiz_patch_notes_overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.78); z-index: 99999999; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; overflow-y: auto; backdrop-filter: blur(8px);';
+
+    const modal = doc.createElement('div');
+    modal.style.cssText = 'margin: auto; background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); color: #f8fafc; font-family: sans-serif; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; flex-shrink: 0; position: relative;';
+    
+    modal.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.5em; flex-shrink: 0;">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.0.0</div>
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Cập nhật Kỷ Nguyên Mới!</div>
+                </div>
+            </div>
+            <button id="kaiz_btn_close_patch_notes_top" style="background: none; border: none; color: #64748b; font-size: 1.2em; cursor: pointer; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
+            Chào mừng bạn đến với bản cập nhật lớn nhất từ trước đến nay của <b>KAIZ Collection</b>!<br><br>
+            Điểm nhấn của phiên bản này là sự xuất hiện của <b>ST Multitool</b>, một siêu công cụ "tất cả trong một" giúp bạn làm chủ mọi cấu hình của SillyTavern ngay trên một giao diện trực quan, mà không cần phải mày mò lệnh thủ công nữa.<br><br>
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
+                <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> ST Multitool có gì hot?</h4>
+                <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square;">
+                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Quản lý Worldbook:</b> Xem, sửa, và thay đổi độ sâu (depth) của hàng loạt mục trong Sổ thế giới chỉ bằng vài cú click. Kéo thả để sắp xếp lại ưu tiên!</li>
+                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Quản lý Script:</b> Giao diện trực quan để bật/tắt, sắp xếp thứ tự ưu tiên và chỉnh sửa nội dung Script dễ dàng.</li>
+                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Preset Editor & Var Inspector:</b> Công cụ đột phá giúp bạn sửa đổi trực tiếp các cấu trúc lệnh (Prompt) bên trong Preset. Tự động quét và đồng bộ mọi biến nhớ (Macro Variables) được sử dụng!</li>
+                    <li><b style="color: #cbd5e1;">Quản lý Regex:</b> Sửa nhanh biểu thức Regex, thử nghiệm và bật tắt tùy ý.</li>
+                </ul>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 6px;">
+            <button id="kaiz_btn_close_patch_notes" style="flex: 1; padding: 12px 18px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-weight: 700; font-size: 0.94em; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3); transition: transform 0.15s;">
+                Tuyệt vời, tôi đã hiểu!
+            </button>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    (doc.documentElement || doc.body).appendChild(overlay);
+
+    const closeTop = modal.querySelector('#kaiz_btn_close_patch_notes_top');
+    const closeBottom = modal.querySelector('#kaiz_btn_close_patch_notes');
+
+    const closeHandler = () => overlay.remove();
+    closeTop.addEventListener('click', closeHandler);
+    closeBottom.addEventListener('click', closeHandler);
+}
+
 // ==========================================
 // HÀM TẠO GIAO DIỆN QUẢN LÝ TRONG TAB EXTENSIONS
 // ==========================================
@@ -687,6 +744,9 @@ function renderExtensionSettings(targetWin, jq) {
                 </button>
                 <button id="kaiz_tab_btn_explorer" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <i class="fa-solid fa-code"></i><span>System Explorer</span>
+                </button>
+                <button id="kaiz_tab_btn_patch_notes" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #10b981; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;" title="Xem thông tin phiên bản mới">
+                    <i class="fa-solid fa-gift"></i><span>What's New?</span>
                 </button>
             </div>
 
@@ -864,6 +924,13 @@ function renderExtensionSettings(targetWin, jq) {
                 window._kaizExplorerInitialized = true;
             }
         });
+
+        const tabBtnPatchNotes = doc.getElementById('kaiz_tab_btn_patch_notes');
+        if (tabBtnPatchNotes) {
+            tabBtnPatchNotes.addEventListener('click', () => {
+                showKaizPatchNotes(targetWin);
+            });
+        }
     }
 
     if (logClearBtn) {
@@ -1011,6 +1078,17 @@ waitForEnvironment(async (targetWin, jq) => {
     checkKaizCollectionUpdate(targetWin, false);
 
     const config = getPhoneConfig();
+    
+    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.0.0)
+    if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
+        if (KAIZ_CURRENT_VERSION === '2.0.0.0') {
+            setTimeout(() => {
+                showKaizPatchNotes(targetWin);
+            }, 3000);
+        }
+        config.last_seen_patch_notes_version = KAIZ_CURRENT_VERSION;
+        savePhoneConfig(config);
+    }
     if (config.enabled === false) {
         console.log('[KAIZ Collection] ⏸️ Toàn bộ hệ sinh thái đang bị TẮT trong cài đặt Extensions.');
         if (targetWin && targetWin.toastr) {
