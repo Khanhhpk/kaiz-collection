@@ -25,6 +25,7 @@ function getPowerUser() {
   if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
     const ctx = window.SillyTavern.getContext();
     if (ctx && ctx.power_user && ctx.power_user.instruct) return ctx.power_user;
+    if (ctx && ctx.powerUserSettings && ctx.powerUserSettings.instruct) return ctx.powerUserSettings;
   }
   // Optional search
   for (let key in window) {
