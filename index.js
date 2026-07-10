@@ -685,6 +685,9 @@ function renderExtensionSettings(targetWin, jq) {
                 <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <i class="fa-solid fa-terminal"></i><span>Nhật ký & Console</span>
                 </button>
+                <button id="kaiz_tab_btn_explorer" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-code"></i><span>System Explorer</span>
+                </button>
             </div>
 
             <!-- TAB 1: MODULES MANAGEMENT -->
@@ -770,6 +773,23 @@ function renderExtensionSettings(targetWin, jq) {
                     <div style="color: #64748b; text-align: center; padding: 30px;"><i class="fa-solid fa-inbox" style="font-size: 2em; margin-bottom: 8px; display: block; opacity: 0.5;"></i>Chưa có nhật ký hoạt động nào.</div>
                 </div>
             </div>
+
+            <!-- TAB 3: SYSTEM EXPLORER -->
+            <div id="kaiz_tab_content_explorer" style="display: none; flex-direction: column; gap: 14px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <button id="kaiz_explorer_tab_ctx" style="flex: 1; padding: 8px; border-radius: 6px; cursor: pointer; border: none; background: rgba(255,255,255,0.05); color: #fff; font-weight: 600;">ST Context</button>
+                    <button id="kaiz_explorer_tab_win" style="flex: 1; padding: 8px; border-radius: 6px; cursor: pointer; border: none; background: rgba(255,255,255,0.05); color: #fff; font-weight: 600;">Window</button>
+                    <button id="kaiz_explorer_refresh_btn" style="padding: 8px 12px; border-radius: 6px; cursor: pointer; border: none; background: rgba(56, 189, 248, 0.2); color: #38bdf8;"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
+                <input type="text" id="kaiz_explorer_search" placeholder="🔍 Tìm kiếm tên biến (VD: prompts, settings...)" style="width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.9em; box-sizing: border-box; margin-bottom: 4px;" />
+                <div id="kaiz_explorer_tree_container" style="background: rgba(10, 14, 23, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; height: 350px; overflow-y: auto; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em; line-height: 1.5; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                    <input type="text" id="kaiz_explorer_console_input" placeholder="Gõ JS Code (VD: Object.keys(SillyTavern.getContext()))" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em;" />
+                    <button id="kaiz_explorer_console_run" style="padding: 10px 16px; background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 8px; color: #34d399; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-play"></i> Run</button>
+                </div>
+                <div id="kaiz_explorer_console_output" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; min-height: 24px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.82em; word-break: break-all;"></div>
+            </div>
         </div>
     </div>`;
 
@@ -783,8 +803,10 @@ function renderExtensionSettings(targetWin, jq) {
     // Xử lý chuyển tab
     const tabBtnModules = doc.getElementById('kaiz_tab_btn_modules');
     const tabBtnLogs = doc.getElementById('kaiz_tab_btn_logs');
+    const tabBtnExplorer = doc.getElementById('kaiz_tab_btn_explorer');
     const contentModules = doc.getElementById('kaiz_tab_content_modules');
     const contentLogs = doc.getElementById('kaiz_tab_content_logs');
+    const contentExplorer = doc.getElementById('kaiz_tab_content_explorer');
     const logBox = doc.getElementById('kaiz_log_box');
     const logClearBtn = doc.getElementById('kaiz_log_clear_btn');
 
@@ -802,36 +824,43 @@ function renderExtensionSettings(targetWin, jq) {
         logBox.scrollTop = logBox.scrollHeight;
     }
 
-    if (tabBtnModules && tabBtnLogs) {
-        tabBtnModules.addEventListener('click', () => {
-            tabBtnModules.style.background = 'rgba(56, 189, 248, 0.12)';
-            tabBtnModules.style.color = '#38bdf8';
-            tabBtnModules.style.borderColor = 'rgba(56, 189, 248, 0.35)';
-            tabBtnModules.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.12)';
-            
-            tabBtnLogs.style.background = 'rgba(255, 255, 255, 0.03)';
-            tabBtnLogs.style.color = '#94a3b8';
-            tabBtnLogs.style.borderColor = 'rgba(255, 255, 255, 0.07)';
-            tabBtnLogs.style.boxShadow = 'none';
-
-            contentModules.style.display = 'flex';
+    if (tabBtnModules && tabBtnLogs && tabBtnExplorer) {
+        function resetTabs() {
+            [tabBtnModules, tabBtnLogs, tabBtnExplorer].forEach(btn => {
+                btn.style.background = 'rgba(255, 255, 255, 0.03)';
+                btn.style.color = '#94a3b8';
+                btn.style.borderColor = 'rgba(255, 255, 255, 0.07)';
+                btn.style.boxShadow = 'none';
+            });
+            contentModules.style.display = 'none';
             contentLogs.style.display = 'none';
+            contentExplorer.style.display = 'none';
+        }
+
+        function activateTab(btn, content) {
+            resetTabs();
+            btn.style.background = 'rgba(56, 189, 248, 0.12)';
+            btn.style.color = '#38bdf8';
+            btn.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+            btn.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.12)';
+            content.style.display = 'flex';
+        }
+
+        tabBtnModules.addEventListener('click', () => {
+            activateTab(tabBtnModules, contentModules);
         });
 
         tabBtnLogs.addEventListener('click', () => {
-            tabBtnLogs.style.background = 'rgba(56, 189, 248, 0.12)';
-            tabBtnLogs.style.color = '#38bdf8';
-            tabBtnLogs.style.borderColor = 'rgba(56, 189, 248, 0.35)';
-            tabBtnLogs.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.12)';
-            
-            tabBtnModules.style.background = 'rgba(255, 255, 255, 0.03)';
-            tabBtnModules.style.color = '#94a3b8';
-            tabBtnModules.style.borderColor = 'rgba(255, 255, 255, 0.07)';
-            tabBtnModules.style.boxShadow = 'none';
-
-            contentModules.style.display = 'none';
-            contentLogs.style.display = 'flex';
+            activateTab(tabBtnLogs, contentLogs);
             renderAllLogsToUI();
+        });
+
+        tabBtnExplorer.addEventListener('click', () => {
+            activateTab(tabBtnExplorer, contentExplorer);
+            if (!window._kaizExplorerInitialized) {
+                initKaizExplorer(doc, targetWin);
+                window._kaizExplorerInitialized = true;
+            }
         });
     }
 
@@ -1032,3 +1061,200 @@ waitForEnvironment(async (targetWin, jq) => {
 
     console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
 });
+
+function initKaizExplorer(doc, targetWin) {
+    let currentMode = 'ctx';
+    let treeData = {};
+    let visitedObjects = new WeakSet();
+
+    const escapeHtml = (unsafe) => {
+        return (unsafe || '').toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    };
+
+    function loadData() {
+        const container = doc.getElementById('kaiz_explorer_tree_container');
+        container.innerHTML = '<div style="text-align:center; padding: 20px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu...</div>';
+
+        setTimeout(() => {
+            visitedObjects = new WeakSet();
+            if (currentMode === 'ctx') {
+                try {
+                    treeData = targetWin.SillyTavern && targetWin.SillyTavern.getContext ? targetWin.SillyTavern.getContext() : { error: "SillyTavern context not available" };
+                } catch (e) {
+                    treeData = { error: e.message };
+                }
+            } else {
+                treeData = {};
+                for (let key of Object.keys(targetWin)) {
+                    try {
+                        if (['window', 'document', 'top', 'parent', 'frames', 'self', 'globalThis'].includes(key)) continue;
+                        treeData[key] = targetWin[key];
+                    } catch (e) {
+                        treeData[key] = `[Error Accessing: ${e.message}]`;
+                    }
+                }
+            }
+
+            container.innerHTML = buildTreeHtml(treeData, 'Root', 0);
+            
+            const query = doc.getElementById('kaiz_explorer_search').value.toLowerCase();
+            if (query) filterTree(query);
+            
+            // Add click events for toggles
+            const toggles = container.querySelectorAll('.kaiz-tree-toggle');
+            toggles.forEach(t => {
+                t.addEventListener('click', function() {
+                    const children = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    if (children.style.display === 'none') {
+                        children.style.display = 'block';
+                        icon.className = 'fa-solid fa-chevron-down';
+                    } else {
+                        children.style.display = 'none';
+                        icon.className = 'fa-solid fa-chevron-right';
+                    }
+                });
+            });
+        }, 10);
+    }
+
+    function buildTreeHtml(obj, keyName, depth) {
+        if (depth > 4) return `<div class="kaiz-tree-node"><span style="font-weight:bold;">${escapeHtml(keyName)}</span>: <span style="color:#aaa;">[Max Depth]</span></div>`;
+
+        let type = typeof obj;
+        if (obj === null) type = 'null';
+        else if (Array.isArray(obj)) type = 'array';
+        
+        if (type === 'object' || type === 'array') {
+            if (visitedObjects.has(obj)) {
+                return `<div class="kaiz-tree-node"><span style="font-weight:bold;">${escapeHtml(keyName)}</span>: <span style="color:#f28b82;">[Circular]</span></div>`;
+            }
+            visitedObjects.add(obj);
+        }
+
+        if (type === 'object' || type === 'array') {
+            let keys = [];
+            try { keys = Object.keys(obj); } catch(e) {}
+            if (keys.length === 0) return `<div class="kaiz-tree-node" data-search="${escapeHtml(keyName.toLowerCase())}"><span style="font-weight:bold;">${escapeHtml(keyName)}</span>: ${type === 'array' ? '[]' : '{}'}</div>`;
+
+            let childrenHtml = '';
+            const renderKeys = keys.slice(0, 100);
+            for (let k of renderKeys) {
+                try {
+                    childrenHtml += buildTreeHtml(obj[k], k, depth + 1);
+                } catch (e) {
+                    childrenHtml += `<div class="kaiz-tree-node"><span style="font-weight:bold;">${escapeHtml(k)}</span>: <span style="color:#f28b82;">[Error]</span></div>`;
+                }
+            }
+            if (keys.length > 100) childrenHtml += `<div class="kaiz-tree-node" style="color:#aaa; margin-left: 15px;">...and ${keys.length - 100} more items</div>`;
+
+            const isRoot = depth === 0;
+            const displayStyle = isRoot ? 'block' : 'none';
+            const icon = isRoot ? 'fa-chevron-down' : 'fa-chevron-right';
+            const labelColor = type === 'array' ? '#fbbc04' : '#00d2b4';
+
+            return `
+                <div class="kaiz-tree-node" data-search="${escapeHtml(keyName.toLowerCase())}" style="margin-left: ${depth > 0 ? 15 : 0}px;">
+                    <span class="kaiz-tree-toggle" style="cursor:pointer; user-select:none; color: ${labelColor}; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid ${icon}" style="font-size:0.8em; width:12px;"></i>
+                        <span style="font-weight: bold;">${escapeHtml(keyName)}</span>
+                        <span style="color:#aaa; font-size: 0.85em;">(${type === 'array' ? 'Array' : 'Object'} [${keys.length}])</span>
+                    </span>
+                    <div style="display: ${displayStyle}; border-left: 1px dashed rgba(255,255,255,0.2); padding-left: 5px; margin-top: 2px;">
+                        ${childrenHtml}
+                    </div>
+                </div>
+            `;
+        } else if (type === 'function') {
+            return `<div class="kaiz-tree-node" data-search="${escapeHtml(keyName.toLowerCase())}" style="margin-left: ${depth > 0 ? 15 : 0}px;"><span style="color:#c58af9; font-weight:bold;">${escapeHtml(keyName)}</span>: <span style="color:#aaa;">ƒ ()</span></div>`;
+        } else {
+            let valStr = String(obj);
+            if (type === 'string') valStr = `"${valStr}"`;
+            if (valStr.length > 100) valStr = valStr.substring(0, 100) + '...';
+            
+            let color = '#a5d6ff';
+            if (type === 'number') color = '#b5e5a4';
+            else if (type === 'boolean') color = '#ff8a65';
+            else if (type === 'null' || type === 'undefined') color = '#999';
+
+            return `<div class="kaiz-tree-node" data-search="${escapeHtml(keyName.toLowerCase())}" style="margin-left: ${depth > 0 ? 15 : 0}px;"><span style="color:#c58af9; font-weight:bold;">${escapeHtml(keyName)}</span>: <span style="color:${color};">${escapeHtml(valStr)}</span></div>`;
+        }
+    }
+
+    function filterTree(query) {
+        const nodes = doc.querySelectorAll('.kaiz-tree-node');
+        if (!query) {
+            nodes.forEach(n => n.style.display = 'block');
+            return;
+        }
+        
+        nodes.forEach(n => n.style.display = 'none');
+        nodes.forEach(n => {
+            const text = n.getAttribute('data-search') || '';
+            if (text.includes(query)) {
+                n.style.display = 'block';
+                // Show parents
+                let parent = n.parentElement;
+                while (parent && parent.id !== 'kaiz_explorer_tree_container') {
+                    if (parent.classList.contains('kaiz-tree-node')) parent.style.display = 'block';
+                    if (parent.previousElementSibling && parent.previousElementSibling.classList.contains('kaiz-tree-toggle')) {
+                        parent.style.display = 'block';
+                        parent.previousElementSibling.querySelector('i').className = 'fa-solid fa-chevron-down';
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+        });
+    }
+
+    doc.getElementById('kaiz_explorer_tab_ctx').addEventListener('click', () => {
+        currentMode = 'ctx';
+        doc.getElementById('kaiz_explorer_tab_ctx').style.borderBottom = '2px solid #00d2b4';
+        doc.getElementById('kaiz_explorer_tab_win').style.borderBottom = 'none';
+        loadData();
+    });
+
+    doc.getElementById('kaiz_explorer_tab_win').addEventListener('click', () => {
+        currentMode = 'win';
+        doc.getElementById('kaiz_explorer_tab_win').style.borderBottom = '2px solid #00d2b4';
+        doc.getElementById('kaiz_explorer_tab_ctx').style.borderBottom = 'none';
+        loadData();
+    });
+
+    doc.getElementById('kaiz_explorer_refresh_btn').addEventListener('click', () => loadData());
+
+    doc.getElementById('kaiz_explorer_search').addEventListener('input', (e) => {
+        filterTree(e.target.value.toLowerCase());
+    });
+
+    function runConsole() {
+        const code = doc.getElementById('kaiz_explorer_console_input').value;
+        if (!code) return;
+        const out = doc.getElementById('kaiz_explorer_console_output');
+        try {
+            // Run in targetWin context
+            let result = targetWin.eval(code);
+            let outStr = '';
+            if (typeof result === 'object') {
+                try { outStr = JSON.stringify(result, null, 2); } catch(e) { outStr = String(result); }
+            } else { outStr = String(result); }
+            out.innerHTML = `<span style="color:#b5e5a4;">${escapeHtml(outStr)}</span>`;
+        } catch (e) {
+            out.innerHTML = `<span style="color:#f28b82;">Error: ${escapeHtml(e.message)}</span>`;
+        }
+    }
+
+    doc.getElementById('kaiz_explorer_console_run').addEventListener('click', runConsole);
+    doc.getElementById('kaiz_explorer_console_input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') runConsole();
+    });
+
+    // Init
+    doc.getElementById('kaiz_explorer_tab_ctx').style.borderBottom = '2px solid #00d2b4';
+    loadData();
+}
