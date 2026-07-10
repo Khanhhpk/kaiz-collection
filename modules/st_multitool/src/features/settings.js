@@ -60,7 +60,14 @@ function getMagicMenuContainer() {
 }
 
 function createMagicWandMenuIfPossible() {
-  if ($(`#${MAGIC_MENU_ID}`).length > 0) return true;
+  if ($(`#${MAGIC_MENU_ID}`).length > 0) {
+    const rawSettings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS)) || {};
+    const settings = normalizeSettings(rawSettings);
+    if (!settings.showMagicWandBtn) {
+      $(`#${MAGIC_MENU_ID}`).hide().removeClass('flex-container');
+    }
+    return true;
+  }
 
   const $container = getMagicMenuContainer();
   if ($container.length === 0) return false;
@@ -74,6 +81,14 @@ function createMagicWandMenuIfPossible() {
   $(`#${MAGIC_MENU_ID}`).on('click', () => {
     showPopup();
   });
+
+  const rawSettings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS)) || {};
+  const settings = normalizeSettings(rawSettings);
+  if (!settings.showMagicWandBtn) {
+    $(`#${MAGIC_MENU_ID}`).hide().removeClass('flex-container');
+  } else {
+    $(`#${MAGIC_MENU_ID}`).show().addClass('flex-container');
+  }
 
   return true;
 }

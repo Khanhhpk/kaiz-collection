@@ -17,7 +17,7 @@ export function initPresets() {
     if (books.length === 0) return alert('Hãy chọn ít nhất một Sổ thế giới!');
     savePreset({ name, books });
     alert('Lưu thành công!');
-    renderPresets();
+    renderPresets(true);
   });
 }
 
@@ -38,11 +38,15 @@ export function deletePreset(name) {
   renderPresets();
 }
 
-export function renderPresets() {
+export function renderPresets(forceShow = false) {
   if (!$presetListContainer) $presetListContainer = $('#st-multitool-preset-list-container');
+  const wasVisible = forceShow || $presetListContainer.is(':visible');
   const presets = getPresets();
-  $presetListContainer.empty().hide();
-  if (presets.length === 0) return;
+  $presetListContainer.empty();
+  if (presets.length === 0) {
+    $presetListContainer.hide();
+    return;
+  }
   presets.forEach(p => {
     const item = $(
       `<div class="st-multitool-preset-item"><span>${escapeHtml(p.name)}</span><div><button class="st-multitool-delete-preset-btn">&times;</button></div></div>`,
@@ -64,5 +68,9 @@ export function renderPresets() {
     });
     $presetListContainer.append(item);
   });
-  $presetListContainer.show();
+  if (wasVisible) {
+    $presetListContainer.show();
+  } else {
+    $presetListContainer.hide();
+  }
 }

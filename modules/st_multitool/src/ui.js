@@ -79,7 +79,8 @@ export function showMainView() {
     elements.manageRegexView,
   ].forEach(v => v && v.hide());
   
-  renderPresets();
+  $('#st-multitool-preset-list-container').hide();
+  renderPresets(false);
 
   $('#st-multitool-header-title').text('ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
