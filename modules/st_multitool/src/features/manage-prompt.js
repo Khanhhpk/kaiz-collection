@@ -137,7 +137,7 @@ export function renderPromptBlocks() {
   const renderBlock = (block, idx) => {
     const isEnabled = block.enabled;
     return `
-      <div class="st-multitool-wb-item" data-idx="${idx}">
+      <div class="st-multitool-wb-item" data-idx="${idx}" data-id="${escapeHtml(block.identifier || '')}">
         <div class="st-multitool-wb-item-header st-multitool-accordion-header" style="cursor: pointer; user-select: none;">
           <div class="st-multitool-wb-item-title-col">
             <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
@@ -295,8 +295,8 @@ export function savePromptBlocks() {
     }
 
     const processItem = ($item, isActiveList) => {
-      const idx = parseInt($item.data('idx'), 10);
-      const originalBlock = originalPrompts[idx];
+      const identifier = $item.attr('data-id');
+      const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier)) || {};
 
       const newBlock = {
         ...originalBlock,
