@@ -20,15 +20,40 @@ export function initManagePrompt() {
   $saveBtn.on('click', savePromptBlocks);
 }
 
+function getPowerUser() {
+  if (window.power_user && window.power_user.instruct) return window.power_user;
+  if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
+    const ctx = window.SillyTavern.getContext();
+    if (ctx && ctx.power_user && ctx.power_user.instruct) return ctx.power_user;
+  }
+  // Optional search
+  for (let key in window) {
+    try {
+      if (window[key] && window[key].instruct && Array.isArray(window[key].instruct.prompts)) {
+        return window[key];
+      }
+    } catch(e) {}
+  }
+  return null;
+}
+
 export function renderPromptBlocks() {
   $promptListContainer.empty();
   
-  if (!window.power_user || !window.power_user.instruct || !Array.isArray(window.power_user.instruct.prompts)) {
-    $promptListContainer.html('<p style="color:#f28b82; text-align:center;">Không tìm thấy cấu trúc Prompt AI trong hệ thống SillyTavern. Hãy chắc chắn bạn đang dùng ST phiên bản mới và đã chọn một Preset.</p>');
+  const pu = getPowerUser();
+  if (!pu || !pu.instruct || !Array.isArray(pu.instruct.prompts)) {
+    let debugInfo = 'N/A';
+    try {
+      const ctx = window.SillyTavern ? window.SillyTavern.getContext() : {};
+      debugInfo = Object.keys(ctx).join(', ');
+    } catch (e) {
+      debugInfo = e.message;
+    }
+    $promptListContainer.html(`<p style="color:#f28b82; text-align:center;">Không tìm thấy cấu trúc Prompt AI trong hệ thống SillyTavern.</p><p style="color:#aaa; font-size:12px; word-break:break-all;">Debug Context Keys: ${debugInfo}</p>`);
     return;
   }
 
-  const prompts = window.power_user.instruct.prompts;
+  const prompts = pu.instruct.prompts;
   
   if (prompts.length === 0) {
     $promptListContainer.html('<p style="text-align:center;">Preset hiện tại không có khối Prompt nào.</p>');
@@ -121,7 +146,8 @@ export function renderPromptBlocks() {
 }
 
 export function savePromptBlocks() {
-  if (!window.power_user || !window.power_user.instruct || !Array.isArray(window.power_user.instruct.prompts)) {
+  const pu = getPowerUser();
+  if (!pu || !pu.instruct || !Array.isArray(pu.instruct.prompts)) {
     toastr.error('Không tìm thấy cấu trúc Prompt AI trong hệ thống.');
     return;
   }
@@ -129,7 +155,7 @@ export function savePromptBlocks() {
   showLoader();
   try {
     const newPrompts = [];
-    const originalPrompts = window.power_user.instruct.prompts;
+    const originalPrompts = pu.instruct.prompts;
 
     $promptListContainer.find('.st-multitool-wb-item').each(function() {
       const $item = $(this);
@@ -152,7 +178,7 @@ export function savePromptBlocks() {
       newPrompts.push(newBlock);
     });
 
-    window.power_user.instruct.prompts = newPrompts;
+    pu.instruct.prompts = newPrompts;
 
     // Optional: Try to call ST's internal save function if available
     if (typeof window.saveSettingsDebounced === 'function') {
