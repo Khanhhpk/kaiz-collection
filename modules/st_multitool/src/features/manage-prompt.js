@@ -14,10 +14,14 @@ export function initManagePrompt() {
     if (window.lucide) {
       window.lucide.createIcons();
     }
-    renderPromptBlocks();
   });
 
   $saveBtn.on('click', savePromptBlocks);
+  
+  $('#st-multitool-reset-prompt-btn').on('click', () => {
+    renderPromptBlocks();
+    toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
+  });
 }
 
 function getPromptContainer() {
@@ -196,7 +200,7 @@ export function renderPromptBlocks() {
 
   // Handle manual toggle switch click (only save state, don't move between lists)
   $promptListContainer.find('.st-multitool-prompt-enabled').on('change', function(e) {
-    savePromptBlocks();
+    // Không tự động lưu nữa
   });
 
   // Enable Sortable with connected lists
@@ -205,12 +209,10 @@ export function renderPromptBlocks() {
       connectWith: '.st-multitool-prompt-sortable-list',
       handle: '.st-multitool-drag-handle',
       receive: function(event, ui) {
-        savePromptBlocks();
+        // Không tự động lưu nữa
       },
       update: function(event, ui) {
-        if (!ui.sender) {
-          savePromptBlocks(); 
-        }
+        // Không tự động lưu nữa
       }
     });
   }

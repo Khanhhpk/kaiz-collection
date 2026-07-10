@@ -1370,9 +1370,12 @@
         <div class="st-multitool-section-desc">
           Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
         </div>
-        <div class="st-multitool-search-container" style="margin-top: 15px; margin-bottom: 15px;">
-          <button id="st-multitool-save-prompt-btn" class="st-multitool-btn-hero primary" style="width: 100%">
+        <div class="st-multitool-search-container" style="margin-top: 15px; margin-bottom: 15px; display: flex; gap: 10px;">
+          <button id="st-multitool-save-prompt-btn" class="st-multitool-btn-hero primary" style="flex: 1;">
             <i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt
+          </button>
+          <button id="st-multitool-reset-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1);" title="Hoàn tác tất cả các thay đổi chưa lưu">
+            <i data-lucide="rotate-ccw"></i> Hoàn tác (Undo)
           </button>
         </div>
         <div id="st-multitool-prompt-list-container" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;"></div>
