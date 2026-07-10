@@ -724,7 +724,7 @@ export function renderFrontendCards() {
           <button class="st-multitool-button fe-import-preset-btn" data-id="${card.id}">Nhập vào regex preset</button>
           <button class="st-multitool-button fe-import-character-btn" data-id="${card.id}">Nhập vào regex cục bộ</button>
           <button class="st-multitool-button fe-render-btn" data-id="${card.id}">👁️ Render frontend</button>
-          <button class="st-multitool-button st-multitool-btn-primary fe-download-btn" data-id="${card.id}">⬇️ Tải xuống thành script regex</button>
+          <button class="st-multitool-button st-multitool-btn-primary fe-download-btn" data-id="${card.id}"><i class="fa-solid fa-download"></i> Tải xuống thành script regex</button>
           <button class="st-multitool-button st-multitool-btn-small abandon fe-delete-btn" data-id="${card.id}">🗑️ Xóa</button>
         </div>
         <div id="st-multitool-fe-preview-container-${card.id}" style="display: none; margin-top: 15px; border: 1px solid var(--st-multitool-border); border-radius: 5px; padding: 10px; background: #fff; color: #000; overflow: auto; min-height: 300px;"></div>

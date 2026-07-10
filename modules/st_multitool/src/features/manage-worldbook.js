@@ -117,7 +117,7 @@ export async function renderManageWorldbookList() {
           <span class="st-multitool-manage-wb-name">${escapeHtml(book.name)}</span>
         </div>
         <div class="st-multitool-manage-wb-actions">
-          <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-wb-download">⬇️ Tải xuống</button>
+          <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-wb-download"><i class="fa-solid fa-download"></i> Tải xuống</button>
           <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-wb-delete">Xóa</button>
         </div>
       `;

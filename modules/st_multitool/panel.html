@@ -435,7 +435,8 @@
             <div class="st-multitool-row">
               <div class="st-multitool-group">
                 <span class="st-multitool-label">Sổ thế giới đích:</span>
-                <select id="st-multitool-target-wb" class="st-multitool-select">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-target-wb" placeholder="Tìm kiếm..." style="width: 150px;">
+                <select id="st-multitool-target-wb" class="st-multitool-select" style="flex: 1;">
                   <option value="">-- Đang tải --</option>
                 </select>
                 <button class="st-multitool-button st-multitool-btn-small" id="st-multitool-sync-create-wb-btn" title="Tạo Sổ thế giới">
@@ -541,6 +542,7 @@
         <div class="st-multitool-section-content">
           <div class="st-multitool-modify-controls">
             <div class="st-multitool-grid-container">
+              <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-dup-source-select" placeholder="Tìm Sổ thế giới nguồn..." style="grid-column: span 2; margin-bottom: 5px;">
               <label for="st-multitool-dup-source-select">Sổ thế giới nguồn:</label>
               <select id="st-multitool-dup-source-select" class="st-multitool-select"></select>
               <label for="st-multitool-dup-target-input">Tên Sổ thế giới mới:</label>
@@ -726,6 +728,7 @@
             <p class="st-multitool-description">
               Nhấn vào Sổ thế giới bên dưới để chọn (có thể chọn nhiều). Nhấn lại để bỏ chọn. Sau khi chọn, các mục sẽ hiển thị bên dưới.
             </p>
+            <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-worldbook-list-container" placeholder="Tìm kiếm Sổ thế giới..." style="width: 100%; margin-bottom: 10px; box-sizing: border-box;">
             <div id="st-multitool-worldbook-list-container" class="st-multitool-book-list-container"></div>
             <div class="st-multitool-actions">
               <button id="st-multitool-delete-worldbook-btn" class="st-multitool-button abandon">Xóa Sổ thế giới đã chọn</button>
@@ -775,6 +778,8 @@
           <div class="st-multitool-section-content">
             <div class="st-multitool-transfer-controls">
               <div class="st-multitool-grid-container">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-source-worldbook-select" placeholder="Tìm Sổ thế giới nguồn..." style="margin-bottom: 5px;">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-target-worldbook-select" placeholder="Tìm Sổ thế giới đích..." style="margin-bottom: 5px;">
                 <label for="st-multitool-source-worldbook-select">Sổ thế giới nguồn:</label>
                 <select id="st-multitool-source-worldbook-select" class="st-multitool-select"></select>
                 <label for="st-multitool-target-worldbook-select">Sổ thế giới đích:</label>
@@ -811,6 +816,8 @@
           <div class="st-multitool-section-content">
             <div class="st-multitool-transfer-controls">
               <div class="st-multitool-grid-container">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-copy-source-worldbook-select" placeholder="Tìm Sổ thế giới nguồn..." style="margin-bottom: 5px;">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-copy-target-worldbook-select" placeholder="Tìm Sổ thế giới đích..." style="margin-bottom: 5px;">
                 <label for="st-multitool-copy-source-worldbook-select">Sổ thế giới nguồn:</label>
                 <select id="st-multitool-copy-source-worldbook-select" class="st-multitool-select"></select>
                 <label for="st-multitool-copy-target-worldbook-select">Sổ thế giới đích:</label>
@@ -857,6 +864,7 @@
                 </div>
               </div>
               <div class="st-multitool-manage-script-card-content">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-manage-wb-list" placeholder="Tìm kiếm Sổ thế giới..." style="width: 100%; margin-bottom: 10px; box-sizing: border-box;">
                 <div id="st-multitool-manage-wb-list" class="st-multitool-manage-list">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách Sổ thế giới.</div>
                 </div>

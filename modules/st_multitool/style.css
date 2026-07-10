@@ -295,12 +295,18 @@
 .st-multitool-select,
 .st-multitool-textarea {
   width: 100%;
+  max-width: 100%;
   padding: 10px;
   background-color: var(--st-multitool-main-bg);
   color: white;
   border: 1px solid var(--st-multitool-border);
   border-radius: 5px;
-  box-sizing: border-box;
+  font-family: var(--st-multitool-font-family);
+}
+.st-multitool-select {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .st-multitool-textarea {
@@ -340,9 +346,9 @@
 }
 
 .st-multitool-book-button {
-  background-color: #ffffff;
-  color: #2c2f33;
-  border: 1px solid #cccccc;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: var(--st-multitool-text);
+  border: 1px solid var(--st-multitool-border);
   padding: 8px 12px;
   border-radius: 15px;
   cursor: pointer;

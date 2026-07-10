@@ -113,7 +113,7 @@ function renderScriptList($container, scripts, type) {
         <span class="st-multitool-manage-script-name">${escapeHtml(script.name || 'Script chưa có tên')}</span>
       </div>
       <div class="st-multitool-manage-script-actions">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-download">⬇️ Tải xuống</button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-download"><i class="fa-solid fa-download"></i> Tải xuống</button>
         <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-delete">Xóa</button>
       </div>
     `;
