@@ -267,7 +267,7 @@ function renderVarList(vars) {
           if (_isEditMode && isSetOrAdd && v.scope === 'local') {
             const currentVal = s.id in _pendingSourceValues ? _pendingSourceValues[s.id].newVal : s.value;
             const valColor = s.id in _pendingSourceValues ? '#fde68a' : '#00e6b8';
-            valDisplay = ` = <input type="text" class="st-multitool-vi-edit-source-val" data-sourceid="${s.id}" value="${escapeHtml(currentVal)}" style="width:150px; background:rgba(0,0,0,0.3); border:1px solid ${valColor}; color:#86efac; padding:2px 4px; border-radius:4px; font-family:monospace;">`;
+            valDisplay = `<div style="margin-top: 6px;"><textarea class="st-multitool-vi-edit-source-val" data-sourceid="${s.id}" style="width: 100%; min-height: 60px; max-height: 400px; resize: vertical; background:rgba(0,0,0,0.3); border:1px solid ${valColor}; color:#86efac; padding:6px; border-radius:4px; font-family:monospace; line-height: 1.4;">${escapeHtml(currentVal)}</textarea></div>`;
           }
 
           return `
