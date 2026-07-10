@@ -136,10 +136,10 @@
           </div>
           <div class="st-multitool-section-content">
             <div class="st-multitool-actions">
-              <button id="st-multitool-goto-sync-btn" class="st-multitool-button">⚡ Đồng bộ Sổ thế giới</button>
+              <button id="st-multitool-goto-sync-btn" class="st-multitool-button"><i data-lucide="zap"></i> Đồng bộ Sổ thế giới</button>
               <button id="st-multitool-goto-frontend-btn" class="st-multitool-button"><i data-lucide="layout"></i> Trình đồng bộ frontend</button>
               <button id="st-multitool-goto-script-sync-btn" class="st-multitool-button"><i data-lucide="braces"></i> Trình đồng bộ script</button>
-              <button id="st-multitool-goto-settings-btn" class="st-multitool-button">⚙️ Cài đặt tiện ích</button>
+              <button id="st-multitool-goto-settings-btn" class="st-multitool-button"><i data-lucide="settings"></i> Cài đặt tiện ích</button>
             </div>
           </div>
         </div>
@@ -257,7 +257,7 @@
               <button id="st-multitool-cr-import-global-btn" class="st-multitool-button">Nhập vào regex toàn cục</button>
               <button id="st-multitool-cr-import-preset-btn" class="st-multitool-button">Nhập vào regex preset</button>
               <button id="st-multitool-cr-import-character-btn" class="st-multitool-button">Nhập vào regex cục bộ</button>
-              <button id="st-multitool-cr-download-btn" class="st-multitool-button st-multitool-btn-primary">⬇️ Tải xuống thành script regex</button>
+              <button id="st-multitool-cr-download-btn" class="st-multitool-button st-multitool-btn-primary"><i data-lucide="download"></i> Tải xuống thành script regex</button>
             </div>
           </div>
         </div>
@@ -327,7 +327,7 @@
                 Nhập vào thư viện script nhân vật
               </button>
               <button id="st-multitool-cs-download-btn" class="st-multitool-button st-multitool-btn-primary" style="opacity: 1">
-                ⬇️ Tải script
+                <i data-lucide="download"></i> Tải script
               </button>
             </div>
           </div>
@@ -439,7 +439,7 @@
                   <option value="">-- Đang tải --</option>
                 </select>
                 <button class="st-multitool-button st-multitool-btn-small" id="st-multitool-sync-create-wb-btn" title="Tạo Sổ thế giới">
-                  ➕
+                  <i data-lucide="plus"></i>
                 </button>
               </div>
               <div class="st-multitool-group">
@@ -853,7 +853,7 @@
                   <button id="st-multitool-manage-wb-create-btn" class="st-multitool-button st-multitool-btn-small">Tạo Sổ thế giới</button>
                   <button id="st-multitool-manage-wb-select-all-btn" class="st-multitool-button st-multitool-btn-small">Chọn tất cả / Bỏ chọn</button>
                   <button id="st-multitool-manage-wb-delete-btn" class="st-multitool-button st-multitool-btn-small abandon">Xóa đã chọn</button>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
               </div>
               <div class="st-multitool-manage-script-card-content">
@@ -871,7 +871,7 @@
                   <button id="st-multitool-manage-wb-entry-create-btn" class="st-multitool-button st-multitool-btn-small">Tạo mục</button>
                   <button id="st-multitool-manage-wb-entry-select-all-btn" class="st-multitool-button st-multitool-btn-small">Chọn tất cả / Bỏ chọn</button>
                   <button id="st-multitool-manage-wb-entry-delete-btn" class="st-multitool-button st-multitool-btn-small abandon">Xóa đã chọn</button>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
               </div>
               <div class="st-multitool-manage-script-card-content">
@@ -967,7 +967,7 @@
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="globe"></i> Script toàn cục
                   </div>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
                 <div id="st-multitool-manage-script-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content st-multitool-sortable-list">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách script.</div>
@@ -978,7 +978,7 @@
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="bookmark"></i> Script preset
                   </div>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
                 <div id="st-multitool-manage-script-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content st-multitool-sortable-list">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách script.</div>
@@ -989,7 +989,7 @@
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="user"></i> Script nhân vật
                   </div>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
                 <div id="st-multitool-manage-script-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content st-multitool-sortable-list">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách script.</div>
@@ -1046,7 +1046,7 @@
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="globe"></i> Regex toàn cục
                   </div>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
                 <div id="st-multitool-manage-regex-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
@@ -1057,7 +1057,7 @@
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="bookmark"></i> Regex preset
                   </div>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
                 <div id="st-multitool-manage-regex-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
@@ -1068,7 +1068,7 @@
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="user"></i> Regex cục bộ
                   </div>
-                  <i data-lucide="circle"></i>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                 </div>
                 <div id="st-multitool-manage-regex-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
@@ -1165,12 +1165,7 @@
         </div>
         <div class="st-multitool-section-content">
           <div class="st-multitool-controls-box">
-            <div class="st-multitool-row">
-                <label class="st-multitool-checkbox-label">
-                    <input type="checkbox" id="st-multitool-setting-show-floating-btn" />
-                    Hiển thị nút nổi
-                </label>
-            </div>
+            
             <div class="st-multitool-row">
                 <label class="st-multitool-checkbox-label">
                     <input type="checkbox" id="st-multitool-setting-show-magic-wand-btn" />
