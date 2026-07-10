@@ -45,6 +45,7 @@
   border-radius: var(--st-multitool-radius);
   box-shadow: var(--st-multitool-shadow);
   border: 1px solid var(--st-multitool-border);
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -119,6 +120,7 @@
     flex-direction: column;
     gap: 16px;
     height: calc(100% - 40px);
+    min-height: 0;
 }
 
 .st-multitool-loader {
@@ -907,11 +909,9 @@
     position: absolute;
   }
   .st-multitool-popup-container {
-    top: 2.5vh;
-    left: 2.5vw;
     width: 95vw;
     height: 95vh;
-    transform: none;
+    max-height: 95vh;
   }
 
   .st-multitool-actions {
