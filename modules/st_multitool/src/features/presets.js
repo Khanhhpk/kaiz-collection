@@ -56,7 +56,7 @@ export function renderPresets(forceShow = false) {
         try {
           await setLorebookSettings({ selected_global_lorebooks: [] });
           await setLorebookSettings({ selected_global_lorebooks: p.books });
-          toastr.success('Tải preset thành công!');
+          toastr.success('Tải LB preset thành công!');
         } catch (err) {
           toastr.error('Tải thất bại');
         }
