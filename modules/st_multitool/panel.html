@@ -1,0 +1,1346 @@
+<div id="st-multitool-popup-overlay" class="st-multitool-popup-overlay" style="display: none">
+  <div id="st-multitool-popup" class="st-multitool-popup-container">
+    <div id="st-multitool-loader" class="st-multitool-loader" style="display: none">
+      <div class="st-multitool-spinner"></div>
+      <p>Đang xử lý...</p>
+    </div>
+    <div id="st-multitool-popup-header" class="st-multitool-popup-header">
+      <div id="st-multitool-header-title" class="st-multitool-header-title">ST Multitool - Menu chính</div>
+      <div class="st-multitool-header-controls">
+        <button id="st-multitool-manage-script-refresh-btn" class="st-multitool-header-btn" title="Làm mới" style="display: none">
+          <i data-lucide="refresh-cw"></i>
+        </button>
+        <button id="st-multitool-manage-wb-refresh-btn" class="st-multitool-header-btn" title="Làm mới" style="display: none">
+          <i data-lucide="refresh-cw"></i>
+        </button>
+        <button id="st-multitool-manage-regex-refresh-btn" class="st-multitool-header-btn" title="Làm mới" style="display: none">
+          <i data-lucide="refresh-cw"></i>
+        </button>
+        <button id="st-multitool-popup-back-btn" class="st-multitool-header-btn" title="Về menu chính" style="display: none">
+          <i data-lucide="arrow-left"></i>
+        </button>
+        <button id="st-multitool-popup-close-button" class="st-multitool-header-btn close-btn" title="Đóng">&times;</button>
+      </div>
+    </div>
+    <div class="st-multitool-popup-body" id="st-multitool-popup-body">
+      <div id="st-multitool-main-view" style="display: flex; flex-direction: column; gap: 18px; min-height: min-content">
+        <div class="st-multitool-dash-header">
+          <div class="st-multitool-hero-banner">
+            <div class="st-multitool-hero-content">
+              <div class="st-multitool-hero-badge">✦ KAIZ MULTITOOL SUITE V2</div>
+              <h3>Hệ Sinh Thái Trợ Lý & Sổ Thế Giới</h3>
+              <p>Quản lý toàn diện Sổ thế giới, Script macro, Regex và Đồng bộ hóa trong một giao diện hợp nhất.</p>
+            </div>
+            <div class="st-multitool-hero-actions">
+              <button id="st-multitool-select-book-btn" class="st-multitool-btn-hero primary">
+                <i data-lucide="check-square"></i> Chọn Sổ toàn cục
+              </button>
+              <button id="st-multitool-load-preset-btn" class="st-multitool-btn-hero secondary">
+                <i data-lucide="layers"></i> Tải preset
+              </button>
+            </div>
+          </div>
+          <div id="st-multitool-preset-list-container" class="st-multitool-preset-list-container" style="display: none; margin-top: 14px;"></div>
+        </div>
+
+        <div class="st-multitool-dash-nav">
+          <button class="st-multitool-nav-tab active" data-filter="all">
+            <i data-lucide="layout-dashboard"></i> Tất cả
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="worldbook">
+            <i data-lucide="library"></i> Sổ thế giới
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="scripts">
+            <i data-lucide="cpu"></i> Script Trợ lý
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="regex">
+            <i data-lucide="filter"></i> Script Regex
+          </button>
+          <button class="st-multitool-nav-tab" data-filter="sync">
+            <i data-lucide="settings-2"></i> Đồng bộ & Tiện ích
+          </button>
+        </div>
+
+        <div class="st-multitool-dash-grid">
+          <!-- Card 1: Worldbook -->
+          <div class="st-multitool-dash-card" data-category="worldbook">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon worldbook"><i data-lucide="book-open"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Quản lý Sổ thế giới</h4>
+                <span class="st-multitool-card-tag">7 Công cụ</span>
+              </div>
+            </div>
+            <div class="st-multitool-dash-card-desc">
+              Xem, bật/tắt, thêm, sửa, xóa và di chuyển các mục trong Sổ thế giới một cách trực quan.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-manage-wb-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="book-open"></i>
+                  <div>
+                    <span>Quản lý Sổ thế giới</span>
+                    <small>Bật/tắt & sắp xếp mục</small>
+                  </div>
+                </button>
+                <button id="st-multitool-create-wb-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="plus-circle"></i>
+                  <div>
+                    <span>Tạo Sổ thế giới</span>
+                    <small>Tạo mới Sổ trống</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-rename-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="edit-2"></i>
+                  <div>
+                    <span>Đổi tên</span>
+                    <small>Đổi tên Sổ hiện có</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-duplicate-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="copy"></i>
+                  <div>
+                    <span>Sao chép Sổ</span>
+                    <small>Nhân bản dữ liệu</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-modify-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="file-edit"></i>
+                  <div>
+                    <span>Sửa mục Sổ</span>
+                    <small>Chỉnh sửa nâng cao</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-transfer-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="arrow-right-left"></i>
+                  <div>
+                    <span>Chuyển mục</span>
+                    <small>Di chuyển qua lại</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-delete-btn" class="st-multitool-dash-btn danger">
+                  <i data-lucide="trash-2"></i>
+                  <div>
+                    <span>Xóa Sổ & Mục</span>
+                    <small>Dọn dẹp triệt để</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Scripts -->
+          <div class="st-multitool-dash-card" data-category="scripts">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon scripts"><i data-lucide="bot"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Script Trợ lý Tavern</h4>
+                <span class="st-multitool-card-tag">Tự động hóa</span>
+              </div>
+            </div>
+            <div class="st-multitool-dash-card-desc">
+              Quản lý script macro, nút bấm quick-reply và hành vi tùy biến cho nhân vật & preset.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-manage-script-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="bot"></i>
+                  <div>
+                    <span>Quản lý Script</span>
+                    <small>Toàn cục, preset & nhân vật</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-create-script-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="code"></i>
+                  <div>
+                    <span>Tạo Script mới</span>
+                    <small>Thêm macro Trợ lý</small>
+                  </div>
+                </button>
+                <button id="st-multitool-main-import-script-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="folder-open"></i>
+                  <div>
+                    <span>Nhập Script</span>
+                    <small>Từ tệp tin .json</small>
+                  </div>
+                </button>
+              </div>
+              <div id="st-multitool-main-import-script-options" class="st-multitool-import-drawer" style="display: none;">
+                <span class="st-multitool-label">Chọn đích nhập script:</span>
+                <div class="st-multitool-drawer-btns">
+                  <button id="st-multitool-main-import-script-global-btn" class="st-multitool-dash-btn-small">Toàn cục</button>
+                  <button id="st-multitool-main-import-script-preset-btn" class="st-multitool-dash-btn-small">Preset</button>
+                  <button id="st-multitool-main-import-script-character-btn" class="st-multitool-dash-btn-small">Nhân vật</button>
+                </div>
+                <input type="file" id="st-multitool-main-script-file-input" style="display: none" accept=".json" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Regex -->
+          <div class="st-multitool-dash-card" data-category="regex">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon regex"><i data-lucide="code"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Script Regex</h4>
+                <span class="st-multitool-card-tag">Xử lý văn bản</span>
+              </div>
+            </div>
+            <div class="st-multitool-dash-card-desc">
+              Thiết lập quy tắc biểu thức chính quy (Regex) để tự động hóa chỉnh sửa văn bản AI.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-manage-regex-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="file-text"></i>
+                  <div>
+                    <span>Quản lý Regex</span>
+                    <small>Xem và bật/tắt quy tắc</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-create-regex-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="plus"></i>
+                  <div>
+                    <span>Tạo Regex mới</span>
+                    <small>Thêm quy tắc mới</small>
+                  </div>
+                </button>
+                <button id="st-multitool-main-import-regex-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="folder-open"></i>
+                  <div>
+                    <span>Nhập Regex</span>
+                    <small>Từ tệp tin .json</small>
+                  </div>
+                </button>
+              </div>
+              <div id="st-multitool-main-import-regex-options" class="st-multitool-import-drawer" style="display: none;">
+                <span class="st-multitool-label">Chọn đích nhập regex:</span>
+                <div class="st-multitool-drawer-btns">
+                  <button id="st-multitool-main-import-regex-global-btn" class="st-multitool-dash-btn-small">Toàn cục</button>
+                  <button id="st-multitool-main-import-regex-preset-btn" class="st-multitool-dash-btn-small">Preset</button>
+                  <button id="st-multitool-main-import-regex-character-btn" class="st-multitool-dash-btn-small">Nhân vật</button>
+                </div>
+                <input type="file" id="st-multitool-main-regex-file-input" style="display: none" accept=".json" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Sync & Settings -->
+          <div class="st-multitool-dash-card" data-category="sync">
+            <div class="st-multitool-dash-card-header">
+              <div class="st-multitool-card-icon sync"><i data-lucide="refresh-cw"></i></div>
+              <div class="st-multitool-card-title-wrap">
+                <h4>Đồng bộ & Cài đặt tiện ích</h4>
+                <span class="st-multitool-card-tag">Hệ thống</span>
+              </div>
+            </div>
+            <div class="st-multitool-dash-card-desc">
+              Đồng bộ hóa dữ liệu trực tuyến qua máy chủ, cấu hình phím tắt đũa phép và bóng truy cập.
+            </div>
+            <div class="st-multitool-dash-card-body">
+              <div class="st-multitool-card-actions-grid">
+                <button id="st-multitool-goto-sync-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="zap"></i>
+                  <div>
+                    <span>Đồng bộ Sổ thế giới</span>
+                    <small>Kết nối máy chủ</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-frontend-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="layout"></i>
+                  <div>
+                    <span>Đồng bộ Frontend</span>
+                    <small>Cấu hình giao diện</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-script-sync-btn" class="st-multitool-dash-btn">
+                  <i data-lucide="braces"></i>
+                  <div>
+                    <span>Đồng bộ Script</span>
+                    <small>Cập nhật kịch bản</small>
+                  </div>
+                </button>
+                <button id="st-multitool-goto-settings-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="settings"></i>
+                  <div>
+                    <span>Cài đặt Tiện ích</span>
+                    <small>Bóng truy cập & menu</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-create-regex-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="code"></i> Tạo script regex
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-controls-box" style="border-style: dashed">
+            <span class="st-multitool-batch-title">Thiết lập script regex:</span>
+            <div class="st-multitool-row">
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Tên script:</span>
+                <input type="text" id="st-multitool-cr-script-name" class="st-multitool-input" style="width: 100%" value="" />
+              </div>
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Regex tìm kiếm:</span>
+                <input type="text" id="st-multitool-cr-find-regex" class="st-multitool-input" style="width: 100%" value="" />
+              </div>
+            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px">
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="st-multitool-label" style="font-weight: bold">Phạm vi áp dụng</span>
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" class="st-multitool-cr-placement-cb" value="1" /> Đầu vào người dùng</label
+                >
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" class="st-multitool-cr-placement-cb" value="2" checked /> Đầu ra AI</label
+                >
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" class="st-multitool-cr-placement-cb" value="4" /> Lệnh nhanh</label
+                >
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" class="st-multitool-cr-placement-cb" value="3" /> Thông tin thế giới</label
+                >
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" class="st-multitool-cr-placement-cb" value="5" /> Suy luận</label
+                >
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="st-multitool-label" style="font-weight: bold">Tùy chọn khác</span>
+                <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-cr-disabled" /> Đã tắt</label>
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" id="st-multitool-cr-run-on-edit" checked /> Chạy khi chỉnh sửa</label
+                >
+
+                <span class="st-multitool-label" style="font-weight: bold; margin-top: 5px">Macro khi tìm regex</span>
+                <select id="st-multitool-cr-substitute-regex" class="st-multitool-select" style="width: 120px">
+                  <option value="0" selected>Không thay</option>
+                  <option value="1">Thay</option>
+                </select>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <span class="st-multitool-label" style="font-weight: bold">Tạm thời</span>
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" id="st-multitool-cr-markdown-only" checked /> Chỉ hiển thị định dạng</label
+                >
+                <label class="st-multitool-checkbox-label"
+                  ><input type="checkbox" id="st-multitool-cr-prompt-only" /> Chỉ định dạng prompt</label
+                >
+
+                <div style="display: flex; gap: 10px; margin-top: 5px">
+                  <div style="display: flex; flex-direction: column; gap: 2px">
+                    <span class="st-multitool-label">Độ sâu tối thiểu</span>
+                    <input
+                      type="number"
+                      id="st-multitool-cr-min-depth"
+                      class="st-multitool-input"
+                      style="width: 70px"
+                      placeholder="Vô hạn"
+                    />
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 2px">
+                    <span class="st-multitool-label">Độ sâu tối đa</span>
+                    <input
+                      type="number"
+                      id="st-multitool-cr-max-depth"
+                      class="st-multitool-input"
+                      style="width: 70px"
+                      placeholder="Vô hạn"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="st-multitool-controls-box" style="flex-grow: 1; display: flex; flex-direction: column">
+            <span class="st-multitool-label">Cắt bỏ:</span>
+            <textarea
+              id="st-multitool-cr-trim-strings"
+              class="st-multitool-textarea"
+              style="min-height: 60px; margin-bottom: 10px"
+              placeholder="Cắt toàn cục các phần không cần thiết trong kết quả khớp regex trước khi thay thế. Mỗi mục cách nhau bằng xuống dòng."
+            ></textarea>
+
+            <span class="st-multitool-label">Thay bằng (nội dung thay regex):</span>
+            <textarea
+              id="st-multitool-cr-content"
+              class="st-multitool-textarea"
+              style="flex-grow: 1; font-family: monospace"
+            ></textarea>
+
+            <div class="st-multitool-actions" style="justify-content: flex-end; margin-top: 10px; flex-wrap: wrap">
+              <button id="st-multitool-cr-import-global-btn" class="st-multitool-button">Nhập vào regex toàn cục</button>
+              <button id="st-multitool-cr-import-preset-btn" class="st-multitool-button">Nhập vào regex preset</button>
+              <button id="st-multitool-cr-import-character-btn" class="st-multitool-button">Nhập vào regex cục bộ</button>
+              <button id="st-multitool-cr-download-btn" class="st-multitool-button st-multitool-btn-primary"><i data-lucide="download"></i> Tải xuống thành script regex</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-create-script-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="code"></i> Tạo script Trợ lý Tavern
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-controls-box" style="border-style: dashed">
+            <div class="st-multitool-row">
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Tên script:</span>
+                <input type="text" id="st-multitool-cs-script-name" class="st-multitool-input" style="width: 100%" value="" />
+              </div>
+            </div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px">
+              <div style="display: flex; flex-direction: column; gap: 5px">
+                <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-cs-disabled" /> Đã tắt</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="st-multitool-controls-box" style="flex-grow: 1; display: flex; flex-direction: column">
+            <span class="st-multitool-label">Nội dung script (JS/TS):</span>
+            <textarea
+              id="st-multitool-cs-content"
+              class="st-multitool-textarea"
+              style="flex-grow: 1; font-family: monospace"
+            ></textarea>
+
+            <span class="st-multitool-label" style="margin-top: 10px">Ghi chú tác giả:</span>
+            <textarea
+              id="st-multitool-cs-info"
+              class="st-multitool-textarea"
+              style="min-height: 60px"
+              placeholder="Ghi chú script, ví dụ tác giả, phiên bản và lưu ý; hỗ trợ markdown và html cơ bản"
+            ></textarea>
+
+            <div class="st-multitool-actions" style="justify-content: flex-end; margin-top: 10px; flex-wrap: wrap">
+              <button
+                id="st-multitool-cs-import-global-script-btn"
+                class="st-multitool-button"
+                style="background-color: var(--st-multitool-primary); color: #000; opacity: 1"
+              >
+                Nhập vào thư viện script toàn cục
+              </button>
+              <button
+                id="st-multitool-cs-import-preset-script-btn"
+                class="st-multitool-button"
+                style="background-color: var(--st-multitool-primary); color: #000; opacity: 1"
+              >
+                Nhập vào thư viện script preset
+              </button>
+              <button
+                id="st-multitool-cs-import-character-script-btn"
+                class="st-multitool-button"
+                style="background-color: var(--st-multitool-primary); color: #000; opacity: 1"
+              >
+                Nhập vào thư viện script nhân vật
+              </button>
+              <button id="st-multitool-cs-download-btn" class="st-multitool-button st-multitool-btn-primary" style="opacity: 1">
+                <i data-lucide="download"></i> Tải script
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-frontend-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="code"></i> Trình đồng bộ frontend
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-controls-box">
+            <div class="st-multitool-row">
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Thẻ bắt đầu:</span>
+                <input
+                  type="text"
+                  id="st-multitool-fe-tag-start"
+                  class="st-multitool-input"
+                  value="```html"
+                  style="width: 80px"
+                />
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Thẻ kết thúc:</span>
+                <input type="text" id="st-multitool-fe-tag-end" class="st-multitool-input" value="```" style="width: 80px" />
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Chỉ định tầng:</span>
+                <input type="text" id="st-multitool-fe-floor" class="st-multitool-input" placeholder="Ví dụ: 1,5,8" style="width: 80px" />
+              </div>
+              <button class="st-multitool-button" id="st-multitool-fe-extract-btn">
+                <i data-lucide="search"></i> Trích xuất tin nhắn mới nhất
+              </button>
+            </div>
+          </div>
+
+          <div id="st-multitool-fe-cards-container" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+            <div class="st-multitool-empty-msg">Nhấn "Trích xuất tin nhắn mới nhất" ở trên để trích mã frontend từ lịch sử chat.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-script-sync-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="code"></i> Trình đồng bộ script
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-controls-box">
+            <div class="st-multitool-row">
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Thẻ bắt đầu:</span>
+                <input
+                  type="text"
+                  id="st-multitool-ss-tag-start"
+                  class="st-multitool-input"
+                  value="```javascript"
+                  style="width: 80px"
+                />
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Thẻ kết thúc:</span>
+                <input type="text" id="st-multitool-ss-tag-end" class="st-multitool-input" value="```" style="width: 80px" />
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Chỉ định tầng:</span>
+                <input type="text" id="st-multitool-ss-floor" class="st-multitool-input" placeholder="Ví dụ: 1,5,8" style="width: 80px" />
+              </div>
+              <button class="st-multitool-button" id="st-multitool-ss-extract-btn">
+                <i data-lucide="search"></i> Trích xuất tin nhắn mới nhất
+              </button>
+            </div>
+          </div>
+
+          <div id="st-multitool-ss-cards-container" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+            <div class="st-multitool-empty-msg">Nhấn "Trích xuất tin nhắn mới nhất" ở trên để trích mã script từ lịch sử chat.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-sync-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="zap"></i> Đồng bộ Sổ thế giới
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-controls-box">
+            <div class="st-multitool-row">
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Sổ thế giới đích:</span>
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-target-wb" placeholder="Tìm kiếm..." style="width: 150px;">
+                <select id="st-multitool-target-wb" class="st-multitool-select" style="flex: 1;">
+                  <option value="">-- Đang tải --</option>
+                </select>
+                <button class="st-multitool-button st-multitool-btn-small" id="st-multitool-sync-create-wb-btn" title="Tạo Sổ thế giới">
+                  <i data-lucide="plus"></i>
+                </button>
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Thẻ bắt đầu:</span>
+                <input type="text" id="st-multitool-tag-start" class="st-multitool-input" value="" style="width: 80px" />
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Thẻ kết thúc:</span>
+                <input type="text" id="st-multitool-tag-end" class="st-multitool-input" value="" style="width: 80px" />
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Chỉ định tầng:</span>
+                <input type="text" id="st-multitool-floor" class="st-multitool-input" placeholder="Ví dụ: 1,5,8" style="width: 80px" />
+              </div>
+              <button class="st-multitool-button" id="st-multitool-extract-btn">
+                <i data-lucide="search"></i> Trích xuất tin nhắn mới nhất
+              </button>
+              <button class="st-multitool-button st-multitool-btn-primary" id="st-multitool-sync-all-btn" style="margin-left: auto">
+                <i data-lucide="cloud-upload"></i> Đồng bộ tất cả
+              </button>
+            </div>
+          </div>
+
+          <div class="st-multitool-controls-box" style="border-style: dashed">
+            <div class="st-multitool-row">
+              <span class="st-multitool-batch-title">Cài đặt hàng loạt:</span>
+              <select id="st-multitool-batch-mode" class="st-multitool-select">
+                <option value="">-- Chế độ kích hoạt --</option>
+                <option value="constant">Luôn hiển thị (đèn xanh dương)</option>
+                <option value="selective">Kích hoạt có điều kiện (đèn xanh lá)</option>
+              </select>
+              <select id="st-multitool-batch-position" class="st-multitool-select">
+                <option value="">-- Vị trí chèn --</option>
+                <option value="0">Trước định nghĩa nhân vật</option>
+                <option value="1">Sau định nghĩa nhân vật</option>
+                <option value="2">Trước tin nhắn ví dụ (↑EM)</option>
+                <option value="3">Sau tin nhắn ví dụ (↓EM)</option>
+                <option value="4">Trước ghi chú tác giả</option>
+                <option value="5">Sau ghi chú tác giả</option>
+                <option value="6">@D◆[Hệ thống] ở độ sâu</option>
+                <option value="7">@D[Người dùng] ở độ sâu</option>
+                <option value="8">@D[AI]ở độ sâu</option>
+              </select>
+              <div id="st-multitool-batch-depth-container" style="display: none; align-items: center; gap: 5px">
+                <span class="st-multitool-label">Độ sâu:</span>
+                <input
+                  type="number"
+                  id="st-multitool-batch-depth"
+                  class="st-multitool-input"
+                  style="width: 60px"
+                  min="0"
+                  placeholder="4"
+                />
+              </div>
+              <label class="st-multitool-checkbox-label">
+                <input type="checkbox" id="st-multitool-batch-prevent-in" /> Không bị đệ quy
+              </label>
+              <label class="st-multitool-checkbox-label">
+                <input type="checkbox" id="st-multitool-batch-prevent-out" /> Ngăn đệ quy thêm
+              </label>
+              <button class="st-multitool-button" id="st-multitool-apply-batch-btn">Áp dụng cài đặt hàng loạt</button>
+            </div>
+          </div>
+
+          <div id="st-multitool-cards-container" class="st-multitool-cards-grid">
+            <div class="st-multitool-empty-msg">Nhấn "Trích xuất tin nhắn mới nhất" ở trên để trích mục Sổ thế giới từ lịch sử chat.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-select-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="check-square"></i> Chọn Sổ thế giới cần bật
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div id="st-multitool-book-list" class="st-multitool-book-list-container"></div>
+          <div class="st-multitool-actions">
+            <button id="st-multitool-save-preset-btn" class="st-multitool-button">Lưu preset</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-duplicate-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="copy"></i> Sao chép Sổ thế giới
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-modify-controls">
+            <div class="st-multitool-grid-container">
+              <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-dup-source-select" placeholder="Tìm Sổ thế giới nguồn..." style="grid-column: span 2; margin-bottom: 5px;">
+              <label for="st-multitool-dup-source-select">Sổ thế giới nguồn:</label>
+              <select id="st-multitool-dup-source-select" class="st-multitool-select"></select>
+              <label for="st-multitool-dup-target-input">Tên Sổ thế giới mới:</label>
+              <input type="text" id="st-multitool-dup-target-input" class="st-multitool-input" placeholder="Nhập tên mới..." />
+            </div>
+          </div>
+          <div class="st-multitool-actions">
+            <button id="st-multitool-duplicate-submit-btn" class="st-multitool-button">Xác nhận sao chép</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-rename-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="pen"></i> Đổi tên Sổ thế giới
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-modify-controls">
+            <div class="st-multitool-grid-container">
+              <label for="st-multitool-rename-source-select">Chọn Sổ thế giới:</label>
+              <select id="st-multitool-rename-source-select" class="st-multitool-select"></select>
+              <label for="st-multitool-rename-target-input">Tên mới:</label>
+              <input type="text" id="st-multitool-rename-target-input" class="st-multitool-input" placeholder="Nhập tên mới..." />
+            </div>
+          </div>
+          <div class="st-multitool-actions">
+            <button id="st-multitool-rename-submit-btn" class="st-multitool-button">Xác nhận chỉnh sửa</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-modify-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="edit"></i> Chỉnh sửa mục của Sổ thế giới
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-modify-controls">
+            <div class="st-multitool-grid-container">
+              <label for="st-multitool-worldbook-select">Chọn Sổ thế giới:</label>
+              <select id="st-multitool-worldbook-select" class="st-multitool-select"></select>
+              <label for="st-multitool-entry-select">Chọn mục:</label>
+              <select id="st-multitool-entry-select" class="st-multitool-select"></select>
+            </div>
+
+            <div
+              id="st-multitool-modify-details"
+              style="
+                display: none;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+                padding: 15px;
+                border: 1px solid var(--st-multitool-border);
+                border-radius: 5px;
+                background: rgba(0, 0, 0, 0.2);
+              "
+            >
+              <div class="st-multitool-row">
+                <div class="st-multitool-group" style="flex: 1">
+                  <span class="st-multitool-label">Tên:</span>
+                  <input type="text" id="st-multitool-mod-name" class="st-multitool-input" style="width: 100%" />
+                </div>
+                <div class="st-multitool-group" style="flex: 1">
+                  <span class="st-multitool-label">Từ khóa:</span>
+                  <input
+                    type="text"
+                    id="st-multitool-mod-keys"
+                    class="st-multitool-input"
+                    style="width: 100%"
+                    placeholder="Phân tách bằng dấu phẩy"
+                  />
+                </div>
+              </div>
+
+              <span class="st-multitool-label" style="margin-top: 5px">Nội dung:</span>
+              <textarea id="st-multitool-mod-content" class="st-multitool-textarea" rows="6"></textarea>
+
+              <div class="st-multitool-row" style="margin-top: 5px">
+                <div class="st-multitool-group">
+                  <span class="st-multitool-label">Chế độ kích hoạt:</span>
+                  <select id="st-multitool-mod-mode" class="st-multitool-select">
+                    <option value="constant">Luôn hiển thị (đèn xanh dương)</option>
+                    <option value="selective">Kích hoạt có điều kiện (đèn xanh lá)</option>
+                  </select>
+                </div>
+                <div class="st-multitool-group">
+                  <span class="st-multitool-label">Vị trí chèn:</span>
+                  <select id="st-multitool-mod-position" class="st-multitool-select">
+                    <option value="before_character_definition">Trước định nghĩa nhân vật</option>
+                    <option value="after_character_definition">Sau định nghĩa nhân vật</option>
+                    <option value="before_example_messages">Trước tin nhắn ví dụ (↑EM)</option>
+                    <option value="after_example_messages">Sau tin nhắn ví dụ (↓EM)</option>
+                    <option value="before_author_note">Trước ghi chú tác giả</option>
+                    <option value="after_author_note">Sau ghi chú tác giả</option>
+                    <option value="at_depth_system">@D◆[Hệ thống] ở độ sâu</option>
+                    <option value="at_depth_user">@D[Người dùng] ở độ sâu</option>
+                    <option value="at_depth_assistant">@D[AI]ở độ sâu</option>
+                  </select>
+                </div>
+                <div class="st-multitool-group">
+                  <span class="st-multitool-label">Thứ tự:</span>
+                  <input type="number" id="st-multitool-mod-order" class="st-multitool-input" style="width: 70px" value="" />
+                </div>
+                <div class="st-multitool-group">
+                  <span class="st-multitool-label">Tỉ lệ kích hoạt %:</span>
+                  <input
+                    type="number"
+                    id="st-multitool-mod-prob"
+                    class="st-multitool-input"
+                    style="width: 60px"
+                    min="0"
+                    max="100"
+                    value=""
+                  />
+                </div>
+              </div>
+
+              <div
+                class="st-multitool-row"
+                id="st-multitool-mod-depth-container"
+                style="
+                  display: none;
+                  background: rgba(255, 170, 0, 0.1);
+                  padding: 8px;
+                  border-radius: 4px;
+                  border: 1px dashed #ffaa00;
+                "
+              >
+                <span class="st-multitool-label" style="color: #ffaa00">Thiết lập độ sâu:</span>
+                <input
+                  type="number"
+                  id="st-multitool-mod-depth"
+                  class="st-multitool-input"
+                  style="width: 80px"
+                  min="0"
+                  placeholder="Ví dụ: 4"
+                />
+                <span style="font-size: 12px; color: var(--st-multitool-text-muted)">(Số tầng tính ngược từ tin nhắn mới nhất)</span>
+              </div>
+
+              <div class="st-multitool-row">
+                <span class="st-multitool-label">Thiết lập đệ quy:</span>
+                <label class="st-multitool-checkbox-label">
+                  <input type="checkbox" id="st-multitool-mod-prevent-in" /> Không bị đệ quy
+                </label>
+                <label class="st-multitool-checkbox-label">
+                  <input type="checkbox" id="st-multitool-mod-prevent-out" /> Ngăn đệ quy thêm
+                </label>
+              </div>
+
+              <div class="st-multitool-actions" style="justify-content: flex-end; margin-top: 10px">
+                <button id="st-multitool-save-manual-changes-btn" class="st-multitool-button">Lưu chỉnh sửa thủ công</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-delete-view" style="display: none; flex-direction: column; gap: 15px; height: 100%">
+        <div class="st-multitool-section">
+          <div class="st-multitool-section-header">
+            <h4>
+              <i data-lucide="trash-2"></i> Xóa Sổ thế giới
+              <i
+                class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+                style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+              ></i>
+            </h4>
+          </div>
+          <div class="st-multitool-section-content">
+            <p class="st-multitool-description">
+              Nhấn vào Sổ thế giới bên dưới để chọn (có thể chọn nhiều). Nhấn lại để bỏ chọn. Sau khi chọn, các mục sẽ hiển thị bên dưới.
+            </p>
+            <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-worldbook-list-container" placeholder="Tìm kiếm Sổ thế giới..." style="width: 100%; margin-bottom: 10px; box-sizing: border-box;">
+            <div id="st-multitool-worldbook-list-container" class="st-multitool-book-list-container"></div>
+            <div class="st-multitool-actions">
+              <button id="st-multitool-delete-worldbook-btn" class="st-multitool-button abandon">Xóa Sổ thế giới đã chọn</button>
+            </div>
+          </div>
+        </div>
+        <div class="st-multitool-section" style="flex-grow: 1">
+          <div class="st-multitool-section-header">
+            <h4>
+              <i data-lucide="file-minus"></i> Xóa mục
+              <i
+                class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+                style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+              ></i>
+            </h4>
+          </div>
+          <div class="st-multitool-section-content">
+            <p class="st-multitool-description">Bên dưới sẽ hiển thị tất cả mục trong các Sổ thế giới đã chọn. Nhấn vào mục để chọn.</p>
+            <h5><i data-lucide="book" style="color: #60a5fa"></i> Mục đèn xanh dương (Constant Entry)</h5>
+            <div
+              id="st-multitool-constant-entries-container"
+              class="st-multitool-book-list-container"
+              style="margin-bottom: 15px"
+            >
+              <p class="st-multitool-no-tasks">Hãy chọn một hoặc nhiều Sổ thế giới ở trên trước.</p>
+            </div>
+            <h5><i data-lucide="book" style="color: #4ade80"></i> Mục đèn xanh lá (Normal Entry)</h5>
+            <div id="st-multitool-normal-entries-container" class="st-multitool-book-list-container"></div>
+            <div class="st-multitool-actions">
+              <button id="st-multitool-delete-entry-btn" class="st-multitool-button abandon">Xóa mục đã chọn</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-transfer-view" style="display: none; flex-direction: column; gap: 15px; height: 100%">
+        <div class="st-multitool-section">
+          <div class="st-multitool-section-header">
+            <h4>
+              <i data-lucide="arrow-right-left"></i> Chuyển mục
+              <i
+                class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+                style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+              ></i>
+            </h4>
+          </div>
+          <div class="st-multitool-section-content">
+            <div class="st-multitool-transfer-controls">
+              <div class="st-multitool-grid-container">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-source-worldbook-select" placeholder="Tìm Sổ thế giới nguồn..." style="margin-bottom: 5px;">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-target-worldbook-select" placeholder="Tìm Sổ thế giới đích..." style="margin-bottom: 5px;">
+                <label for="st-multitool-source-worldbook-select">Sổ thế giới nguồn:</label>
+                <select id="st-multitool-source-worldbook-select" class="st-multitool-select"></select>
+                <label for="st-multitool-target-worldbook-select">Sổ thế giới đích:</label>
+                <select id="st-multitool-target-worldbook-select" class="st-multitool-select"></select>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <label class="st-multitool-textarea-label" style="margin-top: 0;">Chọn mục cần chuyển:</label>
+                <button id="st-multitool-transfer-select-all-btn" class="st-multitool-button st-multitool-btn-small" style="display: none;">Chọn tất cả / Bỏ chọn</button>
+              </div>
+              <div
+                id="st-multitool-source-entries-container"
+                class="st-multitool-book-list-container"
+                style="height: 200px; overflow-y: auto"
+              >
+                <p class="st-multitool-no-tasks">Hãy chọn một Sổ thế giới nguồn trước.</p>
+              </div>
+              <div class="st-multitool-actions">
+                <button id="st-multitool-transfer-entries-btn" class="st-multitool-button">Thực hiện chuyển</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="st-multitool-section">
+          <div class="st-multitool-section-header">
+            <h4>
+              <i data-lucide="copy"></i> Sao chép mục
+              <i
+                class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+                style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+              ></i>
+            </h4>
+          </div>
+          <div class="st-multitool-section-content">
+            <div class="st-multitool-transfer-controls">
+              <div class="st-multitool-grid-container">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-copy-source-worldbook-select" placeholder="Tìm Sổ thế giới nguồn..." style="margin-bottom: 5px;">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-copy-target-worldbook-select" placeholder="Tìm Sổ thế giới đích..." style="margin-bottom: 5px;">
+                <label for="st-multitool-copy-source-worldbook-select">Sổ thế giới nguồn:</label>
+                <select id="st-multitool-copy-source-worldbook-select" class="st-multitool-select"></select>
+                <label for="st-multitool-copy-target-worldbook-select">Sổ thế giới đích:</label>
+                <select id="st-multitool-copy-target-worldbook-select" class="st-multitool-select"></select>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <label class="st-multitool-textarea-label" style="margin-top: 0;">Chọn mục cần sao chép:</label>
+                <button id="st-multitool-copy-select-all-btn" class="st-multitool-button st-multitool-btn-small" style="display: none;">Chọn tất cả / Bỏ chọn</button>
+              </div>
+              <div
+                id="st-multitool-copy-source-entries-container"
+                class="st-multitool-book-list-container"
+                style="height: 200px; overflow-y: auto"
+              >
+                <p class="st-multitool-no-tasks">Hãy chọn một Sổ thế giới nguồn trước.</p>
+              </div>
+              <div class="st-multitool-actions">
+                <button id="st-multitool-copy-entries-btn" class="st-multitool-button">Thực hiện sao chép</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-manage-wb-view" style="display: none; flex-direction: column; gap: 15px; height: 100%">
+        <div class="st-multitool-section" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+          <div class="st-multitool-section-header">
+            <h4>
+              <i data-lucide="book"></i> Danh sách Sổ thế giới
+              <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
+            </h4>
+          </div>
+          <div class="st-multitool-section-content st-multitool-manage-wb-cards" style="display: flex; flex-direction: column; gap: 15px; flex: 1; min-height: 0; overflow-y: auto;">
+            <div class="st-multitool-manage-script-card" id="st-multitool-manage-wb-books-card">
+              <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-wb-books-card">
+                <div class="st-multitool-manage-script-card-title">
+                  <i data-lucide="book"></i> Danh sách Sổ thế giới
+                </div>
+                <div class="st-multitool-card-header-actions">
+                  <button id="st-multitool-manage-wb-create-btn" class="st-multitool-button st-multitool-btn-small">Tạo Sổ thế giới</button>
+                  <button id="st-multitool-manage-wb-select-all-btn" class="st-multitool-button st-multitool-btn-small">Chọn tất cả / Bỏ chọn</button>
+                  <button id="st-multitool-manage-wb-delete-btn" class="st-multitool-button st-multitool-btn-small abandon">Xóa đã chọn</button>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+              </div>
+              <div class="st-multitool-manage-script-card-content">
+                <input type="text" class="st-multitool-input st-multitool-search-input" data-target="st-multitool-manage-wb-list" placeholder="Tìm kiếm Sổ thế giới..." style="width: 100%; margin-bottom: 10px; box-sizing: border-box;">
+                <div id="st-multitool-manage-wb-list" class="st-multitool-manage-list">
+                  <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách Sổ thế giới.</div>
+                </div>
+              </div>
+            </div>
+            <div class="st-multitool-manage-script-card" id="st-multitool-manage-wb-entries-card">
+              <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-wb-entries-card">
+                <div class="st-multitool-manage-script-card-title">
+                  <i data-lucide="list"></i> Danh sách mục
+                </div>
+                <div class="st-multitool-card-header-actions">
+                  <button id="st-multitool-manage-wb-entry-create-btn" class="st-multitool-button st-multitool-btn-small">Tạo mục</button>
+                  <button id="st-multitool-manage-wb-entry-select-all-btn" class="st-multitool-button st-multitool-btn-small">Chọn tất cả / Bỏ chọn</button>
+                  <button id="st-multitool-manage-wb-entry-delete-btn" class="st-multitool-button st-multitool-btn-small abandon">Xóa đã chọn</button>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+              </div>
+              <div class="st-multitool-manage-script-card-content">
+                <div id="st-multitool-manage-wb-entries-list" class="st-multitool-manage-list">
+                  <div class="st-multitool-empty-msg">Hãy chọn Sổ thế giới ở bên trái trước.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="st-multitool-manage-wb-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; max-height: 50%;">
+          <div class="st-multitool-section-header st-multitool-edit-panel-header" data-target="st-multitool-manage-wb-edit-content">
+            <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span><i data-lucide="edit"></i> Sửa mục <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>
+              <div class="st-multitool-card-header-actions">
+                <button id="st-multitool-manage-wb-save-entry-btn" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary">Lưu</button>
+                <button id="st-multitool-manage-wb-cancel-entry-btn" class="st-multitool-button st-multitool-btn-small">Hủy</button>
+              </div>
+            </h4>
+          </div>
+          <div id="st-multitool-manage-wb-edit-content" class="st-multitool-section-content">
+            <input type="hidden" id="st-multitool-manage-wb-entry-uid">
+            <div class="st-multitool-row">
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Tên:</span>
+                <input type="text" id="st-multitool-manage-wb-entry-name" class="st-multitool-input" style="width: 100%">
+              </div>
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Từ khóa:</span>
+                <input type="text" id="st-multitool-manage-wb-entry-keys" class="st-multitool-input" style="width: 100%" placeholder="Phân tách bằng dấu phẩy">
+              </div>
+            </div>
+            <div class="st-multitool-row" style="margin-top: 10px;">
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Chế độ kích hoạt:</span>
+                <select id="st-multitool-manage-wb-entry-mode" class="st-multitool-select">
+                  <option value="constant">Luôn hiển thị (đèn xanh dương)</option>
+                  <option value="selective">Kích hoạt có điều kiện (đèn xanh lá)</option>
+                </select>
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Vị trí chèn:</span>
+                <select id="st-multitool-manage-wb-entry-position" class="st-multitool-select">
+                  <option value="before_character_definition">Trước định nghĩa nhân vật</option>
+                  <option value="after_character_definition">Sau định nghĩa nhân vật</option>
+                  <option value="before_example_messages">Trước tin nhắn ví dụ (↑EM)</option>
+                  <option value="after_example_messages">Sau tin nhắn ví dụ (↓EM)</option>
+                  <option value="before_author_note">Trước ghi chú tác giả</option>
+                  <option value="after_author_note">Sau ghi chú tác giả</option>
+                  <option value="at_depth_system">@D◆[Hệ thống] ở độ sâu</option>
+                  <option value="at_depth_user">@D[Người dùng] ở độ sâu</option>
+                  <option value="at_depth_assistant">@D[AI]ở độ sâu</option>
+                </select>
+              </div>
+              <div class="st-multitool-group" id="st-multitool-manage-wb-entry-depth-container" style="display: none;">
+                <span class="st-multitool-label">Độ sâu:</span>
+                <input type="number" id="st-multitool-manage-wb-entry-depth" class="st-multitool-input" style="width: 70px" min="0" placeholder="4">
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Thứ tự:</span>
+                <input type="number" id="st-multitool-manage-wb-entry-order" class="st-multitool-input" style="width: 70px" value="100">
+              </div>
+              <div class="st-multitool-group">
+                <span class="st-multitool-label">Tỉ lệ kích hoạt %:</span>
+                <input type="number" id="st-multitool-manage-wb-entry-prob" class="st-multitool-input" style="width: 60px" min="0" max="100" value="100">
+              </div>
+            </div>
+            <div class="st-multitool-row" style="margin-top: 10px;">
+              <span class="st-multitool-label">Thiết lập đệ quy:</span>
+              <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-wb-entry-prevent-in"> Không bị đệ quy</label>
+              <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-wb-entry-prevent-out"> Ngăn đệ quy thêm</label>
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="st-multitool-label">Nội dung:</span>
+              <textarea id="st-multitool-manage-wb-entry-content" class="st-multitool-textarea" rows="4" style="width: 100%;"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-manage-script-view" style="display: none; flex-direction: column; gap: 15px; height: 100%">
+        <div class="st-multitool-section" style="flex: 1; min-height: 0;">
+          <div class="st-multitool-section-header">
+            <h4>
+              <i data-lucide="bot"></i> Quản lý script Trợ lý Tavern
+              <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
+            </h4>
+          </div>
+          <div class="st-multitool-section-content">
+            <div class="st-multitool-manage-script-cards">
+              <div class="st-multitool-manage-script-card">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-script-global-list">
+                  <div class="st-multitool-manage-script-card-title">
+                    <i data-lucide="globe"></i> Script toàn cục
+                  </div>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+                <div id="st-multitool-manage-script-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content st-multitool-sortable-list">
+                  <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách script.</div>
+                </div>
+              </div>
+              <div class="st-multitool-manage-script-card">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-script-preset-list">
+                  <div class="st-multitool-manage-script-card-title">
+                    <i data-lucide="bookmark"></i> Script preset
+                  </div>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+                <div id="st-multitool-manage-script-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content st-multitool-sortable-list">
+                  <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách script.</div>
+                </div>
+              </div>
+              <div class="st-multitool-manage-script-card">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-script-character-list">
+                  <div class="st-multitool-manage-script-card-title">
+                    <i data-lucide="user"></i> Script nhân vật
+                  </div>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+                <div id="st-multitool-manage-script-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content st-multitool-sortable-list">
+                  <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách script.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="st-multitool-manage-script-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none;">
+          <div class="st-multitool-section-header st-multitool-edit-panel-header" data-target="st-multitool-manage-script-edit-content">
+            <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span><i data-lucide="edit"></i> <span class="st-multitool-manage-script-edit-title">Sửa script</span> <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>
+              <div class="st-multitool-card-header-actions">
+                <button id="st-multitool-manage-script-save-btn" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary">Lưu</button>
+                <button id="st-multitool-manage-script-cancel-btn" class="st-multitool-button st-multitool-btn-small">Hủy</button>
+              </div>
+            </h4>
+          </div>
+          <div id="st-multitool-manage-script-edit-content" class="st-multitool-section-content">
+            <input type="hidden" id="st-multitool-manage-script-id">
+            <div class="st-multitool-row">
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Tên script:</span>
+                <input type="text" id="st-multitool-manage-script-name" class="st-multitool-input" style="width: 100%">
+              </div>
+              <div class="st-multitool-group">
+                <label class="st-multitool-checkbox-label" style="margin-top: 20px;"><input type="checkbox" id="st-multitool-manage-script-enabled"> Đã bật</label>
+              </div>
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="st-multitool-label">Nội dung script (JS/TS):</span>
+              <textarea id="st-multitool-manage-script-content" class="st-multitool-textarea" rows="6" style="width: 100%; font-family: monospace;"></textarea>
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="st-multitool-label">Ghi chú tác giả:</span>
+              <textarea id="st-multitool-manage-script-info" class="st-multitool-textarea" rows="2" style="width: 100%;"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="st-multitool-manage-regex-view" style="display: none; flex-direction: column; gap: 15px; height: 100%">
+        <div class="st-multitool-section" style="flex: 1; min-height: 0;">
+          <div class="st-multitool-section-header">
+            <h4>
+              <i data-lucide="code"></i> Quản lý script regex
+              <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
+            </h4>
+          </div>
+          <div class="st-multitool-section-content">
+            <div class="st-multitool-manage-script-cards">
+              <div class="st-multitool-manage-script-card">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-global-list">
+                  <div class="st-multitool-manage-script-card-title">
+                    <i data-lucide="globe"></i> Regex toàn cục
+                  </div>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+                <div id="st-multitool-manage-regex-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                  <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
+                </div>
+              </div>
+              <div class="st-multitool-manage-script-card">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-preset-list">
+                  <div class="st-multitool-manage-script-card-title">
+                    <i data-lucide="bookmark"></i> Regex preset
+                  </div>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+                <div id="st-multitool-manage-regex-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                  <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
+                </div>
+              </div>
+              <div class="st-multitool-manage-script-card">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-character-list">
+                  <div class="st-multitool-manage-script-card-title">
+                    <i data-lucide="user"></i> Regex cục bộ
+                  </div>
+                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                </div>
+                <div id="st-multitool-manage-regex-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                  <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="st-multitool-manage-regex-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; max-height: 60%; overflow-y: auto;">
+          <div class="st-multitool-section-header st-multitool-edit-panel-header" data-target="st-multitool-manage-regex-edit-content">
+            <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span><i data-lucide="edit"></i> <span class="st-multitool-manage-regex-edit-title">Sửa regex</span> <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>
+              <div class="st-multitool-card-header-actions">
+                <button id="st-multitool-manage-regex-save-btn" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary">Lưu</button>
+                <button id="st-multitool-manage-regex-cancel-btn" class="st-multitool-button st-multitool-btn-small">Hủy</button>
+              </div>
+            </h4>
+          </div>
+          <div id="st-multitool-manage-regex-edit-content" class="st-multitool-section-content">
+            <input type="hidden" id="st-multitool-manage-regex-id">
+            <div class="st-multitool-row">
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Tên script:</span>
+                <input type="text" id="st-multitool-manage-regex-script-name" class="st-multitool-input" style="width: 100%">
+              </div>
+              <div class="st-multitool-group" style="flex: 1">
+                <span class="st-multitool-label">Regex tìm kiếm:</span>
+                <input type="text" id="st-multitool-manage-regex-find-regex" class="st-multitool-input" style="width: 100%">
+              </div>
+            </div>
+            <div class="st-multitool-row" style="margin-top: 10px;">
+              <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="display: flex; flex-direction: column; gap: 5px">
+                  <span class="st-multitool-label" style="font-weight: bold">Phạm vi áp dụng</span>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="1"> Đầu vào người dùng</label>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="2" checked> Đầu ra AI</label>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="4"> Lệnh nhanh</label>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="3"> Thông tin thế giới</label>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="5"> Suy luận</label>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px">
+                  <span class="st-multitool-label" style="font-weight: bold">Tùy chọn khác</span>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-enabled"> Đã bật</label>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-run-on-edit"> Chạy khi chỉnh sửa</label>
+                  <span class="st-multitool-label" style="font-weight: bold; margin-top: 5px">Macro khi tìm regex</span>
+                  <select id="st-multitool-manage-regex-substitute-regex" class="st-multitool-select" style="width: 120px">
+                    <option value="0" selected>Không thay</option>
+                    <option value="1">Thay</option>
+                  </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px">
+                  <span class="st-multitool-label" style="font-weight: bold">Tạm thời</span>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-markdown-only"> Chỉ hiển thị định dạng</label>
+                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-prompt-only"> Chỉ định dạng prompt</label>
+                  <div style="display: flex; gap: 10px; margin-top: 5px">
+                    <div class="st-multitool-group" id="st-multitool-manage-regex-min-depth-container" style="display: none;">
+                      <span class="st-multitool-label">Độ sâu tối thiểu</span>
+                      <input type="number" id="st-multitool-manage-regex-min-depth" class="st-multitool-input" style="width: 70px" placeholder="Vô hạn">
+                    </div>
+                    <div class="st-multitool-group" id="st-multitool-manage-regex-max-depth-container" style="display: none;">
+                      <span class="st-multitool-label">Độ sâu tối đa</span>
+                      <input type="number" id="st-multitool-manage-regex-max-depth" class="st-multitool-input" style="width: 70px" placeholder="Vô hạn">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="st-multitool-label">Cắt bỏ:</span>
+              <textarea id="st-multitool-manage-regex-trim-strings" class="st-multitool-textarea" rows="2" style="width: 100%;" placeholder="Cắt toàn cục các phần không cần thiết trong kết quả khớp regex trước khi thay thế. Mỗi mục cách nhau bằng xuống dòng."></textarea>
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="st-multitool-label">Thay bằng:</span>
+              <textarea id="st-multitool-manage-regex-replace-string" class="st-multitool-textarea" rows="4" style="width: 100%; font-family: monospace;"></textarea>
+            </div>
+            <div style="margin-top: 10px;">
+              <button id="st-multitool-manage-regex-render-btn" class="st-multitool-button st-multitool-btn-small"><i data-lucide="eye"></i> Render</button>
+            </div>
+            <div id="st-multitool-manage-regex-preview-container" style="display: none; margin-top: 15px; border: 1px solid var(--st-multitool-border); border-radius: 5px; background: #fff; min-height: 300px; overflow: auto;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trang con cài đặt tiện ích -->
+      <div id="st-multitool-settings-view" class="st-multitool-section" style="display: none; height: 100%">
+        <div class="st-multitool-section-header">
+          <h4>
+            <i data-lucide="settings"></i> Cài đặt tiện ích
+            <i
+              class="fa-solid fa-chevron-up st-multitool-collapse-icon"
+              style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
+            ></i>
+          </h4>
+        </div>
+        <div class="st-multitool-section-content">
+          <div class="st-multitool-controls-box">
+            
+            <div class="st-multitool-row">
+                <label class="st-multitool-checkbox-label">
+                    <input type="checkbox" id="st-multitool-setting-show-magic-wand-btn" />
+                    Hiển thị lối vào trong thành phần đũa phép
+                </label>
+            </div>
+            <div class="st-multitool-row">
+                <label class="st-multitool-checkbox-label">
+                    <input type="checkbox" id="st-multitool-setting-show-qr-btn" />
+                    Hiển thị lối vào trong thanh trả lời nhanh
+                </label>
+            </div>
+            <div class="st-multitool-row">
+                <label class="st-multitool-checkbox-label">
+                    <input type="checkbox" id="st-multitool-setting-default-collapse" />
+                    Mặc định thu gọn nội dung khi trích thẻ
+                </label>
+            </div>
+            <div class="st-multitool-row">
+                <label class="st-multitool-checkbox-label">
+                    <input type="checkbox" id="st-multitool-setting-manage-wb-collapsed" />
+                    Mặc định thu gọn thẻ quản lý Sổ thế giới
+                </label>
+            </div>
+            <div class="st-multitool-row">
+                <label class="st-multitool-checkbox-label">
+                    <input type="checkbox" id="st-multitool-setting-manage-script-collapsed" />
+                    Mặc định thu gọn thẻ quản lý script Trợ lý Tavern
+                </label>
+            </div>
+            <div class="st-multitool-row">
+                <label class="st-multitool-checkbox-label">
+                    <input type="checkbox" id="st-multitool-setting-manage-regex-collapsed" />
+                    Mặc định thu gọn thẻ quản lý script regex
+                </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

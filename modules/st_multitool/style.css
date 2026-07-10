@@ -1,0 +1,1322 @@
+:root {
+  --st-multitool-main-bg: rgba(20, 24, 32, 0.65);
+  --st-multitool-section-bg: rgba(30, 35, 45, 0.4);
+  --st-multitool-text: #ffffff;
+  --st-multitool-text-muted: #a3b8cc;
+  --st-multitool-primary: #00e6b8;
+  --st-multitool-primary-hover: #00ffd0;
+  --st-multitool-danger: #ff5c5c;
+  --st-multitool-border: rgba(255, 255, 255, 0.1);
+  --st-multitool-card-border: rgba(255, 255, 255, 0.15);
+  --st-multitool-card-bg: rgba(20, 24, 32, 0.4);
+  --st-multitool-radius: 12px;
+  --st-multitool-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --st-multitool-font-family: 'Inter', 'Outfit', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+
+
+.st-multitool-popup-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  width: 100dvw;
+  height: 100dvh;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 10001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.st-multitool-popup-container {
+  width: 90vw;
+  max-width: calc(100vw - 32px);
+  height: 85vh;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  min-height: 0;
+  min-width: 0;
+  margin: auto;
+  z-index: 2147483646;
+  background-color: var(--st-multitool-main-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--st-multitool-text);
+  font-family: var(--st-multitool-font-family);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--st-multitool-radius);
+  box-shadow: var(--st-multitool-shadow);
+  border: 1px solid var(--st-multitool-border);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .st-multitool-popup-container {
+    width: 60vw;
+    max-width: 1000px;
+  }
+}
+
+.st-multitool-popup-header {
+  height: 44px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--st-multitool-radius) var(--st-multitool-radius) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  border-bottom: 1px solid var(--st-multitool-border);
+  user-select: none;
+}
+
+.st-multitool-header-title {
+  flex-grow: 1;
+  font-weight: bold;
+  color: var(--st-multitool-primary);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.st-multitool-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.st-multitool-header-btn {
+  background: transparent;
+  border: none;
+  color: var(--st-multitool-text-muted);
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+  border-radius: 4px;
+}
+
+.st-multitool-header-btn:hover {
+  color: var(--st-multitool-text);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.st-multitool-header-btn.close-btn {
+  font-size: 24px;
+}
+
+.st-multitool-header-btn.close-btn:hover {
+  color: var(--st-multitool-danger);
+  background-color: rgba(240, 71, 71, 0.1);
+}
+
+.st-multitool-popup-body {
+    flex-grow: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100% - 40px);
+    min-height: 0;
+}
+
+.st-multitool-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--st-multitool-primary);
+  border-radius: var(--st-multitool-radius);
+}
+
+.st-multitool-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 4px solid var(--st-multitool-primary);
+  width: 40px;
+  height: 40px;
+  animation: st-multitool-spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes st-multitool-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.st-multitool-popup-body::-webkit-scrollbar,
+.st-multitool-book-list-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.st-multitool-popup-body::-webkit-scrollbar-track,
+.st-multitool-book-list-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.st-multitool-popup-body::-webkit-scrollbar-thumb,
+.st-multitool-book-list-container::-webkit-scrollbar-thumb {
+    background: var(--st-multitool-border);
+    border-radius: 4px;
+}
+
+.st-multitool-section {
+  background-color: var(--st-multitool-section-bg);
+  border-radius: var(--st-multitool-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--st-multitool-border);
+  max-height: 100%;
+}
+
+.st-multitool-section-header {
+  padding: 12px 16px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--st-multitool-border);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.st-multitool-section-header:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.st-multitool-section-header h4 {
+  margin: 0;
+  font-size: 1.1em;
+  color: var(--st-multitool-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-multitool-section-content {
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.st-multitool-section h5 {
+  margin: 0;
+  font-size: 1em;
+  color: var(--st-multitool-text-muted);
+  margin-top: 10px;
+}
+
+.st-multitool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.st-multitool-button {
+  background-color: var(--st-multitool-primary);
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: bold;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.st-multitool-button:hover {
+  background-color: var(--st-multitool-primary-hover);
+}
+
+.st-multitool-button:active {
+  transform: scale(0.98);
+}
+
+.st-multitool-button.abandon {
+  background-color: var(--st-multitool-danger);
+  color: white;
+}
+
+.st-multitool-button:disabled {
+  background-color: var(--st-multitool-border);
+  color: var(--st-multitool-text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.st-multitool-description {
+  font-size: 0.9em;
+  color: var(--st-multitool-text-muted);
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+}
+
+.st-multitool-no-tasks {
+  color: var(--st-multitool-text-muted);
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+.st-multitool-edit-controls,
+.st-multitool-modify-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.st-multitool-select,
+.st-multitool-textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  background-color: var(--st-multitool-main-bg);
+  color: white;
+  border: 1px solid var(--st-multitool-border);
+  border-radius: 5px;
+  font-family: var(--st-multitool-font-family);
+}
+.st-multitool-select {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.st-multitool-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.st-multitool-textarea-label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: var(--st-multitool-text-muted);
+}
+
+.st-multitool-grid-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.st-multitool-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.st-multitool-book-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  background-color: var(--st-multitool-section-bg);
+  border-radius: 5px;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid var(--st-multitool-border);
+}
+
+.st-multitool-book-button {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: var(--st-multitool-text);
+  border: 1px solid var(--st-multitool-border);
+  padding: 8px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  white-space: normal;
+  text-align: left;
+  height: auto;
+  line-height: 1.3;
+  max-width: 100%;
+}
+
+.st-multitool-book-button.selected {
+  background-color: var(--st-multitool-primary);
+  color: #000;
+  border-color: var(--st-multitool-primary-hover);
+}
+
+.st-multitool-preset-list-container {
+  margin-top: 10px;
+  background-color: var(--st-multitool-section-bg);
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.st-multitool-preset-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.st-multitool-preset-item:hover {
+  background-color: var(--st-multitool-main-bg);
+}
+
+.st-multitool-delete-preset-btn {
+  background: none;
+  border: none;
+  color: var(--st-multitool-danger);
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 0 5px;
+}
+
+.st-multitool-transfer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#st-multitool-source-entries-container::-webkit-scrollbar {
+  display: none;
+}
+#st-multitool-source-entries-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.st-multitool-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.st-multitool-checkbox-item:hover {
+  background-color: var(--st-multitool-main-bg);
+}
+
+.st-multitool-checkbox-item input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--st-multitool-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.st-multitool-checkbox-item input[type='checkbox']:checked {
+  background-color: var(--st-multitool-primary);
+  border-color: var(--st-multitool-primary-hover);
+}
+
+.st-multitool-checkbox-item input[type='checkbox']:checked::after {
+  content: '✔';
+  font-size: 14px;
+  color: #000;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.st-multitool-checkbox-item label {
+  flex-grow: 1;
+  cursor: pointer;
+  color: var(--st-multitool-text);
+}
+
+.st-multitool-controls-box {
+  background-color: var(--st-multitool-section-bg);
+  border: 1px solid var(--st-multitool-border);
+  border-radius: var(--st-multitool-radius);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.st-multitool-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+}
+
+.st-multitool-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-multitool-label {
+  font-size: 13px;
+  color: var(--st-multitool-text-muted);
+  white-space: nowrap;
+}
+
+.st-multitool-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--st-multitool-border);
+  color: var(--st-multitool-text);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.st-multitool-input:focus {
+  border-color: var(--st-multitool-primary);
+}
+
+.st-multitool-btn {
+  background: transparent;
+  border: 1px solid var(--st-multitool-primary);
+  color: var(--st-multitool-primary);
+  padding: 6px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.st-multitool-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 204, 0.1);
+  box-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
+}
+
+.st-multitool-btn:disabled {
+  border-color: var(--st-multitool-border);
+  color: var(--st-multitool-text-muted);
+  cursor: not-allowed;
+}
+
+.st-multitool-btn-primary {
+  background: var(--st-multitool-primary);
+  color: #000;
+  font-weight: bold;
+}
+
+.st-multitool-btn-primary:hover:not(:disabled) {
+  background: var(--st-multitool-primary-hover);
+  color: #000;
+}
+
+.st-multitool-batch-title {
+  color: #ffaa00;
+  font-weight: bold;
+  font-size: 13px;
+  margin-right: 10px;
+}
+
+.st-multitool-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.st-multitool-card {
+  background: var(--st-multitool-card-bg);
+  border: 1px solid var(--st-multitool-card-border);
+  border-left: 4px solid var(--st-multitool-primary);
+  border-radius: 6px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+
+.st-multitool-card:hover {
+  border-color: var(--st-multitool-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 204, 0.1);
+}
+
+.st-multitool-card-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.st-multitool-card-row.col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.st-multitool-card-label {
+  font-size: 12px;
+  color: var(--st-multitool-text-muted);
+  min-width: 60px;
+}
+
+.st-multitool-card-input,
+.st-multitool-card-select,
+.st-multitool-card-textarea {
+  flex: 1;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--st-multitool-card-border);
+  color: var(--st-multitool-text);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+}
+
+.st-multitool-card-input:focus,
+.st-multitool-card-select:focus,
+.st-multitool-card-textarea:focus {
+  border-color: #ffaa00;
+}
+
+.st-multitool-card-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: monospace;
+}
+
+.st-multitool-checkbox-label {
+  font-size: 12px;
+  color: var(--st-multitool-text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.st-multitool-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 5px;
+  border-top: 1px dashed var(--st-multitool-card-border);
+  padding-top: 10px;
+}
+
+.st-multitool-btn-small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.st-multitool-btn-danger {
+  border-color: var(--st-multitool-danger);
+  color: var(--st-multitool-danger);
+}
+
+.st-multitool-btn-danger:hover:not(:disabled) {
+  background: rgba(240, 71, 71, 0.1);
+  box-shadow: 0 0 8px rgba(240, 71, 71, 0.3);
+}
+
+.st-multitool-empty-msg {
+  text-align: center;
+  padding: 40px;
+  color: var(--st-multitool-text-muted);
+  font-style: italic;
+  background: var(--st-multitool-section-bg);
+  border-radius: var(--st-multitool-radius);
+  border: 1px dashed var(--st-multitool-border);
+}
+
+.st-multitool-manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.st-multitool-manage-wb-item,
+.st-multitool-manage-entry-item,
+.st-multitool-manage-script-item,
+.st-multitool-manage-regex-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: 1px solid transparent;
+  gap: 10px;
+}
+
+.st-multitool-manage-wb-item:hover,
+.st-multitool-manage-entry-item:hover,
+.st-multitool-manage-script-item:hover,
+.st-multitool-manage-regex-item:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: var(--st-multitool-border);
+}
+
+.st-multitool-manage-wb-item.active,
+.st-multitool-manage-entry-item.active {
+  background: rgba(0, 255, 204, 0.1);
+  border-color: var(--st-multitool-primary);
+}
+
+.st-multitool-manage-wb-info,
+.st-multitool-manage-entry-info,
+.st-multitool-manage-script-info,
+.st-multitool-manage-regex-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.st-multitool-manage-wb-name,
+.st-multitool-manage-entry-name,
+.st-multitool-manage-script-name,
+.st-multitool-manage-regex-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-multitool-manage-wb-actions,
+.st-multitool-manage-entry-actions,
+.st-multitool-manage-script-actions,
+.st-multitool-manage-regex-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.st-multitool-manage-wb-checkbox,
+.st-multitool-manage-entry-checkbox,
+.st-multitool-manage-script-enabled,
+.st-multitool-manage-regex-enabled {
+  cursor: pointer;
+}
+
+.st-multitool-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.st-multitool-badge-blue {
+  background: #0078d7;
+  color: white;
+}
+
+.st-multitool-badge-green {
+  background: #00cc00;
+  color: white;
+}
+
+.st-multitool-manage-script-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: calc(100% - 60px);
+  overflow-y: auto;
+}
+
+.st-multitool-manage-script-card {
+  background: var(--st-multitool-card-bg);
+  border: 1px solid var(--st-multitool-card-border);
+  border-left: 4px solid var(--st-multitool-primary);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+  flex: 1;
+}
+
+.st-multitool-manage-script-card-header {
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--st-multitool-card-border);
+  font-weight: bold;
+  color: var(--st-multitool-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.st-multitool-manage-script-card-header:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.st-multitool-manage-script-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-multitool-card-header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.st-multitool-card-header-actions .st-multitool-button {
+  font-size: 11px;
+  padding: 4px 10px;
+  height: auto;
+}
+
+.st-multitool-manage-script-collapse-icon {
+  transition: transform 0.3s ease;
+  font-size: 0.9em;
+}
+
+.st-multitool-manage-script-card.collapsed .st-multitool-manage-script-collapse-icon {
+  transform: rotate(-90deg);
+}
+
+.st-multitool-manage-script-card-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.2s ease;
+  max-height: 200px;
+}
+
+.st-multitool-manage-script-card.collapsed {
+  flex: 0 0 auto;
+  min-height: auto;
+}
+
+.st-multitool-manage-script-card.collapsed .st-multitool-manage-script-card-content {
+  display: none;
+}
+
+.st-multitool-manage-script-card.collapsed .st-multitool-manage-script-card-header {
+  border-bottom: none;
+}
+
+.st-multitool-edit-panel-collapsible.collapsed {
+  max-height: 55px !important;
+  overflow: hidden;
+}
+
+.st-multitool-edit-panel-collapsible.collapsed .st-multitool-section-content {
+  display: none;
+}
+
+.st-multitool-edit-panel-header {
+  cursor: pointer;
+}
+
+.st-multitool-edit-panel-header:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* --- 插件说明弹窗 --- */
+.st-multitool-readme-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 2147483647;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.st-multitool-readme-content {
+  background: #2c2f33;
+  color: #fff;
+  width: 90%;
+  max-width: 800px;
+  max-height: 85vh;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid #40444b;
+}
+
+.st-multitool-readme-header {
+  padding: 15px;
+  border-bottom: 1px solid #40444b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.st-multitool-readme-header h3 {
+  margin: 0;
+  color: #fff;
+}
+
+.st-multitool-close-modal-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.st-multitool-readme-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+@media (max-width: 768px) {
+  .st-multitool-readme-content {
+    width: 95vw;
+    height: 85vh;
+    max-height: 85vh;
+  }
+  .st-multitool-popup-container {
+    width: 95vw;
+    height: 95vh;
+    max-height: 95vh;
+  }
+
+  .st-multitool-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .st-multitool-button {
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+  }
+
+  .st-multitool-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .st-multitool-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .st-multitool-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .st-multitool-input,
+  .st-multitool-select {
+    width: 100%;
+  }
+
+  .st-multitool-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .st-multitool-card-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .st-multitool-card-label {
+    margin-bottom: 2px;
+  }
+
+  .st-multitool-manage-wb-actions,
+  .st-multitool-manage-entry-actions,
+  .st-multitool-manage-script-actions,
+  .st-multitool-manage-regex-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ==========================================
+   ST Multitool V2 - Dashboard & Card Grid UI
+   ========================================== */
+
+/* Dashboard Hero Banner */
+.st-multitool-dash-header {
+  display: flex;
+  flex-direction: column;
+}
+.st-multitool-hero-banner {
+  background: linear-gradient(135deg, rgba(0, 230, 184, 0.14) 0%, rgba(22, 27, 38, 0.9) 100%);
+  border: 1px solid rgba(0, 230, 184, 0.3);
+  border-radius: 16px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+.st-multitool-hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -5%;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(0, 230, 184, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.st-multitool-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1;
+}
+.st-multitool-hero-badge {
+  display: inline-block;
+  width: fit-content;
+  background: rgba(0, 230, 184, 0.18);
+  color: var(--st-multitool-primary);
+  font-size: 0.74em;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 230, 184, 0.45);
+  text-transform: uppercase;
+}
+.st-multitool-hero-content h3 {
+  margin: 0;
+  font-size: 1.4em;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+.st-multitool-hero-content p {
+  margin: 0;
+  font-size: 0.88em;
+  color: var(--st-multitool-text-muted);
+  line-height: 1.45;
+}
+.st-multitool-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.st-multitool-btn-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.92em;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+}
+.st-multitool-btn-hero.primary {
+  background: var(--st-multitool-primary);
+  color: #0d131a;
+  box-shadow: 0 4px 16px rgba(0, 230, 184, 0.35);
+}
+.st-multitool-btn-hero.primary:hover {
+  background: var(--st-multitool-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0, 230, 184, 0.5);
+}
+.st-multitool-btn-hero.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.st-multitool-btn-hero.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Dashboard Nav Tabs */
+.st-multitool-dash-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: rgba(15, 18, 26, 0.65);
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--st-multitool-border);
+}
+.st-multitool-nav-tab {
+  flex: 1 1 auto;
+  min-width: 90px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--st-multitool-text-muted);
+  font-weight: 600;
+  font-size: 0.84em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.st-multitool-nav-tab:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+.st-multitool-nav-tab.active {
+  background: rgba(0, 230, 184, 0.15);
+  color: var(--st-multitool-primary);
+  border-color: rgba(0, 230, 184, 0.35);
+  box-shadow: 0 2px 10px rgba(0, 230, 184, 0.15);
+}
+
+/* Dashboard Grid & Feature Cards */
+.st-multitool-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}
+.st-multitool-dash-card {
+  background: rgba(24, 29, 41, 0.7);
+  border: 1px solid var(--st-multitool-card-border);
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.st-multitool-dash-card:hover {
+  border-color: rgba(0, 230, 184, 0.38);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+.st-multitool-dash-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.st-multitool-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35em;
+  flex-shrink: 0;
+}
+.st-multitool-card-icon.worldbook {
+  background: rgba(0, 230, 184, 0.16);
+  color: #00e6b8;
+}
+.st-multitool-card-icon.scripts {
+  background: rgba(99, 102, 241, 0.16);
+  color: #818cf8;
+}
+.st-multitool-card-icon.regex {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+}
+.st-multitool-card-icon.sync {
+  background: rgba(236, 72, 153, 0.16);
+  color: #f472b6;
+}
+.st-multitool-card-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-grow: 1;
+}
+.st-multitool-card-title-wrap h4 {
+  margin: 0;
+  font-size: 1.12em;
+  font-weight: 700;
+  color: #fff;
+}
+.st-multitool-card-tag {
+  font-size: 0.74em;
+  font-weight: 700;
+  color: var(--st-multitool-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.st-multitool-dash-card-desc {
+  font-size: 0.86em;
+  color: var(--st-multitool-text-muted);
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 14px;
+}
+.st-multitool-dash-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+}
+.st-multitool-card-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.st-multitool-dash-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  box-sizing: border-box;
+}
+.st-multitool-dash-btn i {
+  font-size: 1.35em;
+  color: var(--st-multitool-text-muted);
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.st-multitool-dash-btn div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.st-multitool-dash-btn div span {
+  font-size: 0.89em;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.st-multitool-dash-btn div small {
+  font-size: 0.74em;
+  color: #8a99ad;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.st-multitool-dash-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.24);
+  transform: translateY(-2px);
+}
+.st-multitool-dash-btn:hover i {
+  color: var(--st-multitool-primary);
+}
+.st-multitool-dash-btn.highlight {
+  background: linear-gradient(135deg, rgba(0, 230, 184, 0.14) 0%, rgba(0, 230, 184, 0.04) 100%);
+  border-color: rgba(0, 230, 184, 0.38);
+}
+.st-multitool-dash-btn.highlight:hover {
+  background: linear-gradient(135deg, rgba(0, 230, 184, 0.24) 0%, rgba(0, 230, 184, 0.08) 100%);
+  border-color: var(--st-multitool-primary);
+}
+.st-multitool-dash-btn.highlight i {
+  color: var(--st-multitool-primary);
+}
+.st-multitool-dash-btn.danger:hover {
+  background: rgba(240, 71, 71, 0.15);
+  border-color: rgba(240, 71, 71, 0.45);
+}
+.st-multitool-dash-btn.danger:hover i {
+  color: var(--st-multitool-danger);
+}
+.st-multitool-import-drawer {
+  background: rgba(15, 18, 26, 0.75);
+  border: 1px dashed var(--st-multitool-border);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.st-multitool-drawer-btns {
+  display: flex;
+  gap: 8px;
+}
+.st-multitool-dash-btn-small {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.st-multitool-dash-btn-small:hover {
+  background: var(--st-multitool-primary);
+  color: #000;
+  border-color: var(--st-multitool-primary);
+}
+
+@media (max-width: 768px) {
+  .st-multitool-hero-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .st-multitool-hero-actions {
+    width: 100%;
+  }
+  .st-multitool-btn-hero {
+    flex: 1;
+    justify-content: center;
+  }
+}
