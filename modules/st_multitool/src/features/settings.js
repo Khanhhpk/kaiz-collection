@@ -61,7 +61,7 @@ function normalizeSettings(raw = {}) {
 }
 
 function getMagicMenuContainer() {
-  return $('#extensionsMenu, #extensions-menu, #extensions_settings, #extensions-settings, .extensionsMenu, .extensions-menu, #rm_extension_settings .list-group, #rm_extensions_block .list-group').first();
+  return $('#extensionsMenu, #extensions-menu, .extensionsMenu, .extensions-menu').first();
 }
 
 function createMagicWandMenuIfPossible() {
