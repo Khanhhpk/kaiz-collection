@@ -11,16 +11,35 @@ export function initManagePrompt() {
   $('#st-multitool-manage-prompt-btn').on('click', () => {
     showSubView('st-multitool-manage-prompt-view');
     renderPromptBlocks();
+    $('#st-multitool-prompt-search').val(''); // Clear search on open
     if (window.lucide) {
       window.lucide.createIcons();
     }
   });
 
-  $saveBtn.on('click', savePromptBlocks);
+  $saveBtn.on('click', () => {
+    savePromptBlocks();
+    if (window.refreshPromptList) window.refreshPromptList();
+  });
   
   $('#st-multitool-reset-prompt-btn').on('click', () => {
     renderPromptBlocks();
+    $('#st-multitool-prompt-search').val(''); // Clear search on reset
     toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
+  });
+
+  $('#st-multitool-prompt-search').on('input', function() {
+    const searchTerm = $(this).val().toLowerCase();
+    $promptListContainer.find('.st-multitool-wb-item').each(function() {
+      const title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
+      const desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
+      const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
+      if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
+        $(this).show();
+      } else {
+        $(this).hide();
+      }
+    });
   });
 }
 
@@ -319,6 +338,14 @@ export function savePromptBlocks() {
 
     if (typeof window.saveSettingsDebounced === 'function') {
       window.saveSettingsDebounced();
+    }
+    
+    // Yêu cầu ST vẽ lại UI
+    if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
+      const stContext = window.SillyTavern.getContext();
+      if (stContext && stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
+        stContext.eventSource.emit('oai_preset_changed_after');
+      }
     }
 
     toastr.success('Lưu cấu hình Prompt thành công! Các thay đổi đã được áp dụng ngay lập tức.');
