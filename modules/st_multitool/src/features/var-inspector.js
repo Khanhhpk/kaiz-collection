@@ -232,9 +232,13 @@ export function initVarInspector() {
       background: rgba(255,255,255,0.04) !important;
       border: 1px solid rgba(255,255,255,0.1) !important;
       border-radius: 8px !important;
-      overflow: visible !important;
+      overflow: hidden !important;
+      position: relative !important;
       min-height: 40px !important;
+      height: auto !important;
+      max-height: none !important;
       display: block !important;
+      flex: 0 0 auto !important;
       visibility: visible !important;
       opacity: 1 !important;
     }
