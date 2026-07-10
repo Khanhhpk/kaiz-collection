@@ -139,36 +139,36 @@ function typeLabel(type) {
 
 function renderVarList(vars) {
   if (vars.length === 0) {
-    return '<div style="color:#888; text-align:center; padding:20px; font-size:0.9em;">Không tìm thấy biến nào.</div>';
+    return '<div class="st-multitool-vi-empty">Không tìm thấy biến nào.</div>';
   }
 
   return vars.map(v => {
     const borderColor = v.scope === 'global' ? '#a78bfa' : '#00e6b8';
     const scopeLabel = v.scope === 'global' ? '🌍 Global' : '🗨 Local';
     const liveDisplay = v.liveValue !== null
-      ? `<span style="color:#86efac !important; font-family:monospace; background:rgba(134,239,172,0.1); padding:2px 6px; border-radius:4px;">${escapeHtml(truncate(v.liveValue, 50))}</span>`
-      : `<span style="color:#666 !important; font-style:italic;">chưa có giá trị</span>`;
+      ? `<span class="st-multitool-vi-val-live">${escapeHtml(truncate(v.liveValue, 50))}</span>`
+      : `<span class="st-multitool-vi-val-null">chưa có giá trị</span>`;
 
     const sourcesHtml = v.sources.length === 0
-      ? '<div style="color:#666 !important; font-style:italic; font-size:0.82em; padding:4px 0;">Không tìm thấy trong prompt nào (biến runtime)</div>'
+      ? '<div class="st-multitool-vi-no-src">Không tìm thấy trong prompt nào (biến runtime)</div>'
       : v.sources.map(s => `
-          <div style="background:rgba(255,255,255,0.04); border-radius:5px; padding:5px 8px; margin-bottom:4px; font-size:0.82em;">
-            <span style="color:#00e6b8 !important; font-weight:600; margin-right:4px;">${typeLabel(s.type)}</span>
-            <span style="color:#a0c4ff !important;" title="${escapeHtml(s.promptId)}">${escapeHtml(s.promptName)}</span>
-            ${s.value !== undefined ? `<span style="color:#fde68a !important; margin-left:4px; font-family:monospace;">= ${escapeHtml(truncate(s.value, 40))}</span>` : ''}
-            <div style="color:#777 !important; font-family:monospace; font-size:0.88em; margin-top:3px; word-break:break-all;">${escapeHtml(s.excerpt)}</div>
+          <div class="st-multitool-vi-src-item">
+            <span class="st-multitool-vi-src-type">${typeLabel(s.type)}</span>
+            <span class="st-multitool-vi-src-prompt" title="${escapeHtml(s.promptId)}">${escapeHtml(s.promptName)}</span>
+            ${s.value !== undefined ? `<span class="st-multitool-vi-src-val"> = ${escapeHtml(truncate(s.value, 40))}</span>` : ''}
+            <div class="st-multitool-vi-src-excerpt">${escapeHtml(s.excerpt)}</div>
           </div>`).join('');
 
     return `
-      <div class="st-multitool-vi-card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-left:3px solid ${borderColor}; border-radius:8px; overflow:hidden;">
-        <div class="st-multitool-vi-header" style="display:flex; align-items:center; gap:6px; padding:8px 10px; cursor:pointer; user-select:none;">
-          <span style="flex:1; font-weight:600; color:#e2e8f0 !important; font-size:0.88em; font-family:monospace;">${escapeHtml(v.name)}</span>
-          <span style="font-size:0.7em; color:#888 !important; white-space:nowrap;">${scopeLabel}</span>
-          <span class="st-multitool-vi-chevron" style="font-size:0.7em; color:#555 !important; transition:transform 0.15s;">▶</span>
+      <div class="st-multitool-vi-card" style="border-left:3px solid ${borderColor} !important;">
+        <div class="st-multitool-vi-header">
+          <span class="st-multitool-vi-var-name">${escapeHtml(v.name)}</span>
+          <span class="st-multitool-vi-scope">${scopeLabel}</span>
+          <span class="st-multitool-vi-chevron">▶</span>
         </div>
-        <div style="padding:2px 10px 8px; font-size:0.82em;">${liveDisplay}</div>
-        <div class="st-multitool-vi-sources" style="display:none; padding:0 10px 10px; border-top:1px solid rgba(255,255,255,0.05);">
-          <div style="font-size:0.72em; color:#666 !important; margin:6px 0 4px; text-transform:uppercase; letter-spacing:0.5px;">Xuất hiện trong preset:</div>
+        <div class="st-multitool-vi-value">${liveDisplay}</div>
+        <div class="st-multitool-vi-sources" style="display:none;">
+          <div class="st-multitool-vi-src-title">Xuất hiện trong preset:</div>
           ${sourcesHtml}
         </div>
       </div>`;
@@ -224,6 +224,118 @@ function applyFilter() {
 export function initVarInspector() {
   if (_initialized) return;
   _initialized = true;
+
+  // Inject CSS with extremely high specificity to fight ST overrides
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    #st-multitool-var-inspector-body .st-multitool-vi-card {
+      background: rgba(255,255,255,0.04) !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 8px !important;
+      overflow: visible !important;
+      min-height: 40px !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-card * {
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-header {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      padding: 8px 10px !important;
+      cursor: pointer !important;
+      min-height: 32px !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-var-name {
+      flex: 1 !important;
+      font-weight: 600 !important;
+      color: #e2e8f0 !important;
+      font-size: 0.88em !important;
+      font-family: 'Courier New', monospace !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-scope {
+      font-size: 0.7em !important;
+      color: #999 !important;
+      white-space: nowrap !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-chevron {
+      font-size: 0.7em !important;
+      color: #666 !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-value {
+      padding: 2px 10px 8px !important;
+      font-size: 0.82em !important;
+      display: block !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-val-live {
+      color: #86efac !important;
+      font-family: 'Courier New', monospace !important;
+      background: rgba(134,239,172,0.1) !important;
+      padding: 2px 6px !important;
+      border-radius: 4px !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-val-null {
+      color: #666 !important;
+      font-style: italic !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-sources {
+      padding: 0 10px 10px !important;
+      border-top: 1px solid rgba(255,255,255,0.05) !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-src-title {
+      font-size: 0.72em !important;
+      color: #777 !important;
+      margin: 6px 0 4px !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-src-item {
+      background: rgba(255,255,255,0.04) !important;
+      border-radius: 5px !important;
+      padding: 5px 8px !important;
+      margin-bottom: 4px !important;
+      font-size: 0.82em !important;
+      display: block !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-src-type {
+      color: #00e6b8 !important;
+      font-weight: 600 !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-src-prompt {
+      color: #a0c4ff !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-src-val {
+      color: #fde68a !important;
+      font-family: 'Courier New', monospace !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-src-excerpt {
+      color: #888 !important;
+      font-family: 'Courier New', monospace !important;
+      font-size: 0.88em !important;
+      margin-top: 3px !important;
+      word-break: break-all !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-empty {
+      color: #888 !important;
+      text-align: center !important;
+      padding: 20px !important;
+    }
+    #st-multitool-var-inspector-body .st-multitool-vi-no-src {
+      color: #666 !important;
+      font-style: italic !important;
+      font-size: 0.82em !important;
+      padding: 4px 0 !important;
+    }
+    #st-multitool-var-inspector-status {
+      color: #aaa !important;
+      font-size: 0.8em !important;
+    }
+  `;
+  document.head.appendChild(styleEl);
 
   const $popup = $('#st-multitool-popup');
 
