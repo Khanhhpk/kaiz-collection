@@ -20,17 +20,31 @@ export function initManagePrompt() {
   $saveBtn.on('click', savePromptBlocks);
 }
 
-function getPowerUser() {
-  if (window.power_user && window.power_user.instruct) return window.power_user;
+function getPromptContainer() {
   if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
     const ctx = window.SillyTavern.getContext();
-    if (ctx && ctx.power_user && ctx.power_user.instruct) return ctx.power_user;
-    if (ctx && ctx.powerUserSettings && ctx.powerUserSettings.instruct) return ctx.powerUserSettings;
+    // ST 1.18.0+
+    if (ctx && ctx.chatCompletionSettings && Array.isArray(ctx.chatCompletionSettings.prompts)) {
+      return ctx.chatCompletionSettings;
+    }
+    // ST < 1.18.0
+    if (ctx && ctx.power_user && ctx.power_user.instruct && Array.isArray(ctx.power_user.instruct.prompts)) {
+      return ctx.power_user.instruct;
+    }
+    if (ctx && ctx.powerUserSettings && ctx.powerUserSettings.instruct && Array.isArray(ctx.powerUserSettings.instruct.prompts)) {
+      return ctx.powerUserSettings.instruct;
+    }
   }
-  // Optional search
+  // Global fallbacks
+  if (window.power_user && window.power_user.instruct && Array.isArray(window.power_user.instruct.prompts)) return window.power_user.instruct;
+  if (window.chatCompletionSettings && Array.isArray(window.chatCompletionSettings.prompts)) return window.chatCompletionSettings;
+  
   for (let key in window) {
     try {
       if (window[key] && window[key].instruct && Array.isArray(window[key].instruct.prompts)) {
+        return window[key].instruct;
+      }
+      if (window[key] && Array.isArray(window[key].prompts) && window[key].prompts[0] && typeof window[key].prompts[0].system_prompt !== 'undefined') {
         return window[key];
       }
     } catch(e) {}
@@ -41,8 +55,8 @@ function getPowerUser() {
 export function renderPromptBlocks() {
   $promptListContainer.empty();
   
-  const pu = getPowerUser();
-  if (!pu || !pu.instruct || !Array.isArray(pu.instruct.prompts)) {
+  const container = getPromptContainer();
+  if (!container || !Array.isArray(container.prompts)) {
     let debugInfo = 'N/A';
     try {
       const ctx = window.SillyTavern ? window.SillyTavern.getContext() : {};
@@ -54,7 +68,7 @@ export function renderPromptBlocks() {
     return;
   }
 
-  const prompts = pu.instruct.prompts;
+  const prompts = container.prompts;
   
   if (prompts.length === 0) {
     $promptListContainer.html('<p style="text-align:center;">Preset hiện tại không có khối Prompt nào.</p>');
@@ -147,16 +161,15 @@ export function renderPromptBlocks() {
 }
 
 export function savePromptBlocks() {
-  const pu = getPowerUser();
-  if (!pu || !pu.instruct || !Array.isArray(pu.instruct.prompts)) {
+  const container = getPromptContainer();
+  if (!container || !Array.isArray(container.prompts)) {
     toastr.error('Không tìm thấy cấu trúc Prompt AI trong hệ thống.');
     return;
   }
-
   showLoader();
   try {
     const newPrompts = [];
-    const originalPrompts = pu.instruct.prompts;
+    const originalPrompts = container.prompts;
 
     $promptListContainer.find('.st-multitool-wb-item').each(function() {
       const $item = $(this);
@@ -179,7 +192,7 @@ export function savePromptBlocks() {
       newPrompts.push(newBlock);
     });
 
-    pu.instruct.prompts = newPrompts;
+    container.prompts = newPrompts;
 
     // Optional: Try to call ST's internal save function if available
     if (typeof window.saveSettingsDebounced === 'function') {
