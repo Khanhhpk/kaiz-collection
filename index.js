@@ -788,8 +788,7 @@ function renderExtensionSettings(targetWin, jq) {
                 <div id="kaiz_explorer_tree_container" style="background: rgba(10, 14, 23, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; height: 350px; overflow-y: auto; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em; line-height: 1.5; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);">
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 4px;">
-                    <input type="text" id="kaiz_explorer_console_input" placeholder="Gõ JS Code (VD: Object.keys(SillyTavern.getContext()))" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em;" />
-                    <button id="kaiz_explorer_console_run" style="padding: 10px 16px; background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 8px; color: #34d399; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-play"></i> Run</button>
+                    <textarea id="kaiz_explorer_console_input" placeholder="Gõ JS Code (Enter = Chạy, Shift+Enter = Xuống dòng)" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em; resize: vertical;" rows="2"></textarea><button id="kaiz_explorer_console_run" style="padding: 10px 16px; background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 8px; color: #34d399; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-play"></i> Run</button>
                 </div>
                 <div id="kaiz_explorer_console_output" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; min-height: 24px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.82em; word-break: break-all;"></div>
             </div>
@@ -1275,7 +1274,10 @@ function initKaizExplorer(doc, targetWin) {
 
     doc.getElementById('kaiz_explorer_console_run').addEventListener('click', runConsole);
     doc.getElementById('kaiz_explorer_console_input').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') runConsole();
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            runConsole();
+        }
     });
 
     // Init

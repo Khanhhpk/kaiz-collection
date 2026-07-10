@@ -92,6 +92,7 @@ export function showMainView() {
     elements.manageWbView,
     elements.manageScriptView,
     elements.manageRegexView,
+    elements.managePromptView,
   ].forEach(v => v && v.hide());
   
   $('#st-multitool-preset-list-container').hide();
