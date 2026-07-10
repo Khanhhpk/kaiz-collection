@@ -225,8 +225,10 @@ export function initVarInspector() {
   if (_initialized) return;
   _initialized = true;
 
+  const $popup = $('#st-multitool-popup');
+
   // Toggle panel visibility
-  $(document).on('click', '#st-multitool-var-inspector-btn', function () {
+  $popup.on('click', '#st-multitool-var-inspector-btn', function () {
     const panel = document.getElementById('st-multitool-var-inspector-panel');
     if (!panel) return;
     const isHidden = panel.style.display === 'none';
@@ -235,7 +237,7 @@ export function initVarInspector() {
   });
 
   // Scope filter buttons
-  $(document).on('click', '.st-multitool-vi-scope-btn', function () {
+  $popup.on('click', '.st-multitool-vi-scope-btn', function () {
     $('.st-multitool-vi-scope-btn').removeClass('active')
       .css({ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#aaa' });
     $(this).addClass('active')
@@ -245,7 +247,7 @@ export function initVarInspector() {
   });
 
   // Search filter (live on input)
-  $(document).on('input', '#st-multitool-vi-search', function () {
+  $popup.on('input', '#st-multitool-vi-search', function () {
     applyFilter();
   });
 
@@ -260,3 +262,4 @@ export function initVarInspector() {
     });
   }, 500);
 }
+
