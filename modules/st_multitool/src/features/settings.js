@@ -174,9 +174,9 @@ export function applySettings(settings) {
     if (!createMagicWandMenuIfPossible()) {
       initMagicWandMenu();
     }
-    $(`#${MAGIC_MENU_ID}`).show();
+    $(`#${MAGIC_MENU_ID}`).show().addClass('flex-container');
   } else {
-    $(`#${MAGIC_MENU_ID}`).hide();
+    $(`#${MAGIC_MENU_ID}`).hide().removeClass('flex-container');
   }
 
   $('#st-multitool-qr-menu-item').toggle(normalized.showQrBtn);
