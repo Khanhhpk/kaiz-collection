@@ -74,13 +74,25 @@ export function renderPromptBlocks() {
 
   const prompts = container.prompts;
   
-  if (prompts.length === 0) {
-    $promptListContainer.html('<p style="text-align:center;">Preset hiện tại không có khối Prompt nào.</p>');
-    return;
+  const rawOrder = container.prompt_order || [];
+  let promptOrder = [];
+  
+  if (Array.isArray(rawOrder) && rawOrder.length > 0) {
+    if (typeof rawOrder[0] === 'object' && Array.isArray(rawOrder[0].order)) {
+      // ST 1.18.0 format: [ { character_id: ..., order: [...] } ]
+      const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
+      const charId = ctx.characterId;
+      let currentOrderObj = rawOrder.find(o => o.character_id === charId);
+      if (!currentOrderObj) currentOrderObj = rawOrder[0];
+      if (currentOrderObj && Array.isArray(currentOrderObj.order)) {
+        promptOrder = currentOrderObj.order.map(item => item.identifier);
+      }
+    } else {
+      promptOrder = rawOrder.map(item => (typeof item === 'string') ? item : item.identifier);
+    }
   }
 
-  const promptOrder = Array.isArray(container.prompt_order) ? container.prompt_order : [];
-  const orderIdentifiers = promptOrder.map(item => (typeof item === 'string') ? item : item.identifier);
+  const orderIdentifiers = promptOrder.filter(id => id != null);
 
   let activeHtml = '';
   let inactiveHtml = '';
@@ -282,7 +294,28 @@ export function savePromptBlocks() {
     });
 
     container.prompts = newPrompts;
-    container.prompt_order = newPromptOrder;
+    
+    // Check if it was ST 1.18.0 format originally
+    if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0].order)) {
+      const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
+      const charId = ctx.characterId;
+      
+      const fullOrder = JSON.parse(JSON.stringify(container.prompt_order)); // clone
+      let targetOrderObj = fullOrder.find(o => o.character_id === charId);
+      if (!targetOrderObj) targetOrderObj = fullOrder.length > 0 ? fullOrder[0] : null;
+
+      if (targetOrderObj) {
+        // newPromptOrder currently has [{identifier: '...'}, ...] from processItem
+        // We need to map it to {enabled: true/false, identifier: '...'}
+        targetOrderObj.order = newPromptOrder.map(item => {
+           const promptBlock = newPrompts.find(p => p.identifier === item.identifier);
+           return { enabled: promptBlock ? promptBlock.enabled : true, identifier: item.identifier };
+        });
+      }
+      container.prompt_order = fullOrder;
+    } else {
+      container.prompt_order = newPromptOrder;
+    }
 
     if (typeof window.saveSettingsDebounced === 'function') {
       window.saveSettingsDebounced();
