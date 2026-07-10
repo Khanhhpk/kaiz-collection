@@ -75,13 +75,16 @@ export function renderPromptBlocks() {
     return;
   }
 
+  const promptOrder = Array.isArray(container.prompt_order) ? container.prompt_order : [];
+  const orderIdentifiers = promptOrder.map(item => (typeof item === 'string') ? item : item.identifier);
+
   let activeHtml = '';
   let inactiveHtml = '';
 
-  prompts.forEach((block, idx) => {
+  const renderBlock = (block, idx) => {
     const isEnabled = block.enabled;
-    const blockHtml = `
-      <div class="st-multitool-wb-item" data-idx="${idx}" style="${isEnabled ? '' : 'opacity: 0.75;'}">
+    return `
+      <div class="st-multitool-wb-item" data-idx="${idx}">
         <div class="st-multitool-wb-item-header st-multitool-accordion-header" style="cursor: pointer; user-select: none;">
           <div class="st-multitool-wb-item-title-col">
             <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
@@ -142,17 +145,30 @@ export function renderPromptBlocks() {
         </div>
       </div>
     `;
-    
-    if (isEnabled) activeHtml += blockHtml;
-    else inactiveHtml += blockHtml;
+  };
+
+  // Build active list (maintaining prompt_order sequence)
+  promptOrder.forEach(orderItem => {
+    const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
+    const idx = prompts.findIndex(p => p.identifier === id);
+    if (idx !== -1) {
+      activeHtml += renderBlock(prompts[idx], idx);
+    }
+  });
+
+  // Build inactive list
+  prompts.forEach((block, idx) => {
+    if (!orderIdentifiers.includes(block.identifier)) {
+      inactiveHtml += renderBlock(block, idx);
+    }
   });
 
   const layoutHtml = `
-    <h5 style="margin: 0 0 10px 0; color: #34d399; font-size: 0.95em;"><i class="fa-solid fa-link"></i> Linked / Active Prompts</h5>
+    <h5 style="margin: 0 0 10px 0; color: #34d399; font-size: 0.95em;"><i class="fa-solid fa-link"></i> Linked Prompts (In Order)</h5>
     <div id="st-multitool-prompt-list-active" class="st-multitool-prompt-sortable-list" style="min-height: 50px; border: 1px dashed rgba(52, 211, 153, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
       ${activeHtml}
     </div>
-    <h5 style="margin: 0 0 10px 0; color: #aaa; font-size: 0.95em;"><i class="fa-solid fa-unlink"></i> Unlinked / Inactive Prompts</h5>
+    <h5 style="margin: 0 0 10px 0; color: #aaa; font-size: 0.95em;"><i class="fa-solid fa-unlink"></i> Unlinked Prompts</h5>
     <div id="st-multitool-prompt-list-inactive" class="st-multitool-prompt-sortable-list" style="min-height: 50px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
       ${inactiveHtml}
     </div>
@@ -178,17 +194,8 @@ export function renderPromptBlocks() {
     this.style.height = (this.scrollHeight + 2) + 'px';
   });
 
-  // Handle manual toggle switch click to move between lists
+  // Handle manual toggle switch click (only save state, don't move between lists)
   $promptListContainer.find('.st-multitool-prompt-enabled').on('change', function(e) {
-    const isChecked = $(this).is(':checked');
-    const $item = $(this).closest('.st-multitool-wb-item');
-    if (isChecked) {
-      $item.css('opacity', '1');
-      $('#st-multitool-prompt-list-active').append($item);
-    } else {
-      $item.css('opacity', '0.75');
-      $('#st-multitool-prompt-list-inactive').append($item);
-    }
     savePromptBlocks();
   });
 
@@ -198,14 +205,9 @@ export function renderPromptBlocks() {
       connectWith: '.st-multitool-prompt-sortable-list',
       handle: '.st-multitool-drag-handle',
       receive: function(event, ui) {
-        // Fired when an item is dropped into a different list
-        const isNowActive = $(this).attr('id') === 'st-multitool-prompt-list-active';
-        ui.item.find('.st-multitool-prompt-enabled').prop('checked', isNowActive);
-        ui.item.css('opacity', isNowActive ? '1' : '0.75');
         savePromptBlocks();
       },
       update: function(event, ui) {
-        // Prevent double saving when moving between lists
         if (!ui.sender) {
           savePromptBlocks(); 
         }
@@ -227,10 +229,21 @@ export function savePromptBlocks() {
   showLoader();
   try {
     const newPrompts = [];
+    const newPromptOrder = [];
     const originalPrompts = container.prompts;
 
-    $promptListContainer.find('.st-multitool-wb-item').each(function() {
-      const $item = $(this);
+    const oldPromptOrderMap = new Map();
+    if (Array.isArray(container.prompt_order)) {
+      container.prompt_order.forEach(item => {
+        if (item && item.identifier) {
+          oldPromptOrderMap.set(item.identifier, item);
+        } else if (typeof item === 'string') {
+          oldPromptOrderMap.set(item, { identifier: item });
+        }
+      });
+    }
+
+    const processItem = ($item, isActiveList) => {
       const idx = parseInt($item.data('idx'), 10);
       const originalBlock = originalPrompts[idx];
 
@@ -248,11 +261,27 @@ export function savePromptBlocks() {
       };
       
       newPrompts.push(newBlock);
+
+      if (isActiveList) {
+        if (oldPromptOrderMap.has(newBlock.identifier)) {
+          newPromptOrder.push(oldPromptOrderMap.get(newBlock.identifier));
+        } else {
+          newPromptOrder.push({ identifier: newBlock.identifier });
+        }
+      }
+    };
+
+    $('#st-multitool-prompt-list-active .st-multitool-wb-item').each(function() {
+      processItem($(this), true);
+    });
+
+    $('#st-multitool-prompt-list-inactive .st-multitool-wb-item').each(function() {
+      processItem($(this), false);
     });
 
     container.prompts = newPrompts;
+    container.prompt_order = newPromptOrder;
 
-    // Optional: Try to call ST's internal save function if available
     if (typeof window.saveSettingsDebounced === 'function') {
       window.saveSettingsDebounced();
     }
