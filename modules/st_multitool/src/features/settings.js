@@ -71,9 +71,8 @@ function createMagicWandMenuIfPossible() {
   if ($container.length === 0) return false;
 
   const menuItemHtml = `
-      <div id="${MAGIC_MENU_ID}" class="list-group-item flex-container flexGap5" title="Mở Đồng bộ Sổ thế giới">
-          <i data-lucide="book-open" class="fa-fw"></i>
-          <span>Đồng bộ Sổ thế giới</span>
+      <div id="${MAGIC_MENU_ID}" class="list-group-item flex-container flexGap5 interactable" tabindex="0" title="Mở ST Multitool">
+          <div class="fa-fw fa-solid fa-wrench extensionsMenuExtensionButton"></div> ✧ ST Multitool
       </div>
   `;
   $container.append(menuItemHtml);
@@ -196,8 +195,8 @@ export function initQrMenu() {
 
       if ($qrBar.length > 0) {
           const qrItemHtml = `
-              <div id="${qrMenuId}" class="menu_button qr--button" title="Mở Đồng bộ Sổ thế giới" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; margin-right: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                  <i data-lucide="book-open"></i>
+              <div id="${qrMenuId}" class="menu_button qr--button" title="Mở ST Multitool" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; margin-right: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                  <i class="fa-solid fa-wrench"></i>
               </div>
           `;
           $qrBar.append(qrItemHtml);
@@ -214,8 +213,8 @@ export function initQrMenu() {
               const $sendTextarea = $('#send_textarea, #user_input').first();
               if ($sendTextarea.length > 0) {
                    const qrItemHtml = `
-                      <div id="${qrMenuId}" class="menu_button" title="Mở Đồng bộ Sổ thế giới" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; margin-bottom: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                          <i data-lucide="book-open"></i>
+                      <div id="${qrMenuId}" class="menu_button" title="Mở ST Multitool" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; margin-bottom: 5px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                          <i class="fa-solid fa-wrench"></i>
                       </div>
                   `;
                   $sendTextarea.parent().prepend(qrItemHtml);
