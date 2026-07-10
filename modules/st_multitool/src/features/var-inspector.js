@@ -7,6 +7,73 @@
 
 import { escapeHtml } from '../utils.js';
 
+// ─── Edit Mode & State ───────────────────────────────────────────────────────────
+let _isEditMode = false;
+let _pendingRenames = {}; // { originalName: newName }
+let _pendingValues = {};  // { originalName: newValue }
+
+export function getPendingVarChanges() {
+  return { renames: _pendingRenames, values: _pendingValues };
+}
+
+export function clearPendingVarChanges() {
+  _pendingRenames = {};
+  _pendingValues = {};
+  doRefresh();
+}
+
+/**
+ * Applies pending renames and value changes to a prompt string.
+ */
+export function applyVarChangesToContent(content, renames, values) {
+  if (!content) return content;
+  let newContent = content;
+
+  const namesToProcess = new Set([...Object.keys(renames), ...Object.keys(values)]);
+  
+  for (const oldName of namesToProcess) {
+    const newName = renames[oldName] || oldName;
+    const hasNewVal = oldName in values;
+    const newVal = hasNewVal ? values[oldName] : null;
+
+    // {{setvar::oldName::oldVal}}
+    newContent = newContent.replace(
+      new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
+      (match, val) => `{{setvar::${newName}::${hasNewVal ? newVal : val}}}`
+    );
+
+    // {{addvar::oldName::oldVal}}
+    newContent = newContent.replace(
+      new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
+      (match, val) => `{{addvar::${newName}::${hasNewVal ? newVal : val}}}`
+    );
+
+    // {{getvar::oldName}}
+    newContent = newContent.replace(
+      new RegExp(`\\{\\{getvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
+      `{{getvar::${newName}}}`
+    );
+
+    // /setvar key=oldName oldVal
+    newContent = newContent.replace(
+      new RegExp(`\\/setvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
+      (match, val) => `/setvar key=${newName} ${hasNewVal ? newVal : val}`
+    );
+
+    // /getvar key=oldName
+    newContent = newContent.replace(
+      new RegExp(`\\/getvar\\s+(key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
+      (match, p1) => `/getvar ${p1 || ''}${newName}`
+    );
+  }
+
+  return newContent;
+}
+
+function escapeRegex(string) {
+  return string.replace(/[.*+?^$()|[\]\\]/g, '\\$&');
+}
+
 // ─── Scan helpers ──────────────────────────────────────────────────────────────
 
 function truncate(s, max = 80) {
@@ -124,7 +191,20 @@ function analyse() {
     if (!varMap.has(key)) varMap.set(key, { name, scope: 'global', liveValue: val, sources: [] });
   }
 
-  return [...varMap.values()].sort((a, b) => {
+  // Linting & Value Extraction
+  const result = [...varMap.values()].map(v => {
+    const hasSet = v.sources.some(s => s.type === 'set' || s.type === 'addvar');
+    const hasGet = v.sources.some(s => s.type === 'get');
+    v.isUnused = hasSet && !hasGet && v.scope === 'local';
+    
+    // Find the first preset value definition for edit mode
+    const firstSet = v.sources.find(s => s.type === 'set' || s.type === 'addvar');
+    v.presetValue = firstSet && firstSet.value !== undefined ? firstSet.value : '';
+    
+    return v;
+  });
+
+  return result.sort((a, b) => {
     if (a.scope !== b.scope) return a.scope === 'local' ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
@@ -145,9 +225,23 @@ function renderVarList(vars) {
   return vars.map(v => {
     const borderColor = v.scope === 'global' ? '#a78bfa' : '#00e6b8';
     const scopeLabel = v.scope === 'global' ? '🌍 Global' : '🗨 Local';
-    const liveDisplay = v.liveValue !== null
+    
+    // Live display vs Edit display
+    const currentName = _pendingRenames[v.name] || v.name;
+    const currentVal = v.name in _pendingValues ? _pendingValues[v.name] : v.presetValue;
+    
+    let headerHtml = `<span class="st-multitool-vi-var-name">${escapeHtml(v.name)}</span>`;
+    let valueHtml = v.liveValue !== null
       ? `<span class="st-multitool-vi-val-live">${escapeHtml(truncate(v.liveValue, 50))}</span>`
-      : `<span class="st-multitool-vi-val-null">chưa có giá trị</span>`;
+      : `<span class="st-multitool-vi-val-null">chưa có giá trị runtime</span>`;
+
+    if (_isEditMode && v.scope === 'local') {
+      headerHtml = `<input type="text" class="st-multitool-vi-edit-name" data-oldname="${escapeHtml(v.name)}" value="${escapeHtml(currentName)}" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid #00e6b8; color:#e2e8f0; padding:2px 6px; border-radius:4px; font-family:monospace; margin-right:8px;" placeholder="Tên biến...">`;
+      const valColor = v.name in _pendingValues ? '#fde68a' : '#888';
+      valueHtml = `<input type="text" class="st-multitool-vi-edit-val" data-oldname="${escapeHtml(v.name)}" value="${escapeHtml(currentVal)}" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid ${valColor}; color:#86efac; padding:4px 6px; border-radius:4px; font-family:monospace; margin-top:4px;" placeholder="Nội dung/giá trị preset...">`;
+    }
+
+    const warningHtml = v.isUnused ? `<span title="Khai báo nhưng chưa được getvar ở đâu trong preset" style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:2px 6px; border-radius:4px; font-size:0.7em; margin-right:6px;">⚠️ Unused</span>` : '';
 
     const sourcesHtml = v.sources.length === 0
       ? '<div class="st-multitool-vi-no-src">Không tìm thấy trong prompt nào (biến runtime)</div>'
@@ -162,11 +256,12 @@ function renderVarList(vars) {
     return `
       <div class="st-multitool-vi-card" style="border-left:3px solid ${borderColor} !important;">
         <div class="st-multitool-vi-header">
-          <span class="st-multitool-vi-var-name">${escapeHtml(v.name)}</span>
+          ${headerHtml}
+          ${warningHtml}
           <span class="st-multitool-vi-scope">${scopeLabel}</span>
           <span class="st-multitool-vi-chevron">▶</span>
         </div>
-        <div class="st-multitool-vi-value">${liveDisplay}</div>
+        <div class="st-multitool-vi-value">${valueHtml}</div>
         <div class="st-multitool-vi-sources" style="display:none;">
           <div class="st-multitool-vi-src-title">Xuất hiện trong preset:</div>
           ${sourcesHtml}
@@ -349,7 +444,50 @@ export function initVarInspector() {
     if (!panel) return;
     const isHidden = panel.style.display === 'none';
     panel.style.display = isHidden ? 'block' : 'none';
-    if (isHidden) doRefresh();
+    if (isHidden) {
+      if (!$('#st-multitool-vi-edit-mode-btn').length) {
+        $('#st-multitool-vi-search').after(`<button id="st-multitool-vi-edit-mode-btn" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #aaa;" title="Bật/Tắt chế độ chỉnh sửa tên và giá trị biến">✏️ Edit Mode</button>`);
+      }
+      doRefresh();
+    }
+  });
+
+  // Edit Mode toggle
+  $popup.on('click', '#st-multitool-vi-edit-mode-btn', function () {
+    _isEditMode = !_isEditMode;
+    if (_isEditMode) {
+      $(this).css({ background: 'rgba(234,179,8,0.2)', border: '1px solid #eab308', color: '#fde047' });
+    } else {
+      $(this).css({ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#aaa' });
+    }
+    applyFilter(); // re-render
+  });
+
+  // Input bindings for Edit Mode
+  $popup.on('input', '.st-multitool-vi-edit-name', function(e) {
+    e.stopPropagation(); // prevent accordion toggle
+    const oldName = $(this).data('oldname');
+    const newName = $(this).val().trim();
+    if (newName && newName !== oldName) {
+      _pendingRenames[oldName] = newName;
+    } else {
+      delete _pendingRenames[oldName];
+    }
+    // Update save button text in Preset Manager to indicate pending changes
+    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt (Có thay đổi Var)');
+  });
+
+  $popup.on('input', '.st-multitool-vi-edit-val', function(e) {
+    e.stopPropagation();
+    const oldName = $(this).data('oldname');
+    const newVal = $(this).val();
+    _pendingValues[oldName] = newVal;
+    $(this).css('border-color', '#fde68a'); // Highlight edited
+    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt (Có thay đổi Var)');
+  });
+
+  $popup.on('click', '.st-multitool-vi-edit-name, .st-multitool-vi-edit-val', function(e) {
+    e.stopPropagation(); // Prevent accordion from toggling when clicking input
   });
 
   // Scope filter buttons

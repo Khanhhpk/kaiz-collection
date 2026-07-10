@@ -1,5 +1,6 @@
 import { escapeHtml } from '../utils.js';
 import { showLoader, hideLoader, showSubView } from '../ui.js';
+import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent } from './var-inspector.js';
 
 let $promptListContainer;
 let $saveBtn;
@@ -279,6 +280,9 @@ export function savePromptBlocks() {
   }
   showLoader();
   try {
+    const { renames, values } = getPendingVarChanges();
+    const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(values).length > 0;
+    
     const newPrompts = [];
     const newPromptOrder = [];
     const originalPrompts = container.prompts;
@@ -298,10 +302,15 @@ export function savePromptBlocks() {
       const identifier = $item.attr('data-id');
       const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier)) || {};
 
+      let content = $item.find('.st-multitool-prompt-content').val();
+      if (hasVarChanges) {
+        content = applyVarChangesToContent(content, renames, values);
+      }
+
       const newBlock = {
         ...originalBlock,
         enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
-        content: $item.find('.st-multitool-prompt-content').val(),
+        content: content,
         injection_position: parseInt($item.find('.st-prompt-pos').val(), 10) || 0,
         injection_depth: parseInt($item.find('.st-prompt-depth').val(), 10) || 0,
         injection_order: parseInt($item.find('.st-prompt-order').val(), 10) || 100,
@@ -364,7 +373,13 @@ export function savePromptBlocks() {
       }
     }
 
-    toastr.success('Lưu cấu hình Prompt thành công! Các thay đổi đã được áp dụng ngay lập tức.');
+    if (hasVarChanges) {
+      clearPendingVarChanges();
+      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    toastr.success('Đã lưu cấu hình Prompt Preset.');
   } catch (err) {
     console.error(err);
     toastr.error('Lưu thất bại: ' + err.message);
