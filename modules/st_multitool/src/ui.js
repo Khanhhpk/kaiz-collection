@@ -226,7 +226,7 @@ export async function showSubView(viewId) {
     $('#st-multitool-manage-regex-refresh-btn').hide();
   }
   if (viewId === 'st-multitool-manage-prompt-view') {
-    title = '<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý Prompt Preset';
+    title = '<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Preset Editor';
   }
 
   $('#st-multitool-header-title').html(title);

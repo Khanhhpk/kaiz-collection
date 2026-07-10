@@ -150,7 +150,7 @@ export function renderPromptBlocks() {
         <div class="st-multitool-wb-item-header st-multitool-accordion-header" style="cursor: pointer; user-select: none;">
           <div class="st-multitool-wb-item-title-col">
             <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
-              <i class="fa-solid fa-grip-vertical"></i>
+              <i data-lucide="grip-vertical" style="width: 16px; height: 16px;"></i>
             </span>
             <span class="st-multitool-wb-item-title" style="font-weight: 600;">${escapeHtml(block.name || 'Unnamed Block')}</span>
             <span class="st-multitool-wb-item-desc">Role: ${escapeHtml(block.role || '')} | Depth: ${block.injection_depth} | ID: ${escapeHtml(block.identifier || '')}</span>
@@ -160,7 +160,7 @@ export function renderPromptBlocks() {
               <input type="checkbox" class="st-multitool-prompt-enabled" ${isEnabled ? 'checked' : ''}>
               <span class="st-multitool-toggle-slider"></span>
             </label>
-            <i class="fa-solid fa-chevron-down st-multitool-accordion-icon" style="color: #888; transition: transform 0.2s;"></i>
+            <i data-lucide="chevron-down" class="st-multitool-accordion-icon" style="color: #888; transition: transform 0.2s; width: 16px; height: 16px;"></i>
           </div>
         </div>
         
@@ -226,17 +226,18 @@ export function renderPromptBlocks() {
   });
 
   const layoutHtml = `
-    <h5 style="margin: 0 0 10px 0; color: #34d399; font-size: 0.95em; flex-shrink: 0;"><i class="fa-solid fa-link"></i> Linked Prompts (In Order)</h5>
+    <h5 style="margin: 0 0 10px 0; color: #34d399; font-size: 0.95em; flex-shrink: 0; display: flex; align-items: center; gap: 6px;"><i data-lucide="link" style="width: 16px; height: 16px;"></i> Linked Prompts (In Order)</h5>
     <div id="st-multitool-prompt-list-active" class="st-multitool-prompt-sortable-list" style="flex-shrink: 0; min-height: 50px; border: 1px dashed rgba(52, 211, 153, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
       ${activeHtml}
     </div>
-    <h5 style="margin: 0 0 10px 0; color: #aaa; font-size: 0.95em; flex-shrink: 0;"><i class="fa-solid fa-unlink"></i> Unlinked Prompts</h5>
+    <h5 style="margin: 0 0 10px 0; color: #aaa; font-size: 0.95em; flex-shrink: 0; display: flex; align-items: center; gap: 6px;"><i data-lucide="unlink" style="width: 16px; height: 16px;"></i> Unlinked Prompts</h5>
     <div id="st-multitool-prompt-list-inactive" class="st-multitool-prompt-sortable-list" style="flex-shrink: 0; min-height: 50px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
       ${inactiveHtml}
     </div>
   `;
 
   $promptListContainer.html(layoutHtml);
+  if (window.lucide) window.lucide.createIcons();
 
   // Bind accordion click
   $promptListContainer.find('.st-multitool-accordion-header').on('click', function(e) {
