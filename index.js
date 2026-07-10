@@ -781,7 +781,10 @@ function renderExtensionSettings(targetWin, jq) {
                     <button id="kaiz_explorer_tab_win" style="flex: 1; padding: 8px; border-radius: 6px; cursor: pointer; border: none; background: rgba(255,255,255,0.05); color: #fff; font-weight: 600;">Window</button>
                     <button id="kaiz_explorer_refresh_btn" style="padding: 8px 12px; border-radius: 6px; cursor: pointer; border: none; background: rgba(56, 189, 248, 0.2); color: #38bdf8;"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
-                <input type="text" id="kaiz_explorer_search" placeholder="🔍 Tìm kiếm tên biến (VD: prompts, settings...)" style="width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.9em; box-sizing: border-box; margin-bottom: 4px;" />
+                <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+                    <input type="text" id="kaiz_explorer_search" placeholder="🔍 Tìm kiếm tên biến (VD: prompts, settings...)" style="flex: 1; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.9em; box-sizing: border-box;" />
+                    <button id="kaiz_explorer_copy_btn" style="padding: 10px 14px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; color: #c084fc; font-weight: bold; cursor: pointer; white-space: nowrap;" title="Copy kết quả hiện tại"><i class="fa-regular fa-copy"></i> Copy</button>
+                </div>
                 <div id="kaiz_explorer_tree_container" style="background: rgba(10, 14, 23, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; height: 350px; overflow-y: auto; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.86em; line-height: 1.5; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);">
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 4px;">
@@ -1230,6 +1233,27 @@ function initKaizExplorer(doc, targetWin) {
 
     doc.getElementById('kaiz_explorer_search').addEventListener('input', (e) => {
         filterTree(e.target.value.toLowerCase());
+    });
+
+    doc.getElementById('kaiz_explorer_copy_btn').addEventListener('click', () => {
+        const container = doc.getElementById('kaiz_explorer_tree_container');
+        const textToCopy = container.innerText;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const btn = doc.getElementById('kaiz_explorer_copy_btn');
+                const oldHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã Copy';
+                btn.style.color = '#34d399';
+                btn.style.borderColor = '#34d399';
+                setTimeout(() => {
+                    btn.innerHTML = oldHtml;
+                    btn.style.color = '#c084fc';
+                    btn.style.borderColor = 'rgba(168, 85, 247, 0.4)';
+                }, 2000);
+            }).catch(err => {
+                console.error("Failed to copy:", err);
+            });
+        }
     });
 
     function runConsole() {
