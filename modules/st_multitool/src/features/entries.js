@@ -161,7 +161,7 @@ export async function populateModifyWorldbookSelect() {
     const books = await getAllLorebooks();
     $modifyWbSelect.empty().append('<option value="">-- Hãy chọn Sổ thế giới --</option>');
     books.forEach(b =>
-      $modifyWbSelect.append(`<option value="${escapeHtml(b.file_name)}">${escapeHtml(b.name)}</option>`),
+      $modifyWbSelect.append(`<option value="${escapeHtml(b.file_name)}" title="${escapeHtml(b.name)}">${escapeHtml(b.name.length > 60 ? b.name.substring(0, 60) + '...' : b.name)}</option>`),
     );
     $modifyEntrySelect.empty().append('<option value="">--Hãy chọn Sổ thế giới trước--</option>');
   } catch (e) {
@@ -180,7 +180,7 @@ export async function populateModifyEntrySelect() {
     if (entries.length === 0) return $modifyEntrySelect.append('<option value="">Không có mục</option>');
     $modifyEntrySelect.append('<option value="">--Chọn mục--</option>');
     entries.forEach(e =>
-      $modifyEntrySelect.append(`<option value="${e.uid}">${escapeHtml(e.name || e.comment || (e.key && e.key.length > 0 ? e.key.join(', ') : 'Mục chưa có tên'))}</option>`),
+      $modifyEntrySelect.append(`<option value="${e.uid}" title="${escapeHtml(e.name || e.comment || (e.key && e.key.length > 0 ? e.key.join(', ') : 'Mục chưa có tên'))}">${escapeHtml((e.name || e.comment || (e.key && e.key.length > 0 ? e.key.join(', ') : 'Mục chưa có tên')).length > 60 ? (e.name || e.comment || (e.key && e.key.length > 0 ? e.key.join(', ') : 'Mục chưa có tên')).substring(0, 60) + '...' : (e.name || e.comment || (e.key && e.key.length > 0 ? e.key.join(', ') : 'Mục chưa có tên')))}</option>`),
     );
   } catch (e) {
     $modifyEntrySelect.empty().append('<option value="">Tải thất bại</option>');
@@ -318,7 +318,7 @@ export async function populateTransferSelects() {
     $copySourceSelect.empty().append(ph);
     $copyTargetSelect.empty().append(ph);
     books.forEach(b => {
-      const opt = `<option value="${escapeHtml(b.file_name)}">${escapeHtml(b.name)}</option>`;
+        const opt = `<option value="${escapeHtml(b.file_name)}" title="${escapeHtml(b.name)}">${escapeHtml(b.name.length > 60 ? b.name.substring(0, 60) + '...' : b.name)}</option>`;
       $transSourceSelect.append(opt);
       $transTargetSelect.append(opt);
       $copySourceSelect.append(opt);

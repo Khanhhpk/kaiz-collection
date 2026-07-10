@@ -106,7 +106,7 @@ export async function populateSyncWorldbooks() {
   try {
     const books = await getAllLorebooks();
     $targetWbSelect.empty().append('<option value="">-- Hãy chọn Sổ thế giới đích --</option>');
-    books.forEach(book => $targetWbSelect.append(`<option value="${escapeHtml(book.file_name)}">${escapeHtml(book.name)}</option>`));
+    books.forEach(book => $targetWbSelect.append(`<option value="${escapeHtml(book.file_name)}" title="${escapeHtml(book.name)}">${escapeHtml(book.name.length > 60 ? book.name.substring(0, 60) + '...' : book.name)}</option>`));
   } catch (error) {
     $targetWbSelect.empty().append('<option value="">Tải thất bại</option>');
   }

@@ -116,7 +116,7 @@ export async function populateDuplicateSelect() {
   try {
     const books = await getAllLorebooks();
     $dupSourceSelect.empty().append('<option value="">--Hãy chọn Sổ thế giới nguồn--</option>');
-    books.forEach(b => $dupSourceSelect.append(`<option value="${escapeHtml(b.file_name)}">${escapeHtml(b.name)}</option>`));
+    books.forEach(b => $dupSourceSelect.append(`<option value="${escapeHtml(b.file_name)}" title="${escapeHtml(b.name)}">${escapeHtml(b.name.length > 60 ? b.name.substring(0, 60) + '...' : b.name)}</option>`));
   } catch (e) {
     toastr.error('Tải thất bại');
   }
@@ -155,7 +155,7 @@ export async function populateRenameSelect() {
   try {
     const books = await getAllLorebooks();
     $renameSourceSelect.empty().append('<option value="">--Hãy chọn Sổ thế giới cần đổi tên--</option>');
-    books.forEach(b => $renameSourceSelect.append(`<option value="${escapeHtml(b.file_name)}">${escapeHtml(b.name)}</option>`));
+    books.forEach(b => $renameSourceSelect.append(`<option value="${escapeHtml(b.file_name)}" title="${escapeHtml(b.name)}">${escapeHtml(b.name.length > 60 ? b.name.substring(0, 60) + '...' : b.name)}</option>`));
   } catch (e) {
     toastr.error('Tải danh sách Sổ thế giới thất bại');
   }
