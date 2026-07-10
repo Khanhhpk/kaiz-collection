@@ -127,6 +127,7 @@ function renderRegexList($container, regexes, type) {
     fragment.appendChild(div);
   });
   $container.empty().append(fragment);
+  if (window.lucide) window.lucide.createIcons();
 }
 
 async function toggleRegexEnabled(regexId, type, isEnabled) {

@@ -125,6 +125,7 @@ export async function renderManageWorldbookList() {
     });
 
     $manageWbList.empty().append(fragment);
+    if (window.lucide) window.lucide.createIcons();
   } catch (e) {
     $manageWbList.html(`<div class="st-multitool-empty-msg" style="color:red;">Tải thất bại: ${e.message}</div>`);
   }

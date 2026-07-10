@@ -120,6 +120,7 @@ function renderScriptList($container, scripts, type) {
     fragment.appendChild(div);
   });
   $container.empty().append(fragment);
+  if (window.lucide) window.lucide.createIcons();
 }
 
 async function toggleScriptEnabled(scriptId, type, isEnabled) {
