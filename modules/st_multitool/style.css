@@ -24,13 +24,15 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 10001;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .st-multitool-popup-container {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
   z-index: 2147483646;
   width: 90vw;
   height: 85vh;
@@ -357,7 +359,7 @@
 }
 
 .st-multitool-preset-list-container {
-  margin-top: 10px;
+  margin: auto;
   background-color: var(--st-multitool-section-bg);
   border-radius: 5px;
   padding: 5px;
@@ -903,9 +905,11 @@
   .st-multitool-readme-content {
     width: 95vw;
     height: 85vh;
-    top: 52%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
     position: absolute;
   }
   .st-multitool-popup-container {
