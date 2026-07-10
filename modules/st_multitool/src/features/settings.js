@@ -127,21 +127,22 @@ export function loadSettings() {
 
 export function saveSettings(event) {
   const $changedCheckbox = $(event.target);
-  const settings = normalizeSettings({
+  const rawSettings = {
     showMagicWandBtn: $showMagicWandBtn.is(':checked'),
     showQrBtn: $showQrBtn.is(':checked'),
     defaultCollapse: $defaultCollapseBtn.is(':checked'),
     manageWbCollapsed: $manageWbCollapsedBtn.is(':checked'),
     manageScriptCollapsed: $manageScriptCollapsedBtn.is(':checked'),
     manageRegexCollapsed: $manageRegexCollapsedBtn.is(':checked'),
-  });
+  };
 
-  if (!settings.showMagicWandBtn && !settings.showQrBtn) {
+  if (!rawSettings.showMagicWandBtn && !rawSettings.showQrBtn) {
     toastr.warning('Cần giữ lại ít nhất một lối vào tiện ích!');
     $changedCheckbox.prop('checked', true);
     return;
   }
 
+  const settings = normalizeSettings(rawSettings);
   localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   applySettings(settings);
   toastr.success('Đã lưu cài đặt!');
