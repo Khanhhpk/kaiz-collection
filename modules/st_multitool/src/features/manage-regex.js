@@ -120,8 +120,8 @@ function renderRegexList($container, regexes, type) {
         <span class="st-multitool-manage-regex-name">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
       </div>
       <div class="st-multitool-manage-regex-actions">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download"><i data-lucide="download"></i> Tải xuống thành script regex</button>
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete">Xóa</button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành script regex"><i data-lucide="download"></i></button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa"><i data-lucide="trash-2"></i></button>
       </div>
     `;
     fragment.appendChild(div);

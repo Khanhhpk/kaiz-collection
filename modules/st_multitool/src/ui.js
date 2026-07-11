@@ -35,6 +35,7 @@ export function initUIElements() {
     manageRegexView: $('#st-multitool-manage-regex-view'),
     managePromptView: $('#st-multitool-manage-prompt-view'),
     overlay: $('#st-multitool-popup-overlay'),
+    body: $('#st-multitool-popup-body'),
   };
 
   $('#st-multitool-popup').off('click touchend', '.st-multitool-nav-tab').on('click touchend', '.st-multitool-nav-tab', function(e) {

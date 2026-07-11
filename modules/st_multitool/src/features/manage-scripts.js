@@ -113,8 +113,8 @@ function renderScriptList($container, scripts, type) {
         <span class="st-multitool-manage-script-name">${escapeHtml(script.name || 'Script chưa có tên')}</span>
       </div>
       <div class="st-multitool-manage-script-actions">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-download"><i data-lucide="download"></i> Tải xuống</button>
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-delete">Xóa</button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-download" title="Tải xuống"><i data-lucide="download"></i></button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-delete st-multitool-btn-danger" title="Xóa"><i data-lucide="trash-2"></i></button>
       </div>
     `;
     fragment.appendChild(div);
