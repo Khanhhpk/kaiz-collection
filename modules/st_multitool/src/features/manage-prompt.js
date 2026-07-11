@@ -67,7 +67,7 @@ export function initManagePrompt() {
   }
 
   const performSearch = () => {
-    const searchTerm = $('#st-multitool-prompt-search').val().toLowerCase();
+    const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
     
     // Tắt kéo thả khi đang tìm kiếm để tránh lỗi thứ tự
     const $sortableLists = $promptListContainer.find('.st-multitool-prompt-sortable-list');
@@ -79,32 +79,68 @@ export function initManagePrompt() {
       }
     }
 
-    if (searchTerm === '') {
-      const items = $promptListContainer[0].getElementsByClassName('st-multitool-wb-item');
-      for (let i = 0; i < items.length; i++) {
-        items[i].style.display = 'block';
-      }
-      return;
-    }
+    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const highlightRegex = searchTerm ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
+    
+    const safeHighlight = (text) => {
+      if (!text) return '';
+      if (!highlightRegex) return escapeHtml(text);
+      const parts = text.split(highlightRegex);
+      return parts.map((part, i) => {
+        if (i % 2 === 1) { // Captured match
+          return `<mark style="background-color: rgba(255, 255, 0, 0.4); color: inherit; border-radius: 2px;">${escapeHtml(part)}</mark>`;
+        }
+        return escapeHtml(part);
+      }).join('');
+    };
 
     $promptListContainer.find('.st-multitool-wb-item').each(function() {
-      let title = $(this).attr('data-search-title');
-      if (title == null) {
-        title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
-        $(this).attr('data-search-title', title);
+      const $item = $(this);
+      const $titleSpan = $item.find('.st-multitool-item-title-text');
+      const $textarea = $item.find('.st-multitool-prompt-content');
+      const $preview = $item.find('.st-multitool-highlight-preview');
+
+      if ($item.attr('data-orig-title') == null) {
+        $item.attr('data-orig-title', $titleSpan.text());
+        $item.attr('data-orig-desc', $item.find('.st-multitool-wb-item-desc').text());
       }
       
-      let desc = $(this).attr('data-search-desc');
-      if (desc == null) {
-        desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
-        $(this).attr('data-search-desc', desc);
+      const origTitle = $item.attr('data-orig-title');
+      const origDesc = $item.attr('data-orig-desc');
+      const content = $textarea.val();
+
+      if (searchTerm === '') {
+        $item.css('display', 'block');
+        $titleSpan.text(origTitle);
+        $preview.hide();
+        $textarea.show();
+        return;
       }
 
-      const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
-      if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
-        this.style.display = 'block';
+      const origTitleLower = origTitle.toLowerCase();
+      const origDescLower = origDesc.toLowerCase();
+      const contentLower = content.toLowerCase();
+
+      const isMatch = origTitleLower.includes(searchTerm) || origDescLower.includes(searchTerm) || contentLower.includes(searchTerm);
+
+      if (isMatch) {
+        $item.css('display', 'block');
+        
+        if (origTitleLower.includes(searchTerm)) {
+          $titleSpan.html(safeHighlight(origTitle));
+        } else {
+          $titleSpan.text(origTitle);
+        }
+
+        if (contentLower.includes(searchTerm) && !$textarea.is(':focus')) {
+          $preview.html(safeHighlight(content)).show();
+          $textarea.hide();
+        } else {
+          $preview.hide();
+          $textarea.show();
+        }
       } else {
-        this.style.display = 'none';
+        $item.css('display', 'none');
       }
     });
   };
@@ -204,7 +240,7 @@ export function renderPromptBlocks() {
             <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
               <i data-lucide="grip-vertical" style="width: 16px; height: 16px;"></i>
             </span>
-            <span class="st-multitool-wb-item-title" style="font-weight: 600;">${escapeHtml(block.name || 'Unnamed Block')}</span>
+            <span class="st-multitool-wb-item-title" style="font-weight: 600;"><span class="st-multitool-item-title-text">${escapeHtml(block.name || 'Unnamed Block')}</span></span>
             <span class="st-multitool-wb-item-desc">Role: ${escapeHtml(block.role || '')} | Depth: ${block.injection_depth} | ID: ${escapeHtml(block.identifier || '')}</span>
           </div>
           <div class="st-multitool-wb-item-controls">
@@ -253,9 +289,10 @@ export function renderPromptBlocks() {
           </div>
         </div>
 
-        <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px;">
-          <textarea class="st-multitool-input st-multitool-prompt-content" style="width: 100%; min-height: 80px; resize: vertical; font-family: monospace; padding: 10px; line-height: 1.4;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
-          </div>
+        <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px; position: relative;">
+          <textarea class="st-multitool-input st-multitool-prompt-content" style="width: 100%; min-height: 150px; resize: vertical; font-family: monospace; padding: 10px; line-height: 1.4;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
+          <div class="st-multitool-highlight-preview" title="Bấm để chỉnh sửa" style="display: none; width: 100%; min-height: 150px; font-family: monospace; padding: 10px; line-height: 1.4; border: 1px solid var(--st-multitool-border); border-radius: 5px; background: rgba(0,0,0,0.2); color: var(--st-multitool-text); white-space: pre-wrap; word-break: break-all; cursor: text;"></div>
+        </div>
         </div>
       </div>
     `;
@@ -296,24 +333,22 @@ export function renderPromptBlocks() {
     if ($(e.target).closest('.st-multitool-toggle-switch').length || $(e.target).closest('.st-multitool-drag-handle').length) return; // Ignore click on toggle switch or drag handle
     const $body = $(this).next('.st-multitool-accordion-body');
     const $icon = $(this).find('.st-multitool-accordion-icon');
-    $body.slideToggle(200, function() {
-      if ($(this).is(':visible')) {
-        $(this).find('textarea.st-multitool-prompt-content').each(function() {
-          this.style.height = 'auto';
-          this.style.height = (this.scrollHeight + 2) + 'px';
-        });
-      }
-    });
+    $body.slideToggle(200);
     $icon.css('transform', $body.is(':visible') ? 'rotate(180deg)' : 'rotate(0deg)');
   });
 
-  // Attach auto-resize to textareas
-  $promptListContainer.find('.st-multitool-prompt-content').each(function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight + 2) + 'px';
-  }).on('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight + 2) + 'px';
+  // Bind click on highlight preview to switch to edit mode
+  $promptListContainer.find('.st-multitool-highlight-preview').on('click', function() {
+    $(this).hide();
+    const $textarea = $(this).siblings('.st-multitool-prompt-content');
+    $textarea.show().focus();
+  });
+  
+  $promptListContainer.find('.st-multitool-prompt-content').on('blur', function() {
+    const searchTerm = $('#st-multitool-prompt-search').val().trim();
+    if (searchTerm !== '') {
+      performSearch(); // Re-highlight and show preview if search is active
+    }
   });
 
   // Handle manual toggle switch click (only save state, don't move between lists)
