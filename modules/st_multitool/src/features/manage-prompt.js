@@ -351,8 +351,13 @@ export function savePromptBlocks() {
       processItem($(this), false);
     });
 
-    // Cập nhật bộ nhớ (giữ nguyên logic gốc của commit cũ)
-    container.prompts = newPrompts;
+    // Cập nhật mảng trực tiếp để giữ nguyên reference của ST (Cực kỳ quan trọng để ST không đọc nhầm mảng cũ)
+    if (container.prompts && Array.isArray(container.prompts)) {
+      container.prompts.length = 0;
+      newPrompts.forEach(p => container.prompts.push(p));
+    } else {
+      container.prompts = newPrompts;
+    }
     
     // Check if it was ST 1.18.0 format originally
     if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0].order)) {
@@ -376,15 +381,33 @@ export function savePromptBlocks() {
       window.saveSettingsDebounced();
     }
     
-    // 1. Yêu cầu ST vẽ lại UI ngay lập tức
     if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
       const stContext = window.SillyTavern.getContext();
+      
+      // 1. Tạm thời khóa hàm lưu tự động gốc của ST để tránh xung đột đọc/ghi trong lúc render UI
+      let pm, originalSavePreset;
+      try {
+          if (typeof stContext.getPresetManager === 'function') {
+              pm = stContext.getPresetManager();
+              if (pm && typeof pm.savePreset === 'function') {
+                  originalSavePreset = pm.savePreset;
+                  pm.savePreset = async () => { console.log("ST Multitool: Đã chặn ST auto-save để nhường chỗ cho quá trình render đồng bộ."); };
+              }
+          }
+      } catch(e) {}
+
+      // 2. Yêu cầu ST vẽ lại UI ngay lập tức
       if (stContext && stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
         stContext.eventSource.emit('oai_preset_changed_after');
       }
       
-      // 2. Chờ giao diện render ổn định rồi mới gọi API lưu thật (Bypass ST auto-save)
+      // 3. Chờ giao diện render thật ổn định rồi mới gọi API lưu thật (Bypass ST auto-save)
       setTimeout(() => {
+        // Mở khóa lưu tự động của ST
+        if (pm && originalSavePreset) {
+            pm.savePreset = originalSavePreset;
+        }
+
         let presetName = container.preset_settings_openai || container.instruct_preset || container.name;
         if (!presetName) {
             const $sel = $('#settings_preset_openai');
@@ -435,7 +458,7 @@ export function savePromptBlocks() {
             body: JSON.stringify(payload)
           }).then(res => {
             if (!res.ok) console.error("ST Multitool: Lỗi HTTP " + res.status + " khi lưu preset");
-            else console.log("ST Multitool: Đã lưu Preset thành công lên Server sau khi đồng bộ UI.");
+            else console.log("ST Multitool: Đã lưu Preset thành công lên Server sau khi đồng bộ UI (" + presetName + ").");
           }).catch(err => {
             console.error("ST Multitool: Lỗi khi lưu preset qua API", err);
           });
@@ -444,7 +467,7 @@ export function savePromptBlocks() {
           const btn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset');
           if (btn && typeof btn.click === 'function') btn.click();
         }
-      }, 500);
+      }, 1500); // Tăng thời gian chờ lên 1.5 giây để ST hoàn thành render hoàn toàn
     }
 
     if (hasVarChanges) {
