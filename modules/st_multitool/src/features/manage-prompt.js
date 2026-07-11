@@ -11,26 +11,64 @@ export function initManagePrompt() {
 
   $('#st-multitool-manage-prompt-btn').on('click', () => {
     showSubView('st-multitool-manage-prompt-view');
-    renderPromptBlocks();
-    $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on open
-    if (window.lucide) {
-      window.lucide.createIcons();
-    }
+    showLoader();
+    
+    // Defer heavy DOM operations so the view and loader can render first
+    setTimeout(() => {
+      try {
+        renderPromptBlocks();
+        $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on open
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      } finally {
+        hideLoader();
+      }
+    }, 50);
   });
 
   $saveBtn.on('click', () => {
-    savePromptBlocks();
-    if (window.refreshPromptList) window.refreshPromptList();
+    showLoader();
+    setTimeout(() => {
+      try {
+        savePromptBlocks();
+        if (window.refreshPromptList) window.refreshPromptList();
+      } finally {
+        hideLoader();
+      }
+    }, 50);
   });
   
   $('#st-multitool-reset-prompt-btn').on('click', () => {
-    renderPromptBlocks();
-    $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on reset
-    toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
+    showLoader();
+    setTimeout(() => {
+      try {
+        renderPromptBlocks();
+        $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on reset
+        toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
+      } finally {
+        hideLoader();
+      }
+    }, 50);
   });
 
+  const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
+  if (autoSaveToggle.length) {
+    const isAutoSave = localStorage.getItem('st-multitool-auto-save-preset');
+    if (isAutoSave !== null) {
+      autoSaveToggle.prop('checked', isAutoSave === 'true');
+    } else {
+      autoSaveToggle.prop('checked', true); // Mặc định bật
+    }
+
+    autoSaveToggle.on('change', function() {
+      localStorage.setItem('st-multitool-auto-save-preset', $(this).prop('checked'));
+    });
+  }
+
   const performSearch = () => {
-    const searchTerm = $('#st-multitool-prompt-search').val().toLowerCase();
+    const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
+    const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
     
     // Tắt kéo thả khi đang tìm kiếm để tránh lỗi thứ tự
     const $sortableLists = $promptListContainer.find('.st-multitool-prompt-sortable-list');
@@ -42,14 +80,94 @@ export function initManagePrompt() {
       }
     }
 
+    if (searchTerm === '') {
+      if (!$promptListContainer.data('is-filtered')) return; // Already clean
+      
+      // Fast path restore display
+      const items = $promptListContainer[0].getElementsByClassName('st-multitool-wb-item');
+      for (let i = 0; i < items.length; i++) {
+        items[i].style.display = 'block';
+      }
+      
+      // Fast path restore text if previously highlighted
+      if ($promptListContainer.data('is-highlighted')) {
+        $promptListContainer.find('.st-multitool-wb-item').each(function() {
+          const $item = $(this);
+          const origTitle = $item.attr('data-orig-title');
+          if (origTitle != null) {
+            $item.find('.st-multitool-item-title-text').text(origTitle);
+          }
+          const $backdrop = $item.find('.st-multitool-highlight-backdrop');
+          const $textarea = $item.find('.st-multitool-prompt-content');
+          let content = $textarea.val();
+          if (content && content.endsWith('\n')) content += ' ';
+          $backdrop.text(content);
+        });
+        $promptListContainer.data('is-highlighted', false);
+      }
+      $promptListContainer.data('is-filtered', false);
+      return;
+    }
+
+    $promptListContainer.data('is-filtered', true);
+    if (enableHighlight) $promptListContainer.data('is-highlighted', true);
+
+    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const highlightRegex = enableHighlight ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
+    
+    const safeHighlight = (text, isBackdrop = true) => {
+      if (!text) return '';
+      if (!highlightRegex) return escapeHtml(text);
+      const parts = text.split(highlightRegex);
+      return parts.map((part, i) => {
+        if (i % 2 === 1) { // Captured match
+          const colorStyle = isBackdrop ? 'color: transparent;' : 'color: inherit;';
+          return `<mark style="background-color: rgba(255, 255, 0, 0.35); ${colorStyle} border-radius: 2px;">${escapeHtml(part)}</mark>`;
+        }
+        return escapeHtml(part);
+      }).join('');
+    };
+
     $promptListContainer.find('.st-multitool-wb-item').each(function() {
-      const title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
-      const desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
-      const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
-      if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
-        $(this).show();
+      const $item = $(this);
+      const $titleSpan = $item.find('.st-multitool-item-title-text');
+      const $textarea = $item.find('.st-multitool-prompt-content');
+
+      if ($item.attr('data-orig-title') == null) {
+        $item.attr('data-orig-title', $titleSpan.text());
+        $item.attr('data-orig-desc', $item.find('.st-multitool-wb-item-desc').text());
+      }
+      
+      const origTitle = $item.attr('data-orig-title');
+      const origDesc = $item.attr('data-orig-desc');
+      let content = $textarea.val();
+      if (content.endsWith('\n')) content += ' '; // Fix trailing newline for backdrop
+
+      const origTitleLower = origTitle.toLowerCase();
+      const origDescLower = origDesc.toLowerCase();
+      const contentLower = content.toLowerCase();
+
+      const isMatch = origTitleLower.includes(searchTerm) || origDescLower.includes(searchTerm) || contentLower.includes(searchTerm);
+
+      if (isMatch) {
+        $item.css('display', 'block');
+        
+        if (enableHighlight) {
+          if (origTitleLower.includes(searchTerm)) {
+            $titleSpan.html(safeHighlight(origTitle, false));
+          } else {
+            $titleSpan.text(origTitle);
+          }
+
+          const $backdrop = $item.find('.st-multitool-highlight-backdrop');
+          if (contentLower.includes(searchTerm)) {
+            $backdrop.html(safeHighlight(content, true));
+          } else {
+            $backdrop.text(content);
+          }
+        }
       } else {
-        $(this).hide();
+        $item.css('display', 'none');
       }
     });
   };
@@ -66,6 +184,14 @@ export function initManagePrompt() {
   
   $('#st-multitool-prompt-search-clear').on('click', function() {
     $('#st-multitool-prompt-search').val('').trigger('input');
+    performSearch();
+  });
+
+  const highlightToggle = $('#st-multitool-prompt-search-highlight-toggle');
+  const isHighlightEnabled = localStorage.getItem('st-multitool-prompt-search-highlight');
+  highlightToggle.prop('checked', isHighlightEnabled === null ? false : isHighlightEnabled === 'true'); // Mặc định tắt
+  highlightToggle.on('change', function() {
+    localStorage.setItem('st-multitool-prompt-search-highlight', $(this).prop('checked'));
     performSearch();
   });
 }
@@ -125,11 +251,8 @@ export function renderPromptBlocks() {
   
   if (Array.isArray(rawOrder) && rawOrder.length > 0) {
     if (typeof rawOrder[0] === 'object' && Array.isArray(rawOrder[0].order)) {
-      // ST 1.18.0 format: [ { character_id: ..., order: [...] } ]
-      const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
-      const charId = ctx.characterId;
-      let currentOrderObj = rawOrder.find(o => o.character_id === charId);
-      if (!currentOrderObj) currentOrderObj = rawOrder[0];
+      // Lấy trực tiếp order từ phần tử đầu tiên, bỏ qua character_id
+      let currentOrderObj = rawOrder[0];
       if (currentOrderObj && Array.isArray(currentOrderObj.order)) {
         promptOrder = currentOrderObj.order.map(item => item.identifier);
       }
@@ -152,7 +275,7 @@ export function renderPromptBlocks() {
             <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
               <i data-lucide="grip-vertical" style="width: 16px; height: 16px;"></i>
             </span>
-            <span class="st-multitool-wb-item-title" style="font-weight: 600;">${escapeHtml(block.name || 'Unnamed Block')}</span>
+            <span class="st-multitool-wb-item-title" style="font-weight: 600;"><span class="st-multitool-item-title-text">${escapeHtml(block.name || 'Unnamed Block')}</span></span>
             <span class="st-multitool-wb-item-desc">Role: ${escapeHtml(block.role || '')} | Depth: ${block.injection_depth} | ID: ${escapeHtml(block.identifier || '')}</span>
           </div>
           <div class="st-multitool-wb-item-controls">
@@ -166,6 +289,10 @@ export function renderPromptBlocks() {
         
         <div class="st-multitool-accordion-body" style="display: none; padding-top: 10px;">
           <div class="st-multitool-prompt-advanced-settings" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; font-size: 0.9em; border: 1px solid var(--st-multitool-border);">
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Name</label>
+              <input type="text" class="st-multitool-input st-prompt-name" value="${escapeHtml(block.name || 'Unnamed Block')}" style="width: 100%;">
+            </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
             <div style="flex: 1; min-width: 120px;">
               <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Position</label>
@@ -201,9 +328,12 @@ export function renderPromptBlocks() {
           </div>
         </div>
 
-        <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px;">
-          <textarea class="st-multitool-input st-multitool-prompt-content" style="width: 100%; min-height: 80px; resize: vertical; font-family: monospace; padding: 10px; line-height: 1.4;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
+        <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px; position: relative;">
+          <div class="st-multitool-textarea-container" style="position: relative; width: 100%;">
+            <div class="st-multitool-input st-multitool-highlight-backdrop" style="position: absolute; top: -1px; left: 0; width: 100%; height: 100%; padding: 10px; font-family: monospace; font-size: 13px; line-height: 1.5; letter-spacing: normal; color: transparent; background: transparent; border-color: transparent; white-space: pre-wrap; word-break: break-word; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; pointer-events: none; z-index: 1; resize: none; margin: 0;"></div>
+            <textarea class="st-multitool-input st-multitool-prompt-content" style="position: relative; width: 100%; min-height: 150px; resize: vertical; font-family: monospace; font-size: 13px; line-height: 1.5; letter-spacing: normal; background: transparent; color: var(--st-multitool-text); z-index: 2; box-sizing: border-box; caret-color: var(--st-multitool-text); margin: 0; overflow-y: auto; overflow-x: hidden; white-space: pre-wrap; word-break: break-word;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
           </div>
+        </div>
         </div>
       </div>
     `;
@@ -244,24 +374,53 @@ export function renderPromptBlocks() {
     if ($(e.target).closest('.st-multitool-toggle-switch').length || $(e.target).closest('.st-multitool-drag-handle').length) return; // Ignore click on toggle switch or drag handle
     const $body = $(this).next('.st-multitool-accordion-body');
     const $icon = $(this).find('.st-multitool-accordion-icon');
-    $body.slideToggle(200, function() {
-      if ($(this).is(':visible')) {
-        $(this).find('textarea.st-multitool-prompt-content').each(function() {
-          this.style.height = 'auto';
-          this.style.height = (this.scrollHeight + 2) + 'px';
-        });
-      }
-    });
+    $body.slideToggle(200);
     $icon.css('transform', $body.is(':visible') ? 'rotate(180deg)' : 'rotate(0deg)');
   });
 
-  // Attach auto-resize to textareas
-  $promptListContainer.find('.st-multitool-prompt-content').each(function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight + 2) + 'px';
+  // Sync scroll and input for backdrop highlight
+  const updateBackdrop = ($textarea) => {
+    let content = $textarea.val();
+    if (content.endsWith('\n')) content += ' '; // Fix trailing newline rendering in div
+    const $backdrop = $textarea.siblings('.st-multitool-highlight-backdrop');
+    
+    // Check if we need to highlight
+    const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
+    const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
+    if (searchTerm && enableHighlight && content.toLowerCase().includes(searchTerm)) {
+      const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const highlightRegex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+      const safeHighlight = (text) => {
+        if (!text) return '';
+        const parts = text.split(highlightRegex);
+        return parts.map((part, i) => {
+          if (i % 2 === 1) return `<mark style="background-color: rgba(255, 255, 0, 0.35); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          return escapeHtml(part);
+        }).join('');
+      };
+      $backdrop.html(safeHighlight(content));
+    } else {
+      $backdrop.text(content);
+    }
+    $backdrop.scrollTop($textarea.scrollTop());
+  };
+
+  $promptListContainer.find('.st-multitool-prompt-content').on('scroll', function() {
+    $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
   }).on('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight + 2) + 'px';
+    updateBackdrop($(this));
+  });
+  
+  // Initialize backdrops correctly on load
+  $promptListContainer.find('.st-multitool-prompt-content').each(function() {
+    updateBackdrop($(this));
+  });
+
+  $promptListContainer.find('.st-prompt-name').on('input', function() {
+    const newName = $(this).val() || 'Unnamed Block';
+    const $item = $(this).closest('.st-multitool-wb-item');
+    $item.find('.st-multitool-item-title-text').text(newName);
+    $item.attr('data-orig-title', newName); // Cập nhật luôn cho tính năng tìm kiếm
   });
 
   // Handle manual toggle switch click (only save state, don't move between lists)
@@ -294,7 +453,7 @@ export function savePromptBlocks() {
     toastr.error('Không tìm thấy cấu trúc Prompt AI trong hệ thống.');
     return;
   }
-  showLoader();
+  
   try {
     const { renames, valuesBySource } = getPendingVarChanges();
     const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(valuesBySource || {}).length > 0;
@@ -325,6 +484,7 @@ export function savePromptBlocks() {
 
       const newBlock = {
         ...originalBlock,
+        name: $item.find('.st-prompt-name').val() || 'Unnamed Block',
         enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
         content: content,
         injection_position: parseInt($item.find('.st-prompt-pos').val(), 10) || 0,
@@ -346,7 +506,6 @@ export function savePromptBlocks() {
         }
       }
     };
-
     $('#st-multitool-prompt-list-active .st-multitool-wb-item').each(function() {
       processItem($(this), true);
     });
@@ -355,7 +514,13 @@ export function savePromptBlocks() {
       processItem($(this), false);
     });
 
-    container.prompts = newPrompts;
+    // 1. Cập nhật mảng trực tiếp vào bộ nhớ tạm của ST
+    if (container.prompts && Array.isArray(container.prompts)) {
+      container.prompts.length = 0;
+      newPrompts.forEach(p => container.prompts.push(p));
+    } else {
+      container.prompts = newPrompts;
+    }
     
     // Check if it was ST 1.18.0 format originally
     if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0].order)) {
@@ -366,8 +531,6 @@ export function savePromptBlocks() {
       if (!targetOrderObj) targetOrderObj = container.prompt_order.length > 0 ? container.prompt_order[0] : null;
 
       if (targetOrderObj) {
-        // newPromptOrder currently has [{identifier: '...'}, ...] from processItem
-        // We need to map it to {enabled: true/false, identifier: '...'}
         targetOrderObj.order = newPromptOrder.map(item => {
            const promptBlock = newPrompts.find(p => p.identifier === item.identifier);
            return { enabled: promptBlock ? promptBlock.enabled : true, identifier: item.identifier };
@@ -376,22 +539,47 @@ export function savePromptBlocks() {
     } else {
       container.prompt_order = newPromptOrder;
     }
-
-    if (typeof window.saveSettingsDebounced === 'function') {
-      window.saveSettingsDebounced();
-    }
     
-    // Yêu cầu ST vẽ lại UI
+    // 2. Yêu cầu ST vẽ lại UI từ bộ nhớ tạm ra màn hình
     if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
       const stContext = window.SillyTavern.getContext();
+      
       if (stContext && stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
         stContext.eventSource.emit('oai_preset_changed_after');
       }
+      
+      // 3. Chờ 1.5 giây để ST hoàn tất việc vẽ UI mới
+      setTimeout(() => {
+        const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
+        const shouldAutoSave = autoSaveToggle.length ? autoSaveToggle.prop('checked') : true;
+
+        if (shouldAutoSave) {
+          // 4. Bấm nút lưu gốc của ST (Lưu từ màn hình xuống ổ cứng và chốt lớp tạm)
+          const saveBtn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset') || document.querySelector('#preset_save_button');
+          if (saveBtn && typeof saveBtn.click === 'function') {
+              saveBtn.click();
+              console.log("ST Multitool: Đã kích hoạt nút Lưu mặc định của ST để đồng bộ cả bộ nhớ tạm lẫn ổ cứng.");
+          } else {
+              console.warn("ST Multitool: Không tìm thấy nút Lưu mặc định của ST, chỉ gọi hàm saveSettingsDebounced.");
+          }
+        } else {
+          console.log("ST Multitool: Bỏ qua kích hoạt nút Lưu mặc định của ST do người dùng tắt tuỳ chọn đồng bộ file gốc.");
+        }
+        
+        // Cũng gọi lưu settings.json phòng hờ (để chốt lớp tạm vào bộ nhớ của user)
+        if (stContext && typeof stContext.saveSettingsDebounced === 'function') {
+            stContext.saveSettingsDebounced();
+            console.log("ST Multitool: Đã gọi stContext.saveSettingsDebounced() để lưu lớp tạm.");
+        } else if (typeof window.saveSettingsDebounced === 'function') {
+            window.saveSettingsDebounced();
+            console.log("ST Multitool: Đã gọi window.saveSettingsDebounced() để lưu lớp tạm.");
+        }
+      }, 1500);
     }
 
     if (hasVarChanges) {
       clearPendingVarChanges();
-      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt');
+      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
       if (window.lucide) window.lucide.createIcons();
       refreshVarInspector();
       renderPromptBlocks();
@@ -401,7 +589,5 @@ export function savePromptBlocks() {
   } catch (err) {
     console.error(err);
     toastr.error('Lưu thất bại: ' + err.message);
-  } finally {
-    hideLoader();
   }
 }

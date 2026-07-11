@@ -117,8 +117,8 @@ export async function renderManageWorldbookList() {
           <span class="st-multitool-manage-wb-name">${escapeHtml(book.name)}</span>
         </div>
         <div class="st-multitool-manage-wb-actions">
-          <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-wb-download"><i data-lucide="download"></i> Tải xuống</button>
-          <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-wb-delete">Xóa</button>
+          <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-wb-download" title="Tải xuống"><i data-lucide="download"></i></button>
+          <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-wb-delete st-multitool-btn-danger" title="Xóa"><i data-lucide="trash-2"></i></button>
         </div>
       `;
       fragment.appendChild(div);

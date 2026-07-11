@@ -35,6 +35,7 @@ export function initUIElements() {
     manageRegexView: $('#st-multitool-manage-regex-view'),
     managePromptView: $('#st-multitool-manage-prompt-view'),
     overlay: $('#st-multitool-popup-overlay'),
+    body: $('#st-multitool-popup-body'),
   };
 
   $('#st-multitool-popup').off('click touchend', '.st-multitool-nav-tab').on('click touchend', '.st-multitool-nav-tab', function(e) {
@@ -74,7 +75,9 @@ export function showPopup() {
   }
 }
 
-export function showMainView() {
+let _mainViewScrollPos = 0;
+
+export function showMainView(isBack = false) {
   elements.mainView.show();
   [
     elements.selectView,
@@ -98,15 +101,18 @@ export function showMainView() {
   $('#st-multitool-preset-list-container').hide();
   renderPresets(false);
 
-  // Reset Dashboard V2 tabs & card visibility
-  $('.st-multitool-nav-tab').removeClass('active');
-  $('.st-multitool-nav-tab[data-filter="all"]').addClass('active');
-  $('.st-multitool-dash-card').css('display', 'flex');
+  // Do not reset Dashboard V2 tabs & card visibility here anymore 
+  // so that when user clicks back, they stay on the current tab.
 
   $('#st-multitool-header-title').html('<i data-lucide="layout-dashboard" style="margin-right: 8px; vertical-align: -2px;"></i> ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
-  setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 100);
+  setTimeout(() => { 
+    if(window.lucide) window.lucide.createIcons(); 
+    if (isBack && elements.body) {
+      elements.body.scrollTop(_mainViewScrollPos);
+    }
+  }, 100);
 
   const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
   if (isCharacterSelected) {
@@ -119,6 +125,9 @@ export function showMainView() {
 }
 
 export async function showSubView(viewId) {
+  if (elements.body && elements.mainView.is(':visible')) {
+    _mainViewScrollPos = elements.body.scrollTop();
+  }
   elements.mainView.hide();
   [
     elements.selectView,
@@ -171,7 +180,7 @@ export async function showSubView(viewId) {
   if (viewId === 'st-multitool-frontend-view') title = '<i data-lucide="monitor" style="margin-right: 8px; vertical-align: -2px;"></i> Trình đồng bộ frontend';
   if (viewId === 'st-multitool-script-sync-view') title = '<i data-lucide="terminal" style="margin-right: 8px; vertical-align: -2px;"></i> Trình đồng bộ script';
   if (viewId === 'st-multitool-create-regex-view') {
-    title = '<i data-lucide="file-plus-2" style="margin-right: 8px; vertical-align: -2px;"></i> Tạo script regex';
+    title = '<i data-lucide="file-plus-2" style="margin-right: 8px; vertical-align: -2px;"></i> Tạo regex';
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
       $('#st-multitool-cr-import-character-btn').show();
@@ -212,7 +221,7 @@ export async function showSubView(viewId) {
     $('#st-multitool-manage-script-refresh-btn').hide();
   }
   if (viewId === 'st-multitool-manage-regex-view') {
-    title = '<i data-lucide="filter" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý script regex';
+    title = '<i data-lucide="filter" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý regex';
     renderManageRegexLists();
     restoreRegexCardStates();
     $('#st-multitool-manage-regex-refresh-btn').show();

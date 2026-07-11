@@ -54,10 +54,10 @@
             <i data-lucide="cpu"></i> Script Trợ lý
           </button>
           <button class="st-multitool-nav-tab" data-filter="regex">
-            <i data-lucide="filter"></i> Script Regex
+            <i data-lucide="filter"></i> Regex
           </button>
           <button class="st-multitool-nav-tab" data-filter="prompt">
-            <i data-lucide="bot"></i> Prompt AI
+            <i data-lucide="bot"></i> Preset
           </button>
           <button class="st-multitool-nav-tab" data-filter="sync">
             <i data-lucide="settings-2"></i> Đồng bộ & Tiện ích
@@ -185,7 +185,7 @@
             <div class="st-multitool-dash-card-header">
               <div class="st-multitool-card-icon regex"><i data-lucide="code"></i></div>
               <div class="st-multitool-card-title-wrap">
-                <h4>Script Regex</h4>
+                <h4>Regex</h4>
                 <span class="st-multitool-card-tag">Xử lý văn bản</span>
               </div>
             </div>
@@ -297,7 +297,7 @@
       <div id="st-multitool-create-regex-view" class="st-multitool-section" style="display: none; height: 100%">
         <div class="st-multitool-section-header">
           <h4>
-            <i data-lucide="code"></i> Tạo script regex
+            <i data-lucide="code"></i> Tạo regex
             <i
               class="fa-solid fa-chevron-up st-multitool-collapse-icon"
               style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"
@@ -306,7 +306,7 @@
         </div>
         <div class="st-multitool-section-content">
           <div class="st-multitool-controls-box" style="border-style: dashed">
-            <span class="st-multitool-batch-title">Thiết lập script regex:</span>
+            <span class="st-multitool-batch-title">Thiết lập regex:</span>
             <div class="st-multitool-row">
               <div class="st-multitool-group" style="flex: 1">
                 <span class="st-multitool-label">Tên script:</span>
@@ -406,7 +406,7 @@
               <button id="st-multitool-cr-import-global-btn" class="st-multitool-button">Nhập vào regex toàn cục</button>
               <button id="st-multitool-cr-import-preset-btn" class="st-multitool-button">Nhập vào regex preset</button>
               <button id="st-multitool-cr-import-character-btn" class="st-multitool-button">Nhập vào regex cục bộ</button>
-              <button id="st-multitool-cr-download-btn" class="st-multitool-button st-multitool-btn-primary"><i data-lucide="download"></i> Tải xuống thành script regex</button>
+              <button id="st-multitool-cr-download-btn" class="st-multitool-button st-multitool-btn-primary"><i data-lucide="download"></i> Tải xuống thành regex</button>
             </div>
           </div>
         </div>
@@ -1192,7 +1192,7 @@
         <div class="st-multitool-section" style="flex: 1; min-height: 0;">
           <div class="st-multitool-section-header">
             <h4>
-              <i data-lucide="code"></i> Quản lý script regex
+              <i data-lucide="code"></i> Quản lý regex
               <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
             </h4>
           </div>
@@ -1294,12 +1294,12 @@
               </div>
             </div>
             <div style="margin-top: 10px;">
-              <span class="st-multitool-label">Cắt bỏ:</span>
-              <textarea id="st-multitool-manage-regex-trim-strings" class="st-multitool-textarea" rows="2" style="width: 100%;" placeholder="Cắt toàn cục các phần không cần thiết trong kết quả khớp regex trước khi thay thế. Mỗi mục cách nhau bằng xuống dòng."></textarea>
-            </div>
-            <div style="margin-top: 10px;">
               <span class="st-multitool-label">Thay bằng:</span>
               <textarea id="st-multitool-manage-regex-replace-string" class="st-multitool-textarea" rows="4" style="width: 100%; font-family: monospace;"></textarea>
+            </div>
+            <div style="margin-top: 10px;">
+              <span class="st-multitool-label">Cắt bỏ:</span>
+              <textarea id="st-multitool-manage-regex-trim-strings" class="st-multitool-textarea" rows="2" style="width: 100%;" placeholder="Cắt toàn cục các phần không cần thiết trong kết quả khớp regex trước khi thay thế. Mỗi mục cách nhau bằng xuống dòng."></textarea>
             </div>
             <div style="margin-top: 10px;">
               <button id="st-multitool-manage-regex-render-btn" class="st-multitool-button st-multitool-btn-small"><i data-lucide="eye"></i> Render</button>
@@ -1356,14 +1356,14 @@
             <div class="st-multitool-row">
                 <label class="st-multitool-checkbox-label">
                     <input type="checkbox" id="st-multitool-setting-manage-regex-collapsed" />
-                    Mặc định thu gọn thẻ quản lý script regex
+                    Mặc định thu gọn thẻ quản lý regex
                 </label>
             </div>
           </div>
         </div>
       </div>
 
-      <div id="st-multitool-manage-prompt-view" class="st-multitool-section" style="display: none; height: 100%">
+      <div id="st-multitool-manage-prompt-view" style="display: none; height: 100%; display: flex; flex-direction: column;">
         <div class="st-multitool-section-desc">
           Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
         </div>
@@ -1376,18 +1376,30 @@
             <i data-lucide="search"></i>
           </button>
         </div>
-        <div class="st-multitool-search-container" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 10px;">
-          <button id="st-multitool-save-prompt-btn" class="st-multitool-btn-hero primary" style="flex: 1;">
-            <i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt
+        <div style="margin-top: 8px;">
+            <label class="st-multitool-checkbox-label" style="font-size: 13px; color: var(--st-multitool-text-muted);">
+                <input type="checkbox" id="st-multitool-prompt-search-highlight-toggle"> Bật chế độ Highlight văn bản (Gây giật lag nếu văn bản quá lớn)
+            </label>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+          <button id="st-multitool-save-prompt-btn" class="st-multitool-btn-hero primary" style="flex: 1; min-width: 120px; padding: 8px 12px; min-height: 36px; font-size: 13px;">
+            <i data-lucide="save"></i> Lưu Preset
           </button>
-          <button id="st-multitool-reset-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1);" title="Hoàn tác tất cả các thay đổi chưa lưu">
-            <i data-lucide="rotate-ccw"></i> Hoàn tác (Undo)
+          <button id="st-multitool-reset-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Hoàn tác">
+            <i data-lucide="rotate-ccw"></i>
           </button>
+          <button id="st-multitool-var-inspector-btn" class="st-multitool-btn-hero" style="flex: 1; min-width: 140px; background: linear-gradient(135deg, rgba(0,230,184,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(0,230,184,0.3); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Quét và hiển thị biến trong preset">
+            <i data-lucide="search-code"></i> Quét Biến
+          </button>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 12px; color: #ccc;" title="Đồng bộ lưu file gốc">Đồng bộ</span>
+            <label class="st-multitool-toggle-switch" style="margin: 0; transform: scale(0.85); transform-origin: right center;" title="Đồng bộ lưu file gốc">
+              <input type="checkbox" id="st-multitool-auto-save-preset-toggle" checked>
+              <span class="st-multitool-toggle-slider"></span>
+            </label>
+          </div>
         </div>
         <div style="margin-bottom: 12px; flex-shrink: 0;">
-          <button id="st-multitool-var-inspector-btn" class="st-multitool-btn-hero" style="width: 100%; background: linear-gradient(135deg, rgba(0,230,184,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(0,230,184,0.3);" title="Quét và hiển thị biến setvar/getvar trong preset">
-            <i data-lucide="search-code"></i> Variable Inspector – Quét biến trong Preset
-          </button>
           <div id="st-multitool-var-inspector-panel" style="display: none; margin-top: 10px;">
             <div id="st-multitool-var-inspector-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
               <div style="flex: 1; position: relative; display: flex; align-items: center;">

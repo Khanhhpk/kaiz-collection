@@ -113,8 +113,8 @@ function renderScriptList($container, scripts, type) {
         <span class="st-multitool-manage-script-name">${escapeHtml(script.name || 'Script chưa có tên')}</span>
       </div>
       <div class="st-multitool-manage-script-actions">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-download"><i data-lucide="download"></i> Tải xuống</button>
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-delete">Xóa</button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-download" title="Tải xuống"><i data-lucide="download"></i></button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-script-delete st-multitool-btn-danger" title="Xóa"><i data-lucide="trash-2"></i></button>
       </div>
     `;
     fragment.appendChild(div);
@@ -150,7 +150,7 @@ async function openScriptEditPanel(scriptId, type) {
     $('#st-multitool-manage-script-id').val(script.id);
     $('#st-multitool-manage-script-name').val(script.name || '');
     $('#st-multitool-manage-script-content').val(script.content || '');
-    $('#st-multitool-manage-script-info').val(script.info || '');
+    $('#st-multitool-manage-script-info').val(script.authorNote || script.note || script.info || '');
     $('#st-multitool-manage-script-enabled').prop('checked', script.enabled !== false);
 
     $manageScriptEditPanel.show();
@@ -175,13 +175,14 @@ async function handleSaveScript() {
       if (script) {
         script.name = $('#st-multitool-manage-script-name').val();
         script.content = $('#st-multitool-manage-script-content').val();
-        script.info = $('#st-multitool-manage-script-info').val();
+        script.authorNote = $('#st-multitool-manage-script-info').val();
+        script.info = script.authorNote;
         script.enabled = $('#st-multitool-manage-script-enabled').is(':checked');
       }
       return scripts;
     }, { type: currentScriptType });
 
-    toastr.success('Lưu thành công!');
+    toastr.success('Lưu thành công! (Vui lòng tải lại trang/F5 để thẻ gốc hiển thị thay đổi)');
     hideScriptEditPanel();
     renderManageScriptLists();
   } catch (e) {

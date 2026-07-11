@@ -929,10 +929,15 @@
     align-items: stretch;
   }
 
-  .st-multitool-button {
+  .st-multitool-button:not(.st-multitool-btn-small) {
     justify-content: center;
     width: 100%;
     text-align: center;
+  }
+  
+  .st-multitool-button.st-multitool-btn-small {
+    width: auto;
+    flex: 0 0 auto;
   }
 
   .st-multitool-cards-grid {
@@ -972,7 +977,7 @@
   .st-multitool-manage-entry-actions,
   .st-multitool-manage-script-actions,
   .st-multitool-manage-regex-actions {
-    width: 100%;
+    /* Allow them to stay on the same line if possible */
     justify-content: flex-end;
   }
 }
