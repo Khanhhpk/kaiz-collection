@@ -343,7 +343,6 @@ export function savePromptBlocks() {
         }
       }
     };
-
     $('#st-multitool-prompt-list-active .st-multitool-wb-item').each(function() {
       processItem($(this), true);
     });
@@ -352,22 +351,18 @@ export function savePromptBlocks() {
       processItem($(this), false);
     });
 
-    // Cập nhật mảng trực tiếp để giữ nguyên reference của ST
-    if (container.prompts && Array.isArray(container.prompts)) {
-      container.prompts.length = 0;
-      newPrompts.forEach(p => container.prompts.push(p));
-    } else {
-      container.prompts = newPrompts;
-    }
+    // Cập nhật bộ nhớ (giữ nguyên logic gốc của commit cũ)
+    container.prompts = newPrompts;
     
     // Check if it was ST 1.18.0 format originally
     if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0].order)) {
-      // Ghi đè trực tiếp vào phần tử đầu tiên, bỏ qua character_id
-      let targetOrderObj = container.prompt_order[0];
+      const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
+      const charId = ctx.characterId;
+      
+      let targetOrderObj = container.prompt_order.find(o => o.character_id === charId);
+      if (!targetOrderObj) targetOrderObj = container.prompt_order.length > 0 ? container.prompt_order[0] : null;
 
       if (targetOrderObj) {
-        // newPromptOrder currently has [{identifier: '...'}, ...] from processItem
-        // We need to map it to {enabled: true/false, identifier: '...'}
         targetOrderObj.order = newPromptOrder.map(item => {
            const promptBlock = newPrompts.find(p => p.identifier === item.identifier);
            return { enabled: promptBlock ? promptBlock.enabled : true, identifier: item.identifier };
@@ -381,32 +376,19 @@ export function savePromptBlocks() {
       window.saveSettingsDebounced();
     }
     
-    // Gửi thẳng cục dữ liệu lên API lưu preset của SillyTavern (Bỏ qua hoàn toàn giao diện)
+    // 1. Yêu cầu ST vẽ lại UI ngay lập tức
     if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
       const stContext = window.SillyTavern.getContext();
-      const container = getPromptContainer();
+      if (stContext && stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
+        stContext.eventSource.emit('oai_preset_changed_after');
+      }
       
-      const triggerUIUpdate = () => {
-        // CỰC KỲ QUAN TRỌNG: Không được dùng emit('oai_preset_changed')!
-        // Sự kiện đó sẽ kích hoạt hàm auto-save gốc của SillyTavern.
-        // Hàm gốc của ST sẽ đọc dữ liệu từ các ô nhập liệu cũ (chưa cập nhật) trên giao diện của ST,
-        // sau đó gửi đè lên server, làm mất toàn bộ dữ liệu ta vừa fetch xong!
-        console.log("ST Multitool: Đã lưu Preset thành công lên Server (Bypass ST Auto-save).");
-        
-        // Cập nhật giao diện ST gốc một cách an toàn
-        if (stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
-            stContext.eventSource.emit('oai_preset_changed_after');
-        }
-      };
-
-      if (container) {
-        // Tìm tên Preset hiện hành chính xác nhất
+      // 2. Chờ giao diện render ổn định rồi mới gọi API lưu thật (Bypass ST auto-save)
+      setTimeout(() => {
         let presetName = container.preset_settings_openai || container.instruct_preset || container.name;
-        
         if (!presetName) {
-            const $sel = $('#settings_preset_openai option:selected');
+            const $sel = $('#settings_preset_openai');
             if ($sel.length) {
-                // Trong ST 1.12+, value thường là số ID (ví dụ "75"), text mới là tên preset
                 const text = $sel.text();
                 const val = $sel.val();
                 presetName = (val && !/^\d+$/.test(val)) ? val : text;
