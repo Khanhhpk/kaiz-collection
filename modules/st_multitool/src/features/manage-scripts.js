@@ -150,7 +150,7 @@ async function openScriptEditPanel(scriptId, type) {
     $('#st-multitool-manage-script-id').val(script.id);
     $('#st-multitool-manage-script-name').val(script.name || '');
     $('#st-multitool-manage-script-content').val(script.content || '');
-    $('#st-multitool-manage-script-info').val(script.info || '');
+    $('#st-multitool-manage-script-info').val(script.authorNote || script.note || script.info || '');
     $('#st-multitool-manage-script-enabled').prop('checked', script.enabled !== false);
 
     $manageScriptEditPanel.show();
@@ -175,7 +175,8 @@ async function handleSaveScript() {
       if (script) {
         script.name = $('#st-multitool-manage-script-name').val();
         script.content = $('#st-multitool-manage-script-content').val();
-        script.info = $('#st-multitool-manage-script-info').val();
+        script.authorNote = $('#st-multitool-manage-script-info').val();
+        script.info = script.authorNote;
         script.enabled = $('#st-multitool-manage-script-enabled').is(':checked');
       }
       return scripts;

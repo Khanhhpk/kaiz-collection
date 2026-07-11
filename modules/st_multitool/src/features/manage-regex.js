@@ -117,7 +117,7 @@ function renderRegexList($container, regexes, type) {
     div.innerHTML = `
       <div class="st-multitool-manage-regex-info">
         <input type="checkbox" class="st-multitool-manage-regex-enabled" ${regex.enabled !== false ? 'checked' : ''}>
-        <span class="st-multitool-manage-regex-name">${escapeHtml(regex.scriptName || regex.script_name || 'Regex chưa có tên')}</span>
+        <span class="st-multitool-manage-regex-name">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
       </div>
       <div class="st-multitool-manage-regex-actions">
         <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành script regex"><i data-lucide="download"></i></button>
@@ -163,22 +163,21 @@ async function openRegexEditPanel(regexId, type) {
     currentRegexId = regexId;
     currentRegexType = type;
 
-    $('#st-multitool-manage-regex-id').val(regex.id);
-    $('#st-multitool-manage-regex-script-name').val(regex.scriptName || regex.script_name || '');
-    $('#st-multitool-manage-regex-find-regex').val(regex.findRegex || regex.find_regex || '');
-    $('#st-multitool-manage-regex-replace-string').val(regex.replaceString !== undefined ? regex.replaceString : (regex.replace_string || ''));
+    $('#st-multitool-manage-regex-script-name').val(regex.script_name || '');
+    $('#st-multitool-manage-regex-find-regex').val(regex.find_regex || '');
+    $('#st-multitool-manage-regex-replace-string').val(regex.replace_string || '');
     
-    let trimStringsArr = regex.trimStrings || regex.trim_strings || [];
+    let trimStringsArr = regex.trim_strings || [];
     if (!Array.isArray(trimStringsArr) && typeof trimStringsArr === 'string') {
       trimStringsArr = [trimStringsArr];
     }
     $('#st-multitool-manage-regex-trim-strings').val(Array.isArray(trimStringsArr) ? trimStringsArr.join('\n') : '');
 
     $('#st-multitool-manage-regex-enabled').prop('checked', regex.enabled !== false);
-    $('#st-multitool-manage-regex-run-on-edit').prop('checked', regex.runOnEdit || regex.run_on_edit || false);
-    $('#st-multitool-manage-regex-substitute-regex').val(regex.substituteRegex || regex.substitute_regex || 0);
-    $('#st-multitool-manage-regex-min-depth').val(regex.minDepth || regex.min_depth || '');
-    $('#st-multitool-manage-regex-max-depth').val(regex.maxDepth || regex.max_depth || '');
+    $('#st-multitool-manage-regex-run-on-edit').prop('checked', regex.run_on_edit || false);
+    $('#st-multitool-manage-regex-substitute-regex').val(regex.substitute_regex || 0);
+    $('#st-multitool-manage-regex-min-depth').val(regex.min_depth || '');
+    $('#st-multitool-manage-regex-max-depth').val(regex.max_depth || '');
 
     $('.st-multitool-manage-regex-placement-cb').prop('checked', false);
     if (regex.source) {
@@ -219,16 +218,16 @@ async function handleSaveRegex() {
     await updateTavernRegexesWith(regexes => {
       const regex = regexes.find(r => r.id === currentRegexId);
       if (regex) {
-        regex.scriptName = $('#st-multitool-manage-regex-script-name').val();
-        regex.findRegex = $('#st-multitool-manage-regex-find-regex').val();
-        regex.replaceString = $('#st-multitool-manage-regex-replace-string').val();
+        regex.script_name = $('#st-multitool-manage-regex-script-name').val();
+        regex.find_regex = $('#st-multitool-manage-regex-find-regex').val();
+        regex.replace_string = $('#st-multitool-manage-regex-replace-string').val();
         const trimRaw = $('#st-multitool-manage-regex-trim-strings').val() || '';
-        regex.trimStrings = trimRaw.split('\n').map(s => s.trim()).filter(s => s !== '');
+        regex.trim_strings = trimRaw.split('\n').map(s => s.trim()).filter(s => s !== '');
         regex.enabled = $('#st-multitool-manage-regex-enabled').is(':checked');
-        regex.runOnEdit = $('#st-multitool-manage-regex-run-on-edit').is(':checked');
-        regex.substituteRegex = parseInt($('#st-multitool-manage-regex-substitute-regex').val()) || 0;
-        regex.minDepth = $('#st-multitool-manage-regex-min-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-min-depth').val()) : null;
-        regex.maxDepth = $('#st-multitool-manage-regex-max-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-max-depth').val()) : null;
+        regex.run_on_edit = $('#st-multitool-manage-regex-run-on-edit').is(':checked');
+        regex.substitute_regex = parseInt($('#st-multitool-manage-regex-substitute-regex').val()) || 0;
+        regex.min_depth = $('#st-multitool-manage-regex-min-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-min-depth').val()) : null;
+        regex.max_depth = $('#st-multitool-manage-regex-max-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-max-depth').val()) : null;
 
         regex.source = {
           user_input: $('.st-multitool-manage-regex-placement-cb[value="1"]').is(':checked'),
