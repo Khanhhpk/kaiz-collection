@@ -11,11 +11,20 @@ export function initManagePrompt() {
 
   $('#st-multitool-manage-prompt-btn').on('click', () => {
     showSubView('st-multitool-manage-prompt-view');
-    renderPromptBlocks();
-    $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on open
-    if (window.lucide) {
-      window.lucide.createIcons();
-    }
+    showLoader();
+    
+    // Defer heavy DOM operations so the view and loader can render first
+    setTimeout(() => {
+      try {
+        renderPromptBlocks();
+        $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on open
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      } finally {
+        hideLoader();
+      }
+    }, 50);
   });
 
   $saveBtn.on('click', () => {
