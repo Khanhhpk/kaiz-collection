@@ -180,7 +180,7 @@ export async function showSubView(viewId) {
   if (viewId === 'st-multitool-frontend-view') title = '<i data-lucide="monitor" style="margin-right: 8px; vertical-align: -2px;"></i> Trình đồng bộ frontend';
   if (viewId === 'st-multitool-script-sync-view') title = '<i data-lucide="terminal" style="margin-right: 8px; vertical-align: -2px;"></i> Trình đồng bộ script';
   if (viewId === 'st-multitool-create-regex-view') {
-    title = '<i data-lucide="file-plus-2" style="margin-right: 8px; vertical-align: -2px;"></i> Tạo script regex';
+    title = '<i data-lucide="file-plus-2" style="margin-right: 8px; vertical-align: -2px;"></i> Tạo regex';
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
       $('#st-multitool-cr-import-character-btn').show();
@@ -221,7 +221,7 @@ export async function showSubView(viewId) {
     $('#st-multitool-manage-script-refresh-btn').hide();
   }
   if (viewId === 'st-multitool-manage-regex-view') {
-    title = '<i data-lucide="filter" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý script regex';
+    title = '<i data-lucide="filter" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý regex';
     renderManageRegexLists();
     restoreRegexCardStates();
     $('#st-multitool-manage-regex-refresh-btn').show();

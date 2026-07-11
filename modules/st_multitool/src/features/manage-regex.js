@@ -105,7 +105,7 @@ export async function renderManageRegexLists() {
 
 function renderRegexList($container, regexes, type) {
   if (regexes.length === 0) {
-    $container.html('<div class="st-multitool-empty-msg">Không có script regex.</div>');
+    $container.html('<div class="st-multitool-empty-msg">Không có regex.</div>');
     return;
   }
 
@@ -120,7 +120,7 @@ function renderRegexList($container, regexes, type) {
         <span class="st-multitool-manage-regex-name">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
       </div>
       <div class="st-multitool-manage-regex-actions">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành script regex"><i data-lucide="download"></i></button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành regex"><i data-lucide="download"></i></button>
         <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa"><i data-lucide="trash-2"></i></button>
       </div>
     `;
@@ -246,7 +246,7 @@ async function handleSaveRegex() {
       return regexes;
     }, targetOpt);
 
-    toastr.success('Lưu thành công!');
+    toastr.success('Lưu thành công! (Vui lòng tải lại trang/F5 để thẻ gốc hiển thị thay đổi)');
     hideRegexEditPanel();
     renderManageRegexLists();
   } catch (e) {
@@ -302,7 +302,7 @@ function handleRenderToFrontend() {
 }
 
 async function deleteRegex(regexId, type) {
-  if (!confirm('Xác nhận xóa script regex này?')) return;
+  if (!confirm('Xác nhận xóa regex này?')) return;
 
   try {
     let targetOpt = { type: type };
@@ -329,7 +329,7 @@ async function downloadRegex(regexId, type) {
 
     const regexes = await getTavernRegexes(targetOpt) || [];
     const regex = regexes.find(r => r.id === regexId);
-    if (!regex) return toastr.error('Không tìm thấy script regex');
+    if (!regex) return toastr.error('Không tìm thấy regex');
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(regex, null, 2));
     const downloadAnchorNode = document.createElement('a');

@@ -182,7 +182,7 @@ async function handleSaveScript() {
       return scripts;
     }, { type: currentScriptType });
 
-    toastr.success('Lưu thành công!');
+    toastr.success('Lưu thành công! (Vui lòng tải lại trang/F5 để thẻ gốc hiển thị thay đổi)');
     hideScriptEditPanel();
     renderManageScriptLists();
   } catch (e) {

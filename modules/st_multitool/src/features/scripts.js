@@ -149,7 +149,7 @@ export function initScripts() {
           return regexes;
         }, targetOpt);
         toastr.success(
-          `Nhập thành công vào ${currentRegexImportTarget === 'global' ? 'Toàn cục' : currentRegexImportTarget === 'preset' ? 'Preset' : 'Cục bộ'} script regex!`,
+          `Nhập thành công vào ${currentRegexImportTarget === 'global' ? 'Toàn cục' : currentRegexImportTarget === 'preset' ? 'Preset' : 'Cục bộ'} regex!`,
         );
         $mainImportRegexOptions.slideUp();
       } catch (err) {
@@ -431,7 +431,7 @@ export async function handleRegexImport(prefix, targetType, cardId = null) {
       targetOpt,
     );
     const typeName = targetType === 'global' ? 'Toàn cục' : targetType === 'preset' ? 'Preset' : 'Cục bộ';
-    toastr.success(`Nhập thành công vào ${typeName} script regex!`);
+    toastr.success(`Nhập thành công vào ${typeName} regex!`);
   } catch (e) {
     toastr.error(`Nhập thất bại: ${e.message}`);
   }
@@ -725,7 +725,7 @@ export function renderFrontendCards() {
           <button class="st-multitool-button fe-import-preset-btn" data-id="${card.id}">Nhập vào regex preset</button>
           <button class="st-multitool-button fe-import-character-btn" data-id="${card.id}">Nhập vào regex cục bộ</button>
           <button class="st-multitool-button fe-render-btn" data-id="${card.id}"><i data-lucide="eye"></i> Render frontend</button>
-          <button class="st-multitool-button st-multitool-btn-primary fe-download-btn" data-id="${card.id}"><i data-lucide="download"></i> Tải xuống thành script regex</button>
+          <button class="st-multitool-button st-multitool-btn-primary fe-download-btn" data-id="${card.id}"><i data-lucide="download"></i> Tải xuống thành regex</button>
           <button class="st-multitool-button st-multitool-btn-small abandon fe-delete-btn" data-id="${card.id}"><i data-lucide="trash-2"></i> Xóa</button>
         </div>
         <div id="st-multitool-fe-preview-container-${card.id}" style="display: none; margin-top: 15px; border: 1px solid var(--st-multitool-border); border-radius: 5px; padding: 10px; background: #fff; color: #000; overflow: auto; min-height: 300px;"></div>
