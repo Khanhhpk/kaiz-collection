@@ -122,7 +122,7 @@ export function initManagePrompt() {
       return parts.map((part, i) => {
         if (i % 2 === 1) { // Captured match
           const colorStyle = isBackdrop ? 'color: transparent;' : 'color: inherit;';
-          return `<mark style="background-color: rgba(255, 255, 0, 0.7); ${colorStyle} border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          return `<mark style="background-color: rgba(255, 255, 0, 0.35); ${colorStyle} border-radius: 2px;">${escapeHtml(part)}</mark>`;
         }
         return escapeHtml(part);
       }).join('');
@@ -394,7 +394,7 @@ export function renderPromptBlocks() {
         if (!text) return '';
         const parts = text.split(highlightRegex);
         return parts.map((part, i) => {
-          if (i % 2 === 1) return `<mark style="background-color: rgba(255, 255, 0, 0.7); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          if (i % 2 === 1) return `<mark style="background-color: rgba(255, 255, 0, 0.35); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
           return escapeHtml(part);
         }).join('');
       };
