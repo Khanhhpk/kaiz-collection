@@ -133,12 +133,11 @@ export function initManagePrompt() {
           $titleSpan.text(origTitle);
         }
 
-        if (contentLower.includes(searchTerm) && enableHighlight && !$textarea.is(':focus')) {
-          $preview.html(safeHighlight(content)).show();
-          $textarea.hide();
+        const $backdrop = $item.find('.st-multitool-highlight-backdrop');
+        if (contentLower.includes(searchTerm) && enableHighlight) {
+          $backdrop.html(safeHighlight(content));
         } else {
-          $preview.hide();
-          $textarea.show();
+          $backdrop.text(content);
         }
       } else {
         $item.css('display', 'none');
@@ -299,8 +298,10 @@ export function renderPromptBlocks() {
         </div>
 
         <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px; position: relative;">
-          <textarea class="st-multitool-input st-multitool-prompt-content" style="width: 100%; min-height: 150px; resize: vertical; font-family: monospace; padding: 10px; line-height: 1.4;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
-          <div class="st-multitool-highlight-preview" title="Bấm để chỉnh sửa" style="display: none; width: 100%; min-height: 150px; font-family: monospace; padding: 10px; line-height: 1.4; border: 1px solid var(--st-multitool-border); border-radius: 5px; background: rgba(0,0,0,0.2); color: var(--st-multitool-text); white-space: pre-wrap; word-break: break-all; cursor: text;"></div>
+          <div class="st-multitool-textarea-container" style="position: relative; width: 100%;">
+            <div class="st-multitool-highlight-backdrop" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 10px; font-family: monospace; line-height: 1.4; color: transparent; white-space: pre-wrap; word-wrap: break-word; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; pointer-events: none; z-index: 1; border: 1px solid transparent;">${escapeHtml(block.content || '')}</div>
+            <textarea class="st-multitool-input st-multitool-prompt-content" style="position: relative; width: 100%; min-height: 150px; resize: vertical; font-family: monospace; padding: 10px; line-height: 1.4; background: transparent; color: var(--st-multitool-text); z-index: 2; box-sizing: border-box; caret-color: var(--st-multitool-text);" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
+          </div>
         </div>
         </div>
       </div>
@@ -346,17 +347,30 @@ export function renderPromptBlocks() {
     $icon.css('transform', $body.is(':visible') ? 'rotate(180deg)' : 'rotate(0deg)');
   });
 
-  // Bind click on highlight preview to switch to edit mode
-  $promptListContainer.find('.st-multitool-highlight-preview').on('click', function() {
-    $(this).hide();
-    const $textarea = $(this).siblings('.st-multitool-prompt-content');
-    $textarea.show().focus();
-  });
-  
-  $promptListContainer.find('.st-multitool-prompt-content').on('blur', function() {
-    const searchTerm = $('#st-multitool-prompt-search').val().trim();
-    if (searchTerm !== '') {
-      performSearch(); // Re-highlight and show preview if search is active
+  // Sync scroll and input for backdrop highlight
+  $promptListContainer.find('.st-multitool-prompt-content').on('scroll', function() {
+    $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
+  }).on('input', function() {
+    const content = $(this).val();
+    const $backdrop = $(this).siblings('.st-multitool-highlight-backdrop');
+    
+    // Check if we need to highlight
+    const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
+    const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
+    if (searchTerm && enableHighlight && content.toLowerCase().includes(searchTerm)) {
+      const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const highlightRegex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+      const safeHighlight = (text) => {
+        if (!text) return '';
+        const parts = text.split(highlightRegex);
+        return parts.map((part, i) => {
+          if (i % 2 === 1) return `<mark style="background-color: rgba(255, 255, 0, 0.4); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          return escapeHtml(part);
+        }).join('');
+      };
+      $backdrop.html(safeHighlight(content));
+    } else {
+      $backdrop.text(content);
     }
   });
 
