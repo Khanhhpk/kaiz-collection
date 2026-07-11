@@ -351,7 +351,7 @@ export function savePromptBlocks() {
       processItem($(this), false);
     });
 
-    // Cập nhật mảng trực tiếp để giữ nguyên reference của ST (Cực kỳ quan trọng để ST không đọc nhầm mảng cũ)
+    // 1. Cập nhật mảng trực tiếp vào bộ nhớ tạm của ST
     if (container.prompts && Array.isArray(container.prompts)) {
       container.prompts.length = 0;
       newPrompts.forEach(p => container.prompts.push(p));
@@ -376,98 +376,31 @@ export function savePromptBlocks() {
     } else {
       container.prompt_order = newPromptOrder;
     }
-
-    if (typeof window.saveSettingsDebounced === 'function') {
-      window.saveSettingsDebounced();
-    }
     
+    // 2. Yêu cầu ST vẽ lại UI từ bộ nhớ tạm ra màn hình
     if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
       const stContext = window.SillyTavern.getContext();
       
-      // 1. Tạm thời khóa hàm lưu tự động gốc của ST để tránh xung đột đọc/ghi trong lúc render UI
-      let pm, originalSavePreset;
-      try {
-          if (typeof stContext.getPresetManager === 'function') {
-              pm = stContext.getPresetManager();
-              if (pm && typeof pm.savePreset === 'function') {
-                  originalSavePreset = pm.savePreset;
-                  pm.savePreset = async () => { console.log("ST Multitool: Đã chặn ST auto-save để nhường chỗ cho quá trình render đồng bộ."); };
-              }
-          }
-      } catch(e) {}
-
-      // 2. Yêu cầu ST vẽ lại UI ngay lập tức
       if (stContext && stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
         stContext.eventSource.emit('oai_preset_changed_after');
       }
       
-      // 3. Chờ giao diện render thật ổn định rồi mới gọi API lưu thật (Bypass ST auto-save)
+      // 3. Chờ 1.5 giây để ST hoàn tất việc vẽ UI mới
       setTimeout(() => {
-        // Mở khóa lưu tự động của ST
-        if (pm && originalSavePreset) {
-            pm.savePreset = originalSavePreset;
-        }
-
-        let presetName = container.preset_settings_openai || container.instruct_preset || container.name;
-        if (!presetName) {
-            const $sel = $('#settings_preset_openai');
-            if ($sel.length) {
-                const text = $sel.text();
-                const val = $sel.val();
-                presetName = (val && !/^\d+$/.test(val)) ? val : text;
-            }
+        // 4. Bấm nút lưu gốc của ST (Lưu từ màn hình xuống ổ cứng và chốt lớp tạm)
+        const saveBtn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset') || document.querySelector('#preset_save_button');
+        if (saveBtn && typeof saveBtn.click === 'function') {
+            saveBtn.click();
+            console.log("ST Multitool: Đã kích hoạt nút Lưu mặc định của ST để đồng bộ cả bộ nhớ tạm lẫn ổ cứng.");
+        } else {
+            console.warn("ST Multitool: Không tìm thấy nút Lưu mặc định của ST, chỉ gọi hàm saveSettingsDebounced.");
         }
         
-        if (!presetName) {
-            presetName = $('#chat_completion_preset option:selected').text() || $('#oai_preset option:selected').text();
+        // Cũng gọi lưu settings.json phòng hờ
+        if (typeof window.saveSettingsDebounced === 'function') {
+            window.saveSettingsDebounced();
         }
-
-        if (!presetName && stContext.settings) {
-          presetName = stContext.settings.chat_completion_preset || stContext.settings.oai_settings_preset || stContext.settings.instruct_preset || stContext.settings.temp_openai;
-        }
-
-        if (presetName && typeof presetName === 'string') {
-            presetName = presetName.replace(/\.json$/i, '');
-        }
-
-        if (presetName) {
-          const payload = {
-            apiId: 'openai',
-            name: presetName,
-            preset: container
-          };
-
-          let reqHeaders = {
-            'Content-Type': 'application/json'
-          };
-          
-          if (stContext && typeof stContext.getRequestHeaders === 'function') {
-            Object.assign(reqHeaders, stContext.getRequestHeaders());
-          } else if (typeof window.getRequestHeaders === 'function') {
-            Object.assign(reqHeaders, window.getRequestHeaders());
-          }
-          
-          const csrfToken = window.csrf_token || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-          if (csrfToken) {
-              reqHeaders['X-CSRF-Token'] = csrfToken;
-          }
-
-          fetch('/api/presets/save', {
-            method: 'POST',
-            headers: reqHeaders,
-            body: JSON.stringify(payload)
-          }).then(res => {
-            if (!res.ok) console.error("ST Multitool: Lỗi HTTP " + res.status + " khi lưu preset");
-            else console.log("ST Multitool: Đã lưu Preset thành công lên Server sau khi đồng bộ UI (" + presetName + ").");
-          }).catch(err => {
-            console.error("ST Multitool: Lỗi khi lưu preset qua API", err);
-          });
-        } else {
-          console.warn("ST Multitool: Không tìm thấy tên Preset! Đang sử dụng cách lưu dự phòng...");
-          const btn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset');
-          if (btn && typeof btn.click === 'function') btn.click();
-        }
-      }, 1500); // Tăng thời gian chờ lên 1.5 giây để ST hoàn thành render hoàn toàn
+      }, 1500);
     }
 
     if (hasVarChanges) {
