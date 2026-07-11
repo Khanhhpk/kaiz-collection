@@ -471,7 +471,7 @@ export function savePromptBlocks() {
 
     if (hasVarChanges) {
       clearPendingVarChanges();
-      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt');
+      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
       if (window.lucide) window.lucide.createIcons();
       refreshVarInspector();
       renderPromptBlocks();

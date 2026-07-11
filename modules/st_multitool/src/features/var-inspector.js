@@ -513,7 +513,7 @@ export function initVarInspector() {
       delete _pendingRenames[oldName];
     }
     // Update save button text in Preset Manager to indicate pending changes
-    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt (Có thay đổi Var)');
+    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
   });
 
   $popup.on('input', '.st-multitool-vi-edit-source-val', function(e) {
@@ -547,7 +547,7 @@ export function initVarInspector() {
         };
         $(this).css('border-color', '#fde68a'); // Highlight edited
       }
-      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Cấu Hình Khối Prompt (Có thay đổi Var)');
+      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
     }
   });
 
