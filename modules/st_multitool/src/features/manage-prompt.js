@@ -395,17 +395,30 @@ export function savePromptBlocks() {
       };
 
       if (container) {
-        // Tìm tên Preset hiện hành qua nhiều cách khác nhau (Đã bắt được ID chính xác từ người dùng)
-        let presetName = $('#settings_preset_openai').val() || $('#chat_completion_preset').val() || $('#oai_preset').val() || $('#instruct_preset').val();
+        // Tìm tên Preset hiện hành chính xác nhất
+        let presetName = container.preset_settings_openai || container.instruct_preset || container.name;
         
-        if (!presetName && container.name) presetName = container.name;
+        if (!presetName) {
+            const $sel = $('#settings_preset_openai option:selected');
+            if ($sel.length) {
+                // Trong ST 1.12+, value thường là số ID (ví dụ "75"), text mới là tên preset
+                const text = $sel.text();
+                const val = $sel.val();
+                presetName = (val && !/^\d+$/.test(val)) ? val : text;
+            }
+        }
         
+        if (!presetName) {
+            presetName = $('#chat_completion_preset option:selected').text() || $('#oai_preset option:selected').text();
+        }
+
         if (!presetName && stContext.settings) {
           presetName = stContext.settings.chat_completion_preset || stContext.settings.oai_settings_preset || stContext.settings.instruct_preset || stContext.settings.temp_openai;
         }
 
-        if (!presetName) {
-          presetName = $('#oai_preset_name').val() || $('#chat_completion_preset_name').val();
+        // Đảm bảo loại bỏ đuôi .json nếu vô tình dính vào
+        if (presetName && typeof presetName === 'string') {
+            presetName = presetName.replace(/\.json$/i, '');
         }
 
         if (presetName) {
