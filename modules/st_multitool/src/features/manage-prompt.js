@@ -392,6 +392,7 @@ export function savePromptBlocks() {
 
     // Kích hoạt nút lưu trên UI của SillyTavern (nếu có) để ép ST ghi đè file preset hiện tại
     const stSaveButtons = [
+      '#update_oai_preset',
       '#chat_completion_save_preset', 
       '#oai_preset_save', 
       '#instruct_save_preset', 
