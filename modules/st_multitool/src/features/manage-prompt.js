@@ -33,9 +33,16 @@ export function initManagePrompt() {
   });
   
   $('#st-multitool-reset-prompt-btn').on('click', () => {
-    renderPromptBlocks();
-    $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on reset
-    toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
+    showLoader();
+    setTimeout(() => {
+      try {
+        renderPromptBlocks();
+        $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on reset
+        toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
+      } finally {
+        hideLoader();
+      }
+    }, 50);
   });
 
   const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
@@ -65,9 +72,24 @@ export function initManagePrompt() {
       }
     }
 
+    if (searchTerm === '') {
+      $promptListContainer.find('.st-multitool-wb-item').show();
+      return;
+    }
+
     $promptListContainer.find('.st-multitool-wb-item').each(function() {
-      const title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
-      const desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
+      let title = $(this).attr('data-search-title');
+      if (title == null) {
+        title = $(this).find('.st-multitool-wb-item-title').text().toLowerCase();
+        $(this).attr('data-search-title', title);
+      }
+      
+      let desc = $(this).attr('data-search-desc');
+      if (desc == null) {
+        desc = $(this).find('.st-multitool-wb-item-desc').text().toLowerCase();
+        $(this).attr('data-search-desc', desc);
+      }
+
       const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
       if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
         $(this).show();
