@@ -380,11 +380,25 @@ export function savePromptBlocks() {
       const stContext = window.SillyTavern.getContext();
       const container = getPromptContainer();
       
+      const triggerUIUpdate = () => {
+        if (stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
+          stContext.eventSource.emit('oai_preset_changed');
+          stContext.eventSource.emit('oai_preset_changed_after');
+        }
+      };
+
       if (container) {
-        // Tìm tên Preset hiện hành
-        let presetName = $('#chat_completion_preset').val() || $('#oai_preset').val();
+        // Tìm tên Preset hiện hành qua nhiều cách khác nhau
+        let presetName = $('#chat_completion_preset').val() || $('#oai_preset').val() || $('#instruct_preset').val();
+        
+        if (!presetName && container.name) presetName = container.name;
+        
         if (!presetName && stContext.settings) {
-          presetName = stContext.settings.oai_settings_preset;
+          presetName = stContext.settings.chat_completion_preset || stContext.settings.oai_settings_preset || stContext.settings.instruct_preset || stContext.settings.temp_openai;
+        }
+
+        if (!presetName) {
+          presetName = $('#oai_preset_name').val() || $('#chat_completion_preset_name').val();
         }
 
         if (presetName) {
@@ -402,12 +416,20 @@ export function savePromptBlocks() {
             },
             body: JSON.stringify(payload)
           }).then(() => {
-            // Lưu API xong mới báo cho ST vẽ lại UI, bảo đảm 100% không bị race condition
-            if (stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
-              stContext.eventSource.emit('oai_preset_changed');
-              stContext.eventSource.emit('oai_preset_changed_after');
-            }
-          }).catch(err => console.error("ST Multitool: Lỗi khi lưu preset qua API", err));
+            triggerUIUpdate();
+          }).catch(err => {
+            console.error("ST Multitool: Lỗi khi lưu preset qua API", err);
+            triggerUIUpdate();
+          });
+        } else {
+          console.warn("ST Multitool: Không tìm thấy tên Preset! Đang sử dụng cách lưu dự phòng...");
+          triggerUIUpdate();
+          
+          // Fallback: bấm nút lưu trên giao diện nếu tìm thấy (phòng hờ)
+          setTimeout(() => {
+            const btn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset');
+            if (btn && typeof btn.click === 'function') btn.click();
+          }, 500);
         }
       }
     }
