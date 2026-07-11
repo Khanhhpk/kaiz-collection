@@ -390,20 +390,22 @@ export function savePromptBlocks() {
       }
     }
 
-    // Kích hoạt nút lưu trên UI của SillyTavern (nếu có) để ép ST ghi đè file preset hiện tại
-    const stSaveButtons = [
-      '#update_oai_preset',
-      '#chat_completion_save_preset', 
-      '#oai_preset_save', 
-      '#instruct_save_preset', 
-      '#ai_prompt_save'
-    ];
-    for (const selector of stSaveButtons) {
-      const btn = document.querySelector(selector);
-      if (btn && typeof btn.click === 'function') {
-        btn.click();
+    // Kích hoạt nút lưu trên UI của SillyTavern sau một khoảng trễ nhỏ (tránh việc ST lưu trước khi cập nhật xong DOM)
+    setTimeout(() => {
+      const stSaveButtons = [
+        '#update_oai_preset',
+        '#chat_completion_save_preset', 
+        '#oai_preset_save', 
+        '#instruct_save_preset', 
+        '#ai_prompt_save'
+      ];
+      for (const selector of stSaveButtons) {
+        const btn = document.querySelector(selector);
+        if (btn && typeof btn.click === 'function') {
+          btn.click();
+        }
       }
-    }
+    }, 800);
 
     if (hasVarChanges) {
       clearPendingVarChanges();
