@@ -388,8 +388,8 @@ export function savePromptBlocks() {
       };
 
       if (container) {
-        // Tìm tên Preset hiện hành qua nhiều cách khác nhau
-        let presetName = $('#chat_completion_preset').val() || $('#oai_preset').val() || $('#instruct_preset').val();
+        // Tìm tên Preset hiện hành qua nhiều cách khác nhau (Đã bắt được ID chính xác từ người dùng)
+        let presetName = $('#settings_preset_openai').val() || $('#chat_completion_preset').val() || $('#oai_preset').val() || $('#instruct_preset').val();
         
         if (!presetName && container.name) presetName = container.name;
         
