@@ -408,15 +408,19 @@ export function savePromptBlocks() {
             preset: container
           };
 
-          // Lấy CSRF token chuẩn xác của ST
-          const csrfToken = window.csrf_token || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+          // Lấy Headers bảo mật chuẩn của SillyTavern (bao gồm CSRF Token)
+          let reqHeaders = {
+            'Content-Type': 'application/json'
+          };
+          if (stContext && typeof stContext.getRequestHeaders === 'function') {
+            Object.assign(reqHeaders, stContext.getRequestHeaders());
+          } else if (typeof window.getRequestHeaders === 'function') {
+            Object.assign(reqHeaders, window.getRequestHeaders());
+          }
 
           fetch('/api/presets/save', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-Token': csrfToken
-            },
+            headers: reqHeaders,
             body: JSON.stringify(payload)
           }).then(async (res) => {
             if (!res.ok) {
