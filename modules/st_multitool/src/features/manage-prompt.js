@@ -80,7 +80,8 @@ export function initManagePrompt() {
     }
 
     const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const highlightRegex = searchTerm ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
+    const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
+    const highlightRegex = (searchTerm && enableHighlight) ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
     
     const safeHighlight = (text) => {
       if (!text) return '';
@@ -126,13 +127,13 @@ export function initManagePrompt() {
       if (isMatch) {
         $item.css('display', 'block');
         
-        if (origTitleLower.includes(searchTerm)) {
+        if (origTitleLower.includes(searchTerm) && enableHighlight) {
           $titleSpan.html(safeHighlight(origTitle));
         } else {
           $titleSpan.text(origTitle);
         }
 
-        if (contentLower.includes(searchTerm) && !$textarea.is(':focus')) {
+        if (contentLower.includes(searchTerm) && enableHighlight && !$textarea.is(':focus')) {
           $preview.html(safeHighlight(content)).show();
           $textarea.hide();
         } else {
@@ -157,6 +158,14 @@ export function initManagePrompt() {
   
   $('#st-multitool-prompt-search-clear').on('click', function() {
     $('#st-multitool-prompt-search').val('').trigger('input');
+    performSearch();
+  });
+
+  const highlightToggle = $('#st-multitool-prompt-search-highlight-toggle');
+  const isHighlightEnabled = localStorage.getItem('st-multitool-prompt-search-highlight');
+  highlightToggle.prop('checked', isHighlightEnabled === null ? false : isHighlightEnabled === 'true'); // Mặc định tắt
+  highlightToggle.on('change', function() {
+    localStorage.setItem('st-multitool-prompt-search-highlight', $(this).prop('checked'));
     performSearch();
   });
 }
