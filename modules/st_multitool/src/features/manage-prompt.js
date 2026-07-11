@@ -396,9 +396,13 @@ export function savePromptBlocks() {
             console.warn("ST Multitool: Không tìm thấy nút Lưu mặc định của ST, chỉ gọi hàm saveSettingsDebounced.");
         }
         
-        // Cũng gọi lưu settings.json phòng hờ
-        if (typeof window.saveSettingsDebounced === 'function') {
+        // Cũng gọi lưu settings.json phòng hờ (để chốt lớp tạm vào bộ nhớ của user)
+        if (stContext && typeof stContext.saveSettingsDebounced === 'function') {
+            stContext.saveSettingsDebounced();
+            console.log("ST Multitool: Đã gọi stContext.saveSettingsDebounced() để lưu lớp tạm.");
+        } else if (typeof window.saveSettingsDebounced === 'function') {
             window.saveSettingsDebounced();
+            console.log("ST Multitool: Đã gọi window.saveSettingsDebounced() để lưu lớp tạm.");
         }
       }, 1500);
     }
