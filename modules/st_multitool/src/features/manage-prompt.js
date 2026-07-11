@@ -115,13 +115,14 @@ export function initManagePrompt() {
     const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const highlightRegex = enableHighlight ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
     
-    const safeHighlight = (text) => {
+    const safeHighlight = (text, isBackdrop = true) => {
       if (!text) return '';
       if (!highlightRegex) return escapeHtml(text);
       const parts = text.split(highlightRegex);
       return parts.map((part, i) => {
         if (i % 2 === 1) { // Captured match
-          return `<mark style="background-color: rgba(255, 255, 0, 0.4); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          const colorStyle = isBackdrop ? 'color: transparent;' : 'color: inherit;';
+          return `<mark style="background-color: rgba(255, 255, 0, 0.4); ${colorStyle} border-radius: 2px;">${escapeHtml(part)}</mark>`;
         }
         return escapeHtml(part);
       }).join('');
@@ -153,14 +154,14 @@ export function initManagePrompt() {
         
         if (enableHighlight) {
           if (origTitleLower.includes(searchTerm)) {
-            $titleSpan.html(safeHighlight(origTitle));
+            $titleSpan.html(safeHighlight(origTitle, false));
           } else {
             $titleSpan.text(origTitle);
           }
 
           const $backdrop = $item.find('.st-multitool-highlight-backdrop');
           if (contentLower.includes(searchTerm)) {
-            $backdrop.html(safeHighlight(content));
+            $backdrop.html(safeHighlight(content, true));
           } else {
             $backdrop.text(content);
           }
@@ -288,6 +289,10 @@ export function renderPromptBlocks() {
         
         <div class="st-multitool-accordion-body" style="display: none; padding-top: 10px;">
           <div class="st-multitool-prompt-advanced-settings" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; font-size: 0.9em; border: 1px solid var(--st-multitool-border);">
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Name</label>
+              <input type="text" class="st-multitool-input st-prompt-name" value="${escapeHtml(block.name || 'Unnamed Block')}" style="width: 100%;">
+            </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
             <div style="flex: 1; min-width: 120px;">
               <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Position</label>
@@ -411,6 +416,13 @@ export function renderPromptBlocks() {
     updateBackdrop($(this));
   });
 
+  $promptListContainer.find('.st-prompt-name').on('input', function() {
+    const newName = $(this).val() || 'Unnamed Block';
+    const $item = $(this).closest('.st-multitool-wb-item');
+    $item.find('.st-multitool-item-title-text').text(newName);
+    $item.attr('data-orig-title', newName); // Cập nhật luôn cho tính năng tìm kiếm
+  });
+
   // Handle manual toggle switch click (only save state, don't move between lists)
   $promptListContainer.find('.st-multitool-prompt-enabled').on('change', function(e) {
     // Không tự động lưu nữa
@@ -472,6 +484,7 @@ export function savePromptBlocks() {
 
       const newBlock = {
         ...originalBlock,
+        name: $item.find('.st-prompt-name').val() || 'Unnamed Block',
         enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
         content: content,
         injection_position: parseInt($item.find('.st-prompt-pos').val(), 10) || 0,
