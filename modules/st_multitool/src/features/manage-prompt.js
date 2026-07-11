@@ -122,7 +122,7 @@ export function initManagePrompt() {
       return parts.map((part, i) => {
         if (i % 2 === 1) { // Captured match
           const colorStyle = isBackdrop ? 'color: transparent;' : 'color: inherit;';
-          return `<mark style="background-color: rgba(255, 255, 0, 0.4); ${colorStyle} border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          return `<mark style="background-color: rgba(255, 255, 0, 0.7); ${colorStyle} border-radius: 2px;">${escapeHtml(part)}</mark>`;
         }
         return escapeHtml(part);
       }).join('');
@@ -330,7 +330,7 @@ export function renderPromptBlocks() {
 
         <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px; position: relative;">
           <div class="st-multitool-textarea-container" style="position: relative; width: 100%;">
-            <div class="st-multitool-input st-multitool-highlight-backdrop" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 10px; font-family: monospace; font-size: 13px; line-height: 1.5; letter-spacing: normal; color: transparent; background: transparent; border-color: transparent; white-space: pre-wrap; word-break: break-word; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; pointer-events: none; z-index: 1; resize: none; margin: 0;"></div>
+            <div class="st-multitool-input st-multitool-highlight-backdrop" style="position: absolute; top: -1px; left: 0; width: 100%; height: 100%; padding: 10px; font-family: monospace; font-size: 13px; line-height: 1.5; letter-spacing: normal; color: transparent; background: transparent; border-color: transparent; white-space: pre-wrap; word-break: break-word; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; pointer-events: none; z-index: 1; resize: none; margin: 0;"></div>
             <textarea class="st-multitool-input st-multitool-prompt-content" style="position: relative; width: 100%; min-height: 150px; resize: vertical; font-family: monospace; font-size: 13px; line-height: 1.5; letter-spacing: normal; background: transparent; color: var(--st-multitool-text); z-index: 2; box-sizing: border-box; caret-color: var(--st-multitool-text); margin: 0; overflow-y: auto; overflow-x: hidden; white-space: pre-wrap; word-break: break-word;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
           </div>
         </div>
@@ -394,7 +394,7 @@ export function renderPromptBlocks() {
         if (!text) return '';
         const parts = text.split(highlightRegex);
         return parts.map((part, i) => {
-          if (i % 2 === 1) return `<mark style="background-color: rgba(255, 255, 0, 0.4); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          if (i % 2 === 1) return `<mark style="background-color: rgba(255, 255, 0, 0.7); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
           return escapeHtml(part);
         }).join('');
       };
