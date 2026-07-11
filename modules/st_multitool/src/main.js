@@ -19,7 +19,7 @@ import {
   showPopup,
 } from "./ui.js";
 
-const MODULE_NAME = "Đồng bộ Sổ thế giới";
+const MODULE_NAME = "ST Multitool";
 const extensionBaseUrl = new URL("../", import.meta.url);
 
 export const STORAGE_KEY_TAG_START = "st-multitool-tag-start-val";
