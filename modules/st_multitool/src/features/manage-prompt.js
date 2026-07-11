@@ -68,6 +68,7 @@ export function initManagePrompt() {
 
   const performSearch = () => {
     const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
+    const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
     
     // Tắt kéo thả khi đang tìm kiếm để tránh lỗi thứ tự
     const $sortableLists = $promptListContainer.find('.st-multitool-prompt-sortable-list');
@@ -79,9 +80,40 @@ export function initManagePrompt() {
       }
     }
 
+    if (searchTerm === '') {
+      if (!$promptListContainer.data('is-filtered')) return; // Already clean
+      
+      // Fast path restore display
+      const items = $promptListContainer[0].getElementsByClassName('st-multitool-wb-item');
+      for (let i = 0; i < items.length; i++) {
+        items[i].style.display = 'block';
+      }
+      
+      // Fast path restore text if previously highlighted
+      if ($promptListContainer.data('is-highlighted')) {
+        $promptListContainer.find('.st-multitool-wb-item').each(function() {
+          const $item = $(this);
+          const origTitle = $item.attr('data-orig-title');
+          if (origTitle != null) {
+            $item.find('.st-multitool-item-title-text').text(origTitle);
+          }
+          const $backdrop = $item.find('.st-multitool-highlight-backdrop');
+          const $textarea = $item.find('.st-multitool-prompt-content');
+          let content = $textarea.val();
+          if (content && content.endsWith('\n')) content += ' ';
+          $backdrop.text(content);
+        });
+        $promptListContainer.data('is-highlighted', false);
+      }
+      $promptListContainer.data('is-filtered', false);
+      return;
+    }
+
+    $promptListContainer.data('is-filtered', true);
+    if (enableHighlight) $promptListContainer.data('is-highlighted', true);
+
     const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
-    const highlightRegex = (searchTerm && enableHighlight) ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
+    const highlightRegex = enableHighlight ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
     
     const safeHighlight = (text) => {
       if (!text) return '';
@@ -89,7 +121,7 @@ export function initManagePrompt() {
       const parts = text.split(highlightRegex);
       return parts.map((part, i) => {
         if (i % 2 === 1) { // Captured match
-          return `<mark style="background-color: rgba(255, 255, 0, 0.4); color: inherit; border-radius: 2px;">${escapeHtml(part)}</mark>`;
+          return `<mark style="background-color: rgba(255, 255, 0, 0.4); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
         }
         return escapeHtml(part);
       }).join('');
@@ -99,7 +131,6 @@ export function initManagePrompt() {
       const $item = $(this);
       const $titleSpan = $item.find('.st-multitool-item-title-text');
       const $textarea = $item.find('.st-multitool-prompt-content');
-      const $preview = $item.find('.st-multitool-highlight-preview');
 
       if ($item.attr('data-orig-title') == null) {
         $item.attr('data-orig-title', $titleSpan.text());
@@ -111,14 +142,6 @@ export function initManagePrompt() {
       let content = $textarea.val();
       if (content.endsWith('\n')) content += ' '; // Fix trailing newline for backdrop
 
-      if (searchTerm === '') {
-        $item.css('display', 'block');
-        $titleSpan.text(origTitle);
-        $preview.hide();
-        $textarea.show();
-        return;
-      }
-
       const origTitleLower = origTitle.toLowerCase();
       const origDescLower = origDesc.toLowerCase();
       const contentLower = content.toLowerCase();
@@ -128,17 +151,19 @@ export function initManagePrompt() {
       if (isMatch) {
         $item.css('display', 'block');
         
-        if (origTitleLower.includes(searchTerm) && enableHighlight) {
-          $titleSpan.html(safeHighlight(origTitle));
-        } else {
-          $titleSpan.text(origTitle);
-        }
+        if (enableHighlight) {
+          if (origTitleLower.includes(searchTerm)) {
+            $titleSpan.html(safeHighlight(origTitle));
+          } else {
+            $titleSpan.text(origTitle);
+          }
 
-        const $backdrop = $item.find('.st-multitool-highlight-backdrop');
-        if (contentLower.includes(searchTerm) && enableHighlight) {
-          $backdrop.html(safeHighlight(content));
-        } else {
-          $backdrop.text(content);
+          const $backdrop = $item.find('.st-multitool-highlight-backdrop');
+          if (contentLower.includes(searchTerm)) {
+            $backdrop.html(safeHighlight(content));
+          } else {
+            $backdrop.text(content);
+          }
         }
       } else {
         $item.css('display', 'none');
