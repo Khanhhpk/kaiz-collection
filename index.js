@@ -254,7 +254,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.0.0.0';
+const KAIZ_CURRENT_VERSION = '2.0.5.0';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -610,22 +610,21 @@ function showKaizPatchNotes(targetWin) {
                     <i class="fa-solid fa-gift"></i>
                 </div>
                 <div>
-                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.0.0</div>
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Cập nhật Kỷ Nguyên Mới!</div>
+                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.5.0</div>
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Bản vá sửa và tối ưu ST Multitools!</div>
                 </div>
             </div>
             <button id="kaiz_btn_close_patch_notes_top" style="background: none; border: none; color: #64748b; font-size: 1.2em; cursor: pointer; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
-            Chào mừng bạn đến với bản cập nhật lớn nhất từ trước đến nay của <b>KAIZ Collection</b>!<br><br>
-            Điểm nhấn của phiên bản này là sự xuất hiện của <b>ST Multitool</b>, một siêu công cụ "tất cả trong một" giúp bạn làm chủ mọi cấu hình của SillyTavern ngay trên một giao diện trực quan, mà không cần phải mày mò lệnh thủ công nữa.<br><br>
+            Chào mừng bạn đến với bản cập nhật mới của <b>KAIZ Collection</b>!<br><br>
+            Bản cập nhật <b>2.0.5.0</b> tập trung vào việc vá lỗi và tối ưu hóa các tính năng cốt lõi.<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
-                <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> ST Multitool có gì hot?</h4>
+                <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square;">
-                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Quản lý Worldbook:</b> Xem, sửa, và thay đổi độ sâu (depth) của hàng loạt mục trong Sổ thế giới chỉ bằng vài cú click. Kéo thả để sắp xếp lại ưu tiên!</li>
-                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Quản lý Script:</b> Giao diện trực quan để bật/tắt, sắp xếp thứ tự ưu tiên và chỉnh sửa nội dung Script dễ dàng.</li>
-                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Preset Editor & Var Inspector:</b> Công cụ đột phá giúp bạn sửa đổi trực tiếp các cấu trúc lệnh (Prompt) bên trong Preset. Tự động quét và đồng bộ mọi biến nhớ (Macro Variables) được sử dụng!</li>
-                    <li><b style="color: #cbd5e1;">Quản lý Regex:</b> Sửa nhanh biểu thức Regex, thử nghiệm và bật tắt tùy ý.</li>
+                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Bản vá sửa và tối ưu:</b> Xử lý triệt để các vấn đề xung quanh ST Multitools.</li>
+                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Backdrop Highlight:</b> Nâng cấp trải nghiệm tìm kiếm với kỹ thuật bôi sáng mượt mà như tìm kiếm gốc của trình duyệt.</li>
+                    <li><b style="color: #cbd5e1;">Hiệu năng:</b> Cải thiện độ mượt và fix các lỗi hiển thị lặt vặt.</li>
                 </ul>
             </div>
         </div>
@@ -1079,9 +1078,9 @@ waitForEnvironment(async (targetWin, jq) => {
 
     const config = getPhoneConfig();
     
-    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.0.0)
+    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.5.0)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.0.0.0') {
+        if (KAIZ_CURRENT_VERSION === '2.0.5.0') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);

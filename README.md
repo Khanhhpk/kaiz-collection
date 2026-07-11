@@ -8,6 +8,11 @@ KAIZ Collection không còn là một extension nhỏ lẻ. Nó đã trở thàn
 
 ---
 
+## 🚀 What's new in v2.0.5.0
+- Bản vá sửa và tối ưu các vấn đề xung quanh ST Multitools.
+
+---
+
 ## 🌟 Tính năng nổi bật
 
 📱 1. HỆ SINH THÁI ĐIỆN THOẠI (PHONE ECOSYSTEM):
