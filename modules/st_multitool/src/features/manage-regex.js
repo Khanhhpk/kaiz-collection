@@ -214,6 +214,7 @@ async function handleSaveRegex() {
     let targetOpt = { type: currentRegexType };
     if (currentRegexType === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
     if (currentRegexType === 'character') targetOpt = { type: 'character', name: 'current' };
+    targetOpt.render = 'debounced';
 
     await updateTavernRegexesWith(regexes => {
       const regex = regexes.find(r => r.id === currentRegexId);
