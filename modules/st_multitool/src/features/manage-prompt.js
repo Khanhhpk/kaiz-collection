@@ -408,14 +408,20 @@ export function savePromptBlocks() {
             preset: container
           };
 
+          // Lấy CSRF token chuẩn xác của ST
+          const csrfToken = window.csrf_token || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
           fetch('/api/presets/save', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-CSRF-Token': stContext.csrf_token || ''
+              'X-CSRF-Token': csrfToken
             },
             body: JSON.stringify(payload)
-          }).then(() => {
+          }).then(async (res) => {
+            if (!res.ok) {
+                console.error("ST Multitool: Lỗi HTTP " + res.status + " khi lưu preset");
+            }
             triggerUIUpdate();
           }).catch(err => {
             console.error("ST Multitool: Lỗi khi lưu preset qua API", err);
