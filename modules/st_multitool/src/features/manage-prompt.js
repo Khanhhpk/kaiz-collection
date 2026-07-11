@@ -352,7 +352,13 @@ export function savePromptBlocks() {
       processItem($(this), false);
     });
 
-    container.prompts = newPrompts;
+    // Cập nhật mảng trực tiếp để giữ nguyên reference của ST
+    if (container.prompts && Array.isArray(container.prompts)) {
+      container.prompts.length = 0;
+      newPrompts.forEach(p => container.prompts.push(p));
+    } else {
+      container.prompts = newPrompts;
+    }
     
     // Check if it was ST 1.18.0 format originally
     if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0].order)) {
@@ -381,10 +387,11 @@ export function savePromptBlocks() {
       const container = getPromptContainer();
       
       const triggerUIUpdate = () => {
-        if (stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
-          stContext.eventSource.emit('oai_preset_changed');
-          stContext.eventSource.emit('oai_preset_changed_after');
-        }
+        // CỰC KỲ QUAN TRỌNG: Không được dùng emit('oai_preset_changed')!
+        // Sự kiện đó sẽ kích hoạt hàm auto-save gốc của SillyTavern.
+        // Hàm gốc của ST sẽ đọc dữ liệu từ các ô nhập liệu cũ (chưa cập nhật) trên giao diện của ST,
+        // sau đó gửi đè lên server, làm mất toàn bộ dữ liệu ta vừa fetch xong!
+        console.log("ST Multitool: Đã lưu Preset thành công lên Server (Bypass ST Auto-save).");
       };
 
       if (container) {
