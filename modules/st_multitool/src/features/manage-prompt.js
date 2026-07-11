@@ -392,6 +392,11 @@ export function savePromptBlocks() {
         // Hàm gốc của ST sẽ đọc dữ liệu từ các ô nhập liệu cũ (chưa cập nhật) trên giao diện của ST,
         // sau đó gửi đè lên server, làm mất toàn bộ dữ liệu ta vừa fetch xong!
         console.log("ST Multitool: Đã lưu Preset thành công lên Server (Bypass ST Auto-save).");
+        
+        // Cập nhật giao diện ST gốc một cách an toàn
+        if (stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
+            stContext.eventSource.emit('oai_preset_changed_after');
+        }
       };
 
       if (container) {
