@@ -1384,6 +1384,13 @@
             <i data-lucide="rotate-ccw"></i> Hoàn tác (Undo)
           </button>
         </div>
+        <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 15px; gap: 8px;">
+          <label class="st-multitool-toggle-switch" title="Khi bật, hệ thống sẽ tự động nhấn nút Save gốc của ST để lưu vĩnh viễn vào ổ cứng (thay vì chỉ lưu lớp tạm).">
+            <input type="checkbox" id="st-multitool-auto-save-preset-toggle" checked>
+            <span class="st-multitool-toggle-slider"></span>
+          </label>
+          <span style="font-size: 13px; color: #ccc;">Đồng bộ lưu file gốc</span>
+        </div>
         <div style="margin-bottom: 12px; flex-shrink: 0;">
           <button id="st-multitool-var-inspector-btn" class="st-multitool-btn-hero" style="width: 100%; background: linear-gradient(135deg, rgba(0,230,184,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(0,230,184,0.3);" title="Quét và hiển thị biến setvar/getvar trong preset">
             <i data-lucide="search-code"></i> Variable Inspector – Quét biến trong Preset

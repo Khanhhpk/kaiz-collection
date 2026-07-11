@@ -29,6 +29,20 @@ export function initManagePrompt() {
     toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
   });
 
+  const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
+  if (autoSaveToggle.length) {
+    const isAutoSave = localStorage.getItem('st-multitool-auto-save-preset');
+    if (isAutoSave !== null) {
+      autoSaveToggle.prop('checked', isAutoSave === 'true');
+    } else {
+      autoSaveToggle.prop('checked', true); // Mặc định bật
+    }
+
+    autoSaveToggle.on('change', function() {
+      localStorage.setItem('st-multitool-auto-save-preset', $(this).prop('checked'));
+    });
+  }
+
   const performSearch = () => {
     const searchTerm = $('#st-multitool-prompt-search').val().toLowerCase();
     
@@ -387,13 +401,20 @@ export function savePromptBlocks() {
       
       // 3. Chờ 1.5 giây để ST hoàn tất việc vẽ UI mới
       setTimeout(() => {
-        // 4. Bấm nút lưu gốc của ST (Lưu từ màn hình xuống ổ cứng và chốt lớp tạm)
-        const saveBtn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset') || document.querySelector('#preset_save_button');
-        if (saveBtn && typeof saveBtn.click === 'function') {
-            saveBtn.click();
-            console.log("ST Multitool: Đã kích hoạt nút Lưu mặc định của ST để đồng bộ cả bộ nhớ tạm lẫn ổ cứng.");
+        const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
+        const shouldAutoSave = autoSaveToggle.length ? autoSaveToggle.prop('checked') : true;
+
+        if (shouldAutoSave) {
+          // 4. Bấm nút lưu gốc của ST (Lưu từ màn hình xuống ổ cứng và chốt lớp tạm)
+          const saveBtn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset') || document.querySelector('#preset_save_button');
+          if (saveBtn && typeof saveBtn.click === 'function') {
+              saveBtn.click();
+              console.log("ST Multitool: Đã kích hoạt nút Lưu mặc định của ST để đồng bộ cả bộ nhớ tạm lẫn ổ cứng.");
+          } else {
+              console.warn("ST Multitool: Không tìm thấy nút Lưu mặc định của ST, chỉ gọi hàm saveSettingsDebounced.");
+          }
         } else {
-            console.warn("ST Multitool: Không tìm thấy nút Lưu mặc định của ST, chỉ gọi hàm saveSettingsDebounced.");
+          console.log("ST Multitool: Bỏ qua kích hoạt nút Lưu mặc định của ST do người dùng tắt tuỳ chọn đồng bộ file gốc.");
         }
         
         // Cũng gọi lưu settings.json phòng hờ (để chốt lớp tạm vào bộ nhớ của user)
