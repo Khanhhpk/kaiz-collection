@@ -108,7 +108,8 @@ export function initManagePrompt() {
       
       const origTitle = $item.attr('data-orig-title');
       const origDesc = $item.attr('data-orig-desc');
-      const content = $textarea.val();
+      let content = $textarea.val();
+      if (content.endsWith('\n')) content += ' '; // Fix trailing newline for backdrop
 
       if (searchTerm === '') {
         $item.css('display', 'block');
@@ -299,8 +300,8 @@ export function renderPromptBlocks() {
 
         <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px; position: relative;">
           <div class="st-multitool-textarea-container" style="position: relative; width: 100%;">
-            <div class="st-multitool-highlight-backdrop" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 10px; font-family: monospace; line-height: 1.4; color: transparent; white-space: pre-wrap; word-wrap: break-word; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; pointer-events: none; z-index: 1; border: 1px solid transparent;">${escapeHtml(block.content || '')}</div>
-            <textarea class="st-multitool-input st-multitool-prompt-content" style="position: relative; width: 100%; min-height: 150px; resize: vertical; font-family: monospace; padding: 10px; line-height: 1.4; background: transparent; color: var(--st-multitool-text); z-index: 2; box-sizing: border-box; caret-color: var(--st-multitool-text);" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
+            <div class="st-multitool-input st-multitool-highlight-backdrop" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 10px; font-family: monospace; font-size: 13px; line-height: 1.5; letter-spacing: normal; color: transparent; background: transparent; border-color: transparent; white-space: pre-wrap; word-break: break-word; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; pointer-events: none; z-index: 1; resize: none; margin: 0;"></div>
+            <textarea class="st-multitool-input st-multitool-prompt-content" style="position: relative; width: 100%; min-height: 150px; resize: vertical; font-family: monospace; font-size: 13px; line-height: 1.5; letter-spacing: normal; background: transparent; color: var(--st-multitool-text); z-index: 2; box-sizing: border-box; caret-color: var(--st-multitool-text); margin: 0; overflow-y: auto; overflow-x: hidden; white-space: pre-wrap; word-break: break-word;" placeholder="Nội dung prompt...">${escapeHtml(block.content || '')}</textarea>
           </div>
         </div>
         </div>
@@ -348,11 +349,10 @@ export function renderPromptBlocks() {
   });
 
   // Sync scroll and input for backdrop highlight
-  $promptListContainer.find('.st-multitool-prompt-content').on('scroll', function() {
-    $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
-  }).on('input', function() {
-    const content = $(this).val();
-    const $backdrop = $(this).siblings('.st-multitool-highlight-backdrop');
+  const updateBackdrop = ($textarea) => {
+    let content = $textarea.val();
+    if (content.endsWith('\n')) content += ' '; // Fix trailing newline rendering in div
+    const $backdrop = $textarea.siblings('.st-multitool-highlight-backdrop');
     
     // Check if we need to highlight
     const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
@@ -372,6 +372,18 @@ export function renderPromptBlocks() {
     } else {
       $backdrop.text(content);
     }
+    $backdrop.scrollTop($textarea.scrollTop());
+  };
+
+  $promptListContainer.find('.st-multitool-prompt-content').on('scroll', function() {
+    $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
+  }).on('input', function() {
+    updateBackdrop($(this));
+  });
+  
+  // Initialize backdrops correctly on load
+  $promptListContainer.find('.st-multitool-prompt-content').each(function() {
+    updateBackdrop($(this));
   });
 
   // Handle manual toggle switch click (only save state, don't move between lists)
