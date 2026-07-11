@@ -403,7 +403,6 @@ export function savePromptBlocks() {
           presetName = stContext.settings.chat_completion_preset || stContext.settings.oai_settings_preset || stContext.settings.instruct_preset || stContext.settings.temp_openai;
         }
 
-        // Đảm bảo loại bỏ đuôi .json nếu vô tình dính vào
         if (presetName && typeof presetName === 'string') {
             presetName = presetName.replace(/\.json$/i, '');
         }
@@ -415,40 +414,37 @@ export function savePromptBlocks() {
             preset: container
           };
 
-          // Lấy Headers bảo mật chuẩn của SillyTavern (bao gồm CSRF Token)
           let reqHeaders = {
             'Content-Type': 'application/json'
           };
+          
           if (stContext && typeof stContext.getRequestHeaders === 'function') {
             Object.assign(reqHeaders, stContext.getRequestHeaders());
           } else if (typeof window.getRequestHeaders === 'function') {
             Object.assign(reqHeaders, window.getRequestHeaders());
+          }
+          
+          const csrfToken = window.csrf_token || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+          if (csrfToken) {
+              reqHeaders['X-CSRF-Token'] = csrfToken;
           }
 
           fetch('/api/presets/save', {
             method: 'POST',
             headers: reqHeaders,
             body: JSON.stringify(payload)
-          }).then(async (res) => {
-            if (!res.ok) {
-                console.error("ST Multitool: Lỗi HTTP " + res.status + " khi lưu preset");
-            }
-            triggerUIUpdate();
+          }).then(res => {
+            if (!res.ok) console.error("ST Multitool: Lỗi HTTP " + res.status + " khi lưu preset");
+            else console.log("ST Multitool: Đã lưu Preset thành công lên Server sau khi đồng bộ UI.");
           }).catch(err => {
             console.error("ST Multitool: Lỗi khi lưu preset qua API", err);
-            triggerUIUpdate();
           });
         } else {
           console.warn("ST Multitool: Không tìm thấy tên Preset! Đang sử dụng cách lưu dự phòng...");
-          triggerUIUpdate();
-          
-          // Fallback: bấm nút lưu trên giao diện nếu tìm thấy (phòng hờ)
-          setTimeout(() => {
-            const btn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset');
-            if (btn && typeof btn.click === 'function') btn.click();
-          }, 500);
+          const btn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset');
+          if (btn && typeof btn.click === 'function') btn.click();
         }
-      }
+      }, 500);
     }
 
     if (hasVarChanges) {
