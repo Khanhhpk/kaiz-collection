@@ -28,8 +28,15 @@ export function initManagePrompt() {
   });
 
   $saveBtn.on('click', () => {
-    savePromptBlocks();
-    if (window.refreshPromptList) window.refreshPromptList();
+    showLoader();
+    setTimeout(() => {
+      try {
+        savePromptBlocks();
+        if (window.refreshPromptList) window.refreshPromptList();
+      } finally {
+        hideLoader();
+      }
+    }, 50);
   });
   
   $('#st-multitool-reset-prompt-btn').on('click', () => {
@@ -73,7 +80,10 @@ export function initManagePrompt() {
     }
 
     if (searchTerm === '') {
-      $promptListContainer.find('.st-multitool-wb-item').show();
+      const items = $promptListContainer[0].getElementsByClassName('st-multitool-wb-item');
+      for (let i = 0; i < items.length; i++) {
+        items[i].style.display = 'block';
+      }
       return;
     }
 
@@ -92,9 +102,9 @@ export function initManagePrompt() {
 
       const content = $(this).find('.st-multitool-prompt-content').val().toLowerCase();
       if (title.includes(searchTerm) || desc.includes(searchTerm) || content.includes(searchTerm)) {
-        $(this).show();
+        this.style.display = 'block';
       } else {
-        $(this).hide();
+        this.style.display = 'none';
       }
     });
   };
@@ -336,7 +346,7 @@ export function savePromptBlocks() {
     toastr.error('Không tìm thấy cấu trúc Prompt AI trong hệ thống.');
     return;
   }
-  showLoader();
+  
   try {
     const { renames, valuesBySource } = getPendingVarChanges();
     const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(valuesBySource || {}).length > 0;
@@ -471,7 +481,5 @@ export function savePromptBlocks() {
   } catch (err) {
     console.error(err);
     toastr.error('Lưu thất bại: ' + err.message);
-  } finally {
-    hideLoader();
   }
 }
