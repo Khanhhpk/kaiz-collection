@@ -35,7 +35,7 @@ async function init() {
     initUIElements();
 
     $("#st-multitool-popup-close-button").on("click touchend", closePopup);
-    $("#st-multitool-popup-back-btn").on("click touchend", showMainView);
+    $("#st-multitool-popup-back-btn").on("click touchend", () => showMainView(true));
     elements.overlay.on("click", function (e) {
       if (e.target === this) closePopup();
     });

@@ -74,7 +74,9 @@ export function showPopup() {
   }
 }
 
-export function showMainView() {
+let _mainViewScrollPos = 0;
+
+export function showMainView(isBack = false) {
   elements.mainView.show();
   [
     elements.selectView,
@@ -98,15 +100,18 @@ export function showMainView() {
   $('#st-multitool-preset-list-container').hide();
   renderPresets(false);
 
-  // Reset Dashboard V2 tabs & card visibility
-  $('.st-multitool-nav-tab').removeClass('active');
-  $('.st-multitool-nav-tab[data-filter="all"]').addClass('active');
-  $('.st-multitool-dash-card').css('display', 'flex');
+  // Do not reset Dashboard V2 tabs & card visibility here anymore 
+  // so that when user clicks back, they stay on the current tab.
 
   $('#st-multitool-header-title').html('<i data-lucide="layout-dashboard" style="margin-right: 8px; vertical-align: -2px;"></i> ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
-  setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 100);
+  setTimeout(() => { 
+    if(window.lucide) window.lucide.createIcons(); 
+    if (isBack && elements.body) {
+      elements.body.scrollTop(_mainViewScrollPos);
+    }
+  }, 100);
 
   const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
   if (isCharacterSelected) {
@@ -119,6 +124,9 @@ export function showMainView() {
 }
 
 export async function showSubView(viewId) {
+  if (elements.body && elements.mainView.is(':visible')) {
+    _mainViewScrollPos = elements.body.scrollTop();
+  }
   elements.mainView.hide();
   [
     elements.selectView,
