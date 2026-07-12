@@ -5,6 +5,98 @@ import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent,
 let $promptListContainer;
 let $saveBtn;
 
+// ─── Add / Delete Block ─────────────────────────────────────────────────────
+
+/**
+ * Thêm một prompt block mới vào ST context và render lại danh sách.
+ * @param {object} blockData - Dữ liệu block (name, content, role, ...)
+ * @param {boolean} addToLinked - true = thêm vào Linked (prompt_order), false = Unlinked
+ * @returns {object} block mới đã tạo
+ */
+export function addPromptBlock(blockData = {}, addToLinked = false) {
+  const container = getPromptContainer();
+  if (!container || !Array.isArray(container.prompts)) {
+    toastr.error('Không tìm thấy cấu trúc Prompt AI.');
+    return null;
+  }
+
+  const identifier = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+
+  const newBlock = {
+    identifier,
+    name: blockData.name || 'New Block',
+    content: blockData.content || '',
+    enabled: blockData.enabled !== undefined ? blockData.enabled : true,
+    role: blockData.role || 'system',
+    injection_position: blockData.injection_position ?? 0,
+    injection_depth: blockData.injection_depth ?? 4,
+    injection_order: blockData.injection_order ?? 100,
+    system_prompt: blockData.system_prompt ?? false,
+    marker: blockData.marker ?? false,
+    forbid_overrides: blockData.forbid_overrides ?? false,
+  };
+
+  container.prompts.push(newBlock);
+
+  if (addToLinked) {
+    // Xử lý cả 2 format: ST 1.18+ (prompt_order[0].order) và cũ
+    if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0
+        && typeof container.prompt_order[0] === 'object'
+        && Array.isArray(container.prompt_order[0].order)) {
+      container.prompt_order[0].order.push({ identifier, enabled: true });
+    } else if (Array.isArray(container.prompt_order)) {
+      container.prompt_order.push({ identifier });
+    }
+  }
+
+  renderPromptBlocks();
+  if (window.lucide) window.lucide.createIcons();
+  toastr.success(`Đã thêm block "${newBlock.name}"`);
+  return newBlock;
+}
+
+/**
+ * Xóa một prompt block khỏi ST context theo identifier.
+ * @param {string} identifier
+ */
+export function deletePromptBlock(identifier) {
+  const container = getPromptContainer();
+  if (!container || !Array.isArray(container.prompts)) {
+    toastr.error('Không tìm thấy cấu trúc Prompt AI.');
+    return;
+  }
+
+  const idx = container.prompts.findIndex(p => String(p.identifier) === String(identifier));
+  if (idx === -1) {
+    toastr.warning('Không tìm thấy block.');
+    return;
+  }
+  const blockName = container.prompts[idx].name;
+  container.prompts.splice(idx, 1);
+
+  // Xóa khỏi prompt_order (hỗ trợ cả 2 format)
+  if (Array.isArray(container.prompt_order)) {
+    if (container.prompt_order.length > 0
+        && typeof container.prompt_order[0] === 'object'
+        && Array.isArray(container.prompt_order[0].order)) {
+      container.prompt_order[0].order = container.prompt_order[0].order
+        .filter(o => o.identifier !== identifier);
+    } else {
+      container.prompt_order = container.prompt_order
+        .filter(o => (typeof o === 'string' ? o : o.identifier) !== identifier);
+    }
+  }
+
+  // Xóa DOM element với animation
+  const $item = $promptListContainer.find(`[data-id="${identifier}"]`);
+  if ($item.length) {
+    $item.css({ transition: 'opacity 0.15s, transform 0.15s', opacity: 0, transform: 'translateX(8px)' });
+    setTimeout(() => $item.slideUp(150, () => $item.remove()), 150);
+  }
+
+  toastr.success(`Đã xóa block "${blockName}"`);
+}
+
 export function initManagePrompt() {
   $promptListContainer = $('#st-multitool-prompt-list-container');
   $saveBtn = $('#st-multitool-save-prompt-btn');
@@ -25,6 +117,46 @@ export function initManagePrompt() {
         hideLoader();
       }
     }, 50);
+  });
+
+  // ── Add Block Modal ──────────────────────────────────────────────────
+  $('#st-multitool-add-prompt-btn').on('click', () => {
+    const $modal = $('#st-multitool-add-prompt-modal');
+    // Reset fields
+    $('#st-multitool-new-prompt-name').val('');
+    $('#st-multitool-new-prompt-content').val('');
+    $('#st-multitool-new-prompt-role').val('system');
+    $modal.slideDown(200);
+    setTimeout(() => $('#st-multitool-new-prompt-name').focus(), 210);
+  });
+
+  $('#st-multitool-new-prompt-cancel-btn').on('click', () => {
+    $('#st-multitool-add-prompt-modal').slideUp(200);
+  });
+
+  const doAddBlock = (addToLinked) => {
+    const name = $('#st-multitool-new-prompt-name').val().trim();
+    if (!name) { toastr.warning('Vui lòng nhập tên block!'); return; }
+    addPromptBlock({
+      name,
+      role: $('#st-multitool-new-prompt-role').val(),
+      content: $('#st-multitool-new-prompt-content').val(),
+    }, addToLinked);
+    $('#st-multitool-add-prompt-modal').slideUp(200);
+  };
+
+  $('#st-multitool-new-prompt-linked-btn').on('click', () => doAddBlock(true));
+  $('#st-multitool-new-prompt-unlinked-btn').on('click', () => doAddBlock(false));
+
+  // ── Delete Block (event delegation) ─────────────────────────────────
+  $promptListContainer.on('click', '.st-multitool-delete-prompt-btn', function(e) {
+    e.stopPropagation();
+    const $item = $(this).closest('.st-multitool-wb-item');
+    const identifier = $item.attr('data-id');
+    const name = $item.find('.st-multitool-item-title-text').text();
+    if (confirm(`Xác nhận xóa block "${name}"?\nThao tác này không thể hoàn tác sau khi lưu.`)) {
+      deletePromptBlock(identifier);
+    }
   });
 
   $saveBtn.on('click', () => {
@@ -283,50 +415,78 @@ export function renderPromptBlocks() {
               <input type="checkbox" class="st-multitool-prompt-enabled" ${isEnabled ? 'checked' : ''}>
               <span class="st-multitool-toggle-slider"></span>
             </label>
+            <button class="st-multitool-delete-prompt-btn" title="Xóa block này" style="background:none; border:none; color: var(--st-multitool-danger); cursor:pointer; padding:3px 5px; border-radius:4px; opacity:0.45; transition:opacity 0.2s, background 0.2s; margin-right:4px; flex-shrink:0;" onmouseenter="this.style.opacity='1';this.style.background='rgba(255,92,92,0.12)'" onmouseleave="this.style.opacity='0.45';this.style.background='none'">
+              <i data-lucide="trash-2" style="width:13px; height:13px; pointer-events:none;"></i>
+            </button>
             <i data-lucide="chevron-down" class="st-multitool-accordion-icon" style="color: #888; transition: transform 0.2s; width: 16px; height: 16px;"></i>
           </div>
         </div>
         
         <div class="st-multitool-accordion-body" style="display: none; padding-top: 10px;">
-          <div class="st-multitool-prompt-advanced-settings" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 10px; font-size: 0.9em; border: 1px solid var(--st-multitool-border);">
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Name</label>
-              <input type="text" class="st-multitool-input st-prompt-name" value="${escapeHtml(block.name || 'Unnamed Block')}" style="width: 100%;">
+          <div class="st-multitool-prompt-advanced-settings" style="padding: 14px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--st-multitool-border);">
+
+            <!-- Row 1: Name / Role / Triggers -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+              <div>
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Name</label>
+                <input type="text" class="st-multitool-input st-prompt-name" value="${escapeHtml(block.name || 'Unnamed Block')}" style="width:100%; font-size:13px;">
+                <div style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">A name for this prompt.</div>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Role</label>
+                <select class="st-multitool-input st-prompt-role" style="width:100%; font-size:13px; background:rgba(20,24,32,0.8); color:#fff; cursor:pointer;">
+                  <option value="system"    ${block.role === 'system'    ? 'selected' : ''}>System</option>
+                  <option value="user"      ${block.role === 'user'      ? 'selected' : ''}>User</option>
+                  <option value="assistant" ${block.role === 'assistant' ? 'selected' : ''}>AI Assistant</option>
+                </select>
+                <div style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">To whom this message will be attributed.</div>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Triggers</label>
+                <input type="text" class="st-multitool-input" placeholder="All types (default)" style="width:100%; font-size:13px;" disabled title="Triggers chưa được hỗ trợ">
+                <div style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">Filter to specific generation types.</div>
+              </div>
             </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
-            <div style="flex: 1; min-width: 120px;">
-              <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Position</label>
-              <input type="number" class="st-multitool-input st-prompt-pos" value="${block.injection_position}" style="width: 100%;">
+
+            <!-- Row 2: Position (dropdown) + conditional Depth + Order -->
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-start;">
+              <div style="min-width:180px; flex:0 0 auto;">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Position</label>
+                <select class="st-multitool-input st-prompt-pos-select" style="width:100%; font-size:13px; background:rgba(20,24,32,0.8); color:#fff; cursor:pointer;">
+                  <option value="0" ${(block.injection_position == null || block.injection_position == 0) ? 'selected' : ''}>Relative</option>
+                  <option value="1" ${block.injection_position == 1 ? 'selected' : ''}>In-chat</option>
+                </select>
+                <div class="st-prompt-pos-hint" style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">
+                  ${block.injection_position == 1 ? 'Inserted at a specific <b style="color:#aaa">Depth</b> within the chat history.' : 'Relative (to other prompts in prompt manager) or In-chat @ Depth.'}
+                </div>
+              </div>
+              <div class="st-prompt-depth-wrap" style="min-width:130px; flex:0 0 auto; display:${block.injection_position == 1 ? 'block' : 'none'};">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Depth</label>
+                <input type="number" class="st-multitool-input st-prompt-depth" value="${block.injection_depth}" min="0" style="width:100%; font-size:13px;">
+                <div style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">0 = after last message, 1 = before last, etc.</div>
+              </div>
+              <div class="st-prompt-order-wrap" style="min-width:130px; flex:0 0 auto; display:${block.injection_position == 1 ? 'block' : 'none'};">
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Order</label>
+                <input type="number" class="st-multitool-input st-prompt-order" value="${block.injection_order}" style="width:100%; font-size:13px;">
+                <div style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">Ordered low/top → high/bottom.</div>
+              </div>
+              <!-- Hidden to preserve pos value for save logic -->
+              <input type="hidden" class="st-prompt-pos" value="${block.injection_position || 0}">
             </div>
-            <div style="flex: 1; min-width: 120px;">
-              <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Depth</label>
-              <input type="number" class="st-multitool-input st-prompt-depth" value="${block.injection_depth}" style="width: 100%;">
-            </div>
-            <div style="flex: 1; min-width: 120px;">
-              <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Order</label>
-              <input type="number" class="st-multitool-input st-prompt-order" value="${block.injection_order}" style="width: 100%;">
-            </div>
-            <div style="flex: 1; min-width: 120px;">
-              <label style="display: block; margin-bottom: 4px; color: var(--st-multitool-text-muted);">Role</label>
-              <select class="st-multitool-input st-prompt-role" style="width: 100%;">
-                <option value="system" ${block.role === 'system' ? 'selected' : ''}>System</option>
-                <option value="user" ${block.role === 'user' ? 'selected' : ''}>User</option>
-                <option value="assistant" ${block.role === 'assistant' ? 'selected' : ''}>Assistant</option>
-              </select>
+
+            <!-- Row 3: Boolean flags -->
+            <div style="display:flex; gap:20px; flex-wrap:wrap; padding-top:10px; border-top:1px solid var(--st-multitool-border);">
+              <label class="st-multitool-checkbox-label" style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer;">
+                <input type="checkbox" class="st-prompt-sys" ${block.system_prompt ? 'checked' : ''}> System Prompt
+              </label>
+              <label class="st-multitool-checkbox-label" style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer;">
+                <input type="checkbox" class="st-prompt-marker" ${block.marker ? 'checked' : ''}> Marker
+              </label>
+              <label class="st-multitool-checkbox-label" style="display:flex; align-items:center; gap:6px; font-size:12px; cursor:pointer;">
+                <input type="checkbox" class="st-prompt-forbid" ${block.forbid_overrides ? 'checked' : ''}> Forbid Overrides
+              </label>
             </div>
           </div>
-          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <label class="st-multitool-checkbox-label">
-              <input type="checkbox" class="st-prompt-sys" ${block.system_prompt ? 'checked' : ''}> System Prompt
-            </label>
-            <label class="st-multitool-checkbox-label">
-              <input type="checkbox" class="st-prompt-marker" ${block.marker ? 'checked' : ''}> Marker
-            </label>
-            <label class="st-multitool-checkbox-label">
-              <input type="checkbox" class="st-prompt-forbid" ${block.forbid_overrides ? 'checked' : ''}> Forbid Overrides
-            </label>
-          </div>
-        </div>
 
         <div class="st-multitool-wb-item-body" style="display: block; margin-top: 10px; position: relative;">
           <div class="st-multitool-textarea-container" style="position: relative; width: 100%;">
@@ -376,6 +536,27 @@ export function renderPromptBlocks() {
     const $icon = $(this).find('.st-multitool-accordion-icon');
     $body.slideToggle(200);
     $icon.css('transform', $body.is(':visible') ? 'rotate(180deg)' : 'rotate(0deg)');
+  });
+
+  // Position dropdown toggle: show/hide Depth+Order when In-chat selected
+  $promptListContainer.on('change', '.st-prompt-pos-select', function() {
+    const val = $(this).val();
+    const $settings = $(this).closest('.st-multitool-prompt-advanced-settings');
+    const $depthWrap = $settings.find('.st-prompt-depth-wrap');
+    const $orderWrap = $settings.find('.st-prompt-order-wrap');
+    const $posHint   = $settings.find('.st-prompt-pos-hint');
+    const $posHidden = $settings.find('.st-prompt-pos');
+
+    $posHidden.val(val);
+    if (val === '1') {
+      $depthWrap.show();
+      $orderWrap.show();
+      $posHint.html('Inserted at a specific <b style="color:#aaa">Depth</b> within the chat history.');
+    } else {
+      $depthWrap.hide();
+      $orderWrap.hide();
+      $posHint.text('Relative (to other prompts in prompt manager) or In-chat @ Depth.');
+    }
   });
 
   // Sync scroll and input for backdrop highlight
@@ -482,14 +663,23 @@ export function savePromptBlocks() {
         content = applyVarChangesToContent(content, identifier, renames, valuesBySource);
       }
 
+      const injPos = parseInt($item.find('.st-prompt-pos').val(), 10) || 0;
+      // Depth & Order may be hidden when Position=Relative; still read their value inputs
+      const depthVal = $item.find('.st-prompt-depth').length
+        ? (parseInt($item.find('.st-prompt-depth').val(), 10) || 0)
+        : (originalBlock.injection_depth || 0);
+      const orderVal = $item.find('.st-prompt-order').length
+        ? (parseInt($item.find('.st-prompt-order').val(), 10) || 100)
+        : (originalBlock.injection_order || 100);
+
       const newBlock = {
         ...originalBlock,
         name: $item.find('.st-prompt-name').val() || 'Unnamed Block',
         enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
         content: content,
-        injection_position: parseInt($item.find('.st-prompt-pos').val(), 10) || 0,
-        injection_depth: parseInt($item.find('.st-prompt-depth').val(), 10) || 0,
-        injection_order: parseInt($item.find('.st-prompt-order').val(), 10) || 100,
+        injection_position: injPos,
+        injection_depth: depthVal,
+        injection_order: orderVal,
         role: $item.find('.st-prompt-role').val(),
         system_prompt: $item.find('.st-prompt-sys').is(':checked'),
         marker: $item.find('.st-prompt-marker').is(':checked'),

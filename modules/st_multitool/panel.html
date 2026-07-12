@@ -1388,6 +1388,9 @@
           <button id="st-multitool-reset-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Hoàn tác">
             <i data-lucide="rotate-ccw"></i>
           </button>
+          <button id="st-multitool-add-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Thêm block mới">
+            <i data-lucide="plus"></i>
+          </button>
           <button id="st-multitool-var-inspector-btn" class="st-multitool-btn-hero" style="flex: 1; min-width: 140px; background: linear-gradient(135deg, rgba(0,230,184,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(0,230,184,0.3); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Quét và hiển thị biến trong preset">
             <i data-lucide="search-code"></i> Quét Biến
           </button>
@@ -1400,6 +1403,34 @@
           </div>
         </div>
         <div style="margin-bottom: 12px; flex-shrink: 0;">
+
+          <!-- Add Block Modal -->
+          <div id="st-multitool-add-prompt-modal" style="display: none; margin-bottom: 10px; background: rgba(30,36,48,0.92); border: 1px solid rgba(52,211,153,0.25); border-radius: 10px; padding: 14px 16px;">
+            <div style="font-size: 13px; font-weight: 600; color: rgba(52,211,153,0.9); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="plus-circle" style="width:14px;height:14px;"></i> Thêm Prompt Block mới
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <input type="text" id="st-multitool-new-prompt-name" class="st-multitool-input" placeholder="Tên block..." style="flex: 1; padding: 7px 10px; border-radius: 7px; font-size: 13px;">
+              <select id="st-multitool-new-prompt-role" class="st-multitool-input" style="flex: 0 0 auto; padding: 7px 10px; border-radius: 7px; font-size: 13px; background: rgba(20,24,32,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+                <option value="system">System</option>
+                <option value="user">User</option>
+                <option value="assistant">Assistant</option>
+              </select>
+            </div>
+            <textarea id="st-multitool-new-prompt-content" class="st-multitool-input" placeholder="Nội dung prompt (có thể để trống rồi chỉnh sửa sau)..." style="width: 100%; min-height: 80px; padding: 8px 10px; border-radius: 7px; font-size: 12px; resize: vertical; font-family: 'Consolas', monospace; box-sizing: border-box; margin-bottom: 8px;"></textarea>
+            <div style="display: flex; gap: 8px;">
+              <button id="st-multitool-new-prompt-linked-btn" class="st-multitool-btn-hero primary" style="flex: 1; padding: 7px 10px; font-size: 12px; min-height: 32px;" title="Thêm vào Linked (hiệu lực với preset hiện tại)">
+                <i data-lucide="link" style="width:13px;height:13px;"></i> Thêm vào Linked
+              </button>
+              <button id="st-multitool-new-prompt-unlinked-btn" class="st-multitool-btn-hero" style="flex: 1; padding: 7px 10px; font-size: 12px; min-height: 32px; background: rgba(255,255,255,0.08);" title="Thêm vào Unlinked (lưu trữ, chưa kích hoạt)">
+                <i data-lucide="unlink" style="width:13px;height:13px;"></i> Thêm vào Unlinked
+              </button>
+              <button id="st-multitool-new-prompt-cancel-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; padding: 7px 12px; font-size: 12px; min-height: 32px; background: rgba(255,92,92,0.1); border: 1px solid rgba(255,92,92,0.2);" title="Hủy">
+                <i data-lucide="x" style="width:13px;height:13px;"></i>
+              </button>
+            </div>
+          </div>
+
           <div id="st-multitool-var-inspector-panel" style="display: none; margin-top: 10px;">
             <div id="st-multitool-var-inspector-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
               <div style="flex: 1; position: relative; display: flex; align-items: center;">
