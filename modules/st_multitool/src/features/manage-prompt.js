@@ -504,7 +504,9 @@ export function renderPromptBlocks() {
 
   // Build active list (maintaining prompt_order sequence)
   promptOrder.forEach(orderItem => {
+    if (!orderItem) return;
     const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
+    if (!id) return;
     if (_pendingDeletes.has(id)) return; // ẩn block đã đánh dấu xóa
     const idx = prompts.findIndex(p => p.identifier === id);
     if (idx !== -1) {
@@ -514,8 +516,9 @@ export function renderPromptBlocks() {
 
   // Pending deletes still in active — hiển với visual mark
   promptOrder.forEach(orderItem => {
+    if (!orderItem) return;
     const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
-    if (!_pendingDeletes.has(id)) return;
+    if (!id || !_pendingDeletes.has(id)) return;
     const idx = prompts.findIndex(p => p.identifier === id);
     if (idx !== -1) {
       activeHtml += renderBlock(prompts[idx], idx, true); // isPendingDelete = true
@@ -791,7 +794,17 @@ export function savePromptBlocks() {
                   const id = item.identifier || item;
                   let $existing = $stPromptList.find(`[data-identifier="${id}"], [id*="${id}"], [data-id="${id}"]`).first();
                   if (!$existing.length) {
-                      $existing = $('<div></div>').attr('class', childClasses).attr('data-identifier', id).attr('data-id', id).attr('id', 'prompt_block_' + id).hide();
+                      $existing = $sampleBlock.clone();
+                      const oldId = $sampleBlock.attr('data-identifier') || $sampleBlock.attr('data-id') || ($sampleBlock.attr('id') || '').replace('prompt_block_', '');
+                      if (oldId && oldId !== id) {
+                          let inner = $existing.html();
+                          inner = inner.split(oldId).join(id);
+                          $existing.html(inner);
+                      }
+                      if ($existing.attr('data-identifier')) $existing.attr('data-identifier', id);
+                      if ($existing.attr('data-id')) $existing.attr('data-id', id);
+                      if ($existing.attr('id')) $existing.attr('id', ($existing.attr('id') || '').split(oldId).join(id));
+                      $existing.hide();
                   }
                   $stPromptList.prepend($existing);
               });
