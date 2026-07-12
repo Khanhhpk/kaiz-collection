@@ -254,7 +254,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.0.5.0';
+const KAIZ_CURRENT_VERSION = '2.0.5.1';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -610,7 +610,7 @@ function showKaizPatchNotes(targetWin) {
                     <i class="fa-solid fa-gift"></i>
                 </div>
                 <div>
-                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.5.0</div>
+                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.5.1</div>
                     <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Bản vá sửa và tối ưu ST Multitools!</div>
                 </div>
             </div>
@@ -618,7 +618,7 @@ function showKaizPatchNotes(targetWin) {
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
             Chào mừng bạn đến với bản cập nhật mới của <b>KAIZ Collection</b>!<br><br>
-            Bản cập nhật <b>2.0.5.0</b> tập trung vào việc vá lỗi và tối ưu hóa các tính năng cốt lõi.<br><br>
+            Bản cập nhật <b>2.0.5.1</b> tập trung vào việc vá lỗi và tối ưu hóa các tính năng cốt lõi.<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
                 <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square;">
@@ -1078,9 +1078,9 @@ waitForEnvironment(async (targetWin, jq) => {
 
     const config = getPhoneConfig();
     
-    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.5.0)
+    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.5.1)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.0.5.0') {
+        if (KAIZ_CURRENT_VERSION === '2.0.5.1') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);

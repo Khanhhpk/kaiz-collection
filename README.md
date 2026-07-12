@@ -8,7 +8,7 @@ KAIZ Collection không còn là một extension nhỏ lẻ. Nó đã trở thàn
 
 ---
 
-## 🚀 What's new in v2.0.5.0
+## 🚀 What's new in v2.0.5.1
 - Bản vá sửa và tối ưu các vấn đề xung quanh ST Multitools.
 
 ---
