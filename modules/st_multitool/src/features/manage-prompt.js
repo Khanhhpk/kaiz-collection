@@ -6,8 +6,8 @@ let $promptListContainer;
 let $saveBtn;
 
 // ─── Pending Add / Delete (chỉ áp dụng khi bấm Lưu) ────────────────────────
-let _pendingAdds = [];      // [{block, addToLinked}]
-let _pendingDeletes = new Set(); // identifier strings
+let _pendingAdds = [];           // [{ block, addToLinked, insertTop }]
+let _pendingDeletes = new Set(); // Set<identifier string>
 
 function clearPendingBlockChanges() {
   _pendingAdds = [];
@@ -15,14 +15,14 @@ function clearPendingBlockChanges() {
 }
 
 /**
- * Đánh dấu block mới để thêm — chưa áp dụng vào ST context.
- * Chỉ được ghi thật khi savePromptBlocks() được gọi.
+ * Tạo block mới (pending) — chưa ghi vào ST context.
+ * Cấu trúc khớp với preset JSON thực của SillyTavern.
  */
 export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = false) {
   const identifier = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   const newBlock = {
     identifier,
-    id: identifier,          // ST requires 'id' == 'identifier'
+    id: identifier,           // ST yêu cầu id === identifier
     name: blockData.name || 'New Block',
     content: blockData.content || '',
     enabled: blockData.enabled !== undefined ? blockData.enabled : true,
@@ -36,17 +36,16 @@ export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = 
   };
 
   _pendingAdds.push({ block: newBlock, addToLinked, insertTop });
-  renderPromptBlocks(); // hiển thị pending add trong list
+  renderPromptBlocks();
   if (window.lucide) window.lucide.createIcons();
   return newBlock;
 }
 
 /**
- * Đánh dấu block để xóa — chưa áp dụng vào ST context.
- * Nếu block là pending add thì hủy luôn, nếu là block thật thì mark pending delete.
+ * Toggle xóa block (pending) — chưa ghi vào ST context.
+ * Nếu là pending add thì hủy luôn. Nếu là block thật thì toggle mark xóa.
  */
 export function deletePromptBlock(identifier) {
-  // Hủy pending add nếu đang chờ add
   const addIdx = _pendingAdds.findIndex(p => p.block.identifier === identifier);
   if (addIdx !== -1) {
     _pendingAdds.splice(addIdx, 1);
@@ -55,7 +54,7 @@ export function deletePromptBlock(identifier) {
     return;
   }
 
-  // Toggle: nếu đang pending delete thì undo, ngược lại thì mark
+  // Toggle pending delete visual
   if (_pendingDeletes.has(identifier)) {
     _pendingDeletes.delete(identifier);
     _applyDeleteVisual(identifier, false);
@@ -90,15 +89,11 @@ export function initManagePrompt() {
   $('#st-multitool-manage-prompt-btn').on('click', () => {
     showSubView('st-multitool-manage-prompt-view');
     showLoader();
-    
-    // Defer heavy DOM operations so the view and loader can render first
     setTimeout(() => {
       try {
         renderPromptBlocks();
-        $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on open
-        if (window.lucide) {
-          window.lucide.createIcons();
-        }
+        $('#st-multitool-prompt-search').val('').trigger('input');
+        if (window.lucide) window.lucide.createIcons();
       } finally {
         hideLoader();
       }
@@ -107,12 +102,10 @@ export function initManagePrompt() {
 
   // ── Add Block Modal ──────────────────────────────────────────────────
   $('#st-multitool-add-prompt-btn').on('click', () => {
-    const $modal = $('#st-multitool-add-prompt-modal');
-    // Reset fields
     $('#st-multitool-new-prompt-name').val('');
     $('#st-multitool-new-prompt-content').val('');
     $('#st-multitool-new-prompt-role').val('system');
-    $modal.slideDown(200);
+    $('#st-multitool-add-prompt-modal').slideDown(200);
     setTimeout(() => $('#st-multitool-new-prompt-name').focus(), 210);
   });
 
@@ -138,11 +131,11 @@ export function initManagePrompt() {
   // ── Delete Block (event delegation) ─────────────────────────────────
   $promptListContainer.on('click', '.st-multitool-delete-prompt-btn', function(e) {
     e.stopPropagation();
-    const $item = $(this).closest('.st-multitool-wb-item');
-    const identifier = $item.attr('data-id');
+    const identifier = $(this).closest('.st-multitool-wb-item').attr('data-id');
     deletePromptBlock(identifier);
   });
 
+  // ── Save ─────────────────────────────────────────────────────────────
   $saveBtn.on('click', () => {
     showLoader();
     setTimeout(() => {
@@ -154,71 +147,56 @@ export function initManagePrompt() {
       }
     }, 50);
   });
-  
+
+  // ── Undo (hoàn tác add/delete chưa lưu) ─────────────────────────────
   $('#st-multitool-reset-prompt-btn').on('click', () => {
     showLoader();
     setTimeout(() => {
       try {
-        clearPendingBlockChanges(); // xóa các thay đổi add/delete chưa lưu
+        clearPendingBlockChanges();
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
-        toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
+        toastr.info('Đã hoàn tác các thay đổi chưa lưu.');
       } finally {
         hideLoader();
       }
     }, 50);
   });
 
+  // ── Auto-save preset toggle ──────────────────────────────────────────
   const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
   if (autoSaveToggle.length) {
-    const isAutoSave = localStorage.getItem('st-multitool-auto-save-preset');
-    if (isAutoSave !== null) {
-      autoSaveToggle.prop('checked', isAutoSave === 'true');
-    } else {
-      autoSaveToggle.prop('checked', true); // Mặc định bật
-    }
-
+    const saved = localStorage.getItem('st-multitool-auto-save-preset');
+    autoSaveToggle.prop('checked', saved === null ? true : saved === 'true');
     autoSaveToggle.on('change', function() {
-      localStorage.setItem('st-multitool-auto-save-preset', $(this).prop('checked'));
+      localStorage.setItem('st-multitool-auto-save-preset', String($(this).prop('checked')));
     });
   }
 
+  // ── Search / Highlight ───────────────────────────────────────────────
   const performSearch = () => {
     const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
     const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
-    
+
     // Tắt kéo thả khi đang tìm kiếm để tránh lỗi thứ tự
     const $sortableLists = $promptListContainer.find('.st-multitool-prompt-sortable-list');
     if (typeof $sortableLists.sortable === 'function') {
-      if (searchTerm === '') {
-        $sortableLists.sortable('enable');
-      } else {
-        $sortableLists.sortable('disable');
-      }
+      $sortableLists.sortable(searchTerm === '' ? 'enable' : 'disable');
     }
 
     if (searchTerm === '') {
-      if (!$promptListContainer.data('is-filtered')) return; // Already clean
-      
-      // Fast path restore display
+      if (!$promptListContainer.data('is-filtered')) return;
       const items = $promptListContainer[0].getElementsByClassName('st-multitool-wb-item');
-      for (let i = 0; i < items.length; i++) {
-        items[i].style.display = 'block';
-      }
-      
-      // Fast path restore text if previously highlighted
+      for (let i = 0; i < items.length; i++) items[i].style.display = 'block';
       if ($promptListContainer.data('is-highlighted')) {
         $promptListContainer.find('.st-multitool-wb-item').each(function() {
           const $item = $(this);
           const origTitle = $item.attr('data-orig-title');
-          if (origTitle != null) {
-            $item.find('.st-multitool-item-title-text').text(origTitle);
-          }
-          const $backdrop = $item.find('.st-multitool-highlight-backdrop');
+          if (origTitle != null) $item.find('.st-multitool-item-title-text').text(origTitle);
           const $textarea = $item.find('.st-multitool-prompt-content');
           let content = $textarea.val();
           if (content && content.endsWith('\n')) content += ' ';
-          $backdrop.text(content);
+          $item.find('.st-multitool-highlight-backdrop').text(content);
         });
         $promptListContainer.data('is-highlighted', false);
       }
@@ -229,16 +207,15 @@ export function initManagePrompt() {
     $promptListContainer.data('is-filtered', true);
     if (enableHighlight) $promptListContainer.data('is-highlighted', true);
 
-    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const highlightRegex = enableHighlight ? new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi') : null;
-    
-    const safeHighlight = (text, isBackdrop = true) => {
+
+    const safeHighlight = (text, transparent = true) => {
       if (!text) return '';
       if (!highlightRegex) return escapeHtml(text);
-      const parts = text.split(highlightRegex);
-      return parts.map((part, i) => {
-        if (i % 2 === 1) { // Captured match
-          const colorStyle = isBackdrop ? 'color: transparent;' : 'color: inherit;';
+      return text.split(highlightRegex).map((part, i) => {
+        if (i % 2 === 1) {
+          const colorStyle = transparent ? 'color: transparent;' : 'color: inherit;';
           return `<mark style="background-color: rgba(255, 255, 0, 0.35); ${colorStyle} border-radius: 2px;">${escapeHtml(part)}</mark>`;
         }
         return escapeHtml(part);
@@ -254,51 +231,34 @@ export function initManagePrompt() {
         $item.attr('data-orig-title', $titleSpan.text());
         $item.attr('data-orig-desc', $item.find('.st-multitool-wb-item-desc').text());
       }
-      
+
       const origTitle = $item.attr('data-orig-title');
       const origDesc = $item.attr('data-orig-desc');
       let content = $textarea.val();
-      if (content.endsWith('\n')) content += ' '; // Fix trailing newline for backdrop
+      if (content.endsWith('\n')) content += ' ';
 
-      const origTitleLower = origTitle.toLowerCase();
-      const origDescLower = origDesc.toLowerCase();
-      const contentLower = content.toLowerCase();
+      const isMatch = origTitle.toLowerCase().includes(searchTerm)
+        || origDesc.toLowerCase().includes(searchTerm)
+        || content.toLowerCase().includes(searchTerm);
 
-      const isMatch = origTitleLower.includes(searchTerm) || origDescLower.includes(searchTerm) || contentLower.includes(searchTerm);
+      $item.css('display', isMatch ? 'block' : 'none');
 
-      if (isMatch) {
-        $item.css('display', 'block');
-        
-        if (enableHighlight) {
-          if (origTitleLower.includes(searchTerm)) {
-            $titleSpan.html(safeHighlight(origTitle, false));
-          } else {
-            $titleSpan.text(origTitle);
-          }
-
-          const $backdrop = $item.find('.st-multitool-highlight-backdrop');
-          if (contentLower.includes(searchTerm)) {
-            $backdrop.html(safeHighlight(content, true));
-          } else {
-            $backdrop.text(content);
-          }
-        }
-      } else {
-        $item.css('display', 'none');
+      if (isMatch && enableHighlight) {
+        $titleSpan.html(origTitle.toLowerCase().includes(searchTerm)
+          ? safeHighlight(origTitle, false) : escapeHtml(origTitle));
+        const $backdrop = $item.find('.st-multitool-highlight-backdrop');
+        $backdrop.html(content.toLowerCase().includes(searchTerm)
+          ? safeHighlight(content, true) : escapeHtml(content));
       }
     });
   };
 
   $('#st-multitool-prompt-search-btn').on('click', performSearch);
   $('#st-multitool-prompt-search').on('input', function() {
-    const val = $(this).val();
-    $('#st-multitool-prompt-search-clear').css('display', val.length > 0 ? 'block' : 'none');
+    $('#st-multitool-prompt-search-clear').css('display', $(this).val().length > 0 ? 'block' : 'none');
   }).on('keypress', function(e) {
-    if (e.which === 13) {
-      performSearch();
-    }
+    if (e.which === 13) performSearch();
   });
-  
   $('#st-multitool-prompt-search-clear').on('click', function() {
     $('#st-multitool-prompt-search').val('').trigger('input');
     performSearch();
@@ -306,85 +266,73 @@ export function initManagePrompt() {
 
   const highlightToggle = $('#st-multitool-prompt-search-highlight-toggle');
   const isHighlightEnabled = localStorage.getItem('st-multitool-prompt-search-highlight');
-  highlightToggle.prop('checked', isHighlightEnabled === null ? false : isHighlightEnabled === 'true'); // Mặc định tắt
+  highlightToggle.prop('checked', isHighlightEnabled === 'true');
   highlightToggle.on('change', function() {
-    localStorage.setItem('st-multitool-prompt-search-highlight', $(this).prop('checked'));
+    localStorage.setItem('st-multitool-prompt-search-highlight', String($(this).prop('checked')));
     performSearch();
   });
 }
 
+// ─── Get ST prompt container ──────────────────────────────────────────────────
 function getPromptContainer() {
   if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
     const ctx = window.SillyTavern.getContext();
-    // ST 1.18.0+
-    if (ctx && ctx.chatCompletionSettings && Array.isArray(ctx.chatCompletionSettings.prompts)) {
+    if (ctx?.chatCompletionSettings && Array.isArray(ctx.chatCompletionSettings.prompts))
       return ctx.chatCompletionSettings;
-    }
-    // ST < 1.18.0
-    if (ctx && ctx.power_user && ctx.power_user.instruct && Array.isArray(ctx.power_user.instruct.prompts)) {
+    if (ctx?.power_user?.instruct && Array.isArray(ctx.power_user.instruct.prompts))
       return ctx.power_user.instruct;
-    }
-    if (ctx && ctx.powerUserSettings && ctx.powerUserSettings.instruct && Array.isArray(ctx.powerUserSettings.instruct.prompts)) {
+    if (ctx?.powerUserSettings?.instruct && Array.isArray(ctx.powerUserSettings.instruct.prompts))
       return ctx.powerUserSettings.instruct;
-    }
   }
-  // Global fallbacks
-  if (window.power_user && window.power_user.instruct && Array.isArray(window.power_user.instruct.prompts)) return window.power_user.instruct;
-  if (window.chatCompletionSettings && Array.isArray(window.chatCompletionSettings.prompts)) return window.chatCompletionSettings;
-  
-  for (let key in window) {
+  if (window.power_user?.instruct && Array.isArray(window.power_user.instruct.prompts))
+    return window.power_user.instruct;
+  if (window.chatCompletionSettings && Array.isArray(window.chatCompletionSettings.prompts))
+    return window.chatCompletionSettings;
+  for (const key in window) {
     try {
-      if (window[key] && window[key].instruct && Array.isArray(window[key].instruct.prompts)) {
-        return window[key].instruct;
-      }
-      if (window[key] && Array.isArray(window[key].prompts) && window[key].prompts[0] && typeof window[key].prompts[0].system_prompt !== 'undefined') {
-        return window[key];
-      }
+      if (window[key]?.instruct && Array.isArray(window[key].instruct.prompts)) return window[key].instruct;
+      if (window[key] && Array.isArray(window[key].prompts) && window[key].prompts[0]
+          && typeof window[key].prompts[0].system_prompt !== 'undefined') return window[key];
     } catch(e) {}
   }
   return null;
 }
 
+// ─── Render ───────────────────────────────────────────────────────────────────
 export function renderPromptBlocks() {
   $promptListContainer.empty();
-  
+
   const container = getPromptContainer();
   if (!container || !Array.isArray(container.prompts)) {
     let debugInfo = 'N/A';
     try {
       const ctx = window.SillyTavern ? window.SillyTavern.getContext() : {};
       debugInfo = Object.keys(ctx).join(', ');
-    } catch (e) {
-      debugInfo = e.message;
-    }
+    } catch (e) { debugInfo = e.message; }
     $promptListContainer.html(`<p style="color:#f28b82; text-align:center;">Không tìm thấy cấu trúc Prompt AI trong hệ thống SillyTavern.</p><p style="color:#aaa; font-size:12px; word-break:break-all;">Debug Context Keys: ${debugInfo}</p>`);
     return;
   }
 
   const prompts = container.prompts;
-  
+
+  // Parse prompt_order thành mảng identifier strings
   const rawOrder = container.prompt_order || [];
   let promptOrder = [];
-  
   if (Array.isArray(rawOrder) && rawOrder.length > 0) {
     if (typeof rawOrder[0] === 'object' && Array.isArray(rawOrder[0].order)) {
-      // Lấy trực tiếp order từ phần tử đầu tiên, bỏ qua character_id
-      let currentOrderObj = rawOrder[0];
-      if (currentOrderObj && Array.isArray(currentOrderObj.order)) {
-        promptOrder = currentOrderObj.order.map(item => item.identifier);
-      }
+      // ST 1.18+ format: [{ character_id, order: [{identifier, enabled}] }]
+      promptOrder = (rawOrder[0].order || []).map(item => item.identifier).filter(Boolean);
     } else {
-      promptOrder = rawOrder.map(item => (typeof item === 'string') ? item : item.identifier);
+      promptOrder = rawOrder.map(item => (typeof item === 'string' ? item : item.identifier)).filter(Boolean);
     }
   }
 
-  const orderIdentifiers = promptOrder.filter(id => id != null);
+  const orderSet = new Set(promptOrder);
 
   let activeHtml = '';
   let inactiveHtml = '';
 
   const renderBlock = (block, idx, isPendingDelete = false, isPendingAdd = false) => {
-    const isEnabled = block.enabled;
     const pendingStyle = isPendingDelete
       ? 'opacity:0.4; outline:1px solid rgba(248,113,113,0.35); border-radius:8px;'
       : isPendingAdd
@@ -395,9 +343,9 @@ export function renderPromptBlocks() {
       : isPendingAdd
         ? `<span class="st-multitool-delete-badge" style="font-size:10px;background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Chưa lưu</span>`
         : '';
-    const titleStyle = isPendingDelete ? 'text-decoration:line-through;color:#f87171;' : '';
-    const deleteTitle = isPendingDelete ? 'Hoàn tác xóa' : 'Xóa block này';
-    const deleteColor = isPendingDelete ? '#facc15' : 'var(--st-multitool-danger)';
+    const titleStyle    = isPendingDelete ? 'text-decoration:line-through;color:#f87171;' : '';
+    const deleteTitle   = isPendingDelete ? 'Hoàn tác xóa' : 'Xóa block này';
+    const deleteColor   = isPendingDelete ? '#facc15' : 'var(--st-multitool-danger)';
     const deleteOpacity = isPendingDelete ? '1' : '0.45';
     return `
       <div class="st-multitool-wb-item" data-idx="${idx}" data-id="${escapeHtml(block.identifier || '')}" style="${pendingStyle}">
@@ -407,11 +355,11 @@ export function renderPromptBlocks() {
               <i data-lucide="grip-vertical" style="width: 16px; height: 16px;"></i>
             </span>
             <span class="st-multitool-wb-item-title" style="font-weight: 600;"><span class="st-multitool-item-title-text" style="${titleStyle}">${escapeHtml(block.name || 'Unnamed Block')}</span>${pendingBadge}</span>
-            <span class="st-multitool-wb-item-desc">Role: ${escapeHtml(block.role || '')} | Depth: ${block.injection_depth} | ID: ${escapeHtml(block.identifier || '')}</span>
+            <span class="st-multitool-wb-item-desc">Role: ${escapeHtml(block.role || '')} | Depth: ${block.injection_depth ?? '-'} | ID: ${escapeHtml(block.identifier || '')}</span>
           </div>
           <div class="st-multitool-wb-item-controls">
             <label class="st-multitool-toggle-switch" style="margin-right: 10px;" title="Bật/Tắt khối Prompt này">
-              <input type="checkbox" class="st-multitool-prompt-enabled" ${isEnabled ? 'checked' : ''}>
+              <input type="checkbox" class="st-multitool-prompt-enabled" ${block.enabled ? 'checked' : ''}>
               <span class="st-multitool-toggle-slider"></span>
             </label>
             <button class="st-multitool-delete-prompt-btn" title="${deleteTitle}" style="background:none; border:none; color: ${deleteColor}; cursor:pointer; padding:3px 5px; border-radius:4px; opacity:${deleteOpacity}; transition:opacity 0.2s, background 0.2s; margin-right:4px; flex-shrink:0;" onmouseenter="this.style.opacity='1';this.style.background='rgba(255,92,92,0.12)'" onmouseleave="this.style.opacity='${deleteOpacity}';this.style.background='none'">
@@ -420,7 +368,7 @@ export function renderPromptBlocks() {
             <i data-lucide="chevron-down" class="st-multitool-accordion-icon" style="color: #888; transition: transform 0.2s; width: 16px; height: 16px;"></i>
           </div>
         </div>
-        
+
         <div class="st-multitool-accordion-body" style="display: none; padding-top: 10px;">
           <div class="st-multitool-prompt-advanced-settings" style="padding: 14px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--st-multitool-border);">
 
@@ -447,7 +395,7 @@ export function renderPromptBlocks() {
               </div>
             </div>
 
-            <!-- Row 2: Position (dropdown) + conditional Depth + Order -->
+            <!-- Row 2: Position + conditional Depth + Order -->
             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-start;">
               <div style="min-width:180px; flex:0 0 auto;">
                 <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Position</label>
@@ -461,12 +409,12 @@ export function renderPromptBlocks() {
               </div>
               <div class="st-prompt-depth-wrap" style="min-width:130px; flex:0 0 auto; display:${block.injection_position == 1 ? 'block' : 'none'};">
                 <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Depth</label>
-                <input type="number" class="st-multitool-input st-prompt-depth" value="${block.injection_depth}" min="0" style="width:100%; font-size:13px;">
+                <input type="number" class="st-multitool-input st-prompt-depth" value="${block.injection_depth ?? 4}" min="0" style="width:100%; font-size:13px;">
                 <div style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">0 = after last message, 1 = before last, etc.</div>
               </div>
               <div class="st-prompt-order-wrap" style="min-width:130px; flex:0 0 auto; display:${block.injection_position == 1 ? 'block' : 'none'};">
                 <label style="display:block; font-size:12px; font-weight:600; color:var(--st-multitool-text); margin-bottom:5px;">Order</label>
-                <input type="number" class="st-multitool-input st-prompt-order" value="${block.injection_order}" style="width:100%; font-size:13px;">
+                <input type="number" class="st-multitool-input st-prompt-order" value="${block.injection_order ?? 100}" style="width:100%; font-size:13px;">
                 <div style="font-size:11px; color:var(--st-multitool-text-muted); margin-top:4px;">Ordered low/top → high/bottom.</div>
               </div>
               <!-- Hidden to preserve pos value for save logic -->
@@ -498,60 +446,45 @@ export function renderPromptBlocks() {
     `;
   };
 
-  // Pending adds (linked) TOP
+  // Pending adds (linked) — đầu danh sách
   _pendingAdds.filter(p => p.addToLinked && p.insertTop).forEach(p => {
-    activeHtml += renderBlock(p.block, -1, false, true); // isPendingAdd = true
+    activeHtml += renderBlock(p.block, -1, false, true);
   });
 
-  // Build active list (maintaining prompt_order sequence)
-  promptOrder.forEach(orderItem => {
-    if (!orderItem) return;
-    const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
-    if (!id) return;
-    if (_pendingDeletes.has(id)) return; // ẩn block đã đánh dấu xóa
-    const idx = prompts.findIndex(p => p.identifier === id);
-    if (idx !== -1) {
-      activeHtml += renderBlock(prompts[idx], idx);
+  // Linked prompts theo thứ tự prompt_order
+  promptOrder.forEach(id => {
+    if (_pendingDeletes.has(id)) {
+      // Hiển thị với dấu xóa
+      const idx = prompts.findIndex(p => p.identifier === id);
+      if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx, true);
+      return;
     }
-  });
-
-  // Pending deletes still in active — hiển với visual mark
-  promptOrder.forEach(orderItem => {
-    if (!orderItem) return;
-    const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
-    if (!id || !_pendingDeletes.has(id)) return;
     const idx = prompts.findIndex(p => p.identifier === id);
-    if (idx !== -1) {
-      activeHtml += renderBlock(prompts[idx], idx, true); // isPendingDelete = true
-    }
+    if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx);
   });
 
-  // Pending adds (linked) BOTTOM
+  // Pending adds (linked) — cuối danh sách
   _pendingAdds.filter(p => p.addToLinked && !p.insertTop).forEach(p => {
-    activeHtml += renderBlock(p.block, -1, false, true); // isPendingAdd = true
+    activeHtml += renderBlock(p.block, -1, false, true);
   });
 
-  // Pending adds (unlinked) TOP
+  // Pending adds (unlinked) — đầu
   _pendingAdds.filter(p => !p.addToLinked && p.insertTop).forEach(p => {
     inactiveHtml += renderBlock(p.block, -1, false, true);
   });
 
-  // Build inactive list
+  // Unlinked prompts (không có trong prompt_order)
   prompts.forEach((block, idx) => {
-    if (orderIdentifiers.includes(block.identifier)) return;
-    if (_pendingDeletes.has(block.identifier)) {
-      inactiveHtml += renderBlock(block, idx, true);
-    } else {
-      inactiveHtml += renderBlock(block, idx);
-    }
+    if (orderSet.has(block.identifier)) return;
+    inactiveHtml += renderBlock(block, idx, _pendingDeletes.has(block.identifier));
   });
 
-  // Pending adds (unlinked) BOTTOM
+  // Pending adds (unlinked) — cuối
   _pendingAdds.filter(p => !p.addToLinked && !p.insertTop).forEach(p => {
     inactiveHtml += renderBlock(p.block, -1, false, true);
   });
 
-  const layoutHtml = `
+  $promptListContainer.html(`
     <h5 style="margin: 0 0 10px 0; color: #34d399; font-size: 0.95em; flex-shrink: 0; display: flex; align-items: center; gap: 6px;"><i data-lucide="link" style="width: 16px; height: 16px;"></i> Linked Prompts (In Order)</h5>
     <div id="st-multitool-prompt-list-active" class="st-multitool-prompt-sortable-list" style="flex-shrink: 0; min-height: 50px; border: 1px dashed rgba(52, 211, 153, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
       ${activeHtml}
@@ -560,176 +493,134 @@ export function renderPromptBlocks() {
     <div id="st-multitool-prompt-list-inactive" class="st-multitool-prompt-sortable-list" style="flex-shrink: 0; min-height: 50px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.15);">
       ${inactiveHtml}
     </div>
-  `;
+  `);
 
-  $promptListContainer.html(layoutHtml);
   if (window.lucide) window.lucide.createIcons();
 
-  // Bind accordion click
+  // Accordion
   $promptListContainer.find('.st-multitool-accordion-header').on('click', function(e) {
-    if ($(e.target).closest('.st-multitool-toggle-switch').length || 
-        $(e.target).closest('.st-multitool-drag-handle').length ||
-        $(e.target).closest('.st-multitool-delete-prompt-btn').length) return; // Ignore click on toggle switch, drag handle, or delete btn
+    if ($(e.target).closest('.st-multitool-toggle-switch').length
+      || $(e.target).closest('.st-multitool-drag-handle').length
+      || $(e.target).closest('.st-multitool-delete-prompt-btn').length) return;
     const $body = $(this).next('.st-multitool-accordion-body');
     const $icon = $(this).find('.st-multitool-accordion-icon');
     $body.slideToggle(200);
     $icon.css('transform', $body.is(':visible') ? 'rotate(180deg)' : 'rotate(0deg)');
   });
 
-  // Position dropdown toggle: show/hide Depth+Order when In-chat selected
+  // Position dropdown: hiện/ẩn Depth + Order
   $promptListContainer.on('change', '.st-prompt-pos-select', function() {
     const val = $(this).val();
     const $settings = $(this).closest('.st-multitool-prompt-advanced-settings');
-    const $depthWrap = $settings.find('.st-prompt-depth-wrap');
-    const $orderWrap = $settings.find('.st-prompt-order-wrap');
-    const $posHint   = $settings.find('.st-prompt-pos-hint');
-    const $posHidden = $settings.find('.st-prompt-pos');
-
-    $posHidden.val(val);
-    if (val === '1') {
-      $depthWrap.show();
-      $orderWrap.show();
-      $posHint.html('Inserted at a specific <b style="color:#aaa">Depth</b> within the chat history.');
-    } else {
-      $depthWrap.hide();
-      $orderWrap.hide();
-      $posHint.text('Relative (to other prompts in prompt manager) or In-chat @ Depth.');
-    }
+    $settings.find('.st-prompt-pos').val(val);
+    $settings.find('.st-prompt-depth-wrap, .st-prompt-order-wrap').toggle(val === '1');
+    $settings.find('.st-prompt-pos-hint').html(val === '1'
+      ? 'Inserted at a specific <b style="color:#aaa">Depth</b> within the chat history.'
+      : 'Relative (to other prompts in prompt manager) or In-chat @ Depth.');
   });
 
-  // Sync scroll and input for backdrop highlight
+  // Backdrop highlight sync
   const updateBackdrop = ($textarea) => {
     let content = $textarea.val();
-    if (content.endsWith('\n')) content += ' '; // Fix trailing newline rendering in div
+    if (content.endsWith('\n')) content += ' ';
     const $backdrop = $textarea.siblings('.st-multitool-highlight-backdrop');
-    
-    // Check if we need to highlight
     const searchTerm = $('#st-multitool-prompt-search').val().trim().toLowerCase();
     const enableHighlight = $('#st-multitool-prompt-search-highlight-toggle').is(':checked');
     if (searchTerm && enableHighlight && content.toLowerCase().includes(searchTerm)) {
-      const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const highlightRegex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
-      const safeHighlight = (text) => {
-        if (!text) return '';
-        const parts = text.split(highlightRegex);
-        return parts.map((part, i) => {
-          if (i % 2 === 1) return `<mark style="background-color: rgba(255, 255, 0, 0.35); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`;
-          return escapeHtml(part);
-        }).join('');
-      };
-      $backdrop.html(safeHighlight(content));
+      const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+      $backdrop.html(content.split(regex).map((part, i) =>
+        i % 2 === 1
+          ? `<mark style="background-color: rgba(255, 255, 0, 0.35); color: transparent; border-radius: 2px;">${escapeHtml(part)}</mark>`
+          : escapeHtml(part)
+      ).join(''));
     } else {
       $backdrop.text(content);
     }
     $backdrop.scrollTop($textarea.scrollTop());
   };
 
-  $promptListContainer.find('.st-multitool-prompt-content').on('scroll', function() {
-    $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
-  }).on('input', function() {
-    updateBackdrop($(this));
-  });
-  
-  // Initialize backdrops correctly on load
-  $promptListContainer.find('.st-multitool-prompt-content').each(function() {
-    updateBackdrop($(this));
-  });
+  $promptListContainer.find('.st-multitool-prompt-content')
+    .on('scroll', function() {
+      $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
+    })
+    .on('input', function() { updateBackdrop($(this)); })
+    .each(function() { updateBackdrop($(this)); });
 
+  // Sync tên block lên header khi người dùng sửa
   $promptListContainer.find('.st-prompt-name').on('input', function() {
     const newName = $(this).val() || 'Unnamed Block';
     const $item = $(this).closest('.st-multitool-wb-item');
     $item.find('.st-multitool-item-title-text').text(newName);
-    $item.attr('data-orig-title', newName); // Cập nhật luôn cho tính năng tìm kiếm
+    $item.attr('data-orig-title', newName);
   });
 
-  // Handle manual toggle switch click (only save state, don't move between lists)
-  $promptListContainer.find('.st-multitool-prompt-enabled').on('change', function(e) {
-    // Không tự động lưu nữa
-  });
-
-  // Enable Sortable with connected lists
+  // Sortable drag-drop (connected lists)
   if (typeof $promptListContainer.sortable === 'function') {
     $promptListContainer.find('.st-multitool-prompt-sortable-list').sortable({
       connectWith: '.st-multitool-prompt-sortable-list',
       handle: '.st-multitool-drag-handle',
-      receive: function(event, ui) {
-        // Không tự động lưu nữa
-      },
-      update: function(event, ui) {
-        // Không tự động lưu nữa
-      }
     });
-  }
-
-  if (window.lucide) {
-    window.lucide.createIcons();
   }
 }
 
+// ─── Save ─────────────────────────────────────────────────────────────────────
 export function savePromptBlocks() {
   const container = getPromptContainer();
   if (!container || !Array.isArray(container.prompts)) {
     toastr.error('Không tìm thấy cấu trúc Prompt AI trong hệ thống.');
     return;
   }
-  
+
   try {
     const { renames, valuesBySource } = getPendingVarChanges();
     const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(valuesBySource || {}).length > 0;
-    
+
     const newPrompts = [];
     const newPromptOrder = [];
     const originalPrompts = container.prompts;
 
-    const oldPromptOrderMap = new Map();
+    // Build map từ prompt_order cũ để bảo toàn các metadata (enabled, v.v.)
+    const oldOrderMap = new Map();
     if (Array.isArray(container.prompt_order)) {
-      container.prompt_order.forEach(item => {
-        if (item && item.identifier) {
-          oldPromptOrderMap.set(item.identifier, item);
-        } else if (typeof item === 'string') {
-          oldPromptOrderMap.set(item, { identifier: item });
-        }
+      const flatOrder = (typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0]?.order))
+        ? container.prompt_order[0].order
+        : container.prompt_order;
+      flatOrder.forEach(item => {
+        if (!item) return;
+        const id = typeof item === 'string' ? item : item.identifier;
+        if (id) oldOrderMap.set(id, item);
       });
     }
 
     const processItem = ($item, isActiveList) => {
       const identifier = $item.attr('data-id');
-      if (_pendingDeletes.has(identifier)) return; // Skip deleted blocks
+      if (!identifier || _pendingDeletes.has(identifier)) return;
 
-      // Look up from existing prompts first; fall back to _pendingAdds for newly added blocks
+      // Tìm block data: ưu tiên container.prompts, rồi mới _pendingAdds
       const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier))
         || (_pendingAdds.find(p => p.block.identifier === identifier) || {}).block
         || null;
 
-      // If block can't be identified (shouldn't happen), skip it
-      if (!originalBlock || !originalBlock.identifier) {
-        console.warn('[ST Multitool] processItem: Cannot find block for identifier', identifier, '— skipped');
+      if (!originalBlock?.identifier) {
+        console.warn('[ST Multitool] processItem: block không tìm được, bỏ qua identifier:', identifier);
         return;
       }
 
-      let content = $item.find('.st-multitool-prompt-content').val();
-      // For pending adds the textarea may be empty on first render — fall back to block's content
-      if (content === undefined || content === null) content = originalBlock.content || '';
-
-      if (hasVarChanges) {
-        content = applyVarChangesToContent(content, identifier, renames, valuesBySource);
-      }
+      let content = $item.find('.st-multitool-prompt-content').val() ?? originalBlock.content ?? '';
+      if (hasVarChanges) content = applyVarChangesToContent(content, identifier, renames, valuesBySource);
 
       const injPos = parseInt($item.find('.st-prompt-pos').val(), 10);
-      const depthVal = $item.find('.st-prompt-depth').length
-        ? (parseInt($item.find('.st-prompt-depth').val(), 10) || 0)
-        : (originalBlock.injection_depth || 0);
-      const orderVal = $item.find('.st-prompt-order').length
-        ? (parseInt($item.find('.st-prompt-order').val(), 10) || 100)
-        : (originalBlock.injection_order || 100);
+      const depthVal = parseInt($item.find('.st-prompt-depth').val(), 10) || originalBlock.injection_depth || 0;
+      const orderVal = parseInt($item.find('.st-prompt-order').val(), 10) || originalBlock.injection_order || 100;
 
       const newBlock = {
         ...originalBlock,
-        identifier: originalBlock.identifier, // always preserve
-        id: originalBlock.identifier,         // ST requires id == identifier
+        identifier: originalBlock.identifier,  // luôn giữ nguyên
+        id: originalBlock.identifier,           // ST yêu cầu id === identifier
         name: $item.find('.st-prompt-name').val() || originalBlock.name || 'Unnamed Block',
         enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
-        content: content,
+        content,
         role: $item.find('.st-prompt-role').val() || originalBlock.role || 'system',
         system_prompt: $item.find('.st-prompt-sys').is(':checked'),
         marker: $item.find('.st-prompt-marker').is(':checked'),
@@ -738,117 +629,59 @@ export function savePromptBlocks() {
         injection_depth: depthVal,
         injection_order: orderVal,
       };
-      
+
       newPrompts.push(newBlock);
 
       if (isActiveList) {
-        if (oldPromptOrderMap.has(newBlock.identifier)) {
-          newPromptOrder.push(oldPromptOrderMap.get(newBlock.identifier));
-        } else {
-          newPromptOrder.push({ identifier: newBlock.identifier });
-        }
+        // Giữ lại object cũ nếu có, hoặc tạo mới với enabled từ block
+        const oldEntry = oldOrderMap.get(newBlock.identifier);
+        newPromptOrder.push(oldEntry
+          ? { ...oldEntry, enabled: newBlock.enabled }
+          : { identifier: newBlock.identifier, enabled: newBlock.enabled }
+        );
       }
     };
-    $('#st-multitool-prompt-list-active .st-multitool-wb-item').each(function() {
-      processItem($(this), true);
-    });
 
-    $('#st-multitool-prompt-list-inactive .st-multitool-wb-item').each(function() {
-      processItem($(this), false);
-    });
+    $('#st-multitool-prompt-list-active .st-multitool-wb-item').each(function() { processItem($(this), true); });
+    $('#st-multitool-prompt-list-inactive .st-multitool-wb-item').each(function() { processItem($(this), false); });
 
-    // 1. Cập nhật mảng trực tiếp vào bộ nhớ tạm của ST
-    if (container.prompts && Array.isArray(container.prompts)) {
-      container.prompts.length = 0;
-      newPrompts.forEach(p => container.prompts.push(p));
-    } else {
-      container.prompts = newPrompts;
-    }
-    
-    // Check if it was ST 1.18.0 format originally
-    if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0].order)) {
-      const ctx = window.SillyTavern && typeof window.SillyTavern.getContext === 'function' ? window.SillyTavern.getContext() : {};
+    // Ghi vào bộ nhớ tạm của ST
+    container.prompts.length = 0;
+    newPrompts.forEach(p => container.prompts.push(p));
+
+    // Ghi prompt_order (xử lý cả ST 1.18+ format lẫn flat format)
+    if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0
+        && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0]?.order)) {
+      // ST 1.18+ nested format
+      const ctx = window.SillyTavern?.getContext?.() || {};
       const charId = ctx.characterId;
-      
-      let targetOrderObj = container.prompt_order.find(o => o.character_id === charId);
-      if (!targetOrderObj) targetOrderObj = container.prompt_order.length > 0 ? container.prompt_order[0] : null;
-
-      if (targetOrderObj) {
-        targetOrderObj.order = newPromptOrder.map(item => {
-           const promptBlock = newPrompts.find(p => p.identifier === item.identifier);
-           return { enabled: promptBlock ? promptBlock.enabled : true, identifier: item.identifier };
-        });
-      }
+      let targetObj = container.prompt_order.find(o => o.character_id === charId) || container.prompt_order[0];
+      if (targetObj) targetObj.order = newPromptOrder;
     } else {
       container.prompt_order = newPromptOrder;
     }
-    
-    // 2. Yêu cầu ST vẽ lại UI từ bộ nhớ tạm ra màn hình
+
+    // Yêu cầu ST cập nhật UI và lưu file
     if (window.SillyTavern && typeof window.SillyTavern.getContext === 'function') {
       const stContext = window.SillyTavern.getContext();
-      
-      if (stContext && stContext.eventSource && typeof stContext.eventSource.emit === 'function') {
-        stContext.eventSource.emit('oai_preset_changed_after');
-      }
-      
-      // 3. Chờ 1.5 giây để ST hoàn tất việc vẽ UI mới
+      stContext?.eventSource?.emit?.('oai_preset_changed_after');
+
       setTimeout(() => {
-        const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
-        const shouldAutoSave = autoSaveToggle.length ? autoSaveToggle.prop('checked') : true;
+        const autoSave = $('#st-multitool-auto-save-preset-toggle');
+        const shouldAutoSave = autoSave.length ? autoSave.prop('checked') : true;
 
         if (shouldAutoSave) {
-          // --- Đồng bộ DOM của ST với newPromptOrder trước khi click Save ---
-          // ST's Save button rebuilds prompt_order from DOM, so if our new block isn't in DOM, ST drops it!
-          const $sampleBlock = $('[data-identifier^="block_"], [id^="prompt_block_"]').not('#st-multitool-popup *').first();
-          if ($sampleBlock.length) {
-              const $stPromptList = $sampleBlock.parent();
-              const childClasses = $sampleBlock.attr('class') || '';
-              
-              [...newPromptOrder].reverse().forEach(item => {
-                  const id = item.identifier || item;
-                  let $existing = $stPromptList.find(`[data-identifier="${id}"], [id*="${id}"], [data-id="${id}"]`).first();
-                  if (!$existing.length) {
-                      $existing = $sampleBlock.clone();
-                      const oldId = $sampleBlock.attr('data-identifier') || $sampleBlock.attr('data-id') || ($sampleBlock.attr('id') || '').replace('prompt_block_', '');
-                      if (oldId && oldId !== id) {
-                          let inner = $existing.html();
-                          inner = inner.split(oldId).join(id);
-                          $existing.html(inner);
-                      }
-                      if ($existing.attr('data-identifier')) $existing.attr('data-identifier', id);
-                      if ($existing.attr('data-id')) $existing.attr('data-id', id);
-                      if ($existing.attr('id')) $existing.attr('id', ($existing.attr('id') || '').split(oldId).join(id));
-                      $existing.hide();
-                  }
-                  $stPromptList.prepend($existing);
-              });
-              
-              _pendingDeletes.forEach(id => {
-                  $stPromptList.find(`[data-identifier="${id}"], [id*="${id}"], [data-id="${id}"]`).remove();
-              });
-          }
-          // ------------------------------------------------------------------
-
-          // 4. Bấm nút lưu gốc của ST (Lưu từ màn hình xuống ổ cứng và chốt lớp tạm)
-          const saveBtn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset') || document.querySelector('#preset_save_button');
-          if (saveBtn && typeof saveBtn.click === 'function') {
-              saveBtn.click();
-              console.log("ST Multitool: Đã kích hoạt nút Lưu mặc định của ST để đồng bộ cả bộ nhớ tạm lẫn ổ cứng.");
+          const saveBtn = document.querySelector('#update_oai_preset')
+            || document.querySelector('#chat_completion_save_preset')
+            || document.querySelector('#preset_save_button');
+          if (saveBtn) {
+            saveBtn.click();
           } else {
-              console.warn("ST Multitool: Không tìm thấy nút Lưu mặc định của ST, chỉ gọi hàm saveSettingsDebounced.");
+            console.warn('[ST Multitool] Không tìm thấy nút Lưu ST, fallback saveSettingsDebounced.');
           }
-        } else {
-          console.log("ST Multitool: Bỏ qua kích hoạt nút Lưu mặc định của ST do người dùng tắt tuỳ chọn đồng bộ file gốc.");
         }
-        
-        // Cũng gọi lưu settings.json phòng hờ (để chốt lớp tạm vào bộ nhớ của user)
-        if (stContext && typeof stContext.saveSettingsDebounced === 'function') {
-            stContext.saveSettingsDebounced();
-            console.log("ST Multitool: Đã gọi stContext.saveSettingsDebounced() để lưu lớp tạm.");
-        } else if (typeof window.saveSettingsDebounced === 'function') {
-            window.saveSettingsDebounced();
-            console.log("ST Multitool: Đã gọi window.saveSettingsDebounced() để lưu lớp tạm.");
-        }
+
+        (stContext?.saveSettingsDebounced || window.saveSettingsDebounced)?.();
       }, 1500);
     }
 
@@ -858,14 +691,9 @@ export function savePromptBlocks() {
       if (window.lucide) window.lucide.createIcons();
       if (typeof refreshVarInspector === 'function') refreshVarInspector();
     }
-    
-    if (Array.isArray(container.prompt_order)) {
-      container.prompt_order = container.prompt_order.filter(Boolean);
-    }
-    
-    clearPendingBlockChanges(); // Xóa trạng thái pending sau khi lưu thành công
-    renderPromptBlocks();       // Cập nhật lại UI sau khi đã xóa pending
 
+    clearPendingBlockChanges();
+    renderPromptBlocks();
     toastr.success('Đã lưu các thay đổi block Prompt vào ST.');
   } catch (err) {
     console.error('[ST Multitool] Lỗi savePromptBlocks:', err);
