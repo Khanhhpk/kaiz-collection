@@ -18,7 +18,7 @@ function clearPendingBlockChanges() {
  * Đánh dấu block mới để thêm — chưa áp dụng vào ST context.
  * Chỉ được ghi thật khi savePromptBlocks() được gọi.
  */
-export function addPromptBlock(blockData = {}, addToLinked = false) {
+export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = false) {
   const identifier = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   const newBlock = {
     identifier,
@@ -34,10 +34,9 @@ export function addPromptBlock(blockData = {}, addToLinked = false) {
     forbid_overrides: blockData.forbid_overrides ?? false,
   };
 
-  _pendingAdds.push({ block: newBlock, addToLinked });
+  _pendingAdds.push({ block: newBlock, addToLinked, insertTop });
   renderPromptBlocks(); // hiển thị pending add trong list
   if (window.lucide) window.lucide.createIcons();
-  toastr.info(`Block “${newBlock.name}” sẽ được thêm khi bấm Lưu.`);
   return newBlock;
 }
 
@@ -49,11 +48,9 @@ export function deletePromptBlock(identifier) {
   // Hủy pending add nếu đang chờ add
   const addIdx = _pendingAdds.findIndex(p => p.block.identifier === identifier);
   if (addIdx !== -1) {
-    const name = _pendingAdds[addIdx].block.name;
     _pendingAdds.splice(addIdx, 1);
     renderPromptBlocks();
     if (window.lucide) window.lucide.createIcons();
-    toastr.info(`Đã hủy thêm block “${name}”.`);
     return;
   }
 
@@ -61,11 +58,9 @@ export function deletePromptBlock(identifier) {
   if (_pendingDeletes.has(identifier)) {
     _pendingDeletes.delete(identifier);
     _applyDeleteVisual(identifier, false);
-    toastr.info('Hoàn tác xóa block.');
   } else {
     _pendingDeletes.add(identifier);
     _applyDeleteVisual(identifier, true);
-    toastr.warning('Block sẽ bị xóa khi bấm Lưu. Click ụ để hoàn tác.');
   }
 }
 
@@ -75,12 +70,14 @@ function _applyDeleteVisual(identifier, isDeleting) {
   if (isDeleting) {
     $item.css({ opacity: 0.4, outline: '1px solid rgba(248,113,113,0.4)' });
     $item.find('.st-multitool-item-title-text').css({ textDecoration: 'line-through', color: '#f87171' });
-    $item.find('.st-multitool-wb-item-desc').prepend('<span style="color:#f87171;margin-right:6px;">[ÐãÐ°Ã³nh dấu xóa]</span>');
+    if (!$item.find('.st-multitool-delete-badge').length) {
+      $item.find('.st-multitool-wb-item-title').append('<span class="st-multitool-delete-badge" style="font-size:10px;background:rgba(248,113,113,0.2);color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Đánh dấu xóa</span>');
+    }
     $item.find('.st-multitool-delete-prompt-btn').attr('title', 'Hoàn tác xóa').css({ color: '#facc15', opacity: 1 });
   } else {
     $item.css({ opacity: '', outline: '' });
     $item.find('.st-multitool-item-title-text').css({ textDecoration: '', color: '' });
-    $item.find('.st-multitool-wb-item-desc span[style]').remove();
+    $item.find('.st-multitool-delete-badge').remove();
     $item.find('.st-multitool-delete-prompt-btn').attr('title', 'Xóa block này').css({ color: '', opacity: '' });
   }
 }
@@ -125,11 +122,12 @@ export function initManagePrompt() {
   const doAddBlock = (addToLinked) => {
     const name = $('#st-multitool-new-prompt-name').val().trim();
     if (!name) { toastr.warning('Vui lòng nhập tên block!'); return; }
+    const insertTop = $('#st-multitool-new-prompt-insert-pos').val() === 'top';
     addPromptBlock({
       name,
       role: $('#st-multitool-new-prompt-role').val(),
       content: $('#st-multitool-new-prompt-content').val(),
-    }, addToLinked);
+    }, addToLinked, insertTop);
     $('#st-multitool-add-prompt-modal').slideUp(200);
   };
 
@@ -409,9 +407,9 @@ export function renderPromptBlocks() {
         ? 'outline:1.5px solid rgba(52,211,153,0.5); border-radius:8px;'
         : '';
     const pendingBadge = isPendingDelete
-      ? `<span style="font-size:10px;background:rgba(248,113,113,0.2);color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Đánh dấu xóa</span>`
+      ? `<span class="st-multitool-delete-badge" style="font-size:10px;background:rgba(248,113,113,0.2);color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Đánh dấu xóa</span>`
       : isPendingAdd
-        ? `<span style="font-size:10px;background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Chưa lưu</span>`
+        ? `<span class="st-multitool-delete-badge" style="font-size:10px;background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Chưa lưu</span>`
         : '';
     const titleStyle = isPendingDelete ? 'text-decoration:line-through;color:#f87171;' : '';
     const deleteTitle = isPendingDelete ? 'Hoàn tác xóa' : 'Xóa block này';
@@ -516,6 +514,11 @@ export function renderPromptBlocks() {
     `;
   };
 
+  // Pending adds (linked) TOP
+  _pendingAdds.filter(p => p.addToLinked && p.insertTop).forEach(p => {
+    activeHtml += renderBlock(p.block, -1, false, true); // isPendingAdd = true
+  });
+
   // Build active list (maintaining prompt_order sequence)
   promptOrder.forEach(orderItem => {
     const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
@@ -536,9 +539,14 @@ export function renderPromptBlocks() {
     }
   });
 
-  // Pending adds (linked)
-  _pendingAdds.filter(p => p.addToLinked).forEach(p => {
+  // Pending adds (linked) BOTTOM
+  _pendingAdds.filter(p => p.addToLinked && !p.insertTop).forEach(p => {
     activeHtml += renderBlock(p.block, -1, false, true); // isPendingAdd = true
+  });
+
+  // Pending adds (unlinked) TOP
+  _pendingAdds.filter(p => !p.addToLinked && p.insertTop).forEach(p => {
+    inactiveHtml += renderBlock(p.block, -1, false, true);
   });
 
   // Build inactive list
@@ -551,8 +559,8 @@ export function renderPromptBlocks() {
     }
   });
 
-  // Pending adds (unlinked)
-  _pendingAdds.filter(p => !p.addToLinked).forEach(p => {
+  // Pending adds (unlinked) BOTTOM
+  _pendingAdds.filter(p => !p.addToLinked && !p.insertTop).forEach(p => {
     inactiveHtml += renderBlock(p.block, -1, false, true);
   });
 
@@ -572,7 +580,9 @@ export function renderPromptBlocks() {
 
   // Bind accordion click
   $promptListContainer.find('.st-multitool-accordion-header').on('click', function(e) {
-    if ($(e.target).closest('.st-multitool-toggle-switch').length || $(e.target).closest('.st-multitool-drag-handle').length) return; // Ignore click on toggle switch or drag handle
+    if ($(e.target).closest('.st-multitool-toggle-switch').length || 
+        $(e.target).closest('.st-multitool-drag-handle').length ||
+        $(e.target).closest('.st-multitool-delete-prompt-btn').length) return; // Ignore click on toggle switch, drag handle, or delete btn
     const $body = $(this).next('.st-multitool-accordion-body');
     const $icon = $(this).find('.st-multitool-accordion-icon');
     $body.slideToggle(200);
