@@ -254,7 +254,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.0.5.0';
+const KAIZ_CURRENT_VERSION = '2.0.5.6';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -502,7 +502,6 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
         btnUpdate.style.opacity = '0.6';
         statusBox.innerHTML = `<div style="color: #38bdf8; padding: 8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> Đang yêu cầu máy chủ SillyTavern tự động kéo bản cập nhật nhánh <b>${currentBranch}</b>...</div>`;
         try {
-            // Lấy header chuẩn từ SillyTavern (bao gồm X-CSRF-Token bắt buộc cho POST API)
             const win = targetWin || window;
             let reqHeaders = { 'Content-Type': 'application/json' };
             try {
@@ -523,7 +522,6 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
                 }
             } catch (e) {}
 
-            // Tự động nhận diện thư mục cài đặt hiện tại của Extension
             let selfFolder = 'kaiz-collection';
             try {
                 if (typeof import.meta !== 'undefined' && import.meta.url) {
@@ -535,22 +533,52 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
                 }
             } catch (e) {}
 
-            const namesToTry = [selfFolder, 'kaiz-collection', 'kaiz_collection', 'kaiz-collection-master', 'kaiz-collection-beta'].filter((v, i, a) => v && a.indexOf(v) === i);
-            let updatedOk = false;
+            function getInstalledExtensionType(extId) {
+                const extTypes = win.extensionTypes ||
+                                 win.SillyTavern?.getContext()?.extensionTypes ||
+                                 null;
+                if (!extTypes) return null;
+                const fullKey = Object.keys(extTypes).find(id =>
+                    id === extId ||
+                    (id.startsWith('third-party') && id.endsWith(extId))
+                );
+                return fullKey ? extTypes[fullKey] : null;
+            }
 
+            // Build danh sách các combination (name + global flag) cần thử
+            const namesToTry = [selfFolder, 'kaiz-collection', 'kaiz_collection', 'kaiz-collection-master', 'kaiz-collection-beta'].filter((v, i, a) => v && a.indexOf(v) === i);
+            const attempts = [];
             for (const extName of namesToTry) {
+                const extType = getInstalledExtensionType(extName);
+                if (extType === 'system') continue;
+
+                if (extType === 'global') {
+                    // Biết chắc là global install
+                    attempts.push({ extensionName: extName, global: true });
+                } else if (extType === 'local') {
+                    // Biết chắc là local install
+                    attempts.push({ extensionName: extName, global: false });
+                } else {
+                    // Không detect được (extensionTypes không có trong window) → thử cả 2
+                    attempts.push({ extensionName: extName, global: false });
+                    attempts.push({ extensionName: extName, global: true });
+                }
+            }
+
+            let updatedOk = false;
+            for (const attempt of attempts) {
                 try {
                     let res = await fetch('/api/extensions/update', {
                         method: 'POST',
                         headers: reqHeaders,
-                        body: JSON.stringify({ extensionName: extName, global: false })
+                        body: JSON.stringify(attempt)
                     });
                     if (res.ok) {
                         updatedOk = true;
                         break;
                     }
                 } catch (e) {
-                    console.warn(`[KAIZ Collection] Thử cập nhật folder "${extName}" thất bại:`, e);
+                    console.warn(`[KAIZ Collection] Thử cập nhật "${attempt.extensionName}" (global=${attempt.global}) thất bại:`, e);
                 }
             }
 
@@ -610,7 +638,7 @@ function showKaizPatchNotes(targetWin) {
                     <i class="fa-solid fa-gift"></i>
                 </div>
                 <div>
-                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.5.0</div>
+                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.5.6</div>
                     <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Bản vá sửa và tối ưu ST Multitools!</div>
                 </div>
             </div>
@@ -618,7 +646,7 @@ function showKaizPatchNotes(targetWin) {
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
             Chào mừng bạn đến với bản cập nhật mới của <b>KAIZ Collection</b>!<br><br>
-            Bản cập nhật <b>2.0.5.0</b> tập trung vào việc vá lỗi và tối ưu hóa các tính năng cốt lõi.<br><br>
+            Bản cập nhật <b>2.0.5.6</b> tập trung vào việc vá lỗi và tối ưu hóa các tính năng cốt lõi.<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
                 <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square;">
@@ -1078,9 +1106,9 @@ waitForEnvironment(async (targetWin, jq) => {
 
     const config = getPhoneConfig();
     
-    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.5.0)
+    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.5.6)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.0.5.0') {
+        if (KAIZ_CURRENT_VERSION === '2.0.5.6') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);
