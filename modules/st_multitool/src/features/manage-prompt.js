@@ -139,24 +139,7 @@ export function initManagePrompt() {
     e.stopPropagation();
     const $item = $(this).closest('.st-multitool-wb-item');
     const identifier = $item.attr('data-id');
-    const name = $item.find('.st-multitool-item-title-text').text();
-    const isPendingDelete = _pendingDeletes.has(identifier);
-    const isPendingAdd = _pendingAdds.some(p => p.block.identifier === identifier);
-
-    // Pending add: hủy luôn không cần confirm
-    if (isPendingAdd) {
-      deletePromptBlock(identifier);
-      return;
-    }
-    // Toggle pending delete: không cần confirm nếu đang undo
-    if (isPendingDelete) {
-      deletePromptBlock(identifier); // sẽ toggle off
-      return;
-    }
-    // Block thật: confirm trước
-    if (confirm(`Đánh dấu xóa block “${name}”?\nBlock sẽ bị xóa khi bấm Lưu. Click biểu tượng thùng rác lần nữa để hoàn tác.`)) {
-      deletePromptBlock(identifier);
-    }
+    deletePromptBlock(identifier);
   });
 
   $saveBtn.on('click', () => {
