@@ -780,6 +780,28 @@ export function savePromptBlocks() {
         const shouldAutoSave = autoSaveToggle.length ? autoSaveToggle.prop('checked') : true;
 
         if (shouldAutoSave) {
+          // --- Đồng bộ DOM của ST với newPromptOrder trước khi click Save ---
+          // ST's Save button rebuilds prompt_order from DOM, so if our new block isn't in DOM, ST drops it!
+          const $sampleBlock = $('[data-identifier^="block_"], [id^="prompt_block_"]').not('#st-multitool-popup *').first();
+          if ($sampleBlock.length) {
+              const $stPromptList = $sampleBlock.parent();
+              const childClasses = $sampleBlock.attr('class') || '';
+              
+              [...newPromptOrder].reverse().forEach(item => {
+                  const id = item.identifier || item;
+                  let $existing = $stPromptList.find(`[data-identifier="${id}"], [id*="${id}"], [data-id="${id}"]`).first();
+                  if (!$existing.length) {
+                      $existing = $('<div></div>').attr('class', childClasses).attr('data-identifier', id).attr('data-id', id).attr('id', 'prompt_block_' + id).hide();
+                  }
+                  $stPromptList.prepend($existing);
+              });
+              
+              _pendingDeletes.forEach(id => {
+                  $stPromptList.find(`[data-identifier="${id}"], [id*="${id}"], [data-id="${id}"]`).remove();
+              });
+          }
+          // ------------------------------------------------------------------
+
           // 4. Bấm nút lưu gốc của ST (Lưu từ màn hình xuống ổ cứng và chốt lớp tạm)
           const saveBtn = document.querySelector('#update_oai_preset') || document.querySelector('#chat_completion_save_preset') || document.querySelector('#preset_save_button');
           if (saveBtn && typeof saveBtn.click === 'function') {
@@ -807,10 +829,15 @@ export function savePromptBlocks() {
       clearPendingVarChanges();
       $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
       if (window.lucide) window.lucide.createIcons();
+      if (typeof refreshVarInspector === 'function') refreshVarInspector();
+    }
+    
+    if (Array.isArray(container.prompt_order)) {
       container.prompt_order = container.prompt_order.filter(Boolean);
     }
     
     clearPendingBlockChanges(); // Xóa trạng thái pending sau khi lưu thành công
+    renderPromptBlocks();       // Cập nhật lại UI sau khi đã xóa pending
 
     toastr.success('Đã lưu các thay đổi block Prompt vào ST.');
   } catch (err) {
