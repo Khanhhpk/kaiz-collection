@@ -22,16 +22,17 @@ export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = 
   const identifier = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   const newBlock = {
     identifier,
+    id: identifier,          // ST requires 'id' == 'identifier'
     name: blockData.name || 'New Block',
     content: blockData.content || '',
     enabled: blockData.enabled !== undefined ? blockData.enabled : true,
     role: blockData.role || 'system',
-    injection_position: blockData.injection_position ?? 0,
-    injection_depth: blockData.injection_depth ?? 4,
-    injection_order: blockData.injection_order ?? 100,
     system_prompt: blockData.system_prompt ?? false,
     marker: blockData.marker ?? false,
     forbid_overrides: blockData.forbid_overrides ?? false,
+    injection_position: blockData.injection_position ?? 0,
+    injection_depth: blockData.injection_depth ?? 4,
+    injection_order: blockData.injection_order ?? 100,
   };
 
   _pendingAdds.push({ block: newBlock, addToLinked, insertTop });
@@ -724,16 +725,18 @@ export function savePromptBlocks() {
 
       const newBlock = {
         ...originalBlock,
+        identifier: originalBlock.identifier, // always preserve
+        id: originalBlock.identifier,         // ST requires id == identifier
         name: $item.find('.st-prompt-name').val() || originalBlock.name || 'Unnamed Block',
         enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
         content: content,
-        injection_position: isNaN(injPos) ? (originalBlock.injection_position ?? 0) : injPos,
-        injection_depth: depthVal,
-        injection_order: orderVal,
         role: $item.find('.st-prompt-role').val() || originalBlock.role || 'system',
         system_prompt: $item.find('.st-prompt-sys').is(':checked'),
         marker: $item.find('.st-prompt-marker').is(':checked'),
         forbid_overrides: $item.find('.st-prompt-forbid').is(':checked'),
+        injection_position: isNaN(injPos) ? (originalBlock.injection_position ?? 0) : injPos,
+        injection_depth: depthVal,
+        injection_order: orderVal,
       };
       
       newPrompts.push(newBlock);
