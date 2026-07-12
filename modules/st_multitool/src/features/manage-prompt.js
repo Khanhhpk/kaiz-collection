@@ -695,15 +695,26 @@ export function savePromptBlocks() {
       const identifier = $item.attr('data-id');
       if (_pendingDeletes.has(identifier)) return; // Skip deleted blocks
 
-      const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier)) || {};
+      // Look up from existing prompts first; fall back to _pendingAdds for newly added blocks
+      const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier))
+        || (_pendingAdds.find(p => p.block.identifier === identifier) || {}).block
+        || null;
+
+      // If block can't be identified (shouldn't happen), skip it
+      if (!originalBlock || !originalBlock.identifier) {
+        console.warn('[ST Multitool] processItem: Cannot find block for identifier', identifier, '— skipped');
+        return;
+      }
 
       let content = $item.find('.st-multitool-prompt-content').val();
+      // For pending adds the textarea may be empty on first render — fall back to block's content
+      if (content === undefined || content === null) content = originalBlock.content || '';
+
       if (hasVarChanges) {
         content = applyVarChangesToContent(content, identifier, renames, valuesBySource);
       }
 
-      const injPos = parseInt($item.find('.st-prompt-pos').val(), 10) || 0;
-      // Depth & Order may be hidden when Position=Relative; still read their value inputs
+      const injPos = parseInt($item.find('.st-prompt-pos').val(), 10);
       const depthVal = $item.find('.st-prompt-depth').length
         ? (parseInt($item.find('.st-prompt-depth').val(), 10) || 0)
         : (originalBlock.injection_depth || 0);
@@ -713,13 +724,13 @@ export function savePromptBlocks() {
 
       const newBlock = {
         ...originalBlock,
-        name: $item.find('.st-prompt-name').val() || 'Unnamed Block',
+        name: $item.find('.st-prompt-name').val() || originalBlock.name || 'Unnamed Block',
         enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
         content: content,
-        injection_position: injPos,
+        injection_position: isNaN(injPos) ? (originalBlock.injection_position ?? 0) : injPos,
         injection_depth: depthVal,
         injection_order: orderVal,
-        role: $item.find('.st-prompt-role').val(),
+        role: $item.find('.st-prompt-role').val() || originalBlock.role || 'system',
         system_prompt: $item.find('.st-prompt-sys').is(':checked'),
         marker: $item.find('.st-prompt-marker').is(':checked'),
         forbid_overrides: $item.find('.st-prompt-forbid').is(':checked'),
