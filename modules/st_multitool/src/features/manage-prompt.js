@@ -5,23 +5,21 @@ import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent,
 let $promptListContainer;
 let $saveBtn;
 
-// ─── Add / Delete Block ─────────────────────────────────────────────────────
+// ─── Pending Add / Delete (chỉ áp dụng khi bấm Lưu) ────────────────────────
+let _pendingAdds = [];      // [{block, addToLinked}]
+let _pendingDeletes = new Set(); // identifier strings
+
+function clearPendingBlockChanges() {
+  _pendingAdds = [];
+  _pendingDeletes.clear();
+}
 
 /**
- * Thêm một prompt block mới vào ST context và render lại danh sách.
- * @param {object} blockData - Dữ liệu block (name, content, role, ...)
- * @param {boolean} addToLinked - true = thêm vào Linked (prompt_order), false = Unlinked
- * @returns {object} block mới đã tạo
+ * Đánh dấu block mới để thêm — chưa áp dụng vào ST context.
+ * Chỉ được ghi thật khi savePromptBlocks() được gọi.
  */
 export function addPromptBlock(blockData = {}, addToLinked = false) {
-  const container = getPromptContainer();
-  if (!container || !Array.isArray(container.prompts)) {
-    toastr.error('Không tìm thấy cấu trúc Prompt AI.');
-    return null;
-  }
-
   const identifier = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-
   const newBlock = {
     identifier,
     name: blockData.name || 'New Block',
@@ -36,65 +34,55 @@ export function addPromptBlock(blockData = {}, addToLinked = false) {
     forbid_overrides: blockData.forbid_overrides ?? false,
   };
 
-  container.prompts.push(newBlock);
-
-  if (addToLinked) {
-    // Xử lý cả 2 format: ST 1.18+ (prompt_order[0].order) và cũ
-    if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0
-        && typeof container.prompt_order[0] === 'object'
-        && Array.isArray(container.prompt_order[0].order)) {
-      container.prompt_order[0].order.push({ identifier, enabled: true });
-    } else if (Array.isArray(container.prompt_order)) {
-      container.prompt_order.push({ identifier });
-    }
-  }
-
-  renderPromptBlocks();
+  _pendingAdds.push({ block: newBlock, addToLinked });
+  renderPromptBlocks(); // hiển thị pending add trong list
   if (window.lucide) window.lucide.createIcons();
-  toastr.success(`Đã thêm block "${newBlock.name}"`);
+  toastr.info(`Block “${newBlock.name}” sẽ được thêm khi bấm Lưu.`);
   return newBlock;
 }
 
 /**
- * Xóa một prompt block khỏi ST context theo identifier.
- * @param {string} identifier
+ * Đánh dấu block để xóa — chưa áp dụng vào ST context.
+ * Nếu block là pending add thì hủy luôn, nếu là block thật thì mark pending delete.
  */
 export function deletePromptBlock(identifier) {
-  const container = getPromptContainer();
-  if (!container || !Array.isArray(container.prompts)) {
-    toastr.error('Không tìm thấy cấu trúc Prompt AI.');
+  // Hủy pending add nếu đang chờ add
+  const addIdx = _pendingAdds.findIndex(p => p.block.identifier === identifier);
+  if (addIdx !== -1) {
+    const name = _pendingAdds[addIdx].block.name;
+    _pendingAdds.splice(addIdx, 1);
+    renderPromptBlocks();
+    if (window.lucide) window.lucide.createIcons();
+    toastr.info(`Đã hủy thêm block “${name}”.`);
     return;
   }
 
-  const idx = container.prompts.findIndex(p => String(p.identifier) === String(identifier));
-  if (idx === -1) {
-    toastr.warning('Không tìm thấy block.');
-    return;
+  // Toggle: nếu đang pending delete thì undo, ngược lại thì mark
+  if (_pendingDeletes.has(identifier)) {
+    _pendingDeletes.delete(identifier);
+    _applyDeleteVisual(identifier, false);
+    toastr.info('Hoàn tác xóa block.');
+  } else {
+    _pendingDeletes.add(identifier);
+    _applyDeleteVisual(identifier, true);
+    toastr.warning('Block sẽ bị xóa khi bấm Lưu. Click ụ để hoàn tác.');
   }
-  const blockName = container.prompts[idx].name;
-  container.prompts.splice(idx, 1);
+}
 
-  // Xóa khỏi prompt_order (hỗ trợ cả 2 format)
-  if (Array.isArray(container.prompt_order)) {
-    if (container.prompt_order.length > 0
-        && typeof container.prompt_order[0] === 'object'
-        && Array.isArray(container.prompt_order[0].order)) {
-      container.prompt_order[0].order = container.prompt_order[0].order
-        .filter(o => o.identifier !== identifier);
-    } else {
-      container.prompt_order = container.prompt_order
-        .filter(o => (typeof o === 'string' ? o : o.identifier) !== identifier);
-    }
-  }
-
-  // Xóa DOM element với animation
+function _applyDeleteVisual(identifier, isDeleting) {
   const $item = $promptListContainer.find(`[data-id="${identifier}"]`);
-  if ($item.length) {
-    $item.css({ transition: 'opacity 0.15s, transform 0.15s', opacity: 0, transform: 'translateX(8px)' });
-    setTimeout(() => $item.slideUp(150, () => $item.remove()), 150);
+  if (!$item.length) return;
+  if (isDeleting) {
+    $item.css({ opacity: 0.4, outline: '1px solid rgba(248,113,113,0.4)' });
+    $item.find('.st-multitool-item-title-text').css({ textDecoration: 'line-through', color: '#f87171' });
+    $item.find('.st-multitool-wb-item-desc').prepend('<span style="color:#f87171;margin-right:6px;">[ÐãÐ°Ã³nh dấu xóa]</span>');
+    $item.find('.st-multitool-delete-prompt-btn').attr('title', 'Hoàn tác xóa').css({ color: '#facc15', opacity: 1 });
+  } else {
+    $item.css({ opacity: '', outline: '' });
+    $item.find('.st-multitool-item-title-text').css({ textDecoration: '', color: '' });
+    $item.find('.st-multitool-wb-item-desc span[style]').remove();
+    $item.find('.st-multitool-delete-prompt-btn').attr('title', 'Xóa block này').css({ color: '', opacity: '' });
   }
-
-  toastr.success(`Đã xóa block "${blockName}"`);
 }
 
 export function initManagePrompt() {
@@ -154,7 +142,21 @@ export function initManagePrompt() {
     const $item = $(this).closest('.st-multitool-wb-item');
     const identifier = $item.attr('data-id');
     const name = $item.find('.st-multitool-item-title-text').text();
-    if (confirm(`Xác nhận xóa block "${name}"?\nThao tác này không thể hoàn tác sau khi lưu.`)) {
+    const isPendingDelete = _pendingDeletes.has(identifier);
+    const isPendingAdd = _pendingAdds.some(p => p.block.identifier === identifier);
+
+    // Pending add: hủy luôn không cần confirm
+    if (isPendingAdd) {
+      deletePromptBlock(identifier);
+      return;
+    }
+    // Toggle pending delete: không cần confirm nếu đang undo
+    if (isPendingDelete) {
+      deletePromptBlock(identifier); // sẽ toggle off
+      return;
+    }
+    // Block thật: confirm trước
+    if (confirm(`Đánh dấu xóa block “${name}”?\nBlock sẽ bị xóa khi bấm Lưu. Click biểu tượng thùng rác lần nữa để hoàn tác.`)) {
       deletePromptBlock(identifier);
     }
   });
@@ -175,8 +177,9 @@ export function initManagePrompt() {
     showLoader();
     setTimeout(() => {
       try {
+        clearPendingBlockChanges(); // xóa các thay đổi add/delete chưa lưu
         renderPromptBlocks();
-        $('#st-multitool-prompt-search').val('').trigger('input'); // Clear search on reset
+        $('#st-multitool-prompt-search').val('').trigger('input');
         toastr.info('Đã hoàn tác (undo) các thay đổi chưa lưu.');
       } finally {
         hideLoader();
@@ -398,16 +401,30 @@ export function renderPromptBlocks() {
   let activeHtml = '';
   let inactiveHtml = '';
 
-  const renderBlock = (block, idx) => {
+  const renderBlock = (block, idx, isPendingDelete = false, isPendingAdd = false) => {
     const isEnabled = block.enabled;
+    const pendingStyle = isPendingDelete
+      ? 'opacity:0.4; outline:1px solid rgba(248,113,113,0.35); border-radius:8px;'
+      : isPendingAdd
+        ? 'outline:1.5px solid rgba(52,211,153,0.5); border-radius:8px;'
+        : '';
+    const pendingBadge = isPendingDelete
+      ? `<span style="font-size:10px;background:rgba(248,113,113,0.2);color:#f87171;border:1px solid rgba(248,113,113,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Đánh dấu xóa</span>`
+      : isPendingAdd
+        ? `<span style="font-size:10px;background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;">Chưa lưu</span>`
+        : '';
+    const titleStyle = isPendingDelete ? 'text-decoration:line-through;color:#f87171;' : '';
+    const deleteTitle = isPendingDelete ? 'Hoàn tác xóa' : 'Xóa block này';
+    const deleteColor = isPendingDelete ? '#facc15' : 'var(--st-multitool-danger)';
+    const deleteOpacity = isPendingDelete ? '1' : '0.45';
     return `
-      <div class="st-multitool-wb-item" data-idx="${idx}" data-id="${escapeHtml(block.identifier || '')}">
+      <div class="st-multitool-wb-item" data-idx="${idx}" data-id="${escapeHtml(block.identifier || '')}" style="${pendingStyle}">
         <div class="st-multitool-wb-item-header st-multitool-accordion-header" style="cursor: pointer; user-select: none;">
           <div class="st-multitool-wb-item-title-col">
             <span class="st-multitool-drag-handle" style="cursor: grab; color: #888; margin-right: 8px;" title="Kéo thả để sắp xếp">
               <i data-lucide="grip-vertical" style="width: 16px; height: 16px;"></i>
             </span>
-            <span class="st-multitool-wb-item-title" style="font-weight: 600;"><span class="st-multitool-item-title-text">${escapeHtml(block.name || 'Unnamed Block')}</span></span>
+            <span class="st-multitool-wb-item-title" style="font-weight: 600;"><span class="st-multitool-item-title-text" style="${titleStyle}">${escapeHtml(block.name || 'Unnamed Block')}</span>${pendingBadge}</span>
             <span class="st-multitool-wb-item-desc">Role: ${escapeHtml(block.role || '')} | Depth: ${block.injection_depth} | ID: ${escapeHtml(block.identifier || '')}</span>
           </div>
           <div class="st-multitool-wb-item-controls">
@@ -415,7 +432,7 @@ export function renderPromptBlocks() {
               <input type="checkbox" class="st-multitool-prompt-enabled" ${isEnabled ? 'checked' : ''}>
               <span class="st-multitool-toggle-slider"></span>
             </label>
-            <button class="st-multitool-delete-prompt-btn" title="Xóa block này" style="background:none; border:none; color: var(--st-multitool-danger); cursor:pointer; padding:3px 5px; border-radius:4px; opacity:0.45; transition:opacity 0.2s, background 0.2s; margin-right:4px; flex-shrink:0;" onmouseenter="this.style.opacity='1';this.style.background='rgba(255,92,92,0.12)'" onmouseleave="this.style.opacity='0.45';this.style.background='none'">
+            <button class="st-multitool-delete-prompt-btn" title="${deleteTitle}" style="background:none; border:none; color: ${deleteColor}; cursor:pointer; padding:3px 5px; border-radius:4px; opacity:${deleteOpacity}; transition:opacity 0.2s, background 0.2s; margin-right:4px; flex-shrink:0;" onmouseenter="this.style.opacity='1';this.style.background='rgba(255,92,92,0.12)'" onmouseleave="this.style.opacity='${deleteOpacity}';this.style.background='none'">
               <i data-lucide="trash-2" style="width:13px; height:13px; pointer-events:none;"></i>
             </button>
             <i data-lucide="chevron-down" class="st-multitool-accordion-icon" style="color: #888; transition: transform 0.2s; width: 16px; height: 16px;"></i>
@@ -502,17 +519,41 @@ export function renderPromptBlocks() {
   // Build active list (maintaining prompt_order sequence)
   promptOrder.forEach(orderItem => {
     const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
+    if (_pendingDeletes.has(id)) return; // ẩn block đã đánh dấu xóa
     const idx = prompts.findIndex(p => p.identifier === id);
     if (idx !== -1) {
       activeHtml += renderBlock(prompts[idx], idx);
     }
   });
 
+  // Pending deletes still in active — hiển với visual mark
+  promptOrder.forEach(orderItem => {
+    const id = (typeof orderItem === 'string') ? orderItem : orderItem.identifier;
+    if (!_pendingDeletes.has(id)) return;
+    const idx = prompts.findIndex(p => p.identifier === id);
+    if (idx !== -1) {
+      activeHtml += renderBlock(prompts[idx], idx, true); // isPendingDelete = true
+    }
+  });
+
+  // Pending adds (linked)
+  _pendingAdds.filter(p => p.addToLinked).forEach(p => {
+    activeHtml += renderBlock(p.block, -1, false, true); // isPendingAdd = true
+  });
+
   // Build inactive list
   prompts.forEach((block, idx) => {
-    if (!orderIdentifiers.includes(block.identifier)) {
+    if (orderIdentifiers.includes(block.identifier)) return;
+    if (_pendingDeletes.has(block.identifier)) {
+      inactiveHtml += renderBlock(block, idx, true);
+    } else {
       inactiveHtml += renderBlock(block, idx);
     }
+  });
+
+  // Pending adds (unlinked)
+  _pendingAdds.filter(p => !p.addToLinked).forEach(p => {
+    inactiveHtml += renderBlock(p.block, -1, false, true);
   });
 
   const layoutHtml = `
@@ -656,6 +697,8 @@ export function savePromptBlocks() {
 
     const processItem = ($item, isActiveList) => {
       const identifier = $item.attr('data-id');
+      if (_pendingDeletes.has(identifier)) return; // Skip deleted blocks
+
       const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier)) || {};
 
       let content = $item.find('.st-multitool-prompt-content').val();
@@ -771,13 +814,14 @@ export function savePromptBlocks() {
       clearPendingVarChanges();
       $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
       if (window.lucide) window.lucide.createIcons();
-      refreshVarInspector();
-      renderPromptBlocks();
+      container.prompt_order = container.prompt_order.filter(Boolean);
     }
+    
+    clearPendingBlockChanges(); // Xóa trạng thái pending sau khi lưu thành công
 
-    toastr.success('Đã lưu cấu hình Prompt Preset.');
+    toastr.success('Đã lưu các thay đổi block Prompt vào ST.');
   } catch (err) {
-    console.error(err);
-    toastr.error('Lưu thất bại: ' + err.message);
+    console.error('[ST Multitool] Lỗi savePromptBlocks:', err);
+    toastr.error('Có lỗi xảy ra khi lưu Prompt AI.');
   }
 }

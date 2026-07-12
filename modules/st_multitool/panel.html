@@ -1409,12 +1409,12 @@
             <div style="font-size: 13px; font-weight: 600; color: rgba(52,211,153,0.9); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
               <i data-lucide="plus-circle" style="width:14px;height:14px;"></i> Thêm Prompt Block mới
             </div>
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-              <input type="text" id="st-multitool-new-prompt-name" class="st-multitool-input" placeholder="Tên block..." style="flex: 1; padding: 7px 10px; border-radius: 7px; font-size: 13px;">
-              <select id="st-multitool-new-prompt-role" class="st-multitool-input" style="flex: 0 0 auto; padding: 7px 10px; border-radius: 7px; font-size: 13px; background: rgba(20,24,32,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+            <div style="display: grid; grid-template-columns: 1fr 130px; gap: 8px; margin-bottom: 8px;">
+              <input type="text" id="st-multitool-new-prompt-name" class="st-multitool-input" placeholder="Tên block..." style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; box-sizing: border-box;">
+              <select id="st-multitool-new-prompt-role" class="st-multitool-input" style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; background: rgba(20,24,32,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-sizing: border-box;">
                 <option value="system">System</option>
                 <option value="user">User</option>
-                <option value="assistant">Assistant</option>
+                <option value="assistant">AI Assistant</option>
               </select>
             </div>
             <textarea id="st-multitool-new-prompt-content" class="st-multitool-input" placeholder="Nội dung prompt (có thể để trống rồi chỉnh sửa sau)..." style="width: 100%; min-height: 80px; padding: 8px 10px; border-radius: 7px; font-size: 12px; resize: vertical; font-family: 'Consolas', monospace; box-sizing: border-box; margin-bottom: 8px;"></textarea>
