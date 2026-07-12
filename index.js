@@ -502,7 +502,6 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
         btnUpdate.style.opacity = '0.6';
         statusBox.innerHTML = `<div style="color: #38bdf8; padding: 8px 0;"><i class="fa-solid fa-spinner fa-spin"></i> Đang yêu cầu máy chủ SillyTavern tự động kéo bản cập nhật nhánh <b>${currentBranch}</b>...</div>`;
         try {
-            // Lấy header chuẩn từ SillyTavern (bao gồm X-CSRF-Token bắt buộc cho POST API)
             const win = targetWin || window;
             let reqHeaders = { 'Content-Type': 'application/json' };
             try {
@@ -523,7 +522,6 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
                 }
             } catch (e) {}
 
-            // Tự động nhận diện thư mục cài đặt hiện tại của Extension
             let selfFolder = 'kaiz-collection';
             try {
                 if (typeof import.meta !== 'undefined' && import.meta.url) {
@@ -535,15 +533,31 @@ function showKaizUpdateModal(targetWin, remoteVersion, remoteDesc, currentBranch
                 }
             } catch (e) {}
 
+            function getInstalledExtensionType(extId) {
+                const extTypes = win.extensionTypes ||
+                                 win.SillyTavern?.getContext()?.extensionTypes ||
+                                 null;
+                if (!extTypes) return null;
+                const fullKey = Object.keys(extTypes).find(id =>
+                    id === extId ||
+                    (id.startsWith('third-party') && id.endsWith(extId))
+                );
+                return fullKey ? extTypes[fullKey] : null;
+            }
+
             const namesToTry = [selfFolder, 'kaiz-collection', 'kaiz_collection', 'kaiz-collection-master', 'kaiz-collection-beta'].filter((v, i, a) => v && a.indexOf(v) === i);
             let updatedOk = false;
 
             for (const extName of namesToTry) {
                 try {
+                    const extType = getInstalledExtensionType(extName);
+                    if (extType === 'system') continue; 
+
+                    const isGlobal = extType === 'global';
                     let res = await fetch('/api/extensions/update', {
                         method: 'POST',
                         headers: reqHeaders,
-                        body: JSON.stringify({ extensionName: extName, global: false })
+                        body: JSON.stringify({ extensionName: extName, global: isGlobal })
                     });
                     if (res.ok) {
                         updatedOk = true;
