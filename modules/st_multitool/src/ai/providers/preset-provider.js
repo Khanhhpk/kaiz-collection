@@ -4,8 +4,8 @@
  * Cung cấp 15 tools cho Agency Engine để đọc/ghi/quản lý ST Prompt Preset.
  */
 
-import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks } from '../features/manage-prompt.js';
-import { getPendingVarChanges, refreshVarInspector } from '../features/var-inspector.js';
+import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks } from '../../features/manage-prompt.js';
+import { getPendingVarChanges, refreshVarInspector } from '../../features/var-inspector.js';
 
 // ─── Macro Tokenizer ──────────────────────────────────────────────────────────
 
