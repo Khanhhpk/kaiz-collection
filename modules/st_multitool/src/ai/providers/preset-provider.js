@@ -261,27 +261,17 @@ export async function flushStaging() {
   clearStaging();
   renderPromptBlocks();
 
-  // 7. Persist changes in SillyTavern and refresh UI
-  try {
-    const stContext = window.SillyTavern?.getContext?.();
-    stContext?.eventSource?.emit?.('oai_preset_changed_after');
-    const autoSave = $('#st-multitool-auto-save-preset-toggle');
-    const shouldAutoSave = autoSave.length ? autoSave.prop('checked') : true;
-    if (shouldAutoSave) {
-      const saveBtn = document.querySelector('#update_oai_preset')
-        || document.querySelector('#chat_completion_save_preset')
-        || document.querySelector('#preset_save_button');
-      if (saveBtn) saveBtn.click();
-    }
-    (stContext?.saveSettingsDebounced || window.saveSettingsDebounced)?.();
-  } catch (e) {
-    console.error('[PresetProvider] Error saving ST preset after flushStaging:', e);
-  }
-
   try {
     refreshVarInspector();
   } catch (e) {
     console.error('[VarInspector] refreshVarInspector error after flushStaging:', e);
+  }
+
+  // Highlight nút Lưu Preset để user biết có thay đổi nội bộ cần lưu khi sẵn sàng
+  const $saveBtn = $('#st-multitool-save-prompt-btn');
+  if ($saveBtn.length) {
+    $saveBtn.html('<i data-lucide="save"></i> Lưu Preset (Chưa lưu ST)');
+    if (window.lucide) window.lucide.createIcons();
   }
 }
 
