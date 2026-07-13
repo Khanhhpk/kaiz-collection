@@ -160,7 +160,11 @@ export function scanPromptContent(content, promptName, promptId) {
       const fullMatch = content.slice(startIndex, endIndex);
       const inner = fullMatch.slice(match[0].length, fullMatch.length - 2); // Strip prefix and closing '}}'
       const scope = typeStr.includes('global') ? 'global' : 'local';
-      const type = typeStr.replace('global', ''); // setvar -> set, getvar -> get, addvar -> addvar
+      let type = 'set';
+      if (typeStr.includes('get')) type = 'get';
+      else if (typeStr.includes('add')) type = 'addvar';
+      else type = 'set';
+
       if (type === 'get') {
         add(inner.trim(), 'get', undefined, scope, fullMatch);
       } else {
@@ -168,27 +172,31 @@ export function scanPromptContent(content, promptName, promptId) {
         if (firstColon !== -1) {
           const varName = inner.slice(0, firstColon).trim();
           const varVal = inner.slice(firstColon + 2);
-          add(varName, type === 'setvar' ? 'set' : type, varVal, scope, fullMatch);
+          add(varName, type, varVal, scope, fullMatch);
         } else {
-          add(inner.trim(), type === 'setvar' ? 'set' : type, '', scope, fullMatch);
+          add(inner.trim(), type, '', scope, fullMatch);
         }
       }
     }
   }
 
-  // 2. Slash commands (/setvar, /getvar, /setglobalvar, /getglobalvar)
-  const slashRegex = /\/(setvar|getvar|setglobalvar|getglobalvar)\s+(?:key=)?([^\s|]+)(?:\s+([^\r\n|]*))?/gi;
+  // 2. Slash commands (/setvar, /getvar, /setglobalvar, /getglobalvar, /addvar, /addglobalvar)
+  const slashRegex = /\/(setvar|getvar|setglobalvar|getglobalvar|addvar|addglobalvar)\s+(?:key=)?([^\s|]+)(?:\s+([^\r\n|]*))?/gi;
   while ((match = slashRegex.exec(content)) !== null) {
     const fullMatch = match[0];
     const cmd = match[1].toLowerCase();
     const varName = match[2];
     const varVal = match[3] || '';
     const scope = cmd.includes('global') ? 'global' : 'local';
-    const type = cmd.includes('get') ? 'get' : 'set';
+    let type = 'set';
+    if (cmd.includes('get')) type = 'get';
+    else if (cmd.includes('add')) type = 'addvar';
+    else type = 'set';
+
     if (type === 'get') {
       add(varName, 'get', undefined, scope, fullMatch);
     } else {
-      add(varName, 'set', varVal, scope, fullMatch);
+      add(varName, type, varVal, scope, fullMatch);
     }
   }
 
