@@ -26,91 +26,80 @@ export function clearPendingVarChanges() {
 /**
  * Applies pending value changes per source, then renames.
  */
-export function applyVarChangesToContent(content, promptId, renames, valuesBySource) {
-  if (!content) return content;
+export function applyVarChangesToContent(content, promptId, renames = {}, valuesBySource = {}) {
+  if (!content || typeof content !== 'string') return content;
   let newContent = content;
 
   // 1. Apply value changes for this specific prompt block FIRST
   for (const [sourceId, valInfo] of Object.entries(valuesBySource)) {
-    if (valInfo.promptId === promptId) {
-      // Reconstruct the macro with the OLD name but NEW value
+    if (valInfo.promptId === promptId && valInfo.fullMatch) {
       let constructedMatch = '';
-      if (valInfo.fullMatch.startsWith('{{setvar::')) {
-        constructedMatch = `{{setvar::${valInfo.oldName}::${valInfo.newVal}}}`;
-      } else if (valInfo.fullMatch.startsWith('{{addvar::')) {
-        constructedMatch = `{{addvar::${valInfo.oldName}::${valInfo.newVal}}}`;
-      } else if (valInfo.fullMatch.startsWith('{{setglobalvar::')) {
-        constructedMatch = `{{setglobalvar::${valInfo.oldName}::${valInfo.newVal}}}`;
-      } else if (valInfo.fullMatch.startsWith('/setvar')) {
-        constructedMatch = `/setvar key=${valInfo.oldName} ${valInfo.newVal}`;
-      } else if (valInfo.fullMatch.startsWith('/setglobalvar')) {
-        constructedMatch = `/setglobalvar key=${valInfo.oldName} ${valInfo.newVal}`;
+      if (valInfo.fullMatch.startsWith('{{')) {
+        const typeMatch = valInfo.fullMatch.match(/^\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/i);
+        if (typeMatch) {
+          const mType = typeMatch[1].toLowerCase();
+          if (mType.startsWith('get')) {
+            constructedMatch = `{{${mType}::${valInfo.oldName || valInfo.varName}}}`;
+          } else {
+            constructedMatch = `{{${mType}::${valInfo.oldName || valInfo.varName}::${valInfo.newVal}}}`;
+          }
+        }
+      } else if (valInfo.fullMatch.startsWith('/')) {
+        const cmdMatch = valInfo.fullMatch.match(/^\/(setvar|getvar|setglobalvar|getglobalvar)\b/i);
+        if (cmdMatch) {
+          const cmd = cmdMatch[1].toLowerCase();
+          if (cmd.includes('get')) {
+            constructedMatch = `/${cmd} ${valInfo.oldName || valInfo.varName}`;
+          } else {
+            const hasKey = /\bkey=/i.test(valInfo.fullMatch);
+            constructedMatch = `/${cmd} ${hasKey ? 'key=' : ''}${valInfo.oldName || valInfo.varName} ${valInfo.newVal}`;
+          }
+        }
       }
-      
-      if (constructedMatch && valInfo.fullMatch) {
+      if (constructedMatch) {
         newContent = newContent.replace(valInfo.fullMatch, constructedMatch);
       }
     }
   }
 
-  // 2. Apply global renames SECOND
+  // 2. Apply global renames SECOND using scanPromptContent for exact boundaries
   const namesToProcess = Object.keys(renames);
-  for (const oldName of namesToProcess) {
-    const newName = renames[oldName];
+  if (namesToProcess.length > 0) {
+    const refs = scanPromptContent(newContent, '', promptId);
+    // Sort refs by length descending or position descending so replacements don't shift earlier indices
+    refs.sort((a, b) => b.fullMatch.length - a.fullMatch.length);
+    for (const ref of refs) {
+      const newName = renames[ref.name];
+      if (!newName) continue;
 
-    // {{setvar::oldName::val}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
-      (match, val) => `{{setvar::${newName}::${val}}}`
-    );
+      let constructed = '';
+      if (ref.fullMatch.startsWith('{{')) {
+        const typeMatch = ref.fullMatch.match(/^\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/i);
+        if (typeMatch) {
+          const mType = typeMatch[1].toLowerCase();
+          if (mType.startsWith('get')) {
+            constructed = `{{${mType}::${newName}}}`;
+          } else {
+            constructed = `{{${mType}::${newName}::${ref.value ?? ''}}}`;
+          }
+        }
+      } else if (ref.fullMatch.startsWith('/')) {
+        const cmdMatch = ref.fullMatch.match(/^\/(setvar|getvar|setglobalvar|getglobalvar)\b/i);
+        if (cmdMatch) {
+          const cmd = cmdMatch[1].toLowerCase();
+          if (cmd.includes('get')) {
+            constructed = `/${cmd} ${newName}`;
+          } else {
+            const hasKey = /\bkey=/i.test(ref.fullMatch);
+            constructed = `/${cmd} ${hasKey ? 'key=' : ''}${newName} ${ref.value ?? ''}`;
+          }
+        }
+      }
 
-    // {{addvar::oldName::val}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
-      (match, val) => `{{addvar::${newName}::${val}}}`
-    );
-
-    // {{setglobalvar::oldName::val}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{setglobalvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
-      (match, val) => `{{setglobalvar::${newName}::${val}}}`
-    );
-
-    // {{getvar::oldName}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{getvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
-      `{{getvar::${newName}}}`
-    );
-
-    // {{getglobalvar::oldName}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{getglobalvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
-      `{{getglobalvar::${newName}}}`
-    );
-
-    // /setvar key=oldName val
-    newContent = newContent.replace(
-      new RegExp(`\\/setvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
-      (match, val) => `/setvar key=${newName} ${val}`
-    );
-
-    // /setglobalvar key=oldName val
-    newContent = newContent.replace(
-      new RegExp(`\\/setglobalvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
-      (match, val) => `/setglobalvar key=${newName} ${val}`
-    );
-
-    // /getvar key=oldName
-    newContent = newContent.replace(
-      new RegExp(`\\/getvar\\s+(?:key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
-      (match) => `/getvar ${newName}`
-    );
-
-    // /getglobalvar key=oldName
-    newContent = newContent.replace(
-      new RegExp(`\\/getglobalvar\\s+(?:key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
-      (match) => `/getglobalvar ${newName}`
-    );
+      if (constructed && ref.fullMatch) {
+        newContent = newContent.split(ref.fullMatch).join(constructed);
+      }
+    }
   }
 
   return newContent;
@@ -128,54 +117,80 @@ function truncate(s, max = 80) {
 }
 
 /**
- * Scan a prompt block's content and collect setvar / getvar references.
+ * Scan a prompt block's content and collect setvar / getvar / addvar references.
+ * Uses balanced brace tracking for {{macros}} to handle multiline/nested content correctly.
  */
-function scanPromptContent(content, promptName, promptId) {
+export function scanPromptContent(content, promptName, promptId) {
   const refs = [];
-  if (!content) return refs;
+  if (!content || typeof content !== 'string') return refs;
 
   const add = (name, type, value, scope, matchStr) => {
-    const id = `${promptId}::${name.trim()}::${type}::${refs.length}`;
-    refs.push({ id, name: name.trim(), type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: truncate(matchStr, 80) });
+    const cleanName = name?.trim() || '';
+    if (!cleanName) return;
+    const id = `${promptId}::${cleanName}::${type}::${refs.length}`;
+    refs.push({ id, name: cleanName, type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: truncate(matchStr, 80) });
   };
 
-  let m;
+  // 1. Balanced macro scanning for {{setvar::...}}, {{addvar::...}}, {{setglobalvar::...}}, {{getvar::...}}, {{getglobalvar::...}}
+  const macroRegex = /\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/gi;
+  let match;
+  while ((match = macroRegex.exec(content)) !== null) {
+    const startIndex = match.index;
+    const typeStr = match[1].toLowerCase();
+    let depth = 2; // Matched opening '{{'
+    let endIndex = startIndex + match[0].length;
+    while (endIndex < content.length && depth > 0) {
+      if (content[endIndex] === '{' && content[endIndex + 1] === '{') {
+        depth += 2;
+        endIndex += 2;
+      } else if (content[endIndex] === '}' && content[endIndex + 1] === '}') {
+        depth -= 2;
+        endIndex += 2;
+      } else if (content[endIndex] === '}') {
+        depth -= 1;
+        endIndex += 1;
+      } else if (content[endIndex] === '{') {
+        depth += 1;
+        endIndex += 1;
+      } else {
+        endIndex += 1;
+      }
+    }
+    if (depth <= 0) {
+      const fullMatch = content.slice(startIndex, endIndex);
+      const inner = fullMatch.slice(match[0].length, fullMatch.length - 2); // Strip prefix and closing '}}'
+      const scope = typeStr.includes('global') ? 'global' : 'local';
+      const type = typeStr.replace('global', ''); // setvar -> set, getvar -> get, addvar -> addvar
+      if (type === 'get') {
+        add(inner.trim(), 'get', undefined, scope, fullMatch);
+      } else {
+        const firstColon = inner.indexOf('::');
+        if (firstColon !== -1) {
+          const varName = inner.slice(0, firstColon).trim();
+          const varVal = inner.slice(firstColon + 2);
+          add(varName, type === 'setvar' ? 'set' : type, varVal, scope, fullMatch);
+        } else {
+          add(inner.trim(), type === 'setvar' ? 'set' : type, '', scope, fullMatch);
+        }
+      }
+    }
+  }
 
-  // {{setvar::name::value}}
-  const p1 = /\{\{setvar::([^:}]+)::([\s\S]*?)\}\}/gi;
-  while ((m = p1.exec(content))) add(m[1], 'set', m[2], 'local', m[0]);
-
-  // {{getvar::name}}
-  const p2 = /\{\{getvar::([^}]+)\}\}/gi;
-  while ((m = p2.exec(content))) add(m[1], 'get', undefined, 'local', m[0]);
-
-  // {{addvar::name::value}}
-  const p3 = /\{\{addvar::([^:}]+)::([\s\S]*?)\}\}/gi;
-  while ((m = p3.exec(content))) add(m[1], 'addvar', m[2], 'local', m[0]);
-
-  // {{setglobalvar::name::value}}
-  const p4 = /\{\{setglobalvar::([^:}]+)::([\s\S]*?)\}\}/gi;
-  while ((m = p4.exec(content))) add(m[1], 'set', m[2], 'global', m[0]);
-
-  // {{getglobalvar::name}}
-  const p5 = /\{\{getglobalvar::([^}]+)\}\}/gi;
-  while ((m = p5.exec(content))) add(m[1], 'get', undefined, 'global', m[0]);
-
-  // /setvar key=X value
-  const p6 = /\/setvar\s+key=(\S+)\s+(.*?)(?:\||$)/gm;
-  while ((m = p6.exec(content))) add(m[1], 'set', m[2], 'local', m[0]);
-
-  // /getvar key=X  or  /getvar X
-  const p7 = /\/getvar\s+(?:key=)?(\S+)/g;
-  while ((m = p7.exec(content))) add(m[1], 'get', undefined, 'local', m[0]);
-
-  // /setglobalvar key=X value
-  const p8 = /\/setglobalvar\s+key=(\S+)\s+(.*?)(?:\||$)/gm;
-  while ((m = p8.exec(content))) add(m[1], 'set', m[2], 'global', m[0]);
-
-  // /getglobalvar key=X  or  /getglobalvar X
-  const p9 = /\/getglobalvar\s+(?:key=)?(\S+)/g;
-  while ((m = p9.exec(content))) add(m[1], 'get', undefined, 'global', m[0]);
+  // 2. Slash commands (/setvar, /getvar, /setglobalvar, /getglobalvar)
+  const slashRegex = /\/(setvar|getvar|setglobalvar|getglobalvar)\s+(?:key=)?([^\s|]+)(?:\s+([^\r\n|]*))?/gi;
+  while ((match = slashRegex.exec(content)) !== null) {
+    const fullMatch = match[0];
+    const cmd = match[1].toLowerCase();
+    const varName = match[2];
+    const varVal = match[3] || '';
+    const scope = cmd.includes('global') ? 'global' : 'local';
+    const type = cmd.includes('get') ? 'get' : 'set';
+    if (type === 'get') {
+      add(varName, 'get', undefined, scope, fullMatch);
+    } else {
+      add(varName, 'set', varVal, scope, fullMatch);
+    }
+  }
 
   return refs;
 }

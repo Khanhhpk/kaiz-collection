@@ -5,7 +5,7 @@
  */
 
 import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks } from '../../features/manage-prompt.js';
-import { getPendingVarChanges, refreshVarInspector } from '../../features/var-inspector.js';
+import { getPendingVarChanges, refreshVarInspector, scanPromptContent, applyVarChangesToContent } from '../../features/var-inspector.js';
 
 // ─── Macro Tokenizer ──────────────────────────────────────────────────────────
 
@@ -201,66 +201,49 @@ export async function flushStaging() {
     block.id = block.identifier; // đảm bảo id == identifier
   }
 
-  // 3. Apply staged variable values (__VARS__)
-  if (_stagingMap.has('__VARS__')) {
-    const varsMap = _stagingMap.get('__VARS__');
-    for (const [stId, info] of Object.entries(varsMap)) {
-      const block = container.prompts.find(p => p.identifier === info.promptId);
-      if (!block || typeof block.content !== 'string') continue;
-      
-      let constructed = '';
-      if (info.matchType === 'set') {
-        constructed = `{{setvar::${info.varName}::${info.newValue}}}`;
-      } else if (info.matchType === 'addvar') {
-        constructed = `{{addvar::${info.varName}::${info.newValue}}}`;
-      } else if (info.matchType === 'setglobalvar') {
-        constructed = `{{setglobalvar::${info.varName}::${info.newValue}}}`;
-      }
-      
-      if (constructed && info.oldValueMatch) {
-        block.content = block.content.replace(info.oldValueMatch, constructed);
-      } else if (constructed) {
-        const fallbackRegex = new RegExp(`\\{\\{${info.matchType}::${escapeRegex(info.varName)}::([\\s\\S]*?)\\}\\}`, 'i');
-        block.content = block.content.replace(fallbackRegex, constructed);
-      }
-    }
+  // 3. Apply staged variable updates (__VARS__) and renames (__VAR_RENAMES__) across all blocks
+  const renamesMap = _stagingMap.get('__VAR_RENAMES__') || {};
+  const varsMap = _stagingMap.get('__VARS__') || {};
+  const valuesBySource = {};
+
+  for (const [stId, info] of Object.entries(varsMap)) {
+    valuesBySource[stId] = {
+      promptId: info.promptId,
+      fullMatch: info.oldValueMatch || '',
+      oldName: info.varName,
+      varName: info.varName,
+      newVal: info.newValue,
+      type: info.matchType
+    };
   }
 
-  // 4. Apply staged variable renames (__VAR_RENAMES__) across all blocks
-  if (_stagingMap.has('__VAR_RENAMES__')) {
-    const renames = _stagingMap.get('__VAR_RENAMES__');
-    for (const [oldName, newName] of Object.entries(renames)) {
-      for (const block of container.prompts) {
-        if (!block || typeof block.content !== 'string') continue;
-        block.content = block.content.replace(
-          new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
-          (m, val) => `{{setvar::${newName}::${val}}}`
-        );
-        block.content = block.content.replace(
-          new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
-          (m, val) => `{{addvar::${newName}::${val}}}`
-        );
-        block.content = block.content.replace(
-          new RegExp(`\\{\\{setglobalvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
-          (m, val) => `{{setglobalvar::${newName}::${val}}}`
-        );
-        block.content = block.content.replace(
-          new RegExp(`\\{\\{getvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
-          `{{getvar::${newName}}}`
-        );
-        block.content = block.content.replace(
-          new RegExp(`\\{\\{getglobalvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
-          `{{getglobalvar::${newName}}}`
-        );
-        block.content = block.content.replace(
-          new RegExp(`\\/setvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
-          (m, val) => `/setvar key=${newName} ${val}`
-        );
-        block.content = block.content.replace(
-          new RegExp(`\\/getvar\\s+(?:key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
-          () => `/getvar ${newName}`
-        );
+  for (const block of container.prompts) {
+    if (!block || typeof block.content !== 'string') continue;
+    block.content = applyVarChangesToContent(block.content, block.identifier, renamesMap, valuesBySource);
+  }
+
+  // 4. Update live variables in SillyTavern context if renamed
+  if (Object.keys(renamesMap).length > 0) {
+    try {
+      const ctx = window.SillyTavern?.getContext?.();
+      if (ctx?.chatMetadata?.variables) {
+        for (const [oldName, newName] of Object.entries(renamesMap)) {
+          if (oldName in ctx.chatMetadata.variables) {
+            ctx.chatMetadata.variables[newName] = ctx.chatMetadata.variables[oldName];
+            delete ctx.chatMetadata.variables[oldName];
+          }
+        }
       }
+      if (ctx?.extensionSettings?.variables?.global) {
+        for (const [oldName, newName] of Object.entries(renamesMap)) {
+          if (oldName in ctx.extensionSettings.variables.global) {
+            ctx.extensionSettings.variables.global[newName] = ctx.extensionSettings.variables.global[oldName];
+            delete ctx.extensionSettings.variables.global[oldName];
+          }
+        }
+      }
+    } catch (e) {
+      console.error('[PresetProvider] Error updating live variables during rename:', e);
     }
   }
 
@@ -277,6 +260,24 @@ export async function flushStaging() {
 
   clearStaging();
   renderPromptBlocks();
+
+  // 7. Persist changes in SillyTavern and refresh UI
+  try {
+    const stContext = window.SillyTavern?.getContext?.();
+    stContext?.eventSource?.emit?.('oai_preset_changed_after');
+    const autoSave = $('#st-multitool-auto-save-preset-toggle');
+    const shouldAutoSave = autoSave.length ? autoSave.prop('checked') : true;
+    if (shouldAutoSave) {
+      const saveBtn = document.querySelector('#update_oai_preset')
+        || document.querySelector('#chat_completion_save_preset')
+        || document.querySelector('#preset_save_button');
+      if (saveBtn) saveBtn.click();
+    }
+    (stContext?.saveSettingsDebounced || window.saveSettingsDebounced)?.();
+  } catch (e) {
+    console.error('[PresetProvider] Error saving ST preset after flushStaging:', e);
+  }
+
   try {
     refreshVarInspector();
   } catch (e) {
@@ -360,35 +361,17 @@ async function executeTool(name, args) {
         const prompts = getPrompts();
         const varMap = new Map();
         for (const p of prompts) {
-          const content = p.content || '';
-          const setMatches = [...content.matchAll(/\{\{setvar::([^:}]+)::([\s\S]*?)\}\}/gi)];
-          const getMatches = [...content.matchAll(/\{\{getvar::([^}]+)\}\}/gi)];
-          const addMatches = [...content.matchAll(/\{\{addvar::([^:}]+)::([\s\S]*?)\}\}/gi)];
-          const setGlobMatches = [...content.matchAll(/\{\{setglobalvar::([^:}]+)::([\s\S]*?)\}\}/gi)];
-          const getGlobMatches = [...content.matchAll(/\{\{getglobalvar::([^}]+)\}\}/gi)];
-
-          for (const [fullMatch, name, val] of setMatches) {
-            if (!varMap.has(name)) varMap.set(name, { name, scope: 'local', sources: [] });
-            const sourceId = `${p.identifier}::${name}::set::${varMap.get(name).sources.length}`;
-            varMap.get(name).sources.push({ sourceId, promptId: p.identifier, promptName: p.name, type: 'set', value: val, fullMatch });
-          }
-          for (const [fullMatch, name, val] of addMatches) {
-            if (!varMap.has(name)) varMap.set(name, { name, scope: 'local', sources: [] });
-            const sourceId = `${p.identifier}::${name}::addvar::${varMap.get(name).sources.length}`;
-            varMap.get(name).sources.push({ sourceId, promptId: p.identifier, promptName: p.name, type: 'addvar', value: val, fullMatch });
-          }
-          for (const [fullMatch, name, val] of setGlobMatches) {
-            if (!varMap.has(name)) varMap.set(name, { name, scope: 'global', sources: [] });
-            const sourceId = `${p.identifier}::${name}::setglobalvar::${varMap.get(name).sources.length}`;
-            varMap.get(name).sources.push({ sourceId, promptId: p.identifier, promptName: p.name, type: 'setglobalvar', value: val, fullMatch });
-          }
-          for (const [fullMatch, name] of getMatches) {
-            if (!varMap.has(name)) varMap.set(name, { name, scope: 'local', sources: [] });
-            varMap.get(name).sources.push({ promptId: p.identifier, promptName: p.name, type: 'get', fullMatch });
-          }
-          for (const [fullMatch, name] of getGlobMatches) {
-            if (!varMap.has(name)) varMap.set(name, { name, scope: 'global', sources: [] });
-            varMap.get(name).sources.push({ promptId: p.identifier, promptName: p.name, type: 'getglobalvar', fullMatch });
+          const refs = scanPromptContent(p.content || '', p.name, p.identifier);
+          for (const ref of refs) {
+            if (!varMap.has(ref.name)) varMap.set(ref.name, { name: ref.name, scope: ref.scope, sources: [] });
+            varMap.get(ref.name).sources.push({
+              sourceId: ref.id,
+              promptId: ref.promptId,
+              promptName: ref.promptName,
+              type: ref.type,
+              value: ref.value,
+              fullMatch: ref.fullMatch
+            });
           }
         }
         return { vars: [...varMap.values()], total: varMap.size };

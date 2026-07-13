@@ -665,8 +665,17 @@ function _bindEvents() {
       onToolResult: (toolName, result) => {
         // Cập nhật bubble tool với kết quả ngắn gọn
         const $last = _$sidebar.find('.ai-bubble-tool').last().find('.ai-tool-result');
-        const summary = result?.summary || result?.message || (result?.ok ? '✓ OK' : JSON.stringify(result).slice(0, 80));
-        $last.text(summary);
+        let summaryText = '';
+        if (typeof result?.summary === 'string') {
+          summaryText = result.summary;
+        } else if (result?.message) {
+          summaryText = result.message;
+        } else if (result?.summary && typeof result.summary === 'object') {
+          summaryText = `${result.summary.totalChanges || 0} thay đổi chờ xác nhận`;
+        } else {
+          summaryText = result?.ok ? '✓ OK' : (typeof result === 'string' ? result : JSON.stringify(result).slice(0, 80));
+        }
+        $last.text(summaryText);
 
         // Nếu tool trả pending_review → hiện preview
         if (result?.pending_review) {
