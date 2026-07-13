@@ -218,7 +218,7 @@ function buildSidebarHTML() {
       <!-- Config Panel (hidden by default) -->
       <div class="ai-config-panel" style="display:none;">
         <div style="font-size:11px;color:#38bdf8;margin-bottom:8px;padding:4px 6px;background:rgba(56,189,248,0.1);border-left:2px solid #38bdf8;border-radius:4px;">
-          ⚡ <b>Chế độ API Custom:</b> Đảm bảo chèn chính xác 3 Lớp Role (`system`, `user`, `assistant prefill`) để vượt rào (bypass safety filter) 100%.
+          ⚡ <b>Chế độ API Custom:</b> Đảm bảo chèn chính xác 3 Lớp Role (<code>system</code>, <code>user</code>, <code>assistant prefill</code>) để vượt rào (bypass safety filter) 100%.
         </div>
         <div class="ai-cfg-row">
           <label class="ai-cfg-label">Endpoint</label>
