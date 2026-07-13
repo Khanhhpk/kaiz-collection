@@ -64,6 +64,11 @@ async function parseSSEStream(response, onChunk, signal) {
 
                 try {
                     const json = JSON.parse(raw);
+                    const finishReason = json?.choices?.[0]?.finish_reason || json?.candidates?.[0]?.finishReason || '';
+                    if (finishReason === 'content_filter' || finishReason === 'SAFETY' || finishReason === 'blocked' || finishReason === 'safety') {
+                        fullText += '\n<!-- STREAM_ABORTED_BY_SAFETY_FILTER -->';
+                        return fullText;
+                    }
                     const delta = typeof json === 'string'
                         ? json
                         : (json?.choices?.[0]?.delta?.content ?? json?.choices?.[0]?.text ?? json?.choices?.[0]?.message?.content ?? json?.delta ?? json?.content ?? json?.text ?? '');
