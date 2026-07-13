@@ -61,23 +61,61 @@ function appendBubble(role, content, opts = {}) {
   return $history.children().last();
 }
 
-function appendToken(token) {
-  const $last = _$sidebar.find('.ai-streaming-content').last();
-  if ($last.length) {
-    $last.text($last.text() + token);
-    const $history = _$sidebar.find('.ai-chat-history');
-    $history.scrollTop($history[0].scrollHeight);
+function cleanAssistantText(text) {
+  if (!text) return '';
+  let s = String(text);
+  // 1. Loại bỏ toàn bộ <tool_call>...</tool_call> (hoặc thẻ tool_call đang mở dở)
+  s = s.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/gi, '');
+  
+  // 2. Loại bỏ CoT (<cot>...</cot> hoặc prefill bắt đầu trước </cot>)
+  if (s.includes('</cot>')) {
+    const parts = s.split('</cot>');
+    s = parts.slice(1).join('</cot>');
+  } else if (s.includes('<cot>')) {
+    s = s.replace(/<cot>[\s\S]*?(<\/cot>|$)/gi, '');
   }
+  
+  return s.trim();
+}
+
+function renderStreamingBuffer(streamBuffer) {
+  const $last = _$sidebar.find('.ai-streaming-content').last();
+  if (!$last.length) return;
+
+  // Nếu chưa gặp </cot> thì AI đang viết suy luận CoT (do prefill từ engine)
+  if (!streamBuffer.includes('</cot>') && !streamBuffer.includes('<cot>')) {
+    $last.html('<div style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> 🧠 Đang suy luận kỹ thuật (CoT)...</div>');
+    return;
+  }
+
+  const cleaned = cleanAssistantText(streamBuffer);
+  if (!cleaned) {
+    $last.html('<div style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> 🧠 Đang suy luận kỹ thuật (CoT)...</div>');
+    return;
+  }
+
+  // Render markdown-lite
+  const html = escapeHtml(cleaned)
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/\n/g, '<br>');
+  $last.html(html);
+  const $history = _$sidebar.find('.ai-chat-history');
+  $history.scrollTop($history[0].scrollHeight);
 }
 
 function finalizeStreamingBubble(fullText) {
   const $last = _$sidebar.find('.ai-streaming-content').last();
   if ($last.length) {
-    // Render markdown-lite: xuống dòng, bold
-    const html = escapeHtml(fullText)
-      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-      .replace(/\n/g, '<br>');
-    $last.html(html).removeClass('ai-streaming-content');
+    const cleaned = cleanAssistantText(fullText);
+    if (!cleaned) {
+      // Nếu sau khi loại bỏ CoT và tool_call mà không có text chính thức -> xóa bubble rỗng khỏi UI
+      $last.closest('.ai-bubble-assistant').remove();
+    } else {
+      const html = escapeHtml(cleaned)
+        .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+        .replace(/\n/g, '<br>');
+      $last.html(html).removeClass('ai-streaming-content');
+    }
   }
 }
 
@@ -450,7 +488,7 @@ function _bindEvents() {
           currentAssistantBubble = appendBubble('assistant', '');
         }
         streamBuffer += token;
-        appendToken(token);
+        renderStreamingBuffer(streamBuffer);
       },
       onToolCall: (toolCall) => {
         setState('tool_calling');
@@ -483,8 +521,11 @@ function _bindEvents() {
           finalizeStreamingBubble(streamBuffer);
           streamBuffer = '';
         } else if (finalText && !currentAssistantBubble) {
-          currentAssistantBubble = appendBubble('assistant', '');
-          finalizeStreamingBubble(finalText);
+          const cleaned = cleanAssistantText(finalText);
+          if (cleaned) {
+            currentAssistantBubble = appendBubble('assistant', '');
+            finalizeStreamingBubble(finalText);
+          }
         } else if (!finalText && !currentAssistantBubble) {
           currentAssistantBubble = appendBubble('assistant', '');
           finalizeStreamingBubble('⚠️ **API trả về phản hồi rỗng (0 tokens).**\n\n💡 *Cách xử lý:* Bấm vào biểu tượng **[🔍 Debug Logs]** (`>_`) trên thanh tiêu đề của AI Agency để xem chính xác dữ liệu đã gửi đi và phản hồi/lỗi chi tiết từ SillyTavern hoặc API LLM.');
