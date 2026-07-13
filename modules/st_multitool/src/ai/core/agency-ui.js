@@ -450,6 +450,7 @@ function _bindEvents() {
       setState('idle');
       toastr.success('Đã áp dụng thay đổi vào Preset Editor!');
       appendBubble('assistant', '✅ Đã áp dụng các thay đổi vào danh sách bên trái. Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
+      _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Chấp Nhận (Apply) tất cả các thay đổi staged vào Preset Editor. Danh sách block bên trái đã cập nhật thành công. Hãy ghi nhận trạng thái này đã được xác nhận và hỗ trợ tiếp nếu người dùng yêu cầu.]');
     } catch (e) {
       toastr.error('Lỗi khi áp dụng: ' + e.message);
     }
@@ -461,5 +462,6 @@ function _bindEvents() {
     _$sidebar.find('.ai-tool-preview').hide();
     setState('idle');
     appendBubble('assistant', '❌ Đã hủy tất cả thay đổi đang chờ.');
+    _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Từ Chối (Reject) / Hủy bỏ toàn bộ đề xuất thay đổi staged vừa rồi. Các thay đổi đã bị xóa bỏ hoàn toàn khỏi bộ nhớ tạm. Hãy tiếp tục trò chuyện hoặc hỏi ý kiến người dùng để làm phương án khác.]');
   });
 }

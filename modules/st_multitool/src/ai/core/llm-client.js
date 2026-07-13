@@ -87,26 +87,25 @@ export async function sendLLMRequest({ messages, tools, onChunk, signal } = {}) 
     const config = getLLMConfig();
 
     if (config.mode === 'st') {
-        const body = {
-            messages,
-            max_tokens: config.maxOutput,
-            stream: true,
-        };
-        if (tools?.length) body.tools = tools;
+        const win = window.parent || window;
+        if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
+            const ctx = win.SillyTavern.getContext();
+            if (typeof ctx.generateRaw === 'function') {
+                const promptStr = messages.map(m => {
+                    if (m.role === 'system') return `### SYSTEM INSTRUCTIONS:\n${m.content}\n`;
+                    if (m.role === 'assistant') return `### ASSISTANT:\n${m.content}\n`;
+                    return `### USER:\n${m.content}\n`;
+                }).join('\n\n') + '\n\n### ASSISTANT:\n';
 
-        const res = await fetch('/api/backends/chat-completions/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            signal,
-        });
-
-        if (!res.ok) {
-            const text = await res.text().catch(() => '');
-            throw new Error(`ST API error ${res.status}: ${text || res.statusText}`);
+                const res = await ctx.generateRaw(promptStr);
+                const fullText = typeof res === 'string' ? res : (res?.text ?? res?.content ?? JSON.stringify(res ?? ''));
+                if (fullText && onChunk) {
+                    onChunk(fullText);
+                }
+                return fullText;
+            }
         }
-
-        return parseSSEStream(res, onChunk, signal);
+        throw new Error('SillyTavern API (generateRaw) không sẵn sàng hoặc chưa kết nối API chính trong SillyTavern.');
     }
 
     if (config.mode === 'custom') {

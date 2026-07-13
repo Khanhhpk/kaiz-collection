@@ -66,6 +66,15 @@ export class AgencyEngine {
   }
 
   /**
+   * Add a formal message to conversation history (e.g. system notification when user accepts/rejects staging).
+   * @param {string} role
+   * @param {string} content
+   */
+  addMessage(role, content) {
+    this._history.push({ role, content });
+  }
+
+  /**
    * Run the agentic loop for a single user message.
    *
    * @param {string} userMessage
@@ -126,6 +135,14 @@ export class AgencyEngine {
         const toolCalls = this._parseToolCalls(assistantText);
 
         if (toolCalls.length === 0) {
+          if (this._lastTruncatedToolCall) {
+            // Auto-continue from truncation without stopping!
+            this._pushHistory({
+              role: 'user',
+              content: `[Hệ thống: Phản hồi của bạn vừa bị ngắt giữa chừng do giới hạn maxOutput tokens lúc đang xuất <tool_call>.\nHãy CHIA NHỎ (Chunking/Prefill) yêu cầu ra thành từng batch nhỏ hơn (chỉ 1-2 blocks mỗi tool_call) để không bị ngắt nữa. Hãy thực hiện tiếp tool_call vừa bị ngắt với dung lượng nhỏ gọn hơn ngay bây giờ.]`,
+            });
+            continue;
+          }
           // 6. No tool calls → we're done.
           onDone(assistantText);
           return;
@@ -153,6 +170,13 @@ export class AgencyEngine {
           this._pushHistory({
             role: 'user',
             content: `[Tool Result: ${toolCall.name}]\nRESULT: ${JSON.stringify(result)}`,
+          });
+        }
+
+        if (this._lastTruncatedToolCall) {
+          this._pushHistory({
+            role: 'user',
+            content: `[Hệ thống: Các tool_call phía trước đã thực thi thành công. Tuy nhiên tool_call cuối cùng của bạn bị ngắt giữa chừng do vượt giới hạn maxOutput tokens.\nHãy tiếp tục thực hiện các block còn lại bằng lệnh <tool_call> nhỏ gọn hơn (chỉ 1-2 blocks mỗi lần gọi).]`,
           });
         }
 
@@ -274,6 +298,16 @@ export class AgencyEngine {
         // Malformed JSON inside <tool_call> – skip silently.
         console.warn('[AgencyEngine] Failed to parse tool_call JSON:', raw, parseErr);
       }
+    }
+
+    const unclosedIdx = text.lastIndexOf('<tool_call>');
+    const closedIdx = text.lastIndexOf('</tool_call>');
+    if (unclosedIdx !== -1 && (closedIdx === -1 || unclosedIdx > closedIdx)) {
+      const partialRaw = text.slice(unclosedIdx + 11).trim();
+      console.warn('[AgencyEngine] Detected unclosed <tool_call> due to token truncation:', partialRaw);
+      this._lastTruncatedToolCall = partialRaw;
+    } else {
+      this._lastTruncatedToolCall = null;
     }
 
     return calls;
