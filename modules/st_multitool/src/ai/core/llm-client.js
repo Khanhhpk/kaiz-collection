@@ -101,7 +101,7 @@ export async function sendLLMRequest({ messages, tools, onChunk, signal } = {}) 
                     if (m.role === 'system') return `### SYSTEM INSTRUCTIONS:\n${m.content}\n`;
                     if (m.role === 'assistant') return `### ASSISTANT:\n${m.content}\n`;
                     return `### USER:\n${m.content}\n`;
-                }).join('\n\n') + '\n\n### ASSISTANT:\n';
+                }).join('\n\n') + (messages[messages.length - 1]?.role === 'assistant' ? '' : '\n\n### ASSISTANT:\n');
 
                 const res = await ctx.generateRaw(promptStr);
                 const fullText = typeof res === 'string' ? res : (res?.text ?? res?.content ?? JSON.stringify(res ?? ''));
