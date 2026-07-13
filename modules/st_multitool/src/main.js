@@ -10,6 +10,7 @@ import { initManageScripts, renderManageScriptLists } from "./features/manage-sc
 import { initManageRegex, renderManageRegexLists } from "./features/manage-regex.js";
 import { initManagePrompt } from "./features/manage-prompt.js";
 import { initVarInspector } from "./features/var-inspector.js";
+import { initAIAgency } from "./ai/core/agency-ui.js";
 import {
   closePopup,
   elements,
@@ -163,6 +164,7 @@ async function init() {
     initManageRegex();
     initManagePrompt();
     initVarInspector();
+    initAIAgency();
 
     showMainView();
     console.log(`[${MODULE_NAME}] Khởi tạo hoàn tất`);

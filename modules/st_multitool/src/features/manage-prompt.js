@@ -1,4 +1,4 @@
-import { escapeHtml } from '../utils.js';
+﻿import { escapeHtml } from '../utils.js';
 import { showLoader, hideLoader, showSubView } from '../ui.js';
 import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent, refreshVarInspector } from './var-inspector.js';
 
