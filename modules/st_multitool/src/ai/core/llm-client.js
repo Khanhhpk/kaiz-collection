@@ -7,6 +7,7 @@ const DEFAULT_CONFIG = {
     model: 'gpt-4o-mini',
     contextLimit: 32000,
     maxOutput: 4000,
+    maxIterations: 30,
 };
 
 export function getLLMConfig() {

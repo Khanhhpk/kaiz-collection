@@ -127,6 +127,7 @@ function renderConfigPanel() {
   _$sidebar.find('#ai-cfg-apikey').val(cfg.apiKey);
   _$sidebar.find('#ai-cfg-context').val(cfg.contextLimit);
   _$sidebar.find('#ai-cfg-maxout').val(cfg.maxOutput);
+  _$sidebar.find('#ai-cfg-maxiter').val(cfg.maxIterations ?? 30);
   updateConfigPanelVisibility(cfg.mode);
 }
 
@@ -144,6 +145,7 @@ function saveConfigFromPanel() {
     model: _$sidebar.find('#ai-cfg-model').val(),
     contextLimit: parseInt(_$sidebar.find('#ai-cfg-context').val(), 10) || 32000,
     maxOutput: parseInt(_$sidebar.find('#ai-cfg-maxout').val(), 10) || 4000,
+    maxIterations: parseInt(_$sidebar.find('#ai-cfg-maxiter').val(), 10) || 30,
   });
   window._stMultitoolLLMConfig = getLLMConfig();
   toastr.success('Đã lưu cấu hình AI.');
@@ -205,6 +207,10 @@ function buildSidebarHTML() {
         <div class="ai-cfg-row">
           <label class="ai-cfg-label">Max output</label>
           <input type="number" id="ai-cfg-maxout" class="ai-cfg-input" style="width:100px;" value="4000"> tokens
+        </div>
+        <div class="ai-cfg-row">
+          <label class="ai-cfg-label">Max tool loops</label>
+          <input type="number" id="ai-cfg-maxiter" class="ai-cfg-input" style="width:100px;" value="30" min="1" max="200"> lượt/task
         </div>
         <button class="ai-save-cfg-btn">💾 Lưu cài đặt</button>
       </div>
@@ -419,8 +425,9 @@ function _bindEvents() {
         if (err?.name === 'AbortError') {
           appendBubble('assistant', '⏹️ Đã dừng.');
         } else {
-          appendBubble('assistant', `❌ Lỗi: ${err?.message || String(err)}`);
+          appendBubble('assistant', `⚠️ ${err?.message || String(err)}`);
         }
+        if (hasStagingChanges()) renderToolPreview();
         setState('idle');
       },
     });

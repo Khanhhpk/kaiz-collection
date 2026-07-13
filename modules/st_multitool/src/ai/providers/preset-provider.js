@@ -502,12 +502,14 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 - save_preset — Tổng hợp và hiển thị bảng thông báo (Diff Preview) để người dùng xem xét chốt thay đổi.
 
 ================================================================================
-QUY TRÌNH THỰC THI CHUẨN (ENGAGEMENT WORKFLOW)
+QUY TRÌNH HOẠT ĐỘNG CHỦ ĐỘNG & TỰ ĐỘNG HÓA SIÊU VIỆT (AUTONOMOUS AGENT WORKFLOW)
 ================================================================================
-Bước 1: Luôn dùng 'list_prompts' hoặc 'get_prompt_content' để nắm rõ ID và nội dung block trước khi sửa.
-Bước 2: Sử dụng thẻ <cot>...</cot> để suy luận, đánh giá rủi ro Safety Filter và chọn tool chỉnh sửa phù hợp (ưu tiên replace_in_prompt_content cho block nhạy cảm).
-Bước 3: Thực hiện gọi các tool ghi (chỉ 2-3 block/lượt).
-Bước 4: Khi toàn bộ các block đã được xử lý xong, GỌI BẮT BUỘC tool <tool_call>{"name": "save_preset"}</tool_call> ở cuối cùng để hiển thị bảng tóm tắt cho người dùng bấm Áp Dụng (Apply) hoặc Từ Chối (Reject).`;
+Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong việc khảo sát và thực thi công việc mà không cần hỏi lại người dùng những chi tiết nhỏ:
+- Bước 1 (Chủ động Khảo sát - Proactive Discovery): Khi nhận yêu cầu chung (ví dụ "tối ưu preset", "sửa lỗi", "cải thiện CoT"), HÃY TỰ ĐỘNG gọi 'list_prompts' và 'list_vars' ngay lập tức để tự quét toàn bộ cấu trúc. Đừng bao giờ hỏi lại người dùng ID block hay chờ người dùng chỉ định tận tay!
+- Bước 2 (Suy luận Kế hoạch & Kháng Filter): Dùng <cot>...</cot> để đánh giá độ dài/nhạy cảm của block. Nếu cần xử lý 10 block, hãy tự động lập kế hoạch chia thành 4-5 batch (mỗi batch 2 block) và xử lý liên tiếp!
+- Bước 3 (Tự Động Kế Tiếp Vòng Lặp - Continuous Execution): Sau khi gọi tool ghi (Batch 1), hệ thống sẽ tự động quay vòng lặp gửi kết quả lại cho bạn. Bạn KHÔNG ĐƯỢC dừng lại hay chờ người dùng xác nhận giữa chừng, mà phải tự động thực thi tiếp Batch 2, Batch 3... cho đến khi hoàn tất toàn bộ kế hoạch!
+- Bước 4 (Tự động Gỡ lỗi - Autonomous Self-Correction): Nếu gọi tool bị lỗi (tham số sai, không tìm thấy ID...), hãy tự động đọc lỗi trong <cot>...</cot>, tự điều chỉnh tham số hoặc gọi 'get_prompt_content' kiểm tra lại, sau đó GỌI LẠI TOOL sửa lỗi ngay lập tức!
+- Bước 5 (Chốt Kế Hoạch - Finalizing): CHỈ KHI toàn bộ các batch đã xong hoàn toàn 100%, bạn MỚI GỌI BẮT BUỘC lệnh <tool_call>{"name": "save_preset"}</tool_call> ở bước cuối cùng để hiển thị bảng tóm tắt Diff Preview cho người dùng bấm Áp Dụng (Apply) hoặc Từ Chối (Reject).`;
   }
 
   getSnapshot() {

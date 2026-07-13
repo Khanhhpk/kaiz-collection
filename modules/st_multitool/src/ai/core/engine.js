@@ -100,24 +100,25 @@ export class AgencyEngine {
     try {
       // 1. Push the user message into history.
       this._pushHistory({ role: 'user', content: userMessage });
-
       let iterations = 0;
+      const llmConfig = getLLMConfig();
+      const maxIterations = llmConfig?.maxIterations || 30;
 
       // Agentic loop.
-      while (iterations < MAX_ITERATIONS) {
+      while (iterations < maxIterations) {
         if (signal.aborted) {
           throw new DOMException('Task aborted by user.', 'AbortError');
         }
 
-        iterations++;
-
-        // 2. Build messages = [system] + history, with context truncation.
+        // 2. Build current messages and truncate history if needed.
         this._maybetruncateHistory();
         const messages = this._buildMessages();
 
-        // 3. Stream LLM request.
-        let assistantText = '';
+        iterations += 1;
 
+        // 3. Send to LLM and stream the text.
+        let assistantText = '';
+        this._lastTruncatedToolCall = false; // Reset before each turn
         await sendLLMRequest({
           messages,
           signal,
@@ -126,7 +127,6 @@ export class AgencyEngine {
             onChunk(chunk);
           },
         });
-
 
         // Push assistant's full response into history.
         this._pushHistory({ role: 'assistant', content: assistantText });
@@ -166,11 +166,15 @@ export class AgencyEngine {
 
           onToolResult(toolCall.name, result);
 
+          const resultStr = JSON.stringify(result);
+          const feedbackMsg = result?.error
+            ? `[Tool Result: ${toolCall.name} - LỖI/ERROR]\nRESULT: ${resultStr}\n⚠️ LƯU Ý TỰ ĐỘNG GỠ LỖI (AUTONOMOUS SELF-CORRECTION): Tool vừa gọi bị lỗi. Bạn HÃY TỰ ĐỘNG đọc kỹ thông báo lỗi, suy luận trong <cot>...</cot> để tự kiểm tra tham số (ví dụ dùng list_prompts hoặc get_prompt_content để xác minh ID chính xác) và GỌI LẠI TOOL sửa lỗi ngay trong lượt này, KHÔNG ĐƯỢC dừng lại hay bỏ cuộc!`
+            : `[Tool Result: ${toolCall.name}]\nRESULT: ${resultStr}`;
 
           // Append tool result to history using 'user' role for maximum API compatibility with XML tool calls.
           this._pushHistory({
             role: 'user',
-            content: `[Tool Result: ${toolCall.name}]\nRESULT: ${JSON.stringify(result)}`,
+            content: feedbackMsg,
           });
         }
 
@@ -187,7 +191,7 @@ export class AgencyEngine {
 
       // Reached max iterations.
       const maxIterErr = new Error(
-        `AgencyEngine: reached maximum iteration limit (${MAX_ITERATIONS}).`
+        `Đã đạt giới hạn số lượt tool liên tiếp trong 1 lượt (${maxIterations} lượt). Các thay đổi đã xử lý đang hiển thị trong bảng Diff Preview bên dưới. Bạn có thể bấm Áp Dụng (Apply) hoặc gõ "tiếp tục" để AI làm tiếp.`
       );
       onError(maxIterErr);
     } catch (err) {
