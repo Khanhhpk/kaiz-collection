@@ -109,13 +109,15 @@ export class AgencyEngine {
         // 3. Stream LLM request.
         let assistantText = '';
 
-        await sendLLMRequest(messages, {
+        await sendLLMRequest({
+          messages,
           signal,
           onChunk: (chunk) => {
             assistantText += chunk;
             onChunk(chunk);
           },
         });
+
 
         // Push assistant's full response into history.
         this._pushHistory({ role: 'assistant', content: assistantText });
@@ -144,12 +146,13 @@ export class AgencyEngine {
             result = { error: toolErr?.message ?? String(toolErr) };
           }
 
-          onToolResult(result);
+          onToolResult(toolCall.name, result);
 
-          // Append tool result to history.
+
+          // Append tool result to history using 'user' role for maximum API compatibility with XML tool calls.
           this._pushHistory({
-            role: 'tool',
-            content: `TOOL: ${toolCall.name}\nRESULT: ${JSON.stringify(result)}`,
+            role: 'user',
+            content: `[Tool Result: ${toolCall.name}]\nRESULT: ${JSON.stringify(result)}`,
           });
         }
 

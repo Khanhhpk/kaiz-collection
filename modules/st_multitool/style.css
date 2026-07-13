@@ -1406,6 +1406,7 @@ input:checked + .st-multitool-toggle-slider:before {
 /* Split layout: prompt list + AI sidebar */
 #st-multitool-manage-prompt-view.ai-agency-active {
   display: flex !important;
+  flex-direction: row !important;
   overflow: hidden;
   gap: 0;
 }
@@ -1413,23 +1414,30 @@ input:checked + .st-multitool-toggle-slider:before {
 .ai-prompt-list-panel {
   flex: 1 1 0;
   min-width: 0;
+  height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
 
-/* ── Sidebar shell ─────────────────────────────────────────── */
+/* ── Sidebar shell (hidden by default unless ai-agency-active) ────────────────── */
 .ai-agency-sidebar {
-  width: 360px;
+  display: none;
+  width: 380px;
   flex-shrink: 0;
-  display: flex;
   flex-direction: column;
-  background: rgba(10, 14, 20, 0.92);
-  border-left: 1px solid rgba(52, 211, 153, 0.15);
+  background: rgba(10, 14, 20, 0.96);
+  border-left: 1px solid rgba(52, 211, 153, 0.25);
   height: 100%;
   overflow: hidden;
   font-size: 13px;
   color: var(--st-multitool-text, #e2e8f0);
+  box-shadow: -6px 0 20px rgba(0,0,0,0.4);
+}
+
+#st-multitool-manage-prompt-view.ai-agency-active .ai-agency-sidebar {
+  display: flex;
 }
 
 /* ── Header ────────────────────────────────────────────────── */

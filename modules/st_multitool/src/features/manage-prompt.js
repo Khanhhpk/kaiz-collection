@@ -94,11 +94,14 @@ export function initManagePrompt() {
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
         if (window.lucide) window.lucide.createIcons();
-        window._stMultitoolAgency?.show();
       } finally {
         hideLoader();
       }
     }, 50);
+  });
+
+  $('#st-multitool-ai-agency-toggle-btn').on('click', () => {
+    window._stMultitoolAgency?.toggle();
   });
 
 

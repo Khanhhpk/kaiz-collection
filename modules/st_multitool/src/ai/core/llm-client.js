@@ -64,7 +64,9 @@ async function parseSSEStream(response, onChunk, signal) {
 
                 try {
                     const json = JSON.parse(raw);
-                    const delta = json?.choices?.[0]?.delta?.content ?? '';
+                    const delta = typeof json === 'string'
+                        ? json
+                        : (json?.choices?.[0]?.delta?.content ?? json?.choices?.[0]?.text ?? json?.choices?.[0]?.message?.content ?? json?.delta ?? json?.content ?? json?.text ?? '');
                     if (delta) {
                         fullText += delta;
                         onChunk?.(delta);

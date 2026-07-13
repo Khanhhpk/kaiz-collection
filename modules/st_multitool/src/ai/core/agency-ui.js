@@ -164,6 +164,9 @@ function buildSidebarHTML() {
           <button class="ai-icon-btn ai-cfg-btn" title="Cài đặt LLM">
             <i data-lucide="settings-2" style="width:14px;height:14px;"></i>
           </button>
+          <button class="ai-icon-btn ai-close-btn" title="Đóng AI Agency">
+            <i data-lucide="x" style="width:14px;height:14px;"></i>
+          </button>
         </div>
       </div>
 
@@ -243,6 +246,7 @@ function buildSidebarHTML() {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 let _injected = false;
+let _isOpen = false;
 
 function _injectSidebar() {
   if (_injected) return;
@@ -267,22 +271,52 @@ function _injectSidebar() {
 function _showSidebar() {
   _injectSidebar();
   $('#st-multitool-manage-prompt-view').addClass('ai-agency-active');
+  $('#st-multitool-ai-agency-toggle-btn').addClass('active').css({
+    background: 'rgba(52, 211, 153, 0.3)',
+    borderColor: '#34d399',
+    boxShadow: '0 0 10px rgba(52, 211, 153, 0.3)'
+  });
+  _isOpen = true;
 }
 
 function _hideSidebar() {
   $('#st-multitool-manage-prompt-view').removeClass('ai-agency-active');
+  $('#st-multitool-ai-agency-toggle-btn').removeClass('active').css({
+    background: 'rgba(52, 211, 153, 0.12)',
+    borderColor: 'rgba(52, 211, 153, 0.3)',
+    boxShadow: 'none'
+  });
+  _isOpen = false;
+}
+
+function _toggleSidebar() {
+  if (_isOpen) {
+    _hideSidebar();
+  } else {
+    _showSidebar();
+  }
 }
 
 export function initAIAgency() {
   _provider = new PresetContextProvider();
   _engine = createEngine(_provider);
 
-  // Expose show/hide via window để tránh circular import
-  window._stMultitoolAgency = { show: _showSidebar, hide: _hideSidebar };
+  // Expose show/hide/toggle via window để tránh circular import
+  window._stMultitoolAgency = { 
+    show: _showSidebar, 
+    hide: _hideSidebar, 
+    toggle: _toggleSidebar,
+    isOpen: () => _isOpen 
+  };
 }
 
 
 function _bindEvents() {
+  // Close button
+  _$sidebar.find('.ai-close-btn').on('click', () => {
+    _hideSidebar();
+  });
+
   // Toggle config panel
   _$sidebar.find('.ai-cfg-btn').on('click', () => {
     _$sidebar.find('.ai-config-panel').slideToggle(200);
