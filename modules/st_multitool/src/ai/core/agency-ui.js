@@ -7,6 +7,7 @@
 import { createEngine } from './engine.js';
 import { getLLMConfig, setLLMConfig, fetchModels } from './llm-client.js';
 import { PresetContextProvider, getStagingSummary, hasStagingChanges, clearStaging, flushStaging } from '../providers/preset-provider.js';
+import { getDebugLogs, clearDebugLogs } from './debug-logger.js';
 
 let _engine = null;
 let _provider = null;
@@ -117,7 +118,48 @@ function renderToolPreview() {
   _$sidebar.find('.ai-tool-preview').show();
 }
 
-// ─── Config Panel ─────────────────────────────────────────────────────────────
+// ─── Config Panel & Debug Panel ─────────────────────────────────────────────
+
+function renderDebugPanel() {
+  const logs = getDebugLogs();
+  const $content = _$sidebar.find('.ai-debug-content');
+  if (logs.length === 0) {
+    $content.html('<div style="color:#888;font-style:italic;padding:8px 0;">Chưa có log API nào. Hãy gửi yêu cầu để xem chi tiết tải trọng (payload) gửi cho AI.</div>');
+    return;
+  }
+
+  let html = '';
+  logs.forEach(l => {
+    const statusColor = l.status === 'DONE' ? '#34d399' : (l.status === 'ERROR' ? '#f87171' : '#60a5fa');
+    const messagesSummary = (l.messages || []).map(m => `[${m.role.toUpperCase()}]: ${String(m.content).slice(0, 100)}...`).join('\n');
+    const fullPayload = JSON.stringify({ model: l.model, options: l.options, messages: l.messages }, null, 2);
+
+    html += `
+      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px;margin-bottom:8px;background:rgba(0,0,0,0.3);font-size:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="color:#e2e8f0;font-weight:bold;">🕒 ${l.time} (${l.mode.toUpperCase()})</span>
+          <span style="color:${statusColor};font-weight:bold;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.05);">${l.status} ${l.duration ? `(${l.duration}ms)` : ''}</span>
+        </div>
+        <div style="color:#94a3b8;font-size:11px;margin-bottom:4px;">📌 Endpoint: ${escapeHtml(l.endpoint)} | Model: ${escapeHtml(l.model)}</div>
+        <details style="margin-top:6px;cursor:pointer;">
+          <summary style="color:#38bdf8;font-weight:500;">📤 Tải trọng gửi đi (${(l.messages || []).length} blocks/layers)</summary>
+          <pre style="background:#0f172a;padding:8px;border-radius:4px;overflow-x:auto;max-height:220px;color:#a5f3fc;font-family:monospace;font-size:11px;margin-top:4px;white-space:pre-wrap;">${escapeHtml(fullPayload)}</pre>
+        </details>
+        ${l.error ? `
+        <div style="margin-top:6px;padding:6px;background:rgba(239,68,68,0.15);border-left:3px solid #ef4444;color:#fca5a5;font-family:monospace;font-size:11px;">
+          <b>⚠️ Lỗi API:</b> ${escapeHtml(l.error)}
+        </div>` : ''}
+        ${l.response && !l.error ? `
+        <details style="margin-top:4px;cursor:pointer;">
+          <summary style="color:#a7f3d0;font-weight:500;">📥 Phản hồi nhận về (${l.response.length} chars)</summary>
+          <pre style="background:#0f172a;padding:8px;border-radius:4px;overflow-x:auto;max-height:180px;color:#d1fae5;font-family:monospace;font-size:11px;margin-top:4px;white-space:pre-wrap;">${escapeHtml(l.response)}</pre>
+        </details>` : ''}
+      </div>
+    `;
+  });
+
+  $content.html(html);
+}
 
 function renderConfigPanel() {
   const cfg = getLLMConfig();
@@ -160,6 +202,9 @@ function buildSidebarHTML() {
       <div class="ai-header">
         <span class="ai-header-title"><span class="ai-robot-icon">🤖</span> AI Agency</span>
         <div class="ai-header-actions">
+          <button class="ai-icon-btn ai-debug-btn" title="Xem Debug Logs & Tải Trọng Gửi AI">
+            <i data-lucide="terminal" style="width:14px;height:14px;"></i>
+          </button>
           <button class="ai-icon-btn ai-clear-btn" title="Xóa lịch sử hội thoại">
             <i data-lucide="refresh-ccw" style="width:14px;height:14px;"></i>
           </button>
@@ -213,6 +258,15 @@ function buildSidebarHTML() {
           <input type="number" id="ai-cfg-maxiter" class="ai-cfg-input" style="width:100px;" value="30" min="1" max="200"> lượt/task
         </div>
         <button class="ai-save-cfg-btn">💾 Lưu cài đặt</button>
+      </div>
+
+      <!-- Debug Log Panel (hidden by default) -->
+      <div class="ai-debug-panel" style="display:none;padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);max-height:340px;overflow-y:auto;background:rgba(15,23,42,0.95);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);">
+          <span style="font-weight:bold;color:#34d399;font-size:13px;">🔍 LLM Debug Logs & Tải Trọng Gửi Đi</span>
+          <button class="ai-clear-debug-btn" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;">🗑️ Xóa log</button>
+        </div>
+        <div class="ai-debug-content"></div>
       </div>
 
       <!-- Chat History -->
@@ -328,6 +382,30 @@ function _bindEvents() {
   // Toggle config panel
   _$sidebar.find('.ai-cfg-btn').on('click', () => {
     _$sidebar.find('.ai-config-panel').slideToggle(200);
+    _$sidebar.find('.ai-debug-panel').slideUp(200);
+  });
+
+  // Toggle debug panel
+  _$sidebar.find('.ai-debug-btn').on('click', () => {
+    const $panel = _$sidebar.find('.ai-debug-panel');
+    if ($panel.is(':hidden')) {
+      renderDebugPanel();
+      $panel.slideDown(200);
+      _$sidebar.find('.ai-config-panel').slideUp(200);
+    } else {
+      $panel.slideUp(200);
+    }
+  });
+
+  _$sidebar.find('.ai-clear-debug-btn').on('click', () => {
+    clearDebugLogs();
+    renderDebugPanel();
+  });
+
+  window.addEventListener('st-multitool-ai-debug-update', () => {
+    if (_$sidebar && _$sidebar.find('.ai-debug-panel').is(':visible')) {
+      renderDebugPanel();
+    }
   });
 
   // Mode radio
@@ -417,6 +495,12 @@ function _bindEvents() {
         if (streamBuffer) {
           finalizeStreamingBubble(streamBuffer);
           streamBuffer = '';
+        } else if (finalText && !currentAssistantBubble) {
+          currentAssistantBubble = appendBubble('assistant', '');
+          finalizeStreamingBubble(finalText);
+        } else if (!finalText && !currentAssistantBubble) {
+          currentAssistantBubble = appendBubble('assistant', '');
+          finalizeStreamingBubble('⚠️ **API trả về phản hồi rỗng (0 tokens).**\n\n💡 *Cách xử lý:* Bấm vào biểu tượng **[🔍 Debug Logs]** (`>_`) trên thanh tiêu đề của AI Agency để xem chính xác dữ liệu đã gửi đi và phản hồi/lỗi chi tiết từ SillyTavern hoặc API LLM.');
         }
         if (hasStagingChanges()) renderToolPreview();
         setState('idle');
@@ -425,7 +509,14 @@ function _bindEvents() {
         if (err?.name === 'AbortError') {
           appendBubble('assistant', '⏹️ Đã dừng.');
         } else {
-          appendBubble('assistant', `⚠️ ${err?.message || String(err)}`);
+          const errMsg = err?.message || String(err);
+          if (!currentAssistantBubble) {
+            appendBubble('assistant', `⚠️ **Lỗi thực thi LLM:** ${errMsg}\n\n💡 Bấm vào nút **[🔍 Debug Logs]** trên thanh tiêu đề để xem chính xác lỗi và dữ liệu gửi đi.`);
+          } else {
+            finalizeStreamingBubble(streamBuffer + `\n\n⚠️ **Lỗi:** ${errMsg}`);
+            streamBuffer = '';
+            currentAssistantBubble = null;
+          }
         }
         if (hasStagingChanges()) renderToolPreview();
         setState('idle');
