@@ -133,10 +133,30 @@ export function hasStagingChanges() {
 }
 
 export function getStagingSummary() {
-  const updates = [..._stagingMap.entries()].map(([id, fields]) => {
-    const block = findPrompt(id);
-    return { identifier: id, name: block?.name || id, fields: Object.keys(fields) };
-  });
+  const updates = [];
+  let varUpdates = [];
+  let varRenames = [];
+  let reorder = null;
+
+  for (const [id, fields] of _stagingMap.entries()) {
+    if (id === '__VARS__') {
+      varUpdates = Object.entries(fields).map(([stId, info]) => ({
+        varName: info?.varName || stId,
+        promptId: info?.promptId || '',
+        newValueExcerpt: truncate(info?.newValue || '', 60)
+      }));
+    } else if (id === '__VAR_RENAMES__') {
+      varRenames = Object.entries(fields).map(([oldName, newName]) => ({ oldName, newName }));
+    } else if (id === '__ORDER__') {
+      reorder = fields.order;
+    } else {
+      const block = findPrompt(id);
+      updates.push({ identifier: id, name: block?.name || id, fields: Object.keys(fields) });
+    }
+  }
+
+  const totalChanges = updates.length + _stagingCreates.length + _stagingDeletes.size + varUpdates.length + varRenames.length + (reorder ? 1 : 0);
+
   return {
     updates,
     creates: _stagingCreates.map(b => ({ name: b.name, role: b.role })),
@@ -144,7 +164,10 @@ export function getStagingSummary() {
       const b = findPrompt(id);
       return { identifier: id, name: b?.name || id };
     }),
-    totalChanges: updates.length + _stagingCreates.length + _stagingDeletes.size,
+    varUpdates,
+    varRenames,
+    reorder,
+    totalChanges,
   };
 }
 
@@ -156,27 +179,109 @@ export async function flushStaging() {
   const container = getContainer();
   if (!container) throw new Error('Không tìm thấy ST container');
 
-  // Apply field updates
+  // 1. Apply reorder_prompts (__ORDER__) nếu có
+  if (_stagingMap.has('__ORDER__')) {
+    const { order } = _stagingMap.get('__ORDER__');
+    if (Array.isArray(order) && order.length > 0) {
+      const orderMap = new Map(order.map((id, index) => [id, index]));
+      container.prompts.sort((a, b) => {
+        const idxA = orderMap.has(a.identifier) ? orderMap.get(a.identifier) : 999999;
+        const idxB = orderMap.has(b.identifier) ? orderMap.get(b.identifier) : 999999;
+        return idxA - idxB;
+      });
+    }
+  }
+
+  // 2. Apply field updates cho từng block (content, name, enabled, v.v.)
   for (const [identifier, fields] of _stagingMap) {
+    if (identifier === '__VARS__' || identifier === '__VAR_RENAMES__' || identifier === '__ORDER__') continue;
     const block = container.prompts.find(p => p.identifier === identifier);
     if (!block) continue;
     Object.assign(block, fields);
     block.id = block.identifier; // đảm bảo id == identifier
   }
 
-  // Apply creates
+  // 3. Apply staged variable values (__VARS__)
+  if (_stagingMap.has('__VARS__')) {
+    const varsMap = _stagingMap.get('__VARS__');
+    for (const [stId, info] of Object.entries(varsMap)) {
+      const block = container.prompts.find(p => p.identifier === info.promptId);
+      if (!block || typeof block.content !== 'string') continue;
+      
+      let constructed = '';
+      if (info.matchType === 'set') {
+        constructed = `{{setvar::${info.varName}::${info.newValue}}}`;
+      } else if (info.matchType === 'addvar') {
+        constructed = `{{addvar::${info.varName}::${info.newValue}}}`;
+      } else if (info.matchType === 'setglobalvar') {
+        constructed = `{{setglobalvar::${info.varName}::${info.newValue}}}`;
+      }
+      
+      if (constructed && info.oldValueMatch) {
+        block.content = block.content.replace(info.oldValueMatch, constructed);
+      } else if (constructed) {
+        const fallbackRegex = new RegExp(`\\{\\{${info.matchType}::${escapeRegex(info.varName)}::([\\s\\S]*?)\\}\\}`, 'i');
+        block.content = block.content.replace(fallbackRegex, constructed);
+      }
+    }
+  }
+
+  // 4. Apply staged variable renames (__VAR_RENAMES__) across all blocks
+  if (_stagingMap.has('__VAR_RENAMES__')) {
+    const renames = _stagingMap.get('__VAR_RENAMES__');
+    for (const [oldName, newName] of Object.entries(renames)) {
+      for (const block of container.prompts) {
+        if (!block || typeof block.content !== 'string') continue;
+        block.content = block.content.replace(
+          new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
+          (m, val) => `{{setvar::${newName}::${val}}}`
+        );
+        block.content = block.content.replace(
+          new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
+          (m, val) => `{{addvar::${newName}::${val}}}`
+        );
+        block.content = block.content.replace(
+          new RegExp(`\\{\\{setglobalvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
+          (m, val) => `{{setglobalvar::${newName}::${val}}}`
+        );
+        block.content = block.content.replace(
+          new RegExp(`\\{\\{getvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
+          `{{getvar::${newName}}}`
+        );
+        block.content = block.content.replace(
+          new RegExp(`\\{\\{getglobalvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
+          `{{getglobalvar::${newName}}}`
+        );
+        block.content = block.content.replace(
+          new RegExp(`\\/setvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
+          (m, val) => `/setvar key=${newName} ${val}`
+        );
+        block.content = block.content.replace(
+          new RegExp(`\\/getvar\\s+(?:key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
+          () => `/getvar ${newName}`
+        );
+      }
+    }
+  }
+
+  // 5. Apply creates
   for (const blockData of _stagingCreates) {
     const { addToLinked, insertTop, ...data } = blockData;
     addPromptBlock(data, addToLinked ?? false, insertTop ?? false);
   }
 
-  // Apply deletes
+  // 6. Apply deletes
   for (const id of _stagingDeletes) {
     deletePromptBlock(id);
   }
 
   clearStaging();
   renderPromptBlocks();
+  try {
+    refreshVarInspector();
+  } catch (e) {
+    console.error('[VarInspector] refreshVarInspector error after flushStaging:', e);
+  }
 }
 
 // ─── Tool Executor ────────────────────────────────────────────────────────────
@@ -252,20 +357,38 @@ async function executeTool(name, args) {
 
     case 'list_vars': {
       try {
-        const { renames, valuesBySource } = getPendingVarChanges();
         const prompts = getPrompts();
         const varMap = new Map();
         for (const p of prompts) {
           const content = p.content || '';
-          const setMatches = [...content.matchAll(/\{\{setvar::([^:}]+)::([^}]*)\}\}/gi)];
+          const setMatches = [...content.matchAll(/\{\{setvar::([^:}]+)::([\s\S]*?)\}\}/gi)];
           const getMatches = [...content.matchAll(/\{\{getvar::([^}]+)\}\}/gi)];
-          for (const [, name, val] of setMatches) {
-            if (!varMap.has(name)) varMap.set(name, { name, sources: [] });
-            varMap.get(name).sources.push({ promptId: p.identifier, promptName: p.name, type: 'set', value: val });
+          const addMatches = [...content.matchAll(/\{\{addvar::([^:}]+)::([\s\S]*?)\}\}/gi)];
+          const setGlobMatches = [...content.matchAll(/\{\{setglobalvar::([^:}]+)::([\s\S]*?)\}\}/gi)];
+          const getGlobMatches = [...content.matchAll(/\{\{getglobalvar::([^}]+)\}\}/gi)];
+
+          for (const [fullMatch, name, val] of setMatches) {
+            if (!varMap.has(name)) varMap.set(name, { name, scope: 'local', sources: [] });
+            const sourceId = `${p.identifier}::${name}::set::${varMap.get(name).sources.length}`;
+            varMap.get(name).sources.push({ sourceId, promptId: p.identifier, promptName: p.name, type: 'set', value: val, fullMatch });
           }
-          for (const [, name] of getMatches) {
-            if (!varMap.has(name)) varMap.set(name, { name, sources: [] });
-            varMap.get(name).sources.push({ promptId: p.identifier, promptName: p.name, type: 'get' });
+          for (const [fullMatch, name, val] of addMatches) {
+            if (!varMap.has(name)) varMap.set(name, { name, scope: 'local', sources: [] });
+            const sourceId = `${p.identifier}::${name}::addvar::${varMap.get(name).sources.length}`;
+            varMap.get(name).sources.push({ sourceId, promptId: p.identifier, promptName: p.name, type: 'addvar', value: val, fullMatch });
+          }
+          for (const [fullMatch, name, val] of setGlobMatches) {
+            if (!varMap.has(name)) varMap.set(name, { name, scope: 'global', sources: [] });
+            const sourceId = `${p.identifier}::${name}::setglobalvar::${varMap.get(name).sources.length}`;
+            varMap.get(name).sources.push({ sourceId, promptId: p.identifier, promptName: p.name, type: 'setglobalvar', value: val, fullMatch });
+          }
+          for (const [fullMatch, name] of getMatches) {
+            if (!varMap.has(name)) varMap.set(name, { name, scope: 'local', sources: [] });
+            varMap.get(name).sources.push({ promptId: p.identifier, promptName: p.name, type: 'get', fullMatch });
+          }
+          for (const [fullMatch, name] of getGlobMatches) {
+            if (!varMap.has(name)) varMap.set(name, { name, scope: 'global', sources: [] });
+            varMap.get(name).sources.push({ promptId: p.identifier, promptName: p.name, type: 'getglobalvar', fullMatch });
           }
         }
         return { vars: [...varMap.values()], total: varMap.size };
@@ -393,15 +516,92 @@ async function executeTool(name, args) {
     // ── Write tools – Vars ──────────────────────────────────────────────────
 
     case 'update_var_value': {
-      // sourceId = `promptId::varName::set` format
-      const { sourceId, newValue } = args;
+      const { sourceId, promptId, varName, newValue, oldValue, oldValueMatch } = args;
+      if (newValue === undefined) return { error: 'Thiếu newValue' };
+
+      const prompts = getPrompts();
+      let targetPromptId = promptId;
+      let targetVarName = varName;
+      let targetIdx = -1;
+      let targetType = null;
+
+      if (sourceId) {
+        const parts = sourceId.split('::');
+        if (parts.length >= 2) {
+          targetPromptId = parts[0];
+          targetVarName = parts[1];
+          if (parts.length >= 3) targetType = parts[2];
+          if (parts.length >= 4 && !isNaN(parseInt(parts[3], 10))) targetIdx = parseInt(parts[3], 10);
+        } else if (!targetVarName) {
+          targetVarName = parts[0];
+        }
+      }
+
+      if (!targetVarName) return { error: 'Không xác định được tên biến từ sourceId hoặc varName' };
+
+      let foundPrompt = null;
+      let fullMatch = '';
+      let matchType = targetType || 'set';
+
+      for (const p of prompts) {
+        if (targetPromptId && p.identifier !== targetPromptId && p.name !== targetPromptId) continue;
+        const content = p.content || '';
+
+        // Nếu có oldValueMatch chính xác
+        if (oldValueMatch && content.includes(oldValueMatch)) {
+          foundPrompt = p; fullMatch = oldValueMatch;
+          if (fullMatch.startsWith('{{addvar::')) matchType = 'addvar';
+          else if (fullMatch.startsWith('{{setglobalvar::')) matchType = 'setglobalvar';
+          else matchType = 'set';
+          break;
+        }
+
+        // Nếu có oldValue (trị cũ của biến)
+        if (oldValue !== undefined) {
+          const exactSet = `{{setvar::${targetVarName}::${oldValue}}}`;
+          const exactAdd = `{{addvar::${targetVarName}::${oldValue}}}`;
+          const exactGlob = `{{setglobalvar::${targetVarName}::${oldValue}}}`;
+          if (content.includes(exactSet)) { foundPrompt = p; fullMatch = exactSet; matchType = 'set'; break; }
+          if (content.includes(exactAdd)) { foundPrompt = p; fullMatch = exactAdd; matchType = 'addvar'; break; }
+          if (content.includes(exactGlob)) { foundPrompt = p; fullMatch = exactGlob; matchType = 'setglobalvar'; break; }
+        }
+
+        // Tìm theo index hoặc regex
+        const typesToTry = targetType ? [targetType] : ['set', 'addvar', 'setglobalvar'];
+        for (const t of typesToTry) {
+          const re = new RegExp(`\\{\\{${t}::${escapeRegex(targetVarName)}::([\\s\\S]*?)\\}\\}`, 'gi');
+          const allMatches = [...content.matchAll(re)];
+          if (allMatches.length > 0) {
+            const chosen = (targetIdx >= 0 && targetIdx < allMatches.length) ? allMatches[targetIdx] : allMatches[0];
+            foundPrompt = p;
+            fullMatch = chosen[0];
+            matchType = t;
+            break;
+          }
+        }
+        if (foundPrompt) break;
+      }
+
+      if (!foundPrompt || !fullMatch) {
+        return { error: `Không tìm thấy khai báo {{${matchType}::${targetVarName}::...}} trong bất kỳ prompt block nào.` };
+      }
+
       if (!_stagingMap.has('__VARS__')) _stagingMap.set('__VARS__', {});
-      _stagingMap.get('__VARS__')[sourceId] = newValue;
-      return { ok: true, staged: true, summary: `Staged cập nhật var value [${sourceId}]` };
+      const stId = sourceId || `${foundPrompt.identifier}::${targetVarName}::${matchType}::${targetIdx >= 0 ? targetIdx : 0}`;
+      _stagingMap.get('__VARS__')[stId] = {
+        promptId: foundPrompt.identifier,
+        varName: targetVarName,
+        oldValueMatch: fullMatch,
+        matchType,
+        newValue: String(newValue)
+      };
+
+      return { ok: true, staged: true, summary: `Staged cập nhật giá trị biến "${targetVarName}" (${matchType}) trong block "${foundPrompt.name}"` };
     }
 
     case 'rename_var': {
       const { oldName, newName } = args;
+      if (!oldName || !newName) return { error: 'Thiếu oldName hoặc newName' };
       if (!_stagingMap.has('__VAR_RENAMES__')) _stagingMap.set('__VAR_RENAMES__', {});
       _stagingMap.get('__VAR_RENAMES__')[oldName] = newName;
       return { ok: true, staged: true, summary: `Staged đổi tên biến "${oldName}" → "${newName}"` };
@@ -546,4 +746,13 @@ Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong v
   async executeTool(name, args) {
     return await executeTool(name, args);
   }
+}
+
+function escapeRegex(string) {
+  return String(string || '').replace(/[.*+?^$()|[\]\\]/g, '\\$&');
+}
+
+function truncate(s, max = 80) {
+  s = String(s ?? '');
+  return s.length > max ? s.slice(0, max) + '…' : s;
 }

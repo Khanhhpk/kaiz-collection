@@ -39,11 +39,15 @@ export function applyVarChangesToContent(content, promptId, renames, valuesBySou
         constructedMatch = `{{setvar::${valInfo.oldName}::${valInfo.newVal}}}`;
       } else if (valInfo.fullMatch.startsWith('{{addvar::')) {
         constructedMatch = `{{addvar::${valInfo.oldName}::${valInfo.newVal}}}`;
+      } else if (valInfo.fullMatch.startsWith('{{setglobalvar::')) {
+        constructedMatch = `{{setglobalvar::${valInfo.oldName}::${valInfo.newVal}}}`;
       } else if (valInfo.fullMatch.startsWith('/setvar')) {
         constructedMatch = `/setvar key=${valInfo.oldName} ${valInfo.newVal}`;
+      } else if (valInfo.fullMatch.startsWith('/setglobalvar')) {
+        constructedMatch = `/setglobalvar key=${valInfo.oldName} ${valInfo.newVal}`;
       }
       
-      if (constructedMatch) {
+      if (constructedMatch && valInfo.fullMatch) {
         newContent = newContent.replace(valInfo.fullMatch, constructedMatch);
       }
     }
@@ -56,14 +60,20 @@ export function applyVarChangesToContent(content, promptId, renames, valuesBySou
 
     // {{setvar::oldName::val}}
     newContent = newContent.replace(
-      new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
+      new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
       (match, val) => `{{setvar::${newName}::${val}}}`
     );
 
     // {{addvar::oldName::val}}
     newContent = newContent.replace(
-      new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
+      new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
       (match, val) => `{{addvar::${newName}::${val}}}`
+    );
+
+    // {{setglobalvar::oldName::val}}
+    newContent = newContent.replace(
+      new RegExp(`\\{\\{setglobalvar::${escapeRegex(oldName)}::([\\s\\S]*?)\\}\\}`, 'gi'),
+      (match, val) => `{{setglobalvar::${newName}::${val}}}`
     );
 
     // {{getvar::oldName}}
@@ -72,16 +82,34 @@ export function applyVarChangesToContent(content, promptId, renames, valuesBySou
       `{{getvar::${newName}}}`
     );
 
+    // {{getglobalvar::oldName}}
+    newContent = newContent.replace(
+      new RegExp(`\\{\\{getglobalvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
+      `{{getglobalvar::${newName}}}`
+    );
+
     // /setvar key=oldName val
     newContent = newContent.replace(
       new RegExp(`\\/setvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
       (match, val) => `/setvar key=${newName} ${val}`
     );
 
+    // /setglobalvar key=oldName val
+    newContent = newContent.replace(
+      new RegExp(`\\/setglobalvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
+      (match, val) => `/setglobalvar key=${newName} ${val}`
+    );
+
     // /getvar key=oldName
     newContent = newContent.replace(
-      new RegExp(`\\/getvar\\s+(key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
-      (match, p1) => `/getvar ${p1 || ''}${newName}`
+      new RegExp(`\\/getvar\\s+(?:key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
+      (match) => `/getvar ${newName}`
+    );
+
+    // /getglobalvar key=oldName
+    newContent = newContent.replace(
+      new RegExp(`\\/getglobalvar\\s+(?:key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
+      (match) => `/getglobalvar ${newName}`
     );
   }
 
@@ -107,14 +135,14 @@ function scanPromptContent(content, promptName, promptId) {
   if (!content) return refs;
 
   const add = (name, type, value, scope, matchStr) => {
-    const id = 'src_' + Math.random().toString(36).substr(2, 9);
+    const id = `${promptId}::${name.trim()}::${type}::${refs.length}`;
     refs.push({ id, name: name.trim(), type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: truncate(matchStr, 80) });
   };
 
   let m;
 
   // {{setvar::name::value}}
-  const p1 = /\{\{setvar::([^:}]+)::([^}]*)\}\}/gi;
+  const p1 = /\{\{setvar::([^:}]+)::([\s\S]*?)\}\}/gi;
   while ((m = p1.exec(content))) add(m[1], 'set', m[2], 'local', m[0]);
 
   // {{getvar::name}}
@@ -122,11 +150,11 @@ function scanPromptContent(content, promptName, promptId) {
   while ((m = p2.exec(content))) add(m[1], 'get', undefined, 'local', m[0]);
 
   // {{addvar::name::value}}
-  const p3 = /\{\{addvar::([^:}]+)::([^}]*)\}\}/gi;
+  const p3 = /\{\{addvar::([^:}]+)::([\s\S]*?)\}\}/gi;
   while ((m = p3.exec(content))) add(m[1], 'addvar', m[2], 'local', m[0]);
 
   // {{setglobalvar::name::value}}
-  const p4 = /\{\{setglobalvar::([^:}]+)::([^}]*)\}\}/gi;
+  const p4 = /\{\{setglobalvar::([^:}]+)::([\s\S]*?)\}\}/gi;
   while ((m = p4.exec(content))) add(m[1], 'set', m[2], 'global', m[0]);
 
   // {{getglobalvar::name}}

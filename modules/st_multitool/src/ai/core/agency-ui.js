@@ -268,14 +268,37 @@ function renderToolPreview() {
     if (upd.identifier === '__ORDER__' || upd.identifier === '__VARS__' || upd.identifier === '__VAR_RENAMES__') continue;
     diffHtml += `
       <div class="ai-diff-item">
-        <div class="ai-diff-name">${escapeHtml(upd.name)} <span class="ai-diff-fields">[${upd.fields.join(', ')}]</span></div>
+        <div class="ai-diff-name">📝 Cập nhật block: <b>${escapeHtml(upd.name)}</b> <span class="ai-diff-fields">[${upd.fields.join(', ')}]</span></div>
+      </div>`;
+  }
+  if (summary.varUpdates && summary.varUpdates.length > 0) {
+    for (const v of summary.varUpdates) {
+      diffHtml += `
+        <div class="ai-diff-item" style="border-left: 3px solid #fde68a; background: rgba(253,230,138,0.08);">
+          <div class="ai-diff-name" style="color:#fde68a;">✏️ Cập nhật biến: <b>{{setvar::${escapeHtml(v.varName)}::...}}</b></div>
+          ${v.newValueExcerpt ? `<div style="font-size:11px;color:#cbd5e1;margin-top:2px;">"${escapeHtml(v.newValueExcerpt)}"</div>` : ''}
+        </div>`;
+    }
+  }
+  if (summary.varRenames && summary.varRenames.length > 0) {
+    for (const r of summary.varRenames) {
+      diffHtml += `
+        <div class="ai-diff-item" style="border-left: 3px solid #c084fc; background: rgba(192,132,252,0.08);">
+          <div class="ai-diff-name" style="color:#e9d5ff;">🏷️ Đổi tên biến: <b style="color:#f87171;">${escapeHtml(r.oldName)}</b> ➔ <b style="color:#34d399;">${escapeHtml(r.newName)}</b></div>
+        </div>`;
+    }
+  }
+  if (summary.reorder && summary.reorder.length > 0) {
+    diffHtml += `
+      <div class="ai-diff-item" style="border-left: 3px solid #38bdf8; background: rgba(56,189,248,0.08);">
+        <div class="ai-diff-name" style="color:#38bdf8;">🔄 Sắp xếp lại thứ tự ${summary.reorder.length} prompt blocks</div>
       </div>`;
   }
   for (const c of summary.creates) {
-    diffHtml += `<div class="ai-diff-item ai-diff-create">➕ Tạo mới: <b>${escapeHtml(c.name)}</b></div>`;
+    diffHtml += `<div class="ai-diff-item ai-diff-create">➕ Tạo mới block: <b>${escapeHtml(c.name)}</b></div>`;
   }
   for (const d of summary.deletes) {
-    diffHtml += `<div class="ai-diff-item ai-diff-delete">🗑️ Xóa: <b>${escapeHtml(d.name)}</b></div>`;
+    diffHtml += `<div class="ai-diff-item ai-diff-delete">🗑️ Xóa block: <b>${escapeHtml(d.name)}</b></div>`;
   }
 
   _$sidebar.find('.ai-preview-stats').text(`📋 ${summary.totalChanges} thay đổi đang chờ xác nhận`);
