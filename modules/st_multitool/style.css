@@ -1404,7 +1404,7 @@ input:checked + .st-multitool-toggle-slider:before {
 ═══════════════════════════════════════════════════════════════ */
 
 /* Split layout: prompt list + AI sidebar */
-#st-multitool-manage-prompt-view {
+#st-multitool-manage-prompt-view.ai-agency-active {
   display: flex !important;
   overflow: hidden;
   gap: 0;

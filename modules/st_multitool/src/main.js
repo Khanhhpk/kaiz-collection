@@ -36,7 +36,10 @@ async function init() {
     initUIElements();
 
     $("#st-multitool-popup-close-button").on("click touchend", closePopup);
-    $("#st-multitool-popup-back-btn").on("click touchend", () => showMainView(true));
+    $("#st-multitool-popup-back-btn").on("click touchend", () => {
+      window._stMultitoolAgency?.hide();
+      showMainView(true);
+    });
     elements.overlay.on("click", function (e) {
       if (e.target === this) closePopup();
     });

@@ -242,41 +242,45 @@ function buildSidebarHTML() {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
+let _injected = false;
+
+function _injectSidebar() {
+  if (_injected) return;
+  const $view = $('#st-multitool-manage-prompt-view');
+  if (!$view.length) return;
+
+  // Wrap only the prompt list content (not sidebar)
+  $view.children(':not(.ai-agency-sidebar)').wrapAll('<div class="ai-prompt-list-panel"></div>');
+  $view.append(buildSidebarHTML());
+  _$sidebar = $('#st-multitool-ai-agency-sidebar');
+  _injected = true;
+
+  renderConfigPanel();
+  window._stMultitoolLLMConfig = getLLMConfig();
+  if (window.lucide) window.lucide.createIcons();
+  _bindEvents();
+
+  // Tin nhắn chào (chỉ một lần)
+  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
+}
+
+function _showSidebar() {
+  _injectSidebar();
+  $('#st-multitool-manage-prompt-view').addClass('ai-agency-active');
+}
+
+function _hideSidebar() {
+  $('#st-multitool-manage-prompt-view').removeClass('ai-agency-active');
+}
+
 export function initAIAgency() {
   _provider = new PresetContextProvider();
   _engine = createEngine(_provider);
 
-  // Inject sidebar vào manage-prompt-view
-  const $view = $('#st-multitool-manage-prompt-view');
-  if (!$view.length) {
-    console.warn('[AI Agency] Không tìm thấy #st-multitool-manage-prompt-view');
-    return;
-  }
-
-  // Chỉ inject một lần
-  if ($('#st-multitool-ai-agency-sidebar').length) return;
-
-  $view.css({ display: 'flex', gap: '0', overflow: 'hidden' });
-
-  // Wrap nội dung hiện tại vào left panel
-  $view.children().wrapAll('<div class="ai-prompt-list-panel"></div>');
-
-  // Thêm sidebar
-  $view.append(buildSidebarHTML());
-  _$sidebar = $('#st-multitool-ai-agency-sidebar');
-
-  // Render config panel với giá trị hiện tại
-  renderConfigPanel();
-  window._stMultitoolLLMConfig = getLLMConfig();
-
-  // Lucide icons
-  if (window.lucide) window.lucide.createIcons();
-
-  _bindEvents();
-
-  // Tin nhắn chào
-  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
+  // Expose show/hide via window để tránh circular import
+  window._stMultitoolAgency = { show: _showSidebar, hide: _hideSidebar };
 }
+
 
 function _bindEvents() {
   // Toggle config panel

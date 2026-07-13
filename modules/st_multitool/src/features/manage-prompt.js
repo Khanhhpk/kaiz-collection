@@ -1,4 +1,4 @@
-﻿import { escapeHtml } from '../utils.js';
+import { escapeHtml } from '../utils.js';
 import { showLoader, hideLoader, showSubView } from '../ui.js';
 import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent, refreshVarInspector } from './var-inspector.js';
 
@@ -94,11 +94,13 @@ export function initManagePrompt() {
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
         if (window.lucide) window.lucide.createIcons();
+        window._stMultitoolAgency?.show();
       } finally {
         hideLoader();
       }
     }, 50);
   });
+
 
   // ── Add Block Modal ──────────────────────────────────────────────────
   $('#st-multitool-add-prompt-btn').on('click', () => {
