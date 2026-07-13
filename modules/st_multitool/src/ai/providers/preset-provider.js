@@ -177,9 +177,6 @@ export async function flushStaging() {
 
   clearStaging();
   renderPromptBlocks();
-
-  // Trigger save
-  savePromptBlocks();
 }
 
 // ─── Tool Executor ────────────────────────────────────────────────────────────

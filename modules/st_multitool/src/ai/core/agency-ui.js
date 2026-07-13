@@ -271,6 +271,7 @@ function _injectSidebar() {
 function _showSidebar() {
   _injectSidebar();
   $('#st-multitool-manage-prompt-view').addClass('ai-agency-active');
+  $('#st-multitool-popup, .st-multitool-popup-container').addClass('ai-agency-expanded');
   $('#st-multitool-ai-agency-toggle-btn').addClass('active').css({
     background: 'rgba(52, 211, 153, 0.3)',
     borderColor: '#34d399',
@@ -281,6 +282,7 @@ function _showSidebar() {
 
 function _hideSidebar() {
   $('#st-multitool-manage-prompt-view').removeClass('ai-agency-active');
+  $('#st-multitool-popup, .st-multitool-popup-container').removeClass('ai-agency-expanded');
   $('#st-multitool-ai-agency-toggle-btn').removeClass('active').css({
     background: 'rgba(52, 211, 153, 0.12)',
     borderColor: 'rgba(52, 211, 153, 0.3)',
@@ -446,8 +448,8 @@ function _bindEvents() {
       await flushStaging();
       _$sidebar.find('.ai-tool-preview').hide();
       setState('idle');
-      toastr.success('Đã áp dụng tất cả thay đổi!');
-      appendBubble('assistant', '✅ Đã áp dụng và lưu preset thành công.');
+      toastr.success('Đã áp dụng thay đổi vào Preset Editor!');
+      appendBubble('assistant', '✅ Đã áp dụng các thay đổi vào danh sách bên trái. Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
     } catch (e) {
       toastr.error('Lỗi khi áp dụng: ' + e.message);
     }

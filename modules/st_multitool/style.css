@@ -59,6 +59,11 @@
   .st-multitool-popup-container {
     width: 60vw;
     max-width: 1000px;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .st-multitool-popup-container.ai-agency-expanded {
+    width: 95vw !important;
+    max-width: 1750px !important;
   }
 }
 
@@ -1413,7 +1418,7 @@ input:checked + .st-multitool-toggle-slider:before {
 
 .ai-prompt-list-panel {
   flex: 1 1 0;
-  min-width: 0;
+  min-width: 480px;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1424,7 +1429,7 @@ input:checked + .st-multitool-toggle-slider:before {
 /* ── Sidebar shell (hidden by default unless ai-agency-active) ────────────────── */
 .ai-agency-sidebar {
   display: none;
-  width: 380px;
+  width: 390px;
   flex-shrink: 0;
   flex-direction: column;
   background: rgba(10, 14, 20, 0.96);
@@ -1438,6 +1443,27 @@ input:checked + .st-multitool-toggle-slider:before {
 
 #st-multitool-manage-prompt-view.ai-agency-active .ai-agency-sidebar {
   display: flex;
+}
+
+/* Responsive: Trên màn hình hoặc khung hẹp (<= 950px), AI Agency chuyển thành overlay drawer nổi bên phải để không bóp nghẹt Preset Editor */
+@media (max-width: 950px) {
+  #st-multitool-manage-prompt-view.ai-agency-active {
+    position: relative !important;
+  }
+  #st-multitool-manage-prompt-view.ai-agency-active .ai-prompt-list-panel {
+    min-width: 100% !important;
+    width: 100% !important;
+  }
+  #st-multitool-manage-prompt-view.ai-agency-active .ai-agency-sidebar {
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: calc(100% - 20px) !important;
+    max-width: 420px !important;
+    z-index: 100 !important;
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.85) !important;
+  }
 }
 
 /* ── Header ────────────────────────────────────────────────── */

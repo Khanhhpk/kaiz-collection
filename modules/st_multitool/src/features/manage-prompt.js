@@ -8,10 +8,46 @@ let $saveBtn;
 // ─── Pending Add / Delete (chỉ áp dụng khi bấm Lưu) ────────────────────────
 let _pendingAdds = [];           // [{ block, addToLinked, insertTop }]
 let _pendingDeletes = new Set(); // Set<identifier string>
+let _originalSnapshot = null;
 
 function clearPendingBlockChanges() {
   _pendingAdds = [];
   _pendingDeletes.clear();
+}
+
+function captureOriginalSnapshot() {
+  const container = getPromptContainer();
+  if (container && Array.isArray(container.prompts)) {
+    _originalSnapshot = {
+      prompts: JSON.parse(JSON.stringify(container.prompts)),
+      prompt_order: container.prompt_order ? JSON.parse(JSON.stringify(container.prompt_order)) : null
+    };
+  }
+}
+
+function restoreOriginalSnapshot() {
+  const container = getPromptContainer();
+  if (container && _originalSnapshot && Array.isArray(_originalSnapshot.prompts)) {
+    container.prompts.length = 0;
+    _originalSnapshot.prompts.forEach(p => container.prompts.push(JSON.parse(JSON.stringify(p))));
+    if (_originalSnapshot.prompt_order !== null) {
+      if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0]?.order)) {
+        const ctx = window.SillyTavern?.getContext?.() || {};
+        const charId = ctx.characterId;
+        let targetObj = container.prompt_order.find(o => o.character_id === charId) || container.prompt_order[0];
+        if (targetObj && Array.isArray(_originalSnapshot.prompt_order)) {
+          if (typeof _originalSnapshot.prompt_order[0] === 'object' && Array.isArray(_originalSnapshot.prompt_order[0]?.order)) {
+            let snapTarget = _originalSnapshot.prompt_order.find(o => o.character_id === charId) || _originalSnapshot.prompt_order[0];
+            if (snapTarget) targetObj.order = JSON.parse(JSON.stringify(snapTarget.order));
+          } else {
+            targetObj.order = JSON.parse(JSON.stringify(_originalSnapshot.prompt_order));
+          }
+        }
+      } else {
+        container.prompt_order = JSON.parse(JSON.stringify(_originalSnapshot.prompt_order));
+      }
+    }
+  }
 }
 
 /**
@@ -91,6 +127,7 @@ export function initManagePrompt() {
     showLoader();
     setTimeout(() => {
       try {
+        captureOriginalSnapshot();
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
         if (window.lucide) window.lucide.createIcons();
@@ -158,6 +195,7 @@ export function initManagePrompt() {
     showLoader();
     setTimeout(() => {
       try {
+        restoreOriginalSnapshot();
         clearPendingBlockChanges();
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
@@ -698,6 +736,7 @@ export function savePromptBlocks() {
     }
 
     clearPendingBlockChanges();
+    captureOriginalSnapshot();
     renderPromptBlocks();
     toastr.success('Đã lưu các thay đổi block Prompt vào ST.');
   } catch (err) {
