@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'st-multitool-ai-llm-config';
 
 const DEFAULT_CONFIG = {
-    mode: 'st',
+    mode: 'custom',
     endpoint: 'https://api.openai.com/v1',
     apiKey: '',
     model: 'gpt-4o-mini',
@@ -13,14 +13,17 @@ const DEFAULT_CONFIG = {
 export function getLLMConfig() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? { ...DEFAULT_CONFIG, ...JSON.parse(raw) } : { ...DEFAULT_CONFIG };
+        const cfg = raw ? { ...DEFAULT_CONFIG, ...JSON.parse(raw) } : { ...DEFAULT_CONFIG };
+        cfg.mode = 'custom'; // Buộc luôn dùng chế độ custom để đảm bảo giữ nguyên phân tầng role bypass filter
+        return cfg;
     } catch {
-        return { ...DEFAULT_CONFIG };
+        return { ...DEFAULT_CONFIG, mode: 'custom' };
     }
 }
 
 export function setLLMConfig(cfg) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+    const toSave = { ...cfg, mode: 'custom' };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
 }
 
 export async function fetchModels(endpoint, apiKey) {
@@ -93,152 +96,54 @@ import { startDebugLog, updateDebugLog } from './debug-logger.js';
 
 export async function sendLLMRequest({ messages, tools, onChunk, signal } = {}) {
     const config = getLLMConfig();
+    const baseUrl = (config.endpoint || '').trim().replace(/\/$/, '');
+
+    if (!baseUrl) {
+        throw new Error('Chưa cấu hình Endpoint LLM! Vui lòng bấm vào nút [⚙️ Cài đặt LLM] trên thanh tiêu đề AI Agency để nhập Endpoint và API Key.');
+    }
+
     const logId = startDebugLog({
-        mode: config.mode,
-        endpoint: config.mode === 'st' ? 'SillyTavern Internal API' : config.endpoint,
+        mode: 'custom',
+        endpoint: baseUrl,
         model: config.model,
         messages,
         options: { maxOutput: config.maxOutput, contextLimit: config.contextLimit }
     });
 
     try {
-        if (config.mode === 'st') {
-            const win = window.parent || window;
-            let fullText = '';
-            let lastErr = null;
+        const body = {
+            model: config.model || 'gpt-4o-mini',
+            messages,
+            max_tokens: config.maxOutput || 4000,
+            stream: true,
+        };
+        if (tools?.length) body.tools = tools;
 
-            // Chuyển messages thành chuỗi prompt tiêu chuẩn nếu engine cần prompt string
-            const promptStr = messages.map(m => {
-                if (m.role === 'system') return `### SYSTEM INSTRUCTIONS:\n${m.content}\n`;
-                if (m.role === 'assistant') return `### ASSISTANT:\n${m.content}\n`;
-                return `### USER:\n${m.content}\n`;
-            }).join('\n\n') + (messages[messages.length - 1]?.role === 'assistant' ? '' : '\n\n### ASSISTANT:\n');
+        const headers = { 'Content-Type': 'application/json' };
+        if (config.apiKey) headers['Authorization'] = `Bearer ${config.apiKey}`;
 
-            // 1. Thử Engine 1: SillyTavern generateRaw (Quiet mode = true để không pop bubble ngoài ST)
-            if (win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
-                const ctx = win.SillyTavern.getContext();
-                if (typeof ctx.generateRaw === 'function') {
-                    try {
-                        const res = await ctx.generateRaw(promptStr, null, true);
-                        const text = typeof res === 'string' ? res : (res?.text ?? res?.content ?? JSON.stringify(res ?? ''));
-                        if (text && text.trim()) {
-                            fullText = text;
-                        }
-                    } catch (e) {
-                        lastErr = e;
-                    }
-                }
-            }
+        const res = await fetch(`${baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(body),
+            signal,
+        });
 
-            // 2. Thử Engine 2: PhoneSystem.callExternalAPI (nếu đang chạy trong hệ sinh thái Âu Âu / Phone Core)
-            if (!fullText.trim() && win.PhoneSystem && typeof win.PhoneSystem.callExternalAPI === 'function') {
-                try {
-                    const res = await win.PhoneSystem.callExternalAPI(messages, {
-                        model: config.model,
-                        maxTokens: config.maxOutput
-                    });
-                    const text = typeof res === 'string' ? res : (res?.text ?? res?.content ?? JSON.stringify(res ?? ''));
-                    if (text && text.trim()) {
-                        fullText = text;
-                    }
-                } catch (e) {
-                    lastErr = e;
-                }
-            }
-
-            // 3. Thử Engine 3: SillyTavern generateQuietPrompt
-            if (!fullText.trim() && win.SillyTavern && typeof win.SillyTavern.getContext === 'function') {
-                const ctx = win.SillyTavern.getContext();
-                if (typeof ctx.generateQuietPrompt === 'function') {
-                    try {
-                        const res = await ctx.generateQuietPrompt(promptStr);
-                        const text = typeof res === 'string' ? res : (res?.text ?? res?.content ?? JSON.stringify(res ?? ''));
-                        if (text && text.trim()) {
-                            fullText = text;
-                        }
-                    } catch (e) {
-                        lastErr = e;
-                    }
-                }
-            }
-
-            // 4. Thử Engine 4: Trực tiếp qua endpoint /api/backends/chat-completions/generate
-            if (!fullText.trim()) {
-                try {
-                    const res = await fetch('/api/backends/chat-completions/generate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            messages,
-                            max_tokens: config.maxOutput,
-                            stream: false
-                        }),
-                        signal,
-                    });
-                    if (res.ok) {
-                        const json = await res.json().catch(() => null);
-                        const text = json?.choices?.[0]?.message?.content ?? json?.choices?.[0]?.text ?? json?.content ?? json?.text ?? (typeof json === 'string' ? json : '');
-                        if (text && text.trim()) {
-                            fullText = text;
-                        }
-                    }
-                } catch (e) {
-                    lastErr = e;
-                }
-            }
-
-            if (!fullText.trim()) {
-                const errMsg = lastErr?.message || 'SillyTavern API không trả về dữ liệu (kết quả rỗng hoặc chưa kết nối API chính). Vui lòng kiểm tra kết nối API trong SillyTavern hoặc chuyển sang chế độ Custom Endpoint trong Cài đặt LLM.';
-                const err = new Error(errMsg);
-                updateDebugLog(logId, { status: 'ERROR', error: err });
-                throw err;
-            }
-
-            if (onChunk) {
-                onChunk(fullText);
-            }
-            updateDebugLog(logId, { status: 'DONE', response: fullText });
-            return fullText;
+        if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            const err = new Error(`API LLM error (${res.status}): ${text || res.statusText}`);
+            updateDebugLog(logId, { status: 'ERROR', error: err });
+            throw err;
         }
 
-        if (config.mode === 'custom') {
-            const baseUrl = config.endpoint.replace(/\/$/, '');
-            const body = {
-                model: config.model,
-                messages,
-                max_tokens: config.maxOutput,
-                stream: true,
-            };
-            if (tools?.length) body.tools = tools;
+        const wrappedOnChunk = (delta) => {
+            updateDebugLog(logId, { status: 'STREAMING', chunk: delta });
+            if (onChunk) onChunk(delta);
+        };
 
-            const headers = { 'Content-Type': 'application/json' };
-            if (config.apiKey) headers['Authorization'] = `Bearer ${config.apiKey}`;
-
-            const res = await fetch(`${baseUrl}/chat/completions`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(body),
-                signal,
-            });
-
-            if (!res.ok) {
-                const text = await res.text().catch(() => '');
-                const err = new Error(`LLM API error ${res.status}: ${text || res.statusText}`);
-                updateDebugLog(logId, { status: 'ERROR', error: err });
-                throw err;
-            }
-
-            const wrappedOnChunk = (delta) => {
-                updateDebugLog(logId, { status: 'STREAMING', chunk: delta });
-                if (onChunk) onChunk(delta);
-            };
-
-            const fullText = await parseSSEStream(res, wrappedOnChunk, signal);
-            updateDebugLog(logId, { status: 'DONE', response: fullText });
-            return fullText;
-        }
-
-        throw new Error(`Unknown LLM mode: "${config.mode}". Expected "st" or "custom".`);
+        const fullText = await parseSSEStream(res, wrappedOnChunk, signal);
+        updateDebugLog(logId, { status: 'DONE', response: fullText });
+        return fullText;
     } catch (err) {
         updateDebugLog(logId, { status: 'ERROR', error: err });
         throw err;

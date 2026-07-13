@@ -163,34 +163,32 @@ function renderDebugPanel() {
 
 function renderConfigPanel() {
   const cfg = getLLMConfig();
-  _$sidebar.find('#ai-cfg-mode-st').prop('checked', cfg.mode === 'st');
-  _$sidebar.find('#ai-cfg-mode-custom').prop('checked', cfg.mode === 'custom');
   _$sidebar.find('#ai-cfg-endpoint').val(cfg.endpoint);
   _$sidebar.find('#ai-cfg-apikey').val(cfg.apiKey);
   _$sidebar.find('#ai-cfg-context').val(cfg.contextLimit);
   _$sidebar.find('#ai-cfg-maxout').val(cfg.maxOutput);
   _$sidebar.find('#ai-cfg-maxiter').val(cfg.maxIterations ?? 30);
-  updateConfigPanelVisibility(cfg.mode);
-}
-
-function updateConfigPanelVisibility(mode) {
-  const isCustom = mode === 'custom';
-  _$sidebar.find('.ai-cfg-custom-only').toggle(isCustom);
+  // Đồng bộ option model hiện tại vào select nếu chưa có
+  const $modelSelect = _$sidebar.find('#ai-cfg-model');
+  if ($modelSelect.find(`option[value="${cfg.model}"]`).length === 0 && cfg.model) {
+    $modelSelect.append(`<option value="${cfg.model}" selected>${cfg.model}</option>`);
+  } else {
+    $modelSelect.val(cfg.model);
+  }
 }
 
 function saveConfigFromPanel() {
-  const mode = _$sidebar.find('#ai-cfg-mode-custom').is(':checked') ? 'custom' : 'st';
   setLLMConfig({
-    mode,
+    mode: 'custom',
     endpoint: _$sidebar.find('#ai-cfg-endpoint').val().trim(),
     apiKey: _$sidebar.find('#ai-cfg-apikey').val().trim(),
-    model: _$sidebar.find('#ai-cfg-model').val(),
+    model: _$sidebar.find('#ai-cfg-model').val() || 'gpt-4o-mini',
     contextLimit: parseInt(_$sidebar.find('#ai-cfg-context').val(), 10) || 32000,
     maxOutput: parseInt(_$sidebar.find('#ai-cfg-maxout').val(), 10) || 4000,
     maxIterations: parseInt(_$sidebar.find('#ai-cfg-maxiter').val(), 10) || 30,
   });
   window._stMultitoolLLMConfig = getLLMConfig();
-  toastr.success('Đã lưu cấu hình AI.');
+  toastr.success('Đã lưu cấu hình AI (Custom Endpoint - Bypass Filter Mode).');
 }
 
 // ─── Build Sidebar HTML ───────────────────────────────────────────────────────
@@ -219,30 +217,24 @@ function buildSidebarHTML() {
 
       <!-- Config Panel (hidden by default) -->
       <div class="ai-config-panel" style="display:none;">
-        <div class="ai-cfg-row">
-          <label class="ai-cfg-label">LLM Mode</label>
-          <div class="ai-cfg-radio-group">
-            <label><input type="radio" name="ai-llm-mode" id="ai-cfg-mode-st" value="st"> SillyTavern API</label>
-            <label><input type="radio" name="ai-llm-mode" id="ai-cfg-mode-custom" value="custom"> Custom Endpoint</label>
-          </div>
+        <div style="font-size:11px;color:#38bdf8;margin-bottom:8px;padding:4px 6px;background:rgba(56,189,248,0.1);border-left:2px solid #38bdf8;border-radius:4px;">
+          ⚡ <b>Chế độ API Custom:</b> Đảm bảo chèn chính xác 3 Lớp Role (`system`, `user`, `assistant prefill`) để vượt rào (bypass safety filter) 100%.
         </div>
-        <div class="ai-cfg-custom-only">
-          <div class="ai-cfg-row">
-            <label class="ai-cfg-label">Endpoint</label>
-            <input type="text" id="ai-cfg-endpoint" class="ai-cfg-input" placeholder="https://api.openai.com/v1">
-          </div>
-          <div class="ai-cfg-row">
-            <label class="ai-cfg-label">API Key</label>
-            <input type="password" id="ai-cfg-apikey" class="ai-cfg-input" placeholder="sk-...">
-          </div>
-          <div class="ai-cfg-row">
-            <label class="ai-cfg-label">Model</label>
-            <div style="display:flex;gap:6px;align-items:center;">
-              <select id="ai-cfg-model" class="ai-cfg-input" style="flex:1;"></select>
-              <button class="ai-icon-btn ai-fetch-models-btn" title="Tải danh sách model">
-                <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i>
-              </button>
-            </div>
+        <div class="ai-cfg-row">
+          <label class="ai-cfg-label">Endpoint</label>
+          <input type="text" id="ai-cfg-endpoint" class="ai-cfg-input" placeholder="https://api.openai.com/v1">
+        </div>
+        <div class="ai-cfg-row">
+          <label class="ai-cfg-label">API Key</label>
+          <input type="password" id="ai-cfg-apikey" class="ai-cfg-input" placeholder="sk-...">
+        </div>
+        <div class="ai-cfg-row">
+          <label class="ai-cfg-label">Model</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <select id="ai-cfg-model" class="ai-cfg-input" style="flex:1;"></select>
+            <button class="ai-icon-btn ai-fetch-models-btn" title="Tải danh sách model từ Endpoint">
+              <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i>
+            </button>
           </div>
         </div>
         <div class="ai-cfg-row">
@@ -406,11 +398,6 @@ function _bindEvents() {
     if (_$sidebar && _$sidebar.find('.ai-debug-panel').is(':visible')) {
       renderDebugPanel();
     }
-  });
-
-  // Mode radio
-  _$sidebar.on('change', 'input[name="ai-llm-mode"]', function() {
-    updateConfigPanelVisibility($(this).val());
   });
 
   // Fetch models
