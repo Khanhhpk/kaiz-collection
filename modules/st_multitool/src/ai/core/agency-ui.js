@@ -13,6 +13,13 @@ let _engine = null;
 let _provider = null;
 let _state = 'idle'; // idle | streaming | tool_calling | pending_confirm | error
 let _$sidebar = null;
+let _devView = localStorage.getItem('st-multitool-ai-devview') === 'true';
+
+function getDevButtonStyle() {
+  return _devView
+    ? 'font-size:11px;padding:2px 6px;display:flex;align-items:center;gap:3px;border:1px solid #38bdf8;border-radius:4px;color:#38bdf8;background:rgba(56,189,248,0.15);font-weight:bold;'
+    : 'font-size:11px;padding:2px 6px;display:flex;align-items:center;gap:3px;border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#94a3b8;background:transparent;';
+}
 
 // ─── State Machine ────────────────────────────────────────────────────────────
 
@@ -49,16 +56,22 @@ function appendBubble(role, content, opts = {}) {
       </div>`;
   } else {
     // assistant
+    const rawEncoded = encodeURIComponent(content || '');
     bubbleHtml = `
-      <div class="ai-bubble ai-bubble-assistant" id="ai-bubble-${Date.now()}">
+      <div class="ai-bubble ai-bubble-assistant" id="ai-bubble-${Date.now()}" data-raw-content="${rawEncoded}">
         <div class="ai-bubble-content ai-streaming-content"></div>
       </div>`;
   }
 
   $history.append(bubbleHtml);
+  const $lastBubble = $history.children().last();
+  if (role === 'assistant' && content) {
+    updateAssistantBubbleHtml($lastBubble, content);
+    $lastBubble.find('.ai-bubble-content').removeClass('ai-streaming-content');
+  }
   $history.scrollTop($history[0].scrollHeight);
 
-  return $history.children().last();
+  return $lastBubble;
 }
 
 function cleanAssistantText(text) {
@@ -78,9 +91,131 @@ function cleanAssistantText(text) {
   return s.trim();
 }
 
+function formatAssistantBubbleHtml(rawText, isDev) {
+  if (!rawText) return '';
+  if (!isDev) {
+    const cleaned = cleanAssistantText(rawText);
+    return escapeHtml(cleaned)
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\n/g, '<br>');
+  }
+
+  // Trong chế độ Dev View (isDev = true): Hiển thị đầy đủ CoT và Tool Call
+  let s = rawText;
+  let htmlParts = [];
+
+  // 1. Tách CoT nếu có (hoặc phần trước </cot>)
+  if (s.includes('</cot>')) {
+    const parts = s.split('</cot>');
+    let cotText = parts[0].replace(/^.*<cot>\n?/i, '').trim();
+    if (!cotText) cotText = parts[0].trim();
+    
+    htmlParts.push(
+      `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
+      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;">🧠 [DEV VIEW: Chain of Thought]</div>` +
+      `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+      `</div>`
+    );
+    s = parts.slice(1).join('</cot>').trim();
+  } else if (s.includes('<cot>')) {
+    const parts = s.split('<cot>');
+    let cotText = parts.slice(1).join('<cot>').trim();
+    htmlParts.push(
+      `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
+      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;">🧠 [DEV VIEW: Chain of Thought]</div>` +
+      `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+      `</div>`
+    );
+    s = parts[0].trim();
+  }
+
+  // 2. Format từng phần text chính và thẻ <tool_call>
+  const toolCallRegex = /<tool_call>([\s\S]*?)(<\/tool_call>|$)/gi;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = toolCallRegex.exec(s)) !== null) {
+    const textBefore = s.slice(lastIndex, match.index).trim();
+    if (textBefore) {
+      htmlParts.push(
+        `<div style="margin-bottom:8px;">` +
+        escapeHtml(textBefore).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+        `</div>`
+      );
+    }
+
+    const jsonStr = match[1].trim();
+    htmlParts.push(
+      `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:monospace;font-size:11px;color:#e9d5ff;">` +
+      `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;">⚡ [DEV VIEW: Raw Tool Call]</div>` +
+      `<div style="white-space:pre-wrap;word-break:break-all;">${escapeHtml(jsonStr)}</div>` +
+      `</div>`
+    );
+
+    lastIndex = toolCallRegex.lastIndex;
+  }
+
+  const textAfter = s.slice(lastIndex).trim();
+  if (textAfter) {
+    htmlParts.push(
+      `<div style="margin-top:4px;">` +
+      escapeHtml(textAfter).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+      `</div>`
+    );
+  }
+
+  if (htmlParts.length === 0 && s) {
+    htmlParts.push(escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'));
+  }
+
+  return htmlParts.join('');
+}
+
+function updateAssistantBubbleHtml($bubble, rawText) {
+  if (!$bubble || !$bubble.length) return;
+  const $content = $bubble.find('.ai-bubble-content');
+  
+  if (_devView) {
+    $bubble.show();
+    $content.html(formatAssistantBubbleHtml(rawText, true));
+  } else {
+    const cleaned = cleanAssistantText(rawText);
+    if (!cleaned) {
+      $bubble.hide();
+    } else {
+      $bubble.show();
+      $content.html(formatAssistantBubbleHtml(rawText, false));
+    }
+  }
+}
+
+function refreshAllChatBubbles() {
+  if (!_$sidebar) return;
+  _$sidebar.find('.ai-bubble-assistant').each(function() {
+    const $b = $(this);
+    const rawEncoded = $b.attr('data-raw-content');
+    if (rawEncoded !== undefined) {
+      const rawText = decodeURIComponent(rawEncoded);
+      updateAssistantBubbleHtml($b, rawText);
+    }
+  });
+  const $history = _$sidebar.find('.ai-chat-history');
+  if ($history.length) $history.scrollTop($history[0].scrollHeight);
+}
+
 function renderStreamingBuffer(streamBuffer) {
   const $last = _$sidebar.find('.ai-streaming-content').last();
   if (!$last.length) return;
+  
+  const $bubble = $last.closest('.ai-bubble-assistant');
+  $bubble.attr('data-raw-content', encodeURIComponent(streamBuffer));
+
+  if (_devView) {
+    $last.html(formatAssistantBubbleHtml(streamBuffer, true));
+    const $history = _$sidebar.find('.ai-chat-history');
+    $history.scrollTop($history[0].scrollHeight);
+    return;
+  }
 
   // Nếu chưa gặp </cot> thì AI đang viết suy luận CoT (do prefill từ engine)
   if (!streamBuffer.includes('</cot>') && !streamBuffer.includes('<cot>')) {
@@ -95,9 +230,7 @@ function renderStreamingBuffer(streamBuffer) {
   }
 
   // Render markdown-lite
-  const html = escapeHtml(cleaned)
-    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-    .replace(/\n/g, '<br>');
+  const html = formatAssistantBubbleHtml(streamBuffer, false);
   $last.html(html);
   const $history = _$sidebar.find('.ai-chat-history');
   $history.scrollTop($history[0].scrollHeight);
@@ -106,16 +239,10 @@ function renderStreamingBuffer(streamBuffer) {
 function finalizeStreamingBubble(fullText) {
   const $last = _$sidebar.find('.ai-streaming-content').last();
   if ($last.length) {
-    const cleaned = cleanAssistantText(fullText);
-    if (!cleaned) {
-      // Nếu sau khi loại bỏ CoT và tool_call mà không có text chính thức -> xóa bubble rỗng khỏi UI
-      $last.closest('.ai-bubble-assistant').remove();
-    } else {
-      const html = escapeHtml(cleaned)
-        .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-        .replace(/\n/g, '<br>');
-      $last.html(html).removeClass('ai-streaming-content');
-    }
+    const $bubble = $last.closest('.ai-bubble-assistant');
+    $bubble.attr('data-raw-content', encodeURIComponent(fullText));
+    updateAssistantBubbleHtml($bubble, fullText);
+    $last.removeClass('ai-streaming-content');
   }
 }
 
@@ -238,6 +365,9 @@ function buildSidebarHTML() {
       <div class="ai-header">
         <span class="ai-header-title"><span class="ai-robot-icon">🤖</span> AI Agency</span>
         <div class="ai-header-actions">
+          <button class="ai-icon-btn ai-dev-view-btn" title="Chế độ Dev View (Hiển thị CoT & Thẻ Tool Call)" style="${getDevButtonStyle()}">
+            🛠️ <span>Dev</span>
+          </button>
           <button class="ai-icon-btn ai-debug-btn" title="Xem Debug Logs & Tải Trọng Gửi AI">
             <i data-lucide="terminal" style="width:14px;height:14px;"></i>
           </button>
@@ -407,6 +537,15 @@ function _bindEvents() {
   // Close button
   _$sidebar.find('.ai-close-btn').on('click', () => {
     _hideSidebar();
+  });
+
+  // Toggle Dev View mode
+  _$sidebar.find('.ai-dev-view-btn').on('click', function() {
+    _devView = !_devView;
+    localStorage.setItem('st-multitool-ai-devview', String(_devView));
+    $(this).attr('style', getDevButtonStyle());
+    refreshAllChatBubbles();
+    toastr.info(_devView ? '🛠️ Dev View: BẬT (Hiện đầy đủ CoT & Thẻ Tool Call)' : '👁️ Dev View: TẮT (Giao diện sạch CoT & Tool Call)');
   });
 
   // Toggle config panel
