@@ -15,6 +15,17 @@ let _provider = null;
 let _state = 'idle'; // idle | streaming | tool_calling | pending_confirm | error
 let _$sidebar = null;
 let _devView = localStorage.getItem('st-multitool-ai-devview') === 'true';
+let _isUserFollowingScroll = true;
+
+function scrollToBottomIfFollowing($history, force = false) {
+  if (!$history || !$history.length || !$history[0]) return;
+  if (force) {
+    _isUserFollowingScroll = true;
+  }
+  if (_isUserFollowingScroll) {
+    $history[0].scrollTop = $history[0].scrollHeight;
+  }
+}
 
 function getDevButtonStyle() {
   return _devView
@@ -70,7 +81,7 @@ function appendBubble(role, content, opts = {}) {
     updateAssistantBubbleHtml($lastBubble, content);
     $lastBubble.find('.ai-bubble-content').removeClass('ai-streaming-content');
   }
-  $history.scrollTop($history[0].scrollHeight);
+  scrollToBottomIfFollowing($history, role === 'user' || opts.forceScroll);
 
   return $lastBubble;
 }
@@ -201,7 +212,7 @@ function refreshAllChatBubbles() {
     }
   });
   const $history = _$sidebar.find('.ai-chat-history');
-  if ($history.length) $history.scrollTop($history[0].scrollHeight);
+  scrollToBottomIfFollowing($history);
 }
 
 function renderStreamingBuffer(streamBuffer) {
@@ -211,30 +222,32 @@ function renderStreamingBuffer(streamBuffer) {
   const $bubble = $last.closest('.ai-bubble-assistant');
   $bubble.attr('data-raw-content', encodeURIComponent(streamBuffer));
 
+  const $history = _$sidebar.find('.ai-chat-history');
+
   if (_devView) {
     $last.html(formatAssistantBubbleHtml(streamBuffer, true));
-    const $history = _$sidebar.find('.ai-chat-history');
-    $history.scrollTop($history[0].scrollHeight);
+    scrollToBottomIfFollowing($history);
     return;
   }
 
   // Nếu chưa gặp </cot> thì AI đang viết suy luận CoT (do prefill từ engine)
   if (!streamBuffer.includes('</cot>') && !streamBuffer.includes('<cot>')) {
     $last.html('<div style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> 🧠 Đang suy luận kỹ thuật (CoT)...</div>');
+    scrollToBottomIfFollowing($history);
     return;
   }
 
   const cleaned = cleanAssistantText(streamBuffer);
   if (!cleaned) {
     $last.html('<div style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> 🧠 Đang suy luận kỹ thuật (CoT)...</div>');
+    scrollToBottomIfFollowing($history);
     return;
   }
 
   // Render markdown-lite
   const html = formatAssistantBubbleHtml(streamBuffer, false);
   $last.html(html);
-  const $history = _$sidebar.find('.ai-chat-history');
-  $history.scrollTop($history[0].scrollHeight);
+  scrollToBottomIfFollowing($history);
 }
 
 function finalizeStreamingBubble(fullText) {
@@ -645,10 +658,18 @@ function _bindEvents() {
     _$sidebar.find('.ai-config-panel').slideUp(200);
   });
 
+  // Theo dõi thao tác cuộn của người dùng (vuốt lên -> dừng cuộn tự động, vuốt xuống đáy -> bám theo streaming)
+  _$sidebar.find('.ai-chat-history').on('scroll', function() {
+    const el = this;
+    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    _isUserFollowingScroll = (distanceToBottom < 60);
+  });
+
   // Clear history
   _$sidebar.find('.ai-clear-btn').on('click', () => {
     _engine.clearHistory();
     _$sidebar.find('.ai-chat-history').empty();
+    _isUserFollowingScroll = true;
     appendBubble('assistant', '🗑️ Đã xóa lịch sử. Bắt đầu cuộc trò chuyện mới.');
   });
 
@@ -658,8 +679,9 @@ function _bindEvents() {
     const text = _$sidebar.find('.ai-input-textarea').val().trim();
     if (!text) return;
 
+    _isUserFollowingScroll = true;
     _$sidebar.find('.ai-input-textarea').val('');
-    appendBubble('user', text);
+    appendBubble('user', text, { forceScroll: true });
 
     let currentAssistantBubble = null;
     let streamBuffer = '';
