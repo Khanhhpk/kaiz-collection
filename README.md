@@ -8,8 +8,11 @@ KAIZ Collection không còn là một extension nhỏ lẻ. Nó đã trở thàn
 
 ---
 
-## 🚀 What's new in v2.0.5.7
-- Bản vá sửa và tối ưu các vấn đề xung quanh ST Multitools.
+## 🚀 What's new in v2.5.0.0
+- **Preset Editor tích hợp AI Agency (Autonomous AI Kỹ sư)**: Bước đột phá mang tính cách mạng cho SillyTavern! Preset Editor (ST Multitool) nay được trang bị bộ máy AI Agency tự chủ cao nhất, cho phép AI tự động khảo sát cấu trúc preset, phân tích và chỉnh sửa hàng loạt prompt/biến số thông qua Agentic Loop tự động hóa tối đa.
+- **Kháng mất mát & Toàn vẹn dữ liệu 100% (Zero Tokenization)**: AI làm việc trực tiếp trên cú pháp gốc (`{{user}}`, `{{char}}`, `{{setvar::...}}`, `{{getvar::...}}`) mà không cần mã hóa trung gian, giữ nguyên vẹn cấu trúc macro và biến của SillyTavern.
+- **Tối ưu hóa Token & Tự động gỡ lỗi (Self-Correction Engine)**: Gộp kết quả thông minh (`Batch Bundling`), tinh gọn ngữ cảnh và tự động đọc lỗi để sửa tham số ngay trong lượt thực thi mà không cần dừng lại hay hỏi người dùng.
+- **Tối ưu Giao diện Full Screen**: Bố cục responsive hoàn hảo cho bảng quản lý Extensions, tự động xuống dòng và co giãn mượt mà ở chế độ 2 cột.
 
 ---
 
