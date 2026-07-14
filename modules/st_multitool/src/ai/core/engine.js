@@ -103,6 +103,7 @@ export class AgencyEngine {
       let iterations = 0;
       const llmConfig = getLLMConfig();
       const maxIterations = llmConfig?.maxIterations || 30;
+      let totalToolCallsInThisTask = 0;
 
       // Agentic loop.
       while (iterations < maxIterations) {
@@ -159,6 +160,7 @@ export class AgencyEngine {
             throw new DOMException('Task aborted by user.', 'AbortError');
           }
 
+          totalToolCallsInThisTask += 1;
           onToolCall(toolCall);
 
           let result;
@@ -171,10 +173,9 @@ export class AgencyEngine {
           onToolResult(toolCall.name, result);
 
           const resultStr = JSON.stringify(result);
-          const isWriteTool = ['update_prompt_content', 'batch_update_prompts', 'replace_in_prompt_content', 'append_prompt_content', 'create_prompt_block', 'delete_prompt_block', 'reorder_prompts', 'update_var_value', 'rename_var'].includes(toolCall.name);
           const feedbackMsg = result?.error
-            ? `[Tool Result: ${toolCall.name} - LỖI/ERROR]\nRESULT: ${resultStr}\n⚠️ LƯU Ý TỰ ĐỘNG GỠ LỖI (AUTONOMOUS SELF-CORRECTION): Tool vừa gọi bị lỗi. Bạn HÃY TỰ ĐỘNG đọc kỹ thông báo lỗi, suy luận trong <cot>...</cot> để tự kiểm tra tham số (ví dụ dùng list_prompts hoặc get_prompt_content để xác minh ID chính xác) và GỌI LẠI TOOL sửa lỗi ngay trong lượt này, KHÔNG ĐƯỢC dừng lại hay bỏ cuộc!`
-            : `[Tool Result: ${toolCall.name} - THÀNH CÔNG]\nRESULT: ${resultStr}${isWriteTool ? '\n👉 HỆ THỐNG AGENTIC LOOP ĐANG HOẠT ĐỘNG: Lượt tool vừa thành công và vòng lặp tiếp theo đã tự động kích hoạt cho bạn! Nếu nhiệm vụ ban đầu (như dịch/tối ưu toàn bộ preset) vẫn còn các block chưa xử lý, HÃY TIẾP TỤC thực thi batch tiếp theo ngay lập tức! TUYỆT ĐỐI KHÔNG ĐƯỢC DỪNG LẠI giữa chừng, không bảo người dùng tự làm phần còn lại. CHỈ KHI NÀO xong 100% toàn bộ preset mới gọi lệnh save_preset!' : ''}`;
+            ? `[Tool Result: ${toolCall.name} - LỖI/ERROR] (SỐ TOOLS CALL HIỆN TẠI: ${totalToolCallsInThisTask} | VÒNG LẶP AGENTIC: ${iterations}/${maxIterations})\nRESULT: ${resultStr}\n⚠️ LƯU Ý TỰ ĐỘNG GỠ LỖI (AUTONOMOUS SELF-CORRECTION): Tool vừa gọi bị lỗi. Bạn HÃY TỰ ĐỘNG đọc kỹ thông báo lỗi, suy luận trong <cot>...</cot> để tự kiểm tra tham số (ví dụ dùng list_prompts hoặc get_prompt_content để xác minh ID chính xác) và GỌI LẠI TOOL sửa lỗi ngay trong lượt này, KHÔNG ĐƯỢC dừng lại hay bỏ cuộc!`
+            : `[Tool Result: ${toolCall.name} - THÀNH CÔNG] (SỐ TOOLS CALL HIỆN TẠI: ${totalToolCallsInThisTask} | VÒNG LẶP AGENTIC: ${iterations}/${maxIterations})\nRESULT: ${resultStr}\n👉 HỆ THỐNG AGENTIC LOOP ĐANG HOẠT ĐỘNG: Lượt tool vừa thành công và vòng lặp tiếp theo đã tự động kích hoạt cho bạn! Nếu nhiệm vụ ban đầu vẫn chưa hoàn thành, HÃY TIẾP TỤC thực thi tiếp theo ngay lập tức! TUYỆT ĐỐI KHÔNG ĐƯỢC DỪNG LẠI giữa chừng, không bảo người dùng tự làm phần còn lại. CHỈ KHI NÀO xong 100% toàn bộ yêu cầu mới gọi lệnh save_preset!`;
 
           // Append tool result to history using 'user' role for maximum API compatibility with XML tool calls.
           this._pushHistory({
