@@ -1,5 +1,6 @@
 import { getAllLorebooks, getLorebookSettings } from './api.js';
-import { escapeHtml } from './utils.js';
+import { escapeHtml, refreshIcons } from './utils.js';
+export { refreshIcons };
 import { renderPresets } from './features/presets.js';
 import { renderWorldBooks } from './features/worldbook.js';
 import { populateModifyWorldbookSelect } from './features/entries.js';
@@ -108,11 +109,11 @@ export function showMainView(isBack = false) {
   $('#st-multitool-popup-back-btn').hide();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
   setTimeout(() => { 
-    if(window.lucide) window.lucide.createIcons(); 
+    refreshIcons();
     if (isBack && elements.body) {
       elements.body.scrollTop(_mainViewScrollPos);
     }
-  }, 100);
+  }, 10);
 
   const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
   if (isCharacterSelected) {
@@ -242,7 +243,7 @@ export async function showSubView(viewId) {
   $('#st-multitool-popup-back-btn').show();
   $(`#${viewId}`).show();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, viewId);
-  setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 100);
+  setTimeout(() => { refreshIcons(); }, 10);
 }
 
 $(document).on('input', '.st-multitool-search-input', function() {

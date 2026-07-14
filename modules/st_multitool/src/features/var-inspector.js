@@ -5,7 +5,7 @@
  * Renders inside the Prompt Manager view (not as a floating sidebar).
  */
 
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { showLoader, hideLoader } from '../ui.js';
 
 // ─── Edit Mode & State ───────────────────────────────────────────────────────────
@@ -17,72 +17,104 @@ export function getPendingVarChanges() {
   return { renames: _pendingRenames, valuesBySource: _pendingSourceValues };
 }
 
+export function updateSaveBtnForVarChanges() {
+  const $btn = $('#st-multitool-save-prompt-btn');
+  if (!$btn.length) return;
+  const hasPending = Object.keys(_pendingRenames).length > 0 || Object.keys(_pendingSourceValues).length > 0;
+  const currentText = $btn.text() || '';
+  if (hasPending && !currentText.includes('Có thay đổi Var')) {
+    $btn.html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
+    refreshIcons($btn[0]);
+  } else if (!hasPending && currentText.includes('Có thay đổi Var')) {
+    $btn.html('<i data-lucide="save"></i> Lưu Preset');
+    refreshIcons($btn[0]);
+  }
+}
+
 export function clearPendingVarChanges() {
   _pendingRenames = {};
   _pendingSourceValues = {};
+  updateSaveBtnForVarChanges();
   doRefresh();
 }
 
 /**
  * Applies pending value changes per source, then renames.
  */
-export function applyVarChangesToContent(content, promptId, renames, valuesBySource) {
-  if (!content) return content;
+export function applyVarChangesToContent(content, promptId, renames = {}, valuesBySource = {}) {
+  if (!content || typeof content !== 'string') return content;
   let newContent = content;
 
   // 1. Apply value changes for this specific prompt block FIRST
   for (const [sourceId, valInfo] of Object.entries(valuesBySource)) {
-    if (valInfo.promptId === promptId) {
-      // Reconstruct the macro with the OLD name but NEW value
+    if (valInfo.promptId === promptId && valInfo.fullMatch) {
       let constructedMatch = '';
-      if (valInfo.fullMatch.startsWith('{{setvar::')) {
-        constructedMatch = `{{setvar::${valInfo.oldName}::${valInfo.newVal}}}`;
-      } else if (valInfo.fullMatch.startsWith('{{addvar::')) {
-        constructedMatch = `{{addvar::${valInfo.oldName}::${valInfo.newVal}}}`;
-      } else if (valInfo.fullMatch.startsWith('/setvar')) {
-        constructedMatch = `/setvar key=${valInfo.oldName} ${valInfo.newVal}`;
+      if (valInfo.fullMatch.startsWith('{{')) {
+        const typeMatch = valInfo.fullMatch.match(/^\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/i);
+        if (typeMatch) {
+          const mType = typeMatch[1].toLowerCase();
+          if (mType.startsWith('get')) {
+            constructedMatch = `{{${mType}::${valInfo.oldName || valInfo.varName}}}`;
+          } else {
+            constructedMatch = `{{${mType}::${valInfo.oldName || valInfo.varName}::${valInfo.newVal}}}`;
+          }
+        }
+      } else if (valInfo.fullMatch.startsWith('/')) {
+        const cmdMatch = valInfo.fullMatch.match(/^\/(setvar|getvar|setglobalvar|getglobalvar)\b/i);
+        if (cmdMatch) {
+          const cmd = cmdMatch[1].toLowerCase();
+          if (cmd.includes('get')) {
+            constructedMatch = `/${cmd} ${valInfo.oldName || valInfo.varName}`;
+          } else {
+            const hasKey = /\bkey=/i.test(valInfo.fullMatch);
+            constructedMatch = `/${cmd} ${hasKey ? 'key=' : ''}${valInfo.oldName || valInfo.varName} ${valInfo.newVal}`;
+          }
+        }
       }
-      
       if (constructedMatch) {
         newContent = newContent.replace(valInfo.fullMatch, constructedMatch);
       }
     }
   }
 
-  // 2. Apply global renames SECOND
+  // 2. Apply global renames SECOND using scanPromptContent for exact boundaries
   const namesToProcess = Object.keys(renames);
-  for (const oldName of namesToProcess) {
-    const newName = renames[oldName];
+  if (namesToProcess.length > 0) {
+    const refs = scanPromptContent(newContent, '', promptId);
+    // Sort refs by length descending or position descending so replacements don't shift earlier indices
+    refs.sort((a, b) => b.fullMatch.length - a.fullMatch.length);
+    for (const ref of refs) {
+      const newName = renames[ref.name];
+      if (!newName) continue;
 
-    // {{setvar::oldName::val}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{setvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
-      (match, val) => `{{setvar::${newName}::${val}}}`
-    );
+      let constructed = '';
+      if (ref.fullMatch.startsWith('{{')) {
+        const typeMatch = ref.fullMatch.match(/^\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/i);
+        if (typeMatch) {
+          const mType = typeMatch[1].toLowerCase();
+          if (mType.startsWith('get')) {
+            constructed = `{{${mType}::${newName}}}`;
+          } else {
+            constructed = `{{${mType}::${newName}::${ref.value ?? ''}}}`;
+          }
+        }
+      } else if (ref.fullMatch.startsWith('/')) {
+        const cmdMatch = ref.fullMatch.match(/^\/(setvar|getvar|setglobalvar|getglobalvar)\b/i);
+        if (cmdMatch) {
+          const cmd = cmdMatch[1].toLowerCase();
+          if (cmd.includes('get')) {
+            constructed = `/${cmd} ${newName}`;
+          } else {
+            const hasKey = /\bkey=/i.test(ref.fullMatch);
+            constructed = `/${cmd} ${hasKey ? 'key=' : ''}${newName} ${ref.value ?? ''}`;
+          }
+        }
+      }
 
-    // {{addvar::oldName::val}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{addvar::${escapeRegex(oldName)}::([^}]*)\\}\\}`, 'gi'),
-      (match, val) => `{{addvar::${newName}::${val}}}`
-    );
-
-    // {{getvar::oldName}}
-    newContent = newContent.replace(
-      new RegExp(`\\{\\{getvar::${escapeRegex(oldName)}\\}\\}`, 'gi'),
-      `{{getvar::${newName}}}`
-    );
-
-    // /setvar key=oldName val
-    newContent = newContent.replace(
-      new RegExp(`\\/setvar\\s+key=${escapeRegex(oldName)}\\s+(.*?)(?=\\||$)`, 'gmi'),
-      (match, val) => `/setvar key=${newName} ${val}`
-    );
-
-    // /getvar key=oldName
-    newContent = newContent.replace(
-      new RegExp(`\\/getvar\\s+(key=)?${escapeRegex(oldName)}\\b`, 'gmi'),
-      (match, p1) => `/getvar ${p1 || ''}${newName}`
-    );
+      if (constructed && ref.fullMatch) {
+        newContent = newContent.split(ref.fullMatch).join(constructed);
+      }
+    }
   }
 
   return newContent;
@@ -100,54 +132,88 @@ function truncate(s, max = 80) {
 }
 
 /**
- * Scan a prompt block's content and collect setvar / getvar references.
+ * Scan a prompt block's content and collect setvar / getvar / addvar references.
+ * Uses balanced brace tracking for {{macros}} to handle multiline/nested content correctly.
  */
-function scanPromptContent(content, promptName, promptId) {
+export function scanPromptContent(content, promptName, promptId) {
   const refs = [];
-  if (!content) return refs;
+  if (!content || typeof content !== 'string') return refs;
 
   const add = (name, type, value, scope, matchStr) => {
-    const id = 'src_' + Math.random().toString(36).substr(2, 9);
-    refs.push({ id, name: name.trim(), type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: truncate(matchStr, 80) });
+    const cleanName = name?.trim() || '';
+    if (!cleanName) return;
+    const id = `${promptId}::${cleanName}::${type}::${refs.length}`;
+    refs.push({ id, name: cleanName, type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: matchStr });
   };
 
-  let m;
+  // 1. Balanced macro scanning for {{setvar::...}}, {{addvar::...}}, {{setglobalvar::...}}, {{getvar::...}}, {{getglobalvar::...}}
+  const macroRegex = /\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/gi;
+  let match;
+  while ((match = macroRegex.exec(content)) !== null) {
+    const startIndex = match.index;
+    const typeStr = match[1].toLowerCase();
+    let depth = 2; // Matched opening '{{'
+    let endIndex = startIndex + match[0].length;
+    while (endIndex < content.length && depth > 0) {
+      if (content[endIndex] === '{' && content[endIndex + 1] === '{') {
+        depth += 2;
+        endIndex += 2;
+      } else if (content[endIndex] === '}' && content[endIndex + 1] === '}') {
+        depth -= 2;
+        endIndex += 2;
+      } else if (content[endIndex] === '}') {
+        depth -= 1;
+        endIndex += 1;
+      } else if (content[endIndex] === '{') {
+        depth += 1;
+        endIndex += 1;
+      } else {
+        endIndex += 1;
+      }
+    }
+    if (depth <= 0) {
+      const fullMatch = content.slice(startIndex, endIndex);
+      const inner = fullMatch.slice(match[0].length, fullMatch.length - 2); // Strip prefix and closing '}}'
+      const scope = typeStr.includes('global') ? 'global' : 'local';
+      let type = 'set';
+      if (typeStr.includes('get')) type = 'get';
+      else if (typeStr.includes('add')) type = 'addvar';
+      else type = 'set';
 
-  // {{setvar::name::value}}
-  const p1 = /\{\{setvar::([^:}]+)::([^}]*)\}\}/gi;
-  while ((m = p1.exec(content))) add(m[1], 'set', m[2], 'local', m[0]);
+      if (type === 'get') {
+        add(inner.trim(), 'get', undefined, scope, fullMatch);
+      } else {
+        const firstColon = inner.indexOf('::');
+        if (firstColon !== -1) {
+          const varName = inner.slice(0, firstColon).trim();
+          const varVal = inner.slice(firstColon + 2);
+          add(varName, type, varVal, scope, fullMatch);
+        } else {
+          add(inner.trim(), type, '', scope, fullMatch);
+        }
+      }
+    }
+  }
 
-  // {{getvar::name}}
-  const p2 = /\{\{getvar::([^}]+)\}\}/gi;
-  while ((m = p2.exec(content))) add(m[1], 'get', undefined, 'local', m[0]);
+  // 2. Slash commands (/setvar, /getvar, /setglobalvar, /getglobalvar, /addvar, /addglobalvar)
+  const slashRegex = /\/(setvar|getvar|setglobalvar|getglobalvar|addvar|addglobalvar)\s+(?:key=)?([^\s|]+)(?:\s+([^\r\n|]*))?/gi;
+  while ((match = slashRegex.exec(content)) !== null) {
+    const fullMatch = match[0];
+    const cmd = match[1].toLowerCase();
+    const varName = match[2];
+    const varVal = match[3] || '';
+    const scope = cmd.includes('global') ? 'global' : 'local';
+    let type = 'set';
+    if (cmd.includes('get')) type = 'get';
+    else if (cmd.includes('add')) type = 'addvar';
+    else type = 'set';
 
-  // {{addvar::name::value}}
-  const p3 = /\{\{addvar::([^:}]+)::([^}]*)\}\}/gi;
-  while ((m = p3.exec(content))) add(m[1], 'addvar', m[2], 'local', m[0]);
-
-  // {{setglobalvar::name::value}}
-  const p4 = /\{\{setglobalvar::([^:}]+)::([^}]*)\}\}/gi;
-  while ((m = p4.exec(content))) add(m[1], 'set', m[2], 'global', m[0]);
-
-  // {{getglobalvar::name}}
-  const p5 = /\{\{getglobalvar::([^}]+)\}\}/gi;
-  while ((m = p5.exec(content))) add(m[1], 'get', undefined, 'global', m[0]);
-
-  // /setvar key=X value
-  const p6 = /\/setvar\s+key=(\S+)\s+(.*?)(?:\||$)/gm;
-  while ((m = p6.exec(content))) add(m[1], 'set', m[2], 'local', m[0]);
-
-  // /getvar key=X  or  /getvar X
-  const p7 = /\/getvar\s+(?:key=)?(\S+)/g;
-  while ((m = p7.exec(content))) add(m[1], 'get', undefined, 'local', m[0]);
-
-  // /setglobalvar key=X value
-  const p8 = /\/setglobalvar\s+key=(\S+)\s+(.*?)(?:\||$)/gm;
-  while ((m = p8.exec(content))) add(m[1], 'set', m[2], 'global', m[0]);
-
-  // /getglobalvar key=X  or  /getglobalvar X
-  const p9 = /\/getglobalvar\s+(?:key=)?(\S+)/g;
-  while ((m = p9.exec(content))) add(m[1], 'get', undefined, 'global', m[0]);
+    if (type === 'get') {
+      add(varName, 'get', undefined, scope, fullMatch);
+    } else {
+      add(varName, type, varVal, scope, fullMatch);
+    }
+  }
 
   return refs;
 }
@@ -478,7 +544,7 @@ export function initVarInspector() {
     if (isHidden) {
       if (!$('#st-multitool-vi-edit-mode-btn').length) {
         $('#st-multitool-vi-search').parent().after(`<button id="st-multitool-vi-edit-mode-btn" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #aaa; flex-shrink: 0;" title="Bật/Tắt chế độ chỉnh sửa tên và giá trị biến"><i data-lucide="edit" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Edit Mode</button>`);
-        if (window.lucide) window.lucide.createIcons();
+        refreshIcons(document.getElementById('st-multitool-vi-edit-mode-btn'));
       }
       doRefresh();
     }
@@ -505,8 +571,7 @@ export function initVarInspector() {
     } else {
       delete _pendingRenames[oldName];
     }
-    // Update save button text in Preset Manager to indicate pending changes
-    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
+    updateSaveBtnForVarChanges();
   });
 
   $popup.on('input', '.st-multitool-vi-edit-source-val', function(e) {
@@ -540,7 +605,7 @@ export function initVarInspector() {
         };
         $(this).css('border-color', '#fde68a'); // Highlight edited
       }
-      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
+      updateSaveBtnForVarChanges();
     }
   });
 

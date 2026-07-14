@@ -10,6 +10,7 @@ import { initManageScripts, renderManageScriptLists } from "./features/manage-sc
 import { initManageRegex, renderManageRegexLists } from "./features/manage-regex.js";
 import { initManagePrompt } from "./features/manage-prompt.js";
 import { initVarInspector } from "./features/var-inspector.js";
+import { initAIAgency } from "./ai/core/agency-ui.js";
 import {
   closePopup,
   elements,
@@ -18,6 +19,7 @@ import {
   showSubView,
   showPopup,
 } from "./ui.js";
+import { refreshIcons } from "./utils.js";
 
 const MODULE_NAME = "ST Multitool";
 const extensionBaseUrl = new URL("../", import.meta.url);
@@ -35,7 +37,10 @@ async function init() {
     initUIElements();
 
     $("#st-multitool-popup-close-button").on("click touchend", closePopup);
-    $("#st-multitool-popup-back-btn").on("click touchend", () => showMainView(true));
+    $("#st-multitool-popup-back-btn").on("click touchend", () => {
+      window._stMultitoolAgency?.hide();
+      showMainView(true);
+    });
     elements.overlay.on("click", function (e) {
       if (e.target === this) closePopup();
     });
@@ -62,19 +67,35 @@ async function init() {
     $("#st-multitool-popup").on(
       "click",
       ".st-multitool-section-header:has(.st-multitool-collapse-icon)",
-      function () {
-        const $content = $(this)
-          .closest(".st-multitool-section")
-          .find(".st-multitool-section-content");
+      function (e) {
+        if ($(e.target).closest('.st-multitool-card-header-actions').length) return;
+        const $section = $(this).closest(".st-multitool-section");
+        const $content = $section.find(".st-multitool-section-content");
         const $icon = $(this).find(".st-multitool-collapse-icon");
+
+        if ($section.hasClass('st-multitool-edit-panel-collapsible')) {
+          const isCollapsing = !$section.hasClass('collapsed');
+          if (isCollapsing) {
+            $section.addClass('collapsed');
+            $content.slideUp(200);
+            $icon.replaceWith(`<i data-lucide="chevron-down" class="st-multitool-collapse-icon"></i>`);
+          } else {
+            $section.removeClass('collapsed');
+            $content.slideDown(200);
+            $icon.replaceWith(`<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>`);
+          }
+          refreshIcons($(this)[0]);
+          return;
+        }
+
         if ($content.is(":visible")) {
           $content.slideUp(200);
           $icon.replaceWith(`<i data-lucide="chevron-down" class="st-multitool-collapse-icon"></i>`);
-          if (window.lucide) window.lucide.createIcons();
+          refreshIcons($(this)[0]);
         } else {
           $content.slideDown(200);
           $icon.replaceWith(`<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>`);
-          if (window.lucide) window.lucide.createIcons();
+          refreshIcons($(this)[0]);
         }
       },
     );
@@ -163,6 +184,7 @@ async function init() {
     initManageRegex();
     initManagePrompt();
     initVarInspector();
+    initAIAgency();
 
     showMainView();
     console.log(`[${MODULE_NAME}] Khởi tạo hoàn tất`);

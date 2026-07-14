@@ -254,7 +254,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.0.5.6';
+const KAIZ_CURRENT_VERSION = '2.5.0.0';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -638,21 +638,22 @@ function showKaizPatchNotes(targetWin) {
                     <i class="fa-solid fa-gift"></i>
                 </div>
                 <div>
-                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v2.0.5.6</div>
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Bản vá sửa và tối ưu ST Multitools!</div>
+                    <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v${KAIZ_CURRENT_VERSION}</div>
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Cuộc Cách Mạng AI Agency Cho Preset Editor!</div>
                 </div>
             </div>
             <button id="kaiz_btn_close_patch_notes_top" style="background: none; border: none; color: #64748b; font-size: 1.2em; cursor: pointer; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
-            Chào mừng bạn đến với bản cập nhật mới của <b>KAIZ Collection</b>!<br><br>
-            Bản cập nhật <b>2.0.5.6</b> tập trung vào việc vá lỗi và tối ưu hóa các tính năng cốt lõi.<br><br>
+            Chào mừng bạn đến với bản đại cập nhật <b>v${KAIZ_CURRENT_VERSION}</b> của <b>KAIZ Collection</b>!<br><br>
+            Bản nâng cấp lần này đánh dấu một bước đột phá mang tính lịch sử: <b>Preset Editor (ST Multitool)</b> chính thức được tích hợp hệ thống <b>AI Agency tự chủ cao nhất</b>, biến AI thành một kỹ sư hệ thống thực thụ giúp bạn tối ưu hóa mọi Preset!<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
-                <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new?</h4>
-                <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square;">
-                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Bản vá sửa và tối ưu:</b> Xử lý triệt để các vấn đề xung quanh ST Multitools.</li>
-                    <li style="margin-bottom: 8px;"><b style="color: #cbd5e1;">Backdrop Highlight:</b> Nâng cấp trải nghiệm tìm kiếm với kỹ thuật bôi sáng mượt mà như tìm kiếm gốc của trình duyệt.</li>
-                    <li><b style="color: #cbd5e1;">Hiệu năng:</b> Cải thiện độ mượt và fix các lỗi hiển thị lặt vặt.</li>
+                <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new in v${KAIZ_CURRENT_VERSION}?</h4>
+                <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square; display: flex; flex-direction: column; gap: 10px;">
+                    <li><b style="color: #38bdf8;">🤖 AI Agency Tự Chủ Cấp Cao:</b> Preset Editor nay sở hữu bộ máy Agentic Loop tự động. AI tự động khảo sát toàn bộ cấu trúc block, phân tích và thực thi hàng loạt các thay đổi mà không cần hỏi lại người dùng từng bước nhỏ!</li>
+                    <li><b style="color: #34d399;">🛡️ Bảo Vệ Toàn Vẹn Cấu Trúc (Zero Tokenization):</b> AI làm việc trực tiếp với cú pháp gốc (<code style="color:#f8fafc;background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">&#123;&#123;user&#125;&#125;</code>, <code style="color:#f8fafc;background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">&#123;&#123;char&#125;&#125;</code>, <code style="color:#f8fafc;background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">&#123;&#123;setvar::...&#125;&#125;</code>, <code style="color:#f8fafc;background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">&#123;&#123;getvar::...&#125;&#125;</code>) với độ chính xác 100%, loại bỏ hoàn toàn rủi ro hỏng biến hay biến dạng macro của SillyTavern.</li>
+                    <li><b style="color: #f59e0b;">⚡ Gộp Lệnh & Tự Động Gỡ Lỗi (Batch Bundling & Self-Correction):</b> Tự động gom nhóm các kết quả tool call trong cùng một lượt để tiết kiệm tối đa Token, đồng thời trang bị khả năng tự đọc lỗi để tự kiểm tra và sửa tham số ngay tức thì!</li>
+                    <li><b style="color: #a855f7;">📐 Tối Ưu Bố Cục Full Screen:</b> Cải tiến giao diện thanh điều hướng Extensions, tự động sắp xếp lưới 2x2 mượt mà khi mở ở chế độ 2 cột full màn hình.</li>
                 </ul>
             </div>
         </div>
@@ -752,27 +753,27 @@ function renderExtensionSettings(targetWin, jq) {
         #pe_disable_all_btn:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #f87171 !important; box-shadow: 0 0 12px rgba(248, 113, 113, 0.25); }
         #kaiz_log_clear_btn:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #f87171 !important; }
     </style>
-    <div class="inline-drawer">
-        <div class="inline-drawer-toggle inline-drawer-header" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px;">
+    <div class="inline-drawer" style="box-sizing: border-box; width: 100%; max-width: 100%;">
+        <div class="inline-drawer-toggle inline-drawer-header" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; box-sizing: border-box; width: 100%;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <i class="fa-solid fa-layer-group" style="color: #38bdf8; font-size: 1.1em;"></i>
                 <b style="font-size: 1.02em; color: #f8fafc; letter-spacing: 0.3px;">KAIZ Collection <span id="kaiz_version_display" style="font-size:11.5px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;font-weight:700;">v...</span></b>
             </div>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down" style="color: #64748b;"></div>
         </div>
-        <div class="inline-drawer-content" style="display: none; padding: 16px; flex-direction: column; gap: 18px;">
+        <div class="inline-drawer-content" style="display: none; padding: 16px; flex-direction: column; gap: 18px; box-sizing: border-box; width: 100%; max-width: 100%;">
             <!-- Tab Navigation Buttons -->
-            <div style="display: flex; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
-                <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.12); color: #38bdf8; transition: all 0.2s; box-shadow: 0 0 12px rgba(56, 189, 248, 0.12); font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <div style="display: flex; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; flex-wrap: wrap; box-sizing: border-box; width: 100%;">
+                <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.12); color: #38bdf8; transition: all 0.2s; box-shadow: 0 0 12px rgba(56, 189, 248, 0.12); font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;">
                     <i class="fa-solid fa-cubes-stacked"></i><span>Quản lý Module (${CORE_MODULES.length + PHONE_APPS.length + UTILITY_MODULES.length})</span>
                 </button>
-                <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;">
                     <i class="fa-solid fa-terminal"></i><span>Nhật ký & Console</span>
                 </button>
-                <button id="kaiz_tab_btn_explorer" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button id="kaiz_tab_btn_explorer" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;">
                     <i class="fa-solid fa-code"></i><span>System Explorer</span>
                 </button>
-                <button id="kaiz_tab_btn_patch_notes" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #10b981; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;" title="Xem thông tin phiên bản mới">
+                <button id="kaiz_tab_btn_patch_notes" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #10b981; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;" title="Xem thông tin phiên bản mới">
                     <i class="fa-solid fa-gift"></i><span>What's New?</span>
                 </button>
             </div>
@@ -1106,9 +1107,9 @@ waitForEnvironment(async (targetWin, jq) => {
 
     const config = getPhoneConfig();
     
-    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.0.5.6)
+    // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.5.0.0)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.0.5.6') {
+        if (KAIZ_CURRENT_VERSION === '2.5.0.0') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);

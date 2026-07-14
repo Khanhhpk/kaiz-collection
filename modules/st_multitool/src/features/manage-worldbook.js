@@ -1,5 +1,5 @@
 import { getAllLorebooks, getLorebookEntries, setLorebookEntries, getLorebookSettings, setLorebookSettings, createWorldbook, deleteWorldbook, deleteWorldbookEntries } from '../api.js';
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { showLoader, hideLoader } from '../ui.js';
 import { isManageWbCollapsed } from './settings.js';
 
@@ -125,7 +125,7 @@ export async function renderManageWorldbookList() {
     });
 
     $manageWbList.empty().append(fragment);
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($manageWbList[0]);
   } catch (e) {
     $manageWbList.html(`<div class="st-multitool-empty-msg" style="color:red;">Tải thất bại: ${e.message}</div>`);
   }
@@ -252,12 +252,20 @@ function openEntryEditPanel(uid) {
   const pOut = entry.recursion ? entry.recursion.prevent_outgoing : (entry.prevent_recursion || false);
   $('#st-multitool-manage-wb-entry-prevent-in').prop('checked', pIn);
   $('#st-multitool-manage-wb-entry-prevent-out').prop('checked', pOut);
-
+  $manageWbEditPanel.removeClass('collapsed');
+  $manageWbEditPanel.find('.st-multitool-section-content').show();
+  const $icon = $manageWbEditPanel.find('.st-multitool-collapse-icon');
+  if ($icon.length) {
+    $icon.replaceWith('<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>');
+  }
   $manageWbEditPanel.show();
+  refreshIcons($manageWbEditPanel[0]);
 }
 
 function hideEntryEditPanel() {
   $manageWbEditPanel.hide();
+  $manageWbEditPanel.removeClass('collapsed');
+  $manageWbEditPanel.find('.st-multitool-section-content').show();
   $('#st-multitool-manage-wb-entry-uid').val('');
 }
 

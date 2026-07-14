@@ -1,4 +1,4 @@
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { isManageRegexCollapsed } from './settings.js';
 import { getTavernRegexes, updateTavernRegexesWith } from '../api.js';
 
@@ -22,11 +22,6 @@ export function initManageRegex() {
   $('#st-multitool-manage-regex-cancel-btn').on('click', hideRegexEditPanel);
   $('#st-multitool-manage-regex-render-btn').on('click', handleRenderToFrontend);
 
-  $('#st-multitool-manage-regex-edit-panel .st-multitool-edit-panel-header').on('click', function(e) {
-    if ($(e.target).closest('.st-multitool-card-header-actions').length) return;
-    const $panel = $(this).closest('.st-multitool-edit-panel-collapsible');
-    $panel.toggleClass('collapsed');
-  });
 
   $('#st-multitool-manage-regex-view').on('click', '.st-multitool-manage-script-card-header', function() {
     const targetId = $(this).data('target');
@@ -127,7 +122,7 @@ function renderRegexList($container, regexes, type) {
     fragment.appendChild(div);
   });
   $container.empty().append(fragment);
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($container[0]);
 }
 
 async function toggleRegexEnabled(regexId, type, isEnabled) {
@@ -194,8 +189,15 @@ async function openRegexEditPanel(regexId, type) {
     $('#st-multitool-manage-regex-min-depth-container').css('display', regex.substitute_regex === 1 ? 'flex' : 'none');
     $('#st-multitool-manage-regex-max-depth-container').css('display', regex.substitute_regex === 1 ? 'flex' : 'none');
 
+    $manageRegexEditPanel.removeClass('collapsed');
+    $manageRegexEditPanel.find('.st-multitool-section-content').show();
+    const $icon = $manageRegexEditPanel.find('.st-multitool-collapse-icon');
+    if ($icon.length) {
+      $icon.replaceWith('<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>');
+    }
     $manageRegexEditPanel.show();
     $manageRegexEditPanel.find('.st-multitool-manage-regex-edit-title').text(`Sửa regex ${type === 'global' ? 'Toàn cục' : type === 'preset' ? 'Preset' : 'Cục bộ'}`);
+    refreshIcons($manageRegexEditPanel[0]);
   } catch (e) {
     toastr.error('Tải regex thất bại: ' + e.message);
   }
@@ -203,6 +205,8 @@ async function openRegexEditPanel(regexId, type) {
 
 function hideRegexEditPanel() {
   $manageRegexEditPanel.hide();
+  $manageRegexEditPanel.removeClass('collapsed');
+  $manageRegexEditPanel.find('.st-multitool-section-content').show();
   currentRegexId = '';
   currentRegexType = '';
 }
@@ -281,7 +285,7 @@ function handleRenderToFrontend() {
   if ($container.is(':visible')) {
     $container.empty().hide();
     $btn.html('<i data-lucide="eye"></i> Render');
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($btn[0]);
     return;
   }
 

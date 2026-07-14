@@ -1,6 +1,7 @@
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { showLoader, hideLoader, showSubView } from '../ui.js';
 import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent, refreshVarInspector } from './var-inspector.js';
+import { clearStaging } from '../ai/providers/preset-provider.js';
 
 let $promptListContainer;
 let $saveBtn;
@@ -8,10 +9,46 @@ let $saveBtn;
 // ─── Pending Add / Delete (chỉ áp dụng khi bấm Lưu) ────────────────────────
 let _pendingAdds = [];           // [{ block, addToLinked, insertTop }]
 let _pendingDeletes = new Set(); // Set<identifier string>
+let _originalSnapshot = null;
 
 function clearPendingBlockChanges() {
   _pendingAdds = [];
   _pendingDeletes.clear();
+}
+
+function captureOriginalSnapshot() {
+  const container = getPromptContainer();
+  if (container && Array.isArray(container.prompts)) {
+    _originalSnapshot = {
+      prompts: JSON.parse(JSON.stringify(container.prompts)),
+      prompt_order: container.prompt_order ? JSON.parse(JSON.stringify(container.prompt_order)) : null
+    };
+  }
+}
+
+function restoreOriginalSnapshot() {
+  const container = getPromptContainer();
+  if (container && _originalSnapshot && Array.isArray(_originalSnapshot.prompts)) {
+    container.prompts.length = 0;
+    _originalSnapshot.prompts.forEach(p => container.prompts.push(JSON.parse(JSON.stringify(p))));
+    if (_originalSnapshot.prompt_order !== null) {
+      if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0]?.order)) {
+        const ctx = window.SillyTavern?.getContext?.() || {};
+        const charId = ctx.characterId;
+        let targetObj = container.prompt_order.find(o => o.character_id === charId) || container.prompt_order[0];
+        if (targetObj && Array.isArray(_originalSnapshot.prompt_order)) {
+          if (typeof _originalSnapshot.prompt_order[0] === 'object' && Array.isArray(_originalSnapshot.prompt_order[0]?.order)) {
+            let snapTarget = _originalSnapshot.prompt_order.find(o => o.character_id === charId) || _originalSnapshot.prompt_order[0];
+            if (snapTarget) targetObj.order = JSON.parse(JSON.stringify(snapTarget.order));
+          } else {
+            targetObj.order = JSON.parse(JSON.stringify(_originalSnapshot.prompt_order));
+          }
+        }
+      } else {
+        container.prompt_order = JSON.parse(JSON.stringify(_originalSnapshot.prompt_order));
+      }
+    }
+  }
 }
 
 /**
@@ -37,7 +74,7 @@ export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = 
 
   _pendingAdds.push({ block: newBlock, addToLinked, insertTop });
   renderPromptBlocks();
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($promptListContainer[0]);
   return newBlock;
 }
 
@@ -50,7 +87,7 @@ export function deletePromptBlock(identifier) {
   if (addIdx !== -1) {
     _pendingAdds.splice(addIdx, 1);
     renderPromptBlocks();
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($promptListContainer[0]);
     return;
   }
 
@@ -91,14 +128,25 @@ export function initManagePrompt() {
     showLoader();
     setTimeout(() => {
       try {
+        clearPendingBlockChanges();
+        clearPendingVarChanges();
+        if ($saveBtn && $saveBtn.length) {
+          $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
+        }
+        captureOriginalSnapshot();
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
-        if (window.lucide) window.lucide.createIcons();
+        refreshIcons();
       } finally {
         hideLoader();
       }
     }, 50);
   });
+
+  $('#st-multitool-ai-agency-toggle-btn').on('click', () => {
+    window._stMultitoolAgency?.toggle();
+  });
+
 
   // ── Add Block Modal ──────────────────────────────────────────────────
   $('#st-multitool-add-prompt-btn').on('click', () => {
@@ -153,8 +201,16 @@ export function initManagePrompt() {
     showLoader();
     setTimeout(() => {
       try {
+        restoreOriginalSnapshot();
         clearPendingBlockChanges();
+        clearPendingVarChanges();
+        clearStaging();
+        if ($saveBtn && $saveBtn.length) {
+          $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
+          refreshIcons();
+        }
         renderPromptBlocks();
+        if (typeof refreshVarInspector === 'function') refreshVarInspector();
         $('#st-multitool-prompt-search').val('').trigger('input');
         toastr.info('Đã hoàn tác các thay đổi chưa lưu.');
       } finally {
@@ -495,7 +551,7 @@ export function renderPromptBlocks() {
     </div>
   `);
 
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($promptListContainer[0]);
 
   // Accordion
   $promptListContainer.find('.st-multitool-accordion-header').on('click', function(e) {
@@ -544,7 +600,11 @@ export function renderPromptBlocks() {
     .on('scroll', function() {
       $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
     })
-    .on('input', function() { updateBackdrop($(this)); })
+    .on('input', function() {
+      const $el = $(this);
+      if ($el.data('raf-id')) cancelAnimationFrame($el.data('raf-id'));
+      $el.data('raf-id', requestAnimationFrame(() => updateBackdrop($el)));
+    })
     .each(function() { updateBackdrop($(this)); });
 
   // Sync tên block lên header khi người dùng sửa
@@ -562,6 +622,98 @@ export function renderPromptBlocks() {
       handle: '.st-multitool-drag-handle',
     });
   }
+}
+
+// ─── Live Editor Snapshot (cho AI Agency đọc trạng thái làm việc real-time) ────
+export function getCurrentEditorSnapshot() {
+  const container = getPromptContainer();
+  if (!container || !Array.isArray(container.prompts)) return { prompts: [], prompt_order: [] };
+
+  const { renames = {}, valuesBySource = {} } = getPendingVarChanges() || {};
+  const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(valuesBySource).length > 0;
+
+  const $activeItems = $('#st-multitool-prompt-list-active .st-multitool-wb-item');
+  const $inactiveItems = $('#st-multitool-prompt-list-inactive .st-multitool-wb-item');
+  const hasDomItems = $activeItems.length > 0 || $inactiveItems.length > 0;
+
+  const newPrompts = [];
+  const newPromptOrder = [];
+  const originalPrompts = container.prompts;
+
+  if (hasDomItems) {
+    const processItem = ($item, isActiveList) => {
+      const identifier = $item.attr('data-id');
+      if (!identifier || _pendingDeletes.has(identifier)) return;
+
+      const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier))
+        || (_pendingAdds.find(p => p.block.identifier === identifier) || {}).block
+        || null;
+
+      if (!originalBlock?.identifier) return;
+
+      let content = $item.find('.st-multitool-prompt-content').val() ?? originalBlock.content ?? '';
+      if (hasVarChanges) content = applyVarChangesToContent(content, identifier, renames, valuesBySource);
+
+      const injPos = parseInt($item.find('.st-prompt-pos').val(), 10);
+      const depthVal = parseInt($item.find('.st-prompt-depth').val(), 10) || originalBlock.injection_depth || 0;
+      const orderVal = parseInt($item.find('.st-prompt-order').val(), 10) || originalBlock.injection_order || 100;
+
+      const newBlock = {
+        ...originalBlock,
+        identifier: originalBlock.identifier,
+        id: originalBlock.identifier,
+        name: $item.find('.st-prompt-name').val() || originalBlock.name || 'Unnamed Block',
+        enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
+        content,
+        role: $item.find('.st-prompt-role').val() || originalBlock.role || 'system',
+        system_prompt: $item.find('.st-prompt-sys').is(':checked'),
+        marker: $item.find('.st-prompt-marker').is(':checked'),
+        forbid_overrides: $item.find('.st-prompt-forbid').is(':checked'),
+        injection_position: isNaN(injPos) ? (originalBlock.injection_position ?? 0) : injPos,
+        injection_depth: depthVal,
+        injection_order: orderVal,
+      };
+
+      newPrompts.push(newBlock);
+
+      if (isActiveList) {
+        newPromptOrder.push(newBlock.identifier);
+      }
+    };
+
+    $activeItems.each(function() { processItem($(this), true); });
+    $inactiveItems.each(function() { processItem($(this), false); });
+  } else {
+    originalPrompts.forEach(p => {
+      if (_pendingDeletes.has(p.identifier)) return;
+      let content = p.content || '';
+      if (hasVarChanges) content = applyVarChangesToContent(content, p.identifier, renames, valuesBySource);
+      newPrompts.push({ ...p, content });
+    });
+    _pendingAdds.forEach(p => {
+      if (_pendingDeletes.has(p.block.identifier)) return;
+      let content = p.block.content || '';
+      if (hasVarChanges) content = applyVarChangesToContent(content, p.block.identifier, renames, valuesBySource);
+      newPrompts.push({ ...p.block, content });
+    });
+
+    let promptOrder = [];
+    if (Array.isArray(container.prompt_order)) {
+      const flatOrder = (typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0]?.order))
+        ? container.prompt_order[0].order
+        : container.prompt_order;
+      promptOrder = flatOrder.map(item => typeof item === 'string' ? item : item?.identifier).filter(Boolean);
+    }
+    newPromptOrder.push(...promptOrder.filter(id => !_pendingDeletes.has(id)));
+    _pendingAdds.forEach(p => {
+      if (p.addToLinked && !_pendingDeletes.has(p.block.identifier)) {
+        if (p.insertTop) newPromptOrder.unshift(p.block.identifier);
+        else newPromptOrder.push(p.block.identifier);
+      }
+    });
+  }
+
+  return { prompts: newPrompts, prompt_order: newPromptOrder };
 }
 
 // ─── Save ─────────────────────────────────────────────────────────────────────
@@ -685,14 +837,13 @@ export function savePromptBlocks() {
       }, 1500);
     }
 
-    if (hasVarChanges) {
-      clearPendingVarChanges();
-      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
-      if (window.lucide) window.lucide.createIcons();
-      if (typeof refreshVarInspector === 'function') refreshVarInspector();
-    }
-
+    clearPendingVarChanges();
     clearPendingBlockChanges();
+    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
+    refreshIcons(document.getElementById('st-multitool-save-prompt-btn'));
+    if (typeof refreshVarInspector === 'function') refreshVarInspector();
+
+    captureOriginalSnapshot();
     renderPromptBlocks();
     toastr.success('Đã lưu các thay đổi block Prompt vào ST.');
   } catch (err) {
