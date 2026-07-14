@@ -127,6 +127,11 @@ export function initManagePrompt() {
     showLoader();
     setTimeout(() => {
       try {
+        clearPendingBlockChanges();
+        clearPendingVarChanges();
+        if ($saveBtn && $saveBtn.length) {
+          $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
+        }
         captureOriginalSnapshot();
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
@@ -197,7 +202,13 @@ export function initManagePrompt() {
       try {
         restoreOriginalSnapshot();
         clearPendingBlockChanges();
+        clearPendingVarChanges();
+        if ($saveBtn && $saveBtn.length) {
+          $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
+          if (window.lucide) window.lucide.createIcons();
+        }
         renderPromptBlocks();
+        if (typeof refreshVarInspector === 'function') refreshVarInspector();
         $('#st-multitool-prompt-search').val('').trigger('input');
         toastr.info('Đã hoàn tác các thay đổi chưa lưu.');
       } finally {
@@ -728,14 +739,12 @@ export function savePromptBlocks() {
       }, 1500);
     }
 
-    if (hasVarChanges) {
-      clearPendingVarChanges();
-      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
-      if (window.lucide) window.lucide.createIcons();
-      if (typeof refreshVarInspector === 'function') refreshVarInspector();
-    }
-
+    clearPendingVarChanges();
     clearPendingBlockChanges();
+    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
+    if (window.lucide) window.lucide.createIcons();
+    if (typeof refreshVarInspector === 'function') refreshVarInspector();
+
     captureOriginalSnapshot();
     renderPromptBlocks();
     toastr.success('Đã lưu các thay đổi block Prompt vào ST.');

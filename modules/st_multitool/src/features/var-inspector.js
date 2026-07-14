@@ -17,9 +17,22 @@ export function getPendingVarChanges() {
   return { renames: _pendingRenames, valuesBySource: _pendingSourceValues };
 }
 
+export function updateSaveBtnForVarChanges() {
+  const $btn = $('#st-multitool-save-prompt-btn');
+  if (!$btn.length) return;
+  const hasPending = Object.keys(_pendingRenames).length > 0 || Object.keys(_pendingSourceValues).length > 0;
+  if (hasPending) {
+    $btn.html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
+  } else if ($btn.text().includes('Có thay đổi Var')) {
+    $btn.html('<i data-lucide="save"></i> Lưu Preset');
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
 export function clearPendingVarChanges() {
   _pendingRenames = {};
   _pendingSourceValues = {};
+  updateSaveBtnForVarChanges();
   doRefresh();
 }
 
@@ -556,8 +569,7 @@ export function initVarInspector() {
     } else {
       delete _pendingRenames[oldName];
     }
-    // Update save button text in Preset Manager to indicate pending changes
-    $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
+    updateSaveBtnForVarChanges();
   });
 
   $popup.on('input', '.st-multitool-vi-edit-source-val', function(e) {
@@ -591,7 +603,7 @@ export function initVarInspector() {
         };
         $(this).css('border-color', '#fde68a'); // Highlight edited
       }
-      $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
+      updateSaveBtnForVarChanges();
     }
   });
 
