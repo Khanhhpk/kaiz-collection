@@ -752,27 +752,27 @@ function renderExtensionSettings(targetWin, jq) {
         #pe_disable_all_btn:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #f87171 !important; box-shadow: 0 0 12px rgba(248, 113, 113, 0.25); }
         #kaiz_log_clear_btn:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #f87171 !important; }
     </style>
-    <div class="inline-drawer">
-        <div class="inline-drawer-toggle inline-drawer-header" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px;">
+    <div class="inline-drawer" style="box-sizing: border-box; width: 100%; max-width: 100%;">
+        <div class="inline-drawer-toggle inline-drawer-header" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; box-sizing: border-box; width: 100%;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <i class="fa-solid fa-layer-group" style="color: #38bdf8; font-size: 1.1em;"></i>
                 <b style="font-size: 1.02em; color: #f8fafc; letter-spacing: 0.3px;">KAIZ Collection <span id="kaiz_version_display" style="font-size:11.5px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;font-weight:700;">v...</span></b>
             </div>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down" style="color: #64748b;"></div>
         </div>
-        <div class="inline-drawer-content" style="display: none; padding: 16px; flex-direction: column; gap: 18px;">
+        <div class="inline-drawer-content" style="display: none; padding: 16px; flex-direction: column; gap: 18px; box-sizing: border-box; width: 100%; max-width: 100%;">
             <!-- Tab Navigation Buttons -->
-            <div style="display: flex; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
-                <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.12); color: #38bdf8; transition: all 0.2s; box-shadow: 0 0 12px rgba(56, 189, 248, 0.12); font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <div style="display: flex; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; flex-wrap: wrap; box-sizing: border-box; width: 100%;">
+                <button id="kaiz_tab_btn_modules" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.12); color: #38bdf8; transition: all 0.2s; box-shadow: 0 0 12px rgba(56, 189, 248, 0.12); font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;">
                     <i class="fa-solid fa-cubes-stacked"></i><span>Quản lý Module (${CORE_MODULES.length + PHONE_APPS.length + UTILITY_MODULES.length})</span>
                 </button>
-                <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button id="kaiz_tab_btn_logs" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;">
                     <i class="fa-solid fa-terminal"></i><span>Nhật ký & Console</span>
                 </button>
-                <button id="kaiz_tab_btn_explorer" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button id="kaiz_tab_btn_explorer" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.03); color: #94a3b8; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;">
                     <i class="fa-solid fa-code"></i><span>System Explorer</span>
                 </button>
-                <button id="kaiz_tab_btn_patch_notes" class="kaiz-tab-btn" style="flex: 1; padding: 11px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #10b981; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px;" title="Xem thông tin phiên bản mới">
+                <button id="kaiz_tab_btn_patch_notes" class="kaiz-tab-btn" style="flex: 1 1 calc(50% - 10px); min-width: 135px; max-width: 100%; box-sizing: border-box; padding: 11px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12); color: #10b981; transition: all 0.2s; font-size: 0.92em; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; white-space: normal;" title="Xem thông tin phiên bản mới">
                     <i class="fa-solid fa-gift"></i><span>What's New?</span>
                 </button>
             </div>
