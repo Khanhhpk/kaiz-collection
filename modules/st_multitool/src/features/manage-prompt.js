@@ -598,7 +598,11 @@ export function renderPromptBlocks() {
     .on('scroll', function() {
       $(this).siblings('.st-multitool-highlight-backdrop').scrollTop($(this).scrollTop());
     })
-    .on('input', function() { updateBackdrop($(this)); })
+    .on('input', function() {
+      const $el = $(this);
+      if ($el.data('raf-id')) cancelAnimationFrame($el.data('raf-id'));
+      $el.data('raf-id', requestAnimationFrame(() => updateBackdrop($el)));
+    })
     .each(function() { updateBackdrop($(this)); });
 
   // Sync tên block lên header khi người dùng sửa

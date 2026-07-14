@@ -21,12 +21,14 @@ export function updateSaveBtnForVarChanges() {
   const $btn = $('#st-multitool-save-prompt-btn');
   if (!$btn.length) return;
   const hasPending = Object.keys(_pendingRenames).length > 0 || Object.keys(_pendingSourceValues).length > 0;
-  if (hasPending) {
+  const currentText = $btn.text() || '';
+  if (hasPending && !currentText.includes('Có thay đổi Var')) {
     $btn.html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
-  } else if ($btn.text().includes('Có thay đổi Var')) {
+    if (window.lucide) window.lucide.createIcons({ root: $btn[0] });
+  } else if (!hasPending && currentText.includes('Có thay đổi Var')) {
     $btn.html('<i data-lucide="save"></i> Lưu Preset');
+    if (window.lucide) window.lucide.createIcons({ root: $btn[0] });
   }
-  if (window.lucide) window.lucide.createIcons();
 }
 
 export function clearPendingVarChanges() {
