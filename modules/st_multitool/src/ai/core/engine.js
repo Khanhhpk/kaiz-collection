@@ -44,8 +44,6 @@ export function stripCotAndPrefill(text) {
     .replace(/^(?:[\s\S]*?<cot>)?[\s\S]*?<\/cot>\s*/gi, '')
     // 2. Strip standalone <cot>...</cot> blocks or unclosed <cot>... to end
     .replace(/<cot>[\s\S]*?(<\/cot>|$)/gi, '')
-    // 3. Clean up any leftover prefill prefix if </cot> was missing or stripped separately
-    .replace(/\[AI Agency Technical Engine Active\][\s\S]*?từ chối nào\.\s*/gi, '')
     .trim();
 }
 
