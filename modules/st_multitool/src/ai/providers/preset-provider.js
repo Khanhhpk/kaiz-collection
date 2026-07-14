@@ -6,6 +6,7 @@
 
 import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks } from '../../features/manage-prompt.js';
 import { getPendingVarChanges, refreshVarInspector, scanPromptContent, applyVarChangesToContent } from '../../features/var-inspector.js';
+import { refreshIcons } from '../../utils.js';
 
 // ─── Macro Tokenizer ──────────────────────────────────────────────────────────
 
@@ -271,7 +272,7 @@ export async function flushStaging() {
   const $saveBtn = $('#st-multitool-save-prompt-btn');
   if ($saveBtn.length) {
     $saveBtn.html('<i data-lucide="save"></i> Lưu Preset (Chưa lưu ST)');
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($saveBtn[0]);
   }
 }
 

@@ -21,3 +21,37 @@ export function generateUUID() {
     return v.toString(16);
   });
 }
+
+/**
+ * Highly optimized, scoped Lucide icon renderer.
+ * Prevents full DOM traversal across SillyTavern and prevents re-rendering existing <svg> icons.
+ */
+export function refreshIcons(rootEl = null) {
+  if (!window.lucide || typeof window.lucide.createIcons !== 'function') return;
+
+  let rootNode = null;
+  if (rootEl) {
+    rootNode = rootEl instanceof jQuery ? rootEl[0] : (typeof rootEl === 'string' ? document.querySelector(rootEl) : rootEl);
+  } else {
+    rootNode = document.getElementById('st-multitool-modal') || document.body;
+  }
+  if (!rootNode) return;
+
+  // Check if there are un-converted icons (i.e. tags with data-lucide that are NOT <svg>)
+  const pendingIcons = rootNode.querySelectorAll('i[data-lucide], span[data-lucide], [data-lucide]:not(svg)');
+  if (pendingIcons.length === 0) return; // Zero work if already rendered!
+
+  window.lucide.createIcons({ root: rootNode });
+
+  // Mark all rendered <svg data-lucide="..."> so future checks do not re-parse/re-render them
+  const renderedSvgs = rootNode.querySelectorAll('svg[data-lucide]');
+  for (let i = 0; i < renderedSvgs.length; i++) {
+    const svg = renderedSvgs[i];
+    const iconName = svg.getAttribute('data-lucide');
+    if (iconName) {
+      svg.setAttribute('data-lucide-rendered', iconName);
+      svg.removeAttribute('data-lucide');
+    }
+  }
+}
+

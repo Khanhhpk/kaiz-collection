@@ -1,4 +1,4 @@
-import { generateUUID } from '../utils.js';
+import { generateUUID, refreshIcons } from '../utils.js';
 import { extractContentFromMessage } from './sync.js';
 import { isDefaultCollapse } from './settings.js';
 import { updateTavernRegexesWith, updateScriptTreesWith } from '../api.js';
@@ -624,7 +624,7 @@ export function handleFrontendRender(cardId) {
   if ($container.is(':visible')) {
     $container.empty().hide();
     $btn.html('<i data-lucide="eye"></i> Render frontend');
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($btn[0]);
     return;
   }
 
@@ -735,7 +735,7 @@ export function renderFrontendCards() {
   });
 
   $feCardsContainer.html(html);
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($feCardsContainer[0]);
 }
 
 export function renderScriptCards(prefix) {

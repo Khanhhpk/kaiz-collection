@@ -1,4 +1,4 @@
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { isManageRegexCollapsed } from './settings.js';
 import { getTavernRegexes, updateTavernRegexesWith } from '../api.js';
 
@@ -127,7 +127,7 @@ function renderRegexList($container, regexes, type) {
     fragment.appendChild(div);
   });
   $container.empty().append(fragment);
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($container[0]);
 }
 
 async function toggleRegexEnabled(regexId, type, isEnabled) {
@@ -281,7 +281,7 @@ function handleRenderToFrontend() {
   if ($container.is(':visible')) {
     $container.empty().hide();
     $btn.html('<i data-lucide="eye"></i> Render');
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($btn[0]);
     return;
   }
 

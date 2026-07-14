@@ -5,7 +5,7 @@
  * Renders inside the Prompt Manager view (not as a floating sidebar).
  */
 
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { showLoader, hideLoader } from '../ui.js';
 
 // ─── Edit Mode & State ───────────────────────────────────────────────────────────
@@ -24,10 +24,10 @@ export function updateSaveBtnForVarChanges() {
   const currentText = $btn.text() || '';
   if (hasPending && !currentText.includes('Có thay đổi Var')) {
     $btn.html('<i data-lucide="save"></i> Lưu Preset (Có thay đổi Var)');
-    if (window.lucide) window.lucide.createIcons({ root: $btn[0] });
+    refreshIcons($btn[0]);
   } else if (!hasPending && currentText.includes('Có thay đổi Var')) {
     $btn.html('<i data-lucide="save"></i> Lưu Preset');
-    if (window.lucide) window.lucide.createIcons({ root: $btn[0] });
+    refreshIcons($btn[0]);
   }
 }
 
@@ -544,7 +544,7 @@ export function initVarInspector() {
     if (isHidden) {
       if (!$('#st-multitool-vi-edit-mode-btn').length) {
         $('#st-multitool-vi-search').parent().after(`<button id="st-multitool-vi-edit-mode-btn" style="padding: 6px 12px; border-radius: 6px; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #aaa; flex-shrink: 0;" title="Bật/Tắt chế độ chỉnh sửa tên và giá trị biến"><i data-lucide="edit" style="width: 14px; height: 14px; vertical-align: -2px;"></i> Edit Mode</button>`);
-        if (window.lucide) window.lucide.createIcons();
+        refreshIcons(document.getElementById('st-multitool-vi-edit-mode-btn'));
       }
       doRefresh();
     }

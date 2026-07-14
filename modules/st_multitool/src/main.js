@@ -19,6 +19,7 @@ import {
   showSubView,
   showPopup,
 } from "./ui.js";
+import { refreshIcons } from "./utils.js";
 
 const MODULE_NAME = "ST Multitool";
 const extensionBaseUrl = new URL("../", import.meta.url);
@@ -74,11 +75,11 @@ async function init() {
         if ($content.is(":visible")) {
           $content.slideUp(200);
           $icon.replaceWith(`<i data-lucide="chevron-down" class="st-multitool-collapse-icon"></i>`);
-          if (window.lucide) window.lucide.createIcons();
+          refreshIcons($(this)[0]);
         } else {
           $content.slideDown(200);
           $icon.replaceWith(`<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>`);
-          if (window.lucide) window.lucide.createIcons();
+          refreshIcons($(this)[0]);
         }
       },
     );

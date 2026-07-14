@@ -8,6 +8,7 @@ import { createEngine } from './engine.js';
 import { getLLMConfig, setLLMConfig, fetchModels } from './llm-client.js';
 import { PresetContextProvider, getStagingSummary, hasStagingChanges, clearStaging, flushStaging } from '../providers/preset-provider.js';
 import { getDebugLogs, clearDebugLogs } from './debug-logger.js';
+import { refreshIcons } from '../../utils.js';
 
 let _engine = null;
 let _provider = null;
@@ -504,7 +505,7 @@ function _injectSidebar() {
 
   renderConfigPanel();
   window._stMultitoolLLMConfig = getLLMConfig();
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons(_$sidebar[0]);
   _bindEvents();
 
   // Tin nhắn chào (chỉ một lần)

@@ -1,4 +1,4 @@
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { showLoader, hideLoader, showSubView } from '../ui.js';
 import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent, refreshVarInspector } from './var-inspector.js';
 
@@ -73,7 +73,7 @@ export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = 
 
   _pendingAdds.push({ block: newBlock, addToLinked, insertTop });
   renderPromptBlocks();
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($promptListContainer[0]);
   return newBlock;
 }
 
@@ -86,7 +86,7 @@ export function deletePromptBlock(identifier) {
   if (addIdx !== -1) {
     _pendingAdds.splice(addIdx, 1);
     renderPromptBlocks();
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($promptListContainer[0]);
     return;
   }
 
@@ -135,7 +135,7 @@ export function initManagePrompt() {
         captureOriginalSnapshot();
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
-        if (window.lucide) window.lucide.createIcons();
+        refreshIcons(document.getElementById('st-multitool-manage-prompt-view'));
       } finally {
         hideLoader();
       }
@@ -205,7 +205,7 @@ export function initManagePrompt() {
         clearPendingVarChanges();
         if ($saveBtn && $saveBtn.length) {
           $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
-          if (window.lucide) window.lucide.createIcons();
+          refreshIcons($saveBtn[0]);
         }
         renderPromptBlocks();
         if (typeof refreshVarInspector === 'function') refreshVarInspector();
@@ -549,7 +549,7 @@ export function renderPromptBlocks() {
     </div>
   `);
 
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($promptListContainer[0]);
 
   // Accordion
   $promptListContainer.find('.st-multitool-accordion-header').on('click', function(e) {
@@ -746,7 +746,7 @@ export function savePromptBlocks() {
     clearPendingVarChanges();
     clearPendingBlockChanges();
     $('#st-multitool-save-prompt-btn').html('<i data-lucide="save"></i> Lưu Preset');
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons(document.getElementById('st-multitool-save-prompt-btn'));
     if (typeof refreshVarInspector === 'function') refreshVarInspector();
 
     captureOriginalSnapshot();

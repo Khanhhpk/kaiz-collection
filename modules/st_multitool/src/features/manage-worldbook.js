@@ -1,5 +1,5 @@
 import { getAllLorebooks, getLorebookEntries, setLorebookEntries, getLorebookSettings, setLorebookSettings, createWorldbook, deleteWorldbook, deleteWorldbookEntries } from '../api.js';
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { showLoader, hideLoader } from '../ui.js';
 import { isManageWbCollapsed } from './settings.js';
 
@@ -125,7 +125,7 @@ export async function renderManageWorldbookList() {
     });
 
     $manageWbList.empty().append(fragment);
-    if (window.lucide) window.lucide.createIcons();
+    refreshIcons($manageWbList[0]);
   } catch (e) {
     $manageWbList.html(`<div class="st-multitool-empty-msg" style="color:red;">Tải thất bại: ${e.message}</div>`);
   }

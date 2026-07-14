@@ -1,4 +1,4 @@
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, refreshIcons } from '../utils.js';
 import { isManageScriptCollapsed } from './settings.js';
 import { getScriptTrees, updateScriptTreesWith } from '../api.js';
 
@@ -120,7 +120,7 @@ function renderScriptList($container, scripts, type) {
     fragment.appendChild(div);
   });
   $container.empty().append(fragment);
-  if (window.lucide) window.lucide.createIcons();
+  refreshIcons($container[0]);
 }
 
 async function toggleScriptEnabled(scriptId, type, isEnabled) {
