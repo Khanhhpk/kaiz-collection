@@ -8,77 +8,16 @@ import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks
 import { getPendingVarChanges, refreshVarInspector, scanPromptContent, applyVarChangesToContent } from '../../features/var-inspector.js';
 import { refreshIcons } from '../../utils.js';
 
-// ─── Macro Tokenizer ──────────────────────────────────────────────────────────
-
-const MACRO_MAP = [
-  { re: /\{\{user\}\}/gi,            token: '⟦USER⟧' },
-  { re: /\{\{char\}\}/gi,            token: '⟦CHAR⟧' },
-  { re: /\{\{time\}\}/gi,            token: '⟦TIME⟧' },
-  { re: /\{\{date\}\}/gi,            token: '⟦DATE⟧' },
-  { re: /\{\{group\}\}/gi,           token: '⟦GROUP⟧' },
-  { re: /\{\{model\}\}/gi,           token: '⟦MODEL⟧' },
-  { re: /\{\{setvar::([^:}]+)::([^}]*)\}\}/gi, token: null }, // special
-  { re: /\{\{getvar::([^}]+)\}\}/gi, token: null },
-  { re: /\{\{addvar::([^:}]+)::([^}]*)\}\}/gi, token: null },
-];
+// ─── Macro Compatibility Stubs ────────────────────────────────────────────────
+// Tokenization has been deprecated because modern AI models handle raw macros
+// and SillyTavern syntax ({{user}}, {{setvar::...}}) safely without corrupting them.
 
 export function tokenizeMacros(content) {
-  if (!content) return { tokenized: '', tokens: [] };
-  const tokens = [];
-
-  let result = content;
-
-  // Special: setvar/addvar — giữ tên biến, tokenize cả chuỗi
-  result = result.replace(/\{\{(setvar|addvar)::([^:}]+)::([^}]*)\}\}/gi, (match, cmd, name, val) => {
-    const token = `⟦${cmd.toUpperCase()}:${name}⟧`;
-    tokens.push({ token, original: match });
-    return token;
-  });
-
-  // Special: getvar
-  result = result.replace(/\{\{getvar::([^}]+)\}\}/gi, (match, name) => {
-    const token = `⟦GETVAR:${name}⟧`;
-    tokens.push({ token, original: match });
-    return token;
-  });
-
-  // Named macros
-  const namedMacros = [
-    [/\{\{user\}\}/gi, '⟦USER⟧'],
-    [/\{\{char\}\}/gi, '⟦CHAR⟧'],
-    [/\{\{time\}\}/gi, '⟦TIME⟧'],
-    [/\{\{date\}\}/gi, '⟦DATE⟧'],
-    [/\{\{group\}\}/gi, '⟦GROUP⟧'],
-    [/\{\{model\}\}/gi, '⟦MODEL⟧'],
-    [/\{\{lastChatMessage\}\}/gi, '⟦LAST_MSG⟧'],
-    [/\{\{scenario\}\}/gi, '⟦SCENARIO⟧'],
-    [/\{\{personality\}\}/gi, '⟦PERSONALITY⟧'],
-  ];
-  for (const [re, token] of namedMacros) {
-    result = result.replace(re, (match) => {
-      tokens.push({ token, original: match });
-      return token;
-    });
-  }
-
-  // Catch-all: bất kỳ {{...}} nào còn lại
-  result = result.replace(/\{\{([^}]+)\}\}/g, (match, inner) => {
-    const token = `⟦MACRO:${inner}⟧`;
-    tokens.push({ token, original: match });
-    return token;
-  });
-
-  return { tokenized: result, tokens };
+  return { tokenized: content || '', tokens: [] };
 }
 
 export function restoreMacros(content, tokens) {
-  if (!content || !tokens.length) return content;
-  let result = content;
-  // Restore theo thứ tự ngược để tránh token overlap
-  for (const { token, original } of [...tokens].reverse()) {
-    result = result.split(token).join(original);
-  }
-  return result;
+  return content || '';
 }
 
 // ─── Container helper ─────────────────────────────────────────────────────────
@@ -309,14 +248,11 @@ async function executeTool(name, args) {
     case 'get_prompt_content': {
       const p = findPrompt(args.identifier);
       if (!p) return { error: `Không tìm thấy prompt: ${args.identifier}` };
-      const { tokenized, tokens } = tokenizeMacros(p.content);
       return {
         identifier: p.identifier,
         name: p.name,
-        content_raw: p.content,
-        content_tokenized: tokenized,
-        tokens,
         role: p.role,
+        content: p.content,
         enabled: p.enabled,
         system_prompt: p.system_prompt,
         injection_position: p.injection_position,
@@ -646,7 +582,7 @@ HỆ THỐNG CHAIN-OF-THOUGHT (CoT) – BẮT BUỘC TRƯỚC MỖI HÀNH ĐỘN
 <cot>
 1. [Phân tích Yêu cầu & Kế hoạch]: Người dùng muốn làm gì? Phạm vi tác động đến những block nào?
 2. [Đánh giá Dung lượng & Rủi ro Safety Filter]: Các block cần chỉnh sửa có chứa từ khóa nhạy cảm, NSFW hay nội dung nặng ("trái cấm") không? Nếu xuất lại toàn bộ văn bản dài chứa từ khóa nhạy cảm trong 1 lệnh update_prompt_content, liệu API có thể kích hoạt Safety Filter chặn ngắt giữa chừng? -> Ưu tiên dùng 'replace_in_prompt_content' hoặc 'append_prompt_content'.
-3. [Xác thực ID & Integrity]: Kiểm tra identifier chuẩn xác (ID bắt đầu bằng "block_..."). Đảm bảo các macro đã tokenize (⟦USER⟧, ⟦CHAR⟧, v.v.) tuyệt đối được giữ nguyên 100%, không dịch hay làm biến dạng.
+3. [Xác thực ID & Bảo vệ cấu trúc Macro/Var]: Kiểm tra identifier chuẩn xác (ID bắt đầu bằng "block_..."). ĐẢM BẢO TUYỆT ĐỐI khi chỉnh sửa nội dung bằng các tool prompt ('update_prompt_content', 'replace_in_prompt_content', 'batch_update_prompts') mà không qua var tool, bạn BẮT BUỘC phải TUÂN THỦ CẤU TRÚC GỐC và GIỮ NGUYÊN VẸN 100% các thẻ macro (`{{user}}`, `{{char}}`, `{{time}}`, `{{date}}`,...) cùng toàn bộ cú pháp biến số (`{{setvar::...}}`, `{{getvar::...}}`, `{{addvar::...}}`), KHÔNG ĐƯỢC DỊCH SANG NGÔN NGỮ KHÁC hay làm sai lệch cú pháp.
 4. [Lập chiến lược Prefill / Chia nhỏ]: Quyết định gọi tool ngay hay chia thành các batch nhỏ gọn an toàn.
 </cot>
 
