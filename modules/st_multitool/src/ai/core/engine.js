@@ -23,13 +23,10 @@ import { sendLLMRequest, getLLMConfig } from './llm-client.js';
 const MAX_ITERATIONS = 30;
 
 /**
- * Fraction of the provider's contextLimit at which history truncation kicks in.
- * We use character count as a rough token proxy.
+ * Fraction of the provider's contextLimit at which safety cleanup kicks in.
+ * 1 token ≈ 4 characters, so threshold in chars is contextLimit * 4 * 0.95.
  */
-const CONTEXT_LIMIT_FRACTION = 0.8;
-
-/** Number of history entries to keep when truncation occurs. */
-const HISTORY_KEEP_ENTRIES = 10;
+const CONTEXT_LIMIT_FRACTION = 0.95;
 
 /** Regex to extract every <tool_call>…</tool_call> block from an LLM response. */
 const TOOL_CALL_REGEX = /<tool_call>([\s\S]*?)<\/tool_call>/g;
@@ -287,9 +284,8 @@ export class AgencyEngine {
   }
 
   /**
-   * If the estimated character count of the history exceeds the configured
-   * fraction of the context limit, drop old entries, keeping only the most
-   * recent {@link HISTORY_KEEP_ENTRIES}. Preserves pinned user goal header.
+   * Only clean up old history entries if the estimated character count truly
+   * exceeds 95% of the configured context limit (1 token ≈ 4 chars).
    */
   _maybetruncateHistory() {
     const config = getLLMConfig();
@@ -297,18 +293,19 @@ export class AgencyEngine {
 
     if (contextLimit <= 0) return; // No limit configured – skip.
 
-    const threshold = contextLimit * CONTEXT_LIMIT_FRACTION;
+    const thresholdChars = contextLimit * 4 * CONTEXT_LIMIT_FRACTION;
     const totalChars = this._history.reduce(
       (sum, entry) => sum + (entry.content?.length ?? 0),
       0
     );
 
-    if (totalChars > threshold) {
-      // Keep only the most recent entries.
-      const recent = this._history.slice(-HISTORY_KEEP_ENTRIES);
+    if (totalChars > thresholdChars) {
+      // Keep recent entries to fit safely while preserving the pinned user goal header.
+      const keepCount = Math.min(this._history.length - 1, 25);
+      const recent = this._history.slice(-keepCount);
       if (this._pinnedUserGoal && recent[0]?.content !== this._pinnedUserGoal) {
         this._history = [
-          { role: 'user', content: `[Hệ thống: Lịch sử hội thoại cũ đã được rút gọn để giải phóng bộ nhớ token. YÊU CẦU CHÍNH CHỦ BAN ĐẦU CỦA USER (PINNED GOAL): "${this._pinnedUserGoal}"]` },
+          { role: 'user', content: `[Hệ thống: Lịch sử hội thoại cũ đã được dọn dẹp để tránh vượt giới hạn Context Limit ${contextLimit} tokens. YÊU CẦU CHÍNH CHỦ BAN ĐẦU CỦA USER (PINNED GOAL): "${this._pinnedUserGoal}"]` },
           ...recent
         ];
       } else {
