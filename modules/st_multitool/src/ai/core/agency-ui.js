@@ -110,82 +110,85 @@ function cleanAssistantText(text) {
 
 function formatAssistantBubbleHtml(rawText, isDev) {
   if (!rawText) return '';
+  let finalHtml = '';
+
   if (!isDev) {
     const cleaned = cleanAssistantText(rawText);
-    return escapeHtml(cleaned)
+    finalHtml = escapeHtml(cleaned)
       .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
       .replace(/\n/g, '<br>');
-  }
+  } else {
+    // Trong chế độ Dev View (isDev = true): Hiển thị đầy đủ CoT và Tool Call
+    let s = rawText;
+    let htmlParts = [];
 
-  // Trong chế độ Dev View (isDev = true): Hiển thị đầy đủ CoT và Tool Call
-  let s = rawText;
-  let htmlParts = [];
-
-  // 1. Tách CoT nếu có (hoặc phần trước </cot>)
-  if (s.includes('</cot>')) {
-    const parts = s.split('</cot>');
-    let cotText = parts[0].replace(/^.*<cot>\n?/i, '').trim();
-    if (!cotText) cotText = parts[0].trim();
-    
-    htmlParts.push(
-      `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
-      `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
-      `</div>`
-    );
-    s = parts.slice(1).join('</cot>').trim();
-  } else if (s.includes('<cot>')) {
-    const parts = s.split('<cot>');
-    let cotText = parts.slice(1).join('<cot>').trim();
-    htmlParts.push(
-      `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
-      `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
-      `</div>`
-    );
-    s = parts[0].trim();
-  }
-
-  // 2. Format từng phần text chính và thẻ <tool_call>
-  const toolCallRegex = /<tool_call>([\s\S]*?)(<\/tool_call>|$)/gi;
-  let lastIndex = 0;
-  let match;
-
-  while ((match = toolCallRegex.exec(s)) !== null) {
-    const textBefore = s.slice(lastIndex, match.index).trim();
-    if (textBefore) {
+    // 1. Tách CoT nếu có (hoặc phần trước </cot>)
+    if (s.includes('</cot>')) {
+      const parts = s.split('</cot>');
+      let cotText = parts[0].replace(/^.*<cot>\n?/i, '').trim();
+      if (!cotText) cotText = parts[0].trim();
+      
       htmlParts.push(
-        `<div style="margin-bottom:8px;">` +
-        escapeHtml(textBefore).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+        `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+        `</div>`
+      );
+      s = parts.slice(1).join('</cot>').trim();
+    } else if (s.includes('<cot>')) {
+      const parts = s.split('<cot>');
+      let cotText = parts.slice(1).join('<cot>').trim();
+      htmlParts.push(
+        `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+        `</div>`
+      );
+      s = parts[0].trim();
+    }
+
+    // 2. Format từng phần text chính và thẻ <tool_call>
+    const toolCallRegex = /<tool_call>([\s\S]*?)(<\/tool_call>|$)/gi;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = toolCallRegex.exec(s)) !== null) {
+      const textBefore = s.slice(lastIndex, match.index).trim();
+      if (textBefore) {
+        htmlParts.push(
+          `<div style="margin-bottom:8px;">` +
+          escapeHtml(textBefore).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+          `</div>`
+        );
+      }
+
+      const jsonStr = match[1].trim();
+      htmlParts.push(
+        `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:monospace;font-size:11px;color:#e9d5ff;">` +
+        `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="wrench" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Raw Tool Call]</div>` +
+        `<div style="white-space:pre-wrap;word-break:break-all;">${escapeHtml(jsonStr)}</div>` +
+        `</div>`
+      );
+
+      lastIndex = toolCallRegex.lastIndex;
+    }
+
+    const textAfter = s.slice(lastIndex).trim();
+    if (textAfter) {
+      htmlParts.push(
+        `<div style="margin-top:4px;">` +
+        escapeHtml(textAfter).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
         `</div>`
       );
     }
 
-    const jsonStr = match[1].trim();
-    htmlParts.push(
-      `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:monospace;font-size:11px;color:#e9d5ff;">` +
-      `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="wrench" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Raw Tool Call]</div>` +
-      `<div style="white-space:pre-wrap;word-break:break-all;">${escapeHtml(jsonStr)}</div>` +
-      `</div>`
-    );
+    if (htmlParts.length === 0 && s) {
+      htmlParts.push(escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'));
+    }
 
-    lastIndex = toolCallRegex.lastIndex;
+    finalHtml = htmlParts.join('');
   }
 
-  const textAfter = s.slice(lastIndex).trim();
-  if (textAfter) {
-    htmlParts.push(
-      `<div style="margin-top:4px;">` +
-      escapeHtml(textAfter).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
-      `</div>`
-    );
-  }
-
-  if (htmlParts.length === 0 && s) {
-    htmlParts.push(escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'));
-  }
-
-  let finalHtml = htmlParts.join('');
   // Khôi phục các thẻ <i data-lucide="..."></i> hệ thống đã bị escapeHtml biến đổi
   finalHtml = finalHtml.replace(/&lt;i data-lucide=&quot;([a-zA-Z0-9_-]+)&quot;([\s\S]*?)&gt;&lt;\/i&gt;/gi, (match, iconName, rest) => {
     const unescapedRest = rest.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
@@ -561,7 +564,7 @@ function _injectSidebar() {
   _bindEvents();
 
   // Tin nhắn chào (chỉ một lần)
-  appendBubble('assistant', '<i data-lucide="hand" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
+  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
 }
 
 function _showSidebar() {
