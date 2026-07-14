@@ -185,7 +185,14 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     htmlParts.push(escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'));
   }
 
-  return htmlParts.join('');
+  let finalHtml = htmlParts.join('');
+  // Khôi phục các thẻ <i data-lucide="..."></i> hệ thống đã bị escapeHtml biến đổi
+  finalHtml = finalHtml.replace(/&lt;i data-lucide=&quot;([a-zA-Z0-9_-]+)&quot;([\s\S]*?)&gt;&lt;\/i&gt;/gi, (match, iconName, rest) => {
+    const unescapedRest = rest.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+    return `<i data-lucide="${iconName}"${unescapedRest}></i>`;
+  });
+
+  return finalHtml;
 }
 
 function updateAssistantBubbleHtml($bubble, rawText) {
