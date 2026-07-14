@@ -611,7 +611,7 @@ export class PresetContextProvider {
   getSystemPrompt() {
     const container = getContainer();
     const promptCount = container?.prompts?.length ?? 0;
-    const { contextLimit, maxOutput } = (window._stMultitoolLLMConfig || { contextLimit: 32000, maxOutput: 4000 });
+    const { contextLimit, maxOutput, maxIterations = 30 } = (window._stMultitoolLLMConfig || { contextLimit: 32000, maxOutput: 4000, maxIterations: 30 });
 
     return `Bạn là AI Agency chuyên gia tối ưu hóa và quản lý AI Prompt Preset tích hợp trong ST Multitool (SillyTavern Extension).
 Thông số hệ thống: Context Limit: ${contextLimit} tokens | Max Output per turn: ${maxOutput} tokens | Tổng số prompt blocks hiện tại: ${promptCount}.
