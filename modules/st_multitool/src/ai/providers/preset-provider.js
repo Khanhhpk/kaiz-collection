@@ -130,6 +130,62 @@ export async function flushStaging() {
         const idxB = orderMap.has(b.identifier) ? orderMap.get(b.identifier) : 999999;
         return idxA - idxB;
       });
+
+      // Cập nhật container.prompt_order (nguồn chân lý cho thứ tự Linked Prompts trên UI & SillyTavern 1.18+)
+      const rawOrder = container.prompt_order || [];
+      let oldOrderItems = [];
+      let isNested = false;
+      let targetNestedObj = null;
+
+      if (Array.isArray(rawOrder) && rawOrder.length > 0) {
+        if (typeof rawOrder[0] === 'object' && Array.isArray(rawOrder[0].order)) {
+          isNested = true;
+          const ctx = window.SillyTavern?.getContext?.() || {};
+          const charId = ctx.characterId;
+          targetNestedObj = rawOrder.find(o => o.character_id === charId) || rawOrder[0];
+          oldOrderItems = targetNestedObj?.order || [];
+        } else {
+          oldOrderItems = rawOrder;
+        }
+      }
+
+      // Tạo map từ identifier -> object cũ (hoặc string cũ) để bảo toàn metadata như enabled
+      const oldOrderMap = new Map();
+      oldOrderItems.forEach(item => {
+        const id = typeof item === 'string' ? item : item?.identifier;
+        if (id) oldOrderMap.set(id, item);
+      });
+
+      // Lọc theo thứ tự mới đã sort trong container.prompts cho các block thuộc danh sách Linked
+      const newOrderArray = [];
+      for (const p of container.prompts) {
+        if (oldOrderMap.has(p.identifier)) {
+          const oldEntry = oldOrderMap.get(p.identifier);
+          if (typeof oldEntry === 'object' && oldEntry !== null) {
+            newOrderArray.push({ ...oldEntry, enabled: p.enabled });
+          } else {
+            newOrderArray.push(p.identifier);
+          }
+        }
+      }
+
+      // Nếu có các identifier mới trong `order` mà chưa nằm trong oldOrderMap, cũng thêm vào
+      for (const id of order) {
+        if (!oldOrderMap.has(id)) {
+          const p = container.prompts.find(pr => pr.identifier === id);
+          if (p) {
+            newOrderArray.push(typeof oldOrderItems[0] === 'object' && oldOrderItems[0] !== null ? { identifier: id, enabled: p.enabled } : id);
+            oldOrderMap.set(id, true);
+          }
+        }
+      }
+
+      // Ghi lại vào container.prompt_order
+      if (isNested && targetNestedObj) {
+        targetNestedObj.order = newOrderArray;
+      } else {
+        container.prompt_order = newOrderArray;
+      }
     }
   }
 
