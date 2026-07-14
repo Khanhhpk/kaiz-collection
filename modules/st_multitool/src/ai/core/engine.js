@@ -197,7 +197,7 @@ export class AgencyEngine {
 
       // Reached max iterations.
       const maxIterErr = new Error(
-        `Đã đạt giới hạn số lượt tool liên tiếp trong 1 lượt (${maxIterations} lượt). Các thay đổi đã xử lý đang hiển thị trong bảng Diff Preview bên dưới. Bạn có thể bấm Áp Dụng (Apply) hoặc gõ "tiếp tục" để AI làm tiếp.`
+        `Đã đạt giới hạn số vòng lặp tự động (${maxIterations} lượt Agentic turns). Các thay đổi đã xử lý đang hiển thị trong bảng Diff Preview bên dưới. Bạn có thể bấm Áp Dụng (Apply) hoặc gõ "tiếp tục" để AI chạy tiếp.`
       );
       onError(maxIterErr);
     } catch (err) {
