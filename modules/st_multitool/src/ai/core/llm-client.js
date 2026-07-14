@@ -8,6 +8,7 @@ const DEFAULT_CONFIG = {
     contextLimit: 32000,
     maxOutput: 4000,
     maxIterations: 30,
+    maxRetries: 3,
 };
 
 export function getLLMConfig() {
@@ -97,6 +98,7 @@ import { startDebugLog, updateDebugLog } from './debug-logger.js';
 export async function sendLLMRequest({ messages, tools, onChunk, signal } = {}) {
     const config = getLLMConfig();
     const baseUrl = (config.endpoint || '').trim().replace(/\/$/, '');
+    const maxRetries = typeof config.maxRetries === 'number' && config.maxRetries >= 0 ? config.maxRetries : 3;
 
     if (!baseUrl) {
         throw new Error('Chưa cấu hình Endpoint LLM! Vui lòng bấm vào nút [⚙️ Cài đặt LLM] trên thanh tiêu đề AI Agency để nhập Endpoint và API Key.');
@@ -107,45 +109,78 @@ export async function sendLLMRequest({ messages, tools, onChunk, signal } = {}) 
         endpoint: baseUrl,
         model: config.model,
         messages,
-        options: { maxOutput: config.maxOutput, contextLimit: config.contextLimit }
+        options: { maxOutput: config.maxOutput, contextLimit: config.contextLimit, maxRetries }
     });
 
-    try {
-        const body = {
-            model: config.model || 'gpt-4o-mini',
-            messages,
-            max_tokens: config.maxOutput || 4000,
-            stream: true,
-        };
-        if (tools?.length) body.tools = tools;
+    const body = {
+        model: config.model || 'gpt-4o-mini',
+        messages,
+        max_tokens: config.maxOutput || 4000,
+        stream: true,
+    };
+    if (tools?.length) body.tools = tools;
 
-        const headers = { 'Content-Type': 'application/json' };
-        if (config.apiKey) headers['Authorization'] = `Bearer ${config.apiKey}`;
+    const headers = { 'Content-Type': 'application/json' };
+    if (config.apiKey) headers['Authorization'] = `Bearer ${config.apiKey}`;
 
-        const res = await fetch(`${baseUrl}/chat/completions`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(body),
-            signal,
-        });
-
-        if (!res.ok) {
-            const text = await res.text().catch(() => '');
-            const err = new Error(`API LLM error (${res.status}): ${text || res.statusText}`);
-            updateDebugLog(logId, { status: 'ERROR', error: err });
-            throw err;
+    let lastError = null;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        if (signal?.aborted) {
+            const abortErr = new DOMException('Task aborted by user.', 'AbortError');
+            updateDebugLog(logId, { status: 'ERROR', error: abortErr });
+            throw abortErr;
         }
 
-        const wrappedOnChunk = (delta) => {
-            updateDebugLog(logId, { status: 'STREAMING', chunk: delta });
-            if (onChunk) onChunk(delta);
-        };
+        try {
+            if (attempt > 0) {
+                const delayMs = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+                const retryMsg = `\n⏳ [Hệ thống: Lỗi kết nối API (${lastError?.message || 'Unknown'}). Đang tự động thử lại lần ${attempt}/${maxRetries} sau ${delayMs / 1000}s...]\n`;
+                updateDebugLog(logId, { status: 'STREAMING', chunk: retryMsg });
+                if (onChunk) onChunk(retryMsg);
+                await new Promise((resolve) => setTimeout(resolve, delayMs));
+                if (signal?.aborted) {
+                    throw new DOMException('Task aborted by user.', 'AbortError');
+                }
+            }
 
-        const fullText = await parseSSEStream(res, wrappedOnChunk, signal);
-        updateDebugLog(logId, { status: 'DONE', response: fullText });
-        return fullText;
-    } catch (err) {
-        updateDebugLog(logId, { status: 'ERROR', error: err });
-        throw err;
+            const res = await fetch(`${baseUrl}/chat/completions`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(body),
+                signal,
+            });
+
+            if (!res.ok) {
+                const text = await res.text().catch(() => '');
+                const status = res.status;
+                const err = new Error(`API LLM error (${status}): ${text || res.statusText}`);
+                // Không retry với các lỗi cú pháp/xác thực client (400, 401, 403, 404) trừ lỗi 429 Rate Limit và 408 Timeout
+                if (status >= 400 && status < 500 && status !== 429 && status !== 408) {
+                    updateDebugLog(logId, { status: 'ERROR', error: err });
+                    throw err;
+                }
+                throw err;
+            }
+
+            const wrappedOnChunk = (delta) => {
+                updateDebugLog(logId, { status: 'STREAMING', chunk: delta });
+                if (onChunk) onChunk(delta);
+            };
+
+            const fullText = await parseSSEStream(res, wrappedOnChunk, signal);
+            updateDebugLog(logId, { status: 'DONE', response: fullText });
+            return fullText;
+        } catch (err) {
+            if (err?.name === 'AbortError') {
+                updateDebugLog(logId, { status: 'ERROR', error: err });
+                throw err;
+            }
+            lastError = err;
+            if (attempt === maxRetries) {
+                updateDebugLog(logId, { status: 'ERROR', error: err });
+                throw err;
+            }
+        }
     }
+    throw lastError || new Error('Unknown LLM request failure');
 }

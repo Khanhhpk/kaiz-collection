@@ -357,6 +357,7 @@ function renderConfigPanel() {
   _$sidebar.find('#ai-cfg-context').val(cfg.contextLimit);
   _$sidebar.find('#ai-cfg-maxout').val(cfg.maxOutput);
   _$sidebar.find('#ai-cfg-maxiter').val(cfg.maxIterations ?? 30);
+  _$sidebar.find('#ai-cfg-retries').val(cfg.maxRetries ?? 3);
   // Đồng bộ option model hiện tại vào select nếu chưa có
   const $modelSelect = _$sidebar.find('#ai-cfg-model');
   if ($modelSelect.find(`option[value="${cfg.model}"]`).length === 0 && cfg.model) {
@@ -367,6 +368,7 @@ function renderConfigPanel() {
 }
 
 function saveConfigFromPanel() {
+  const parsedRetries = parseInt(_$sidebar.find('#ai-cfg-retries').val(), 10);
   setLLMConfig({
     mode: 'custom',
     endpoint: _$sidebar.find('#ai-cfg-endpoint').val().trim(),
@@ -375,6 +377,7 @@ function saveConfigFromPanel() {
     contextLimit: parseInt(_$sidebar.find('#ai-cfg-context').val(), 10) || 32000,
     maxOutput: parseInt(_$sidebar.find('#ai-cfg-maxout').val(), 10) || 4000,
     maxIterations: parseInt(_$sidebar.find('#ai-cfg-maxiter').val(), 10) || 30,
+    maxRetries: !isNaN(parsedRetries) && parsedRetries >= 0 ? parsedRetries : 3,
   });
   window._stMultitoolLLMConfig = getLLMConfig();
   toastr.success('Đã lưu cấu hình AI (Custom Endpoint - Bypass Filter Mode).');
@@ -440,6 +443,10 @@ function buildSidebarHTML() {
         <div class="ai-cfg-row">
           <label class="ai-cfg-label">Max Auto Agent</label>
           <input type="number" id="ai-cfg-maxiter" class="ai-cfg-input" style="width:100px;" value="30" min="1" max="200"> Số Call/1 task
+        </div>
+        <div class="ai-cfg-row">
+          <label class="ai-cfg-label">Max retries (lỗi API)</label>
+          <input type="number" id="ai-cfg-retries" class="ai-cfg-input" style="width:100px;" value="3" min="0" max="15"> lần
         </div>
         <button class="ai-save-cfg-btn">💾 Lưu cài đặt</button>
       </div>
