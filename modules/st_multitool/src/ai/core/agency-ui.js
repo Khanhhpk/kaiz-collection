@@ -497,9 +497,15 @@ function _injectSidebar() {
   const $view = $('#st-multitool-manage-prompt-view');
   if (!$view.length) return;
 
-  // Wrap only the prompt list content (not sidebar)
-  $view.children(':not(.ai-agency-sidebar)').wrapAll('<div class="ai-prompt-list-panel"></div>');
-  $view.append(buildSidebarHTML());
+  // Nếu panel.html chưa có sẵn .ai-prompt-list-panel (bản cũ), bọc lại làm fallback
+  if (!$view.find('.ai-prompt-list-panel').length) {
+    $view.children(':not(.ai-agency-sidebar)').wrapAll('<div class="ai-prompt-list-panel"></div>');
+  }
+  if (!$('#st-multitool-ai-agency-sidebar').length) {
+    $view.append(buildSidebarHTML());
+  } else {
+    $('#st-multitool-ai-agency-sidebar').replaceWith(buildSidebarHTML());
+  }
   _$sidebar = $('#st-multitool-ai-agency-sidebar');
   _injected = true;
 
@@ -514,12 +520,20 @@ function _injectSidebar() {
 
 function _showSidebar() {
   _injectSidebar();
-  $('#st-multitool-manage-prompt-view').addClass('ai-agency-active');
-  $('#st-multitool-popup, .st-multitool-popup-container').addClass('ai-agency-expanded');
-  $('#st-multitool-ai-agency-toggle-btn').addClass('active').css({
-    background: 'rgba(52, 211, 153, 0.3)',
-    borderColor: '#34d399',
-    boxShadow: '0 0 10px rgba(52, 211, 153, 0.3)'
+  const $popup = $('#st-multitool-popup, .st-multitool-popup-container');
+  const $view = $('#st-multitool-manage-prompt-view');
+  const $btn = $('#st-multitool-ai-agency-toggle-btn');
+
+  $popup.addClass('ai-agency-expanded');
+  
+  // Sử dụng requestAnimationFrame để tách nhịp mở modal và hiển thị sidebar, tránh giật lag layout
+  requestAnimationFrame(() => {
+    $view.addClass('ai-agency-active');
+    $btn.addClass('active').css({
+      background: 'rgba(52, 211, 153, 0.3)',
+      borderColor: '#34d399',
+      boxShadow: '0 0 10px rgba(52, 211, 153, 0.3)'
+    });
   });
   _isOpen = true;
 }

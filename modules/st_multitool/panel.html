@@ -1363,99 +1363,101 @@
         </div>
       </div>
 
-      <div id="st-multitool-manage-prompt-view" style="display: none; height: 100%; display: flex; flex-direction: column;">
-        <div class="st-multitool-section-desc">
-          Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
-        </div>
-        <div style="margin-top: 15px; display: flex; gap: 10px;">
-          <div style="flex: 1; position: relative; display: flex; align-items: center;">
-            <input type="text" id="st-multitool-prompt-search" class="st-multitool-input" placeholder="Tìm kiếm theo Tên hoặc Nội dung Prompt..." style="width: 100%; padding: 10px; padding-right: 35px; border-radius: 8px;">
-            <button id="st-multitool-prompt-search-clear" style="position: absolute; right: 10px; background: none; border: none; color: #888; cursor: pointer; display: none;" title="Xóa tìm kiếm"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+      <div id="st-multitool-manage-prompt-view" style="display: none; height: 100%; display: flex; flex-direction: row; overflow: hidden; gap: 0;">
+        <div class="ai-prompt-list-panel" style="flex: 1 1 auto; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;">
+          <div class="st-multitool-section-desc">
+            Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
           </div>
-          <button id="st-multitool-prompt-search-btn" class="st-multitool-btn-hero primary" style="padding: 10px 15px; flex: 0 0 auto;" title="Tìm kiếm">
-            <i data-lucide="search"></i>
-          </button>
-        </div>
-        <div style="margin-top: 8px;">
-            <label class="st-multitool-checkbox-label" style="font-size: 13px; color: var(--st-multitool-text-muted);">
-                <input type="checkbox" id="st-multitool-prompt-search-highlight-toggle"> Bật chế độ Highlight văn bản (Gây giật lag nếu văn bản quá lớn)
-            </label>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-          <button id="st-multitool-save-prompt-btn" class="st-multitool-btn-hero primary" style="flex: 1; min-width: 120px; padding: 8px 12px; min-height: 36px; font-size: 13px;">
-            <i data-lucide="save"></i> Lưu Preset
-          </button>
-          <button id="st-multitool-reset-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Hoàn tác">
-            <i data-lucide="rotate-ccw"></i>
-          </button>
-          <button id="st-multitool-add-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Thêm block mới">
-            <i data-lucide="plus"></i>
-          </button>
-          <button id="st-multitool-var-inspector-btn" class="st-multitool-btn-hero" style="flex: 1; min-width: 140px; background: linear-gradient(135deg, rgba(0,230,184,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(0,230,184,0.3); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Quét và hiển thị biến trong preset">
-            <i data-lucide="search-code"></i> Quét Biến
-          </button>
-          <button id="st-multitool-ai-agency-toggle-btn" class="st-multitool-btn-hero" style="flex: 1; min-width: 130px; background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(59,130,246,0.15)); border: 1px solid rgba(52,211,153,0.35); padding: 8px 12px; min-height: 36px; font-size: 13px; transition: all 0.2s ease;" title="Mở Trợ lý AI Agency để sửa preset">
-            <i data-lucide="bot"></i> AI Agency
-          </button>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="font-size: 12px; color: #ccc;" title="Đồng bộ lưu file gốc">Đồng bộ</span>
-            <label class="st-multitool-toggle-switch" style="margin: 0; transform: scale(0.85); transform-origin: right center;" title="Đồng bộ lưu file gốc">
-              <input type="checkbox" id="st-multitool-auto-save-preset-toggle" checked>
-              <span class="st-multitool-toggle-slider"></span>
-            </label>
+          <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <div style="flex: 1; position: relative; display: flex; align-items: center;">
+              <input type="text" id="st-multitool-prompt-search" class="st-multitool-input" placeholder="Tìm kiếm theo Tên hoặc Nội dung Prompt..." style="width: 100%; padding: 10px; padding-right: 35px; border-radius: 8px;">
+              <button id="st-multitool-prompt-search-clear" style="position: absolute; right: 10px; background: none; border: none; color: #888; cursor: pointer; display: none;" title="Xóa tìm kiếm"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+            </div>
+            <button id="st-multitool-prompt-search-btn" class="st-multitool-btn-hero primary" style="padding: 10px 15px; flex: 0 0 auto;" title="Tìm kiếm">
+              <i data-lucide="search"></i>
+            </button>
           </div>
-        </div>
-        <div style="margin-bottom: 12px; flex-shrink: 0;">
+          <div style="margin-top: 8px;">
+              <label class="st-multitool-checkbox-label" style="font-size: 13px; color: var(--st-multitool-text-muted);">
+                  <input type="checkbox" id="st-multitool-prompt-search-highlight-toggle"> Bật chế độ Highlight văn bản (Gây giật lag nếu văn bản quá lớn)
+              </label>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+            <button id="st-multitool-save-prompt-btn" class="st-multitool-btn-hero primary" style="flex: 1; min-width: 120px; padding: 8px 12px; min-height: 36px; font-size: 13px;">
+              <i data-lucide="save"></i> Lưu Preset
+            </button>
+            <button id="st-multitool-reset-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Hoàn tác">
+              <i data-lucide="rotate-ccw"></i>
+            </button>
+            <button id="st-multitool-add-prompt-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Thêm block mới">
+              <i data-lucide="plus"></i>
+            </button>
+            <button id="st-multitool-var-inspector-btn" class="st-multitool-btn-hero" style="flex: 1; min-width: 140px; background: linear-gradient(135deg, rgba(0,230,184,0.15), rgba(167,139,250,0.15)); border: 1px solid rgba(0,230,184,0.3); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Quét và hiển thị biến trong preset">
+              <i data-lucide="search-code"></i> Quét Biến
+            </button>
+            <button id="st-multitool-ai-agency-toggle-btn" class="st-multitool-btn-hero" style="flex: 1; min-width: 130px; background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(59,130,246,0.15)); border: 1px solid rgba(52,211,153,0.35); padding: 8px 12px; min-height: 36px; font-size: 13px; transition: all 0.2s ease;" title="Mở Trợ lý AI Agency để sửa preset">
+              <i data-lucide="bot"></i> AI Agency
+            </button>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 12px; color: #ccc;" title="Đồng bộ lưu file gốc">Đồng bộ</span>
+              <label class="st-multitool-toggle-switch" style="margin: 0; transform: scale(0.85); transform-origin: right center;" title="Đồng bộ lưu file gốc">
+                <input type="checkbox" id="st-multitool-auto-save-preset-toggle" checked>
+                <span class="st-multitool-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div style="margin-bottom: 12px; flex-shrink: 0;">
 
-          <!-- Add Block Modal -->
-          <div id="st-multitool-add-prompt-modal" style="display: none; margin-bottom: 10px; background: rgba(30,36,48,0.92); border: 1px solid rgba(52,211,153,0.25); border-radius: 10px; padding: 14px 16px;">
-            <div style="font-size: 13px; font-weight: 600; color: rgba(52,211,153,0.9); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-              <i data-lucide="plus-circle" style="width:14px;height:14px;"></i> Thêm Prompt Block mới
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 130px; gap: 8px; margin-bottom: 8px;">
-              <input type="text" id="st-multitool-new-prompt-name" class="st-multitool-input" placeholder="Tên block..." style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; box-sizing: border-box;">
-              <select id="st-multitool-new-prompt-role" class="st-multitool-input" style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; background: rgba(20,24,32,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-sizing: border-box;">
-                <option value="system">System</option>
-                <option value="user">User</option>
-                <option value="assistant">AI Assistant</option>
-              </select>
-            </div>
-            <div style="display: grid; grid-template-columns: 80px 1fr; gap: 8px; margin-bottom: 8px; align-items: center;">
-              <span style="font-size: 12px; color: var(--st-multitool-text-muted); line-height: 1.2;">Vị trí thêm:</span>
-              <select id="st-multitool-new-prompt-insert-pos" class="st-multitool-input" style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; background: rgba(20,24,32,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-sizing: border-box;">
-                <option value="bottom">Cuối danh sách</option>
-                <option value="top">Đầu danh sách</option>
-              </select>
-            </div>
-            <textarea id="st-multitool-new-prompt-content" class="st-multitool-input" placeholder="Nội dung prompt (có thể để trống rồi chỉnh sửa sau)..." style="width: 100%; min-height: 80px; padding: 8px 10px; border-radius: 7px; font-size: 12px; resize: vertical; font-family: 'Consolas', monospace; box-sizing: border-box; margin-bottom: 8px;"></textarea>
-            <div style="display: flex; gap: 8px;">
-              <button id="st-multitool-new-prompt-linked-btn" class="st-multitool-btn-hero primary" style="flex: 1; padding: 7px 10px; font-size: 12px; min-height: 32px;" title="Thêm vào Linked (hiệu lực với preset hiện tại)">
-                <i data-lucide="link" style="width:13px;height:13px;"></i> Thêm vào Linked
-              </button>
-              <button id="st-multitool-new-prompt-unlinked-btn" class="st-multitool-btn-hero" style="flex: 1; padding: 7px 10px; font-size: 12px; min-height: 32px; background: rgba(255,255,255,0.08);" title="Thêm vào Unlinked (lưu trữ, chưa kích hoạt)">
-                <i data-lucide="unlink" style="width:13px;height:13px;"></i> Thêm vào Unlinked
-              </button>
-              <button id="st-multitool-new-prompt-cancel-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; padding: 7px 12px; font-size: 12px; min-height: 32px; background: rgba(255,92,92,0.1); border: 1px solid rgba(255,92,92,0.2);" title="Hủy">
-                <i data-lucide="x" style="width:13px;height:13px;"></i>
-              </button>
-            </div>
-          </div>
-
-          <div id="st-multitool-var-inspector-panel" style="display: none; margin-top: 10px;">
-            <div id="st-multitool-var-inspector-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
-              <div style="flex: 1; position: relative; display: flex; align-items: center;">
-                <input type="text" id="st-multitool-vi-search" class="st-multitool-input" placeholder="Tìm tên biến…" style="width: 100%; padding: 8px 10px; padding-right: 30px; border-radius: 8px;">
-                <button id="st-multitool-vi-search-clear" style="position: absolute; right: 8px; background: none; border: none; color: #888; cursor: pointer; display: none;" title="Xóa tìm kiếm"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+            <!-- Add Block Modal -->
+            <div id="st-multitool-add-prompt-modal" style="display: none; margin-bottom: 10px; background: rgba(30,36,48,0.92); border: 1px solid rgba(52,211,153,0.25); border-radius: 10px; padding: 14px 16px;">
+              <div style="font-size: 13px; font-weight: 600; color: rgba(52,211,153,0.9); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="plus-circle" style="width:14px;height:14px;"></i> Thêm Prompt Block mới
               </div>
-              <button class="st-multitool-vi-scope-btn active" data-scope="all" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Tất cả</button>
-              <button class="st-multitool-vi-scope-btn" data-scope="local" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Local</button>
-              <button class="st-multitool-vi-scope-btn" data-scope="global" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Global</button>
+              <div style="display: grid; grid-template-columns: 1fr 130px; gap: 8px; margin-bottom: 8px;">
+                <input type="text" id="st-multitool-new-prompt-name" class="st-multitool-input" placeholder="Tên block..." style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; box-sizing: border-box;">
+                <select id="st-multitool-new-prompt-role" class="st-multitool-input" style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; background: rgba(20,24,32,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-sizing: border-box;">
+                  <option value="system">System</option>
+                  <option value="user">User</option>
+                  <option value="assistant">AI Assistant</option>
+                </select>
+              </div>
+              <div style="display: grid; grid-template-columns: 80px 1fr; gap: 8px; margin-bottom: 8px; align-items: center;">
+                <span style="font-size: 12px; color: var(--st-multitool-text-muted); line-height: 1.2;">Vị trí thêm:</span>
+                <select id="st-multitool-new-prompt-insert-pos" class="st-multitool-input" style="width: 100%; padding: 7px 10px; border-radius: 7px; font-size: 13px; background: rgba(20,24,32,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-sizing: border-box;">
+                  <option value="bottom">Cuối danh sách</option>
+                  <option value="top">Đầu danh sách</option>
+                </select>
+              </div>
+              <textarea id="st-multitool-new-prompt-content" class="st-multitool-input" placeholder="Nội dung prompt (có thể để trống rồi chỉnh sửa sau)..." style="width: 100%; min-height: 80px; padding: 8px 10px; border-radius: 7px; font-size: 12px; resize: vertical; font-family: 'Consolas', monospace; box-sizing: border-box; margin-bottom: 8px;"></textarea>
+              <div style="display: flex; gap: 8px;">
+                <button id="st-multitool-new-prompt-linked-btn" class="st-multitool-btn-hero primary" style="flex: 1; padding: 7px 10px; font-size: 12px; min-height: 32px;" title="Thêm vào Linked (hiệu lực với preset hiện tại)">
+                  <i data-lucide="link" style="width:13px;height:13px;"></i> Thêm vào Linked
+                </button>
+                <button id="st-multitool-new-prompt-unlinked-btn" class="st-multitool-btn-hero" style="flex: 1; padding: 7px 10px; font-size: 12px; min-height: 32px; background: rgba(255,255,255,0.08);" title="Thêm vào Unlinked (lưu trữ, chưa kích hoạt)">
+                  <i data-lucide="unlink" style="width:13px;height:13px;"></i> Thêm vào Unlinked
+                </button>
+                <button id="st-multitool-new-prompt-cancel-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; padding: 7px 12px; font-size: 12px; min-height: 32px; background: rgba(255,92,92,0.1); border: 1px solid rgba(255,92,92,0.2);" title="Hủy">
+                  <i data-lucide="x" style="width:13px;height:13px;"></i>
+                </button>
+              </div>
             </div>
-            <div id="st-multitool-var-inspector-status" style="font-size: 0.8em; color: #888; margin-bottom: 8px;"></div>
-            <div id="st-multitool-var-inspector-body" style="display: flex; flex-direction: column; gap: 8px; max-height: 40vh; min-height: 150px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; resize: vertical;"></div>
+
+            <div id="st-multitool-var-inspector-panel" style="display: none; margin-top: 10px;">
+              <div id="st-multitool-var-inspector-toolbar" style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center;">
+                <div style="flex: 1; position: relative; display: flex; align-items: center;">
+                  <input type="text" id="st-multitool-vi-search" class="st-multitool-input" placeholder="Tìm tên biến…" style="width: 100%; padding: 8px 10px; padding-right: 30px; border-radius: 8px;">
+                  <button id="st-multitool-vi-search-clear" style="position: absolute; right: 8px; background: none; border: none; color: #888; cursor: pointer; display: none;" title="Xóa tìm kiếm"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
+                </div>
+                <button class="st-multitool-vi-scope-btn active" data-scope="all" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Tất cả</button>
+                <button class="st-multitool-vi-scope-btn" data-scope="local" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Local</button>
+                <button class="st-multitool-vi-scope-btn" data-scope="global" style="padding: 6px 12px; border-radius: 6px; cursor: pointer;">Global</button>
+              </div>
+              <div id="st-multitool-var-inspector-status" style="font-size: 0.8em; color: #888; margin-bottom: 8px;"></div>
+              <div id="st-multitool-var-inspector-body" style="display: flex; flex-direction: column; gap: 8px; max-height: 40vh; min-height: 150px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; resize: vertical;"></div>
+            </div>
           </div>
+          <div id="st-multitool-prompt-list-container" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;"></div>
         </div>
-        <div id="st-multitool-prompt-list-container" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;"></div>
       </div>
 
     </div>
