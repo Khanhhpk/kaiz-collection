@@ -60,10 +60,12 @@ function appendBubble(role, content, opts = {}) {
         <div class="ai-bubble-content">${escapeHtml(content)}</div>
       </div>`;
   } else if (role === 'tool') {
-    const icon = opts.ok ? '⚡' : '⚠️';
+    const icon = opts.ok
+      ? '<i data-lucide="check-circle" style="width:13px;height:13px;color:#34d399;vertical-align:-2px;margin-right:4px;"></i>'
+      : '<i data-lucide="alert-triangle" style="width:13px;height:13px;color:#fbbf24;vertical-align:-2px;margin-right:4px;"></i>';
     bubbleHtml = `
       <div class="ai-bubble ai-bubble-tool">
-        <span class="ai-tool-label">${icon} <b>${escapeHtml(opts.toolName || 'tool')}</b></span>
+        <span class="ai-tool-label">${icon}<b>${escapeHtml(opts.toolName || 'tool')}</b></span>
         <div class="ai-tool-result">${escapeHtml(typeof content === 'string' ? content : JSON.stringify(content))}</div>
       </div>`;
   } else {
@@ -80,6 +82,9 @@ function appendBubble(role, content, opts = {}) {
   if (role === 'assistant' && content) {
     updateAssistantBubbleHtml($lastBubble, content);
     $lastBubble.find('.ai-bubble-content').removeClass('ai-streaming-content');
+  }
+  if (typeof refreshIcons === 'function' && $lastBubble[0]) {
+    refreshIcons($lastBubble[0]);
   }
   scrollToBottomIfFollowing($history, role === 'user' || opts.forceScroll);
 
@@ -124,7 +129,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     
     htmlParts.push(
       `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;">🧠 [DEV VIEW: Chain of Thought]</div>` +
+      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
       `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
       `</div>`
     );
@@ -134,7 +139,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     let cotText = parts.slice(1).join('<cot>').trim();
     htmlParts.push(
       `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;">🧠 [DEV VIEW: Chain of Thought]</div>` +
+      `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
       `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
       `</div>`
     );
@@ -159,7 +164,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     const jsonStr = match[1].trim();
     htmlParts.push(
       `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:monospace;font-size:11px;color:#e9d5ff;">` +
-      `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;">⚡ [DEV VIEW: Raw Tool Call]</div>` +
+      `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="wrench" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Raw Tool Call]</div>` +
       `<div style="white-space:pre-wrap;word-break:break-all;">${escapeHtml(jsonStr)}</div>` +
       `</div>`
     );
@@ -199,6 +204,9 @@ function updateAssistantBubbleHtml($bubble, rawText) {
       $content.html(formatAssistantBubbleHtml(rawText, false));
     }
   }
+  if (typeof refreshIcons === 'function' && $bubble[0]) {
+    refreshIcons($bubble[0]);
+  }
 }
 
 function refreshAllChatBubbles() {
@@ -226,20 +234,27 @@ function renderStreamingBuffer(streamBuffer) {
 
   if (_devView) {
     $last.html(formatAssistantBubbleHtml(streamBuffer, true));
+    if (typeof refreshIcons === 'function' && $last[0]) refreshIcons($last[0]);
     scrollToBottomIfFollowing($history);
     return;
   }
 
   // Nếu chưa gặp </cot> thì AI đang viết suy luận CoT (do prefill từ engine)
   if (!streamBuffer.includes('</cot>') && !streamBuffer.includes('<cot>')) {
-    $last.html('<div style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> 🧠 Đang suy luận kỹ thuật (CoT)...</div>');
+    if (!$last.find('.ai-cot-streaming-indicator').length) {
+      $last.html('<div class="ai-cot-streaming-indicator" style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> <i data-lucide="cpu" style="width:14px;height:14px;color:#64748b;"></i> Đang suy luận kỹ thuật (CoT)...</div>');
+      if (typeof refreshIcons === 'function' && $last[0]) refreshIcons($last[0]);
+    }
     scrollToBottomIfFollowing($history);
     return;
   }
 
   const cleaned = cleanAssistantText(streamBuffer);
   if (!cleaned) {
-    $last.html('<div style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> 🧠 Đang suy luận kỹ thuật (CoT)...</div>');
+    if (!$last.find('.ai-cot-streaming-indicator').length) {
+      $last.html('<div class="ai-cot-streaming-indicator" style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> <i data-lucide="cpu" style="width:14px;height:14px;color:#64748b;"></i> Đang suy luận kỹ thuật (CoT)...</div>');
+      if (typeof refreshIcons === 'function' && $last[0]) refreshIcons($last[0]);
+    }
     scrollToBottomIfFollowing($history);
     return;
   }
@@ -247,6 +262,7 @@ function renderStreamingBuffer(streamBuffer) {
   // Render markdown-lite
   const html = formatAssistantBubbleHtml(streamBuffer, false);
   $last.html(html);
+  if (typeof refreshIcons === 'function' && $last[0]) refreshIcons($last[0]);
   scrollToBottomIfFollowing($history);
 }
 
@@ -282,14 +298,14 @@ function renderToolPreview() {
     if (upd.identifier === '__ORDER__' || upd.identifier === '__VARS__' || upd.identifier === '__VAR_RENAMES__') continue;
     diffHtml += `
       <div class="ai-diff-item">
-        <div class="ai-diff-name">📝 Cập nhật block: <b>${escapeHtml(upd.name)}</b> <span class="ai-diff-fields">[${upd.fields.join(', ')}]</span></div>
+        <div class="ai-diff-name"><i data-lucide="file-edit" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Cập nhật block: <b>${escapeHtml(upd.name)}</b> <span class="ai-diff-fields">[${upd.fields.join(', ')}]</span></div>
       </div>`;
   }
   if (summary.varUpdates && summary.varUpdates.length > 0) {
     for (const v of summary.varUpdates) {
       diffHtml += `
         <div class="ai-diff-item" style="border-left: 3px solid #fde68a; background: rgba(253,230,138,0.08);">
-          <div class="ai-diff-name" style="color:#fde68a;">✏️ Cập nhật biến: <b>{{setvar::${escapeHtml(v.varName)}::...}}</b></div>
+          <div class="ai-diff-name" style="color:#fde68a;"><i data-lucide="edit-3" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Cập nhật biến: <b>{{setvar::${escapeHtml(v.varName)}::...}}</b></div>
           ${v.newValueExcerpt ? `<div style="font-size:11px;color:#cbd5e1;margin-top:2px;">"${escapeHtml(v.newValueExcerpt)}"</div>` : ''}
         </div>`;
     }
@@ -298,25 +314,28 @@ function renderToolPreview() {
     for (const r of summary.varRenames) {
       diffHtml += `
         <div class="ai-diff-item" style="border-left: 3px solid #c084fc; background: rgba(192,132,252,0.08);">
-          <div class="ai-diff-name" style="color:#e9d5ff;">🏷️ Đổi tên biến: <b style="color:#f87171;">${escapeHtml(r.oldName)}</b> ➔ <b style="color:#34d399;">${escapeHtml(r.newName)}</b></div>
+          <div class="ai-diff-name" style="color:#e9d5ff;"><i data-lucide="tag" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Đổi tên biến: <b style="color:#f87171;">${escapeHtml(r.oldName)}</b> ➔ <b style="color:#34d399;">${escapeHtml(r.newName)}</b></div>
         </div>`;
     }
   }
   if (summary.reorder && summary.reorder.length > 0) {
     diffHtml += `
       <div class="ai-diff-item" style="border-left: 3px solid #38bdf8; background: rgba(56,189,248,0.08);">
-        <div class="ai-diff-name" style="color:#38bdf8;">🔄 Sắp xếp lại thứ tự ${summary.reorder.length} prompt blocks</div>
+        <div class="ai-diff-name" style="color:#38bdf8;"><i data-lucide="arrow-up-down" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Sắp xếp lại thứ tự ${summary.reorder.length} prompt blocks</div>
       </div>`;
   }
   for (const c of summary.creates) {
-    diffHtml += `<div class="ai-diff-item ai-diff-create">➕ Tạo mới block: <b>${escapeHtml(c.name)}</b></div>`;
+    diffHtml += `<div class="ai-diff-item ai-diff-create"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Tạo mới block: <b>${escapeHtml(c.name)}</b></div>`;
   }
   for (const d of summary.deletes) {
-    diffHtml += `<div class="ai-diff-item ai-diff-delete">🗑️ Xóa block: <b>${escapeHtml(d.name)}</b></div>`;
+    diffHtml += `<div class="ai-diff-item ai-diff-delete"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:#f87171;"></i> Xóa block: <b>${escapeHtml(d.name)}</b></div>`;
   }
 
-  _$sidebar.find('.ai-preview-stats').text(`📋 ${summary.totalChanges} thay đổi đang chờ xác nhận`);
+  _$sidebar.find('.ai-preview-stats').html(`<i data-lucide="clipboard-list" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> ${summary.totalChanges} thay đổi đang chờ xác nhận`);
   _$sidebar.find('.ai-preview-diff').html(diffHtml);
+  if (typeof refreshIcons === 'function' && _$sidebar.find('.ai-tool-preview')[0]) {
+    refreshIcons(_$sidebar.find('.ai-tool-preview')[0]);
+  }
   _$sidebar.find('.ai-tool-preview').show();
 }
 
@@ -403,19 +422,19 @@ function buildSidebarHTML() {
     <div class="ai-agency-sidebar" id="st-multitool-ai-agency-sidebar">
       <!-- Header -->
       <div class="ai-header">
-        <span class="ai-header-title"><span class="ai-robot-icon">🤖</span> AI Agency</span>
+        <span class="ai-header-title"><i data-lucide="bot" style="width:18px;height:18px;margin-right:6px;vertical-align:-3px;color:#38bdf8;"></i> AI Agency</span>
         <div class="ai-header-actions">
           <button class="ai-icon-btn ai-dev-view-btn" title="Chế độ Dev View (Hiển thị CoT & Thẻ Tool Call)" style="${getDevButtonStyle()}">
-            🛠️ <span>Dev</span>
+            <i data-lucide="code" style="width:13px;height:13px;"></i> <span>Dev</span>
           </button>
           <button class="ai-icon-btn ai-debug-btn" title="Xem Debug Logs & Tải Trọng Gửi AI">
             <i data-lucide="terminal" style="width:14px;height:14px;"></i>
           </button>
           <button class="ai-icon-btn ai-clear-btn" title="Xóa lịch sử hội thoại">
-            <i data-lucide="refresh-ccw" style="width:14px;height:14px;"></i>
+            <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i>
           </button>
           <button class="ai-icon-btn ai-cfg-btn" title="Cài đặt LLM">
-            <i data-lucide="settings-2" style="width:14px;height:14px;"></i>
+            <i data-lucide="sliders" style="width:14px;height:14px;"></i>
           </button>
           <button class="ai-icon-btn ai-close-btn" title="Đóng AI Agency">
             <i data-lucide="x" style="width:14px;height:14px;"></i>
@@ -426,7 +445,7 @@ function buildSidebarHTML() {
       <!-- Config Panel (hidden by default) -->
       <div class="ai-config-panel" style="display:none;">
         <div style="font-size:11px;color:#38bdf8;margin-bottom:8px;padding:4px 6px;background:rgba(56,189,248,0.1);border-left:2px solid #38bdf8;border-radius:4px;">
-          ⚡ <b>Chế độ API Custom:</b> Đảm bảo chèn chính xác 3 Lớp Role (<code>system</code>, <code>user</code>, <code>assistant prefill</code>) để vượt rào (bypass safety filter) 100%.
+          <i data-lucide="zap" style="width:13px;height:13px;color:#38bdf8;vertical-align:-2px;margin-right:4px;"></i> <b>Chế độ API Custom:</b> Đảm bảo chèn chính xác 3 Lớp Role (<code>system</code>, <code>user</code>, <code>assistant prefill</code>) để vượt rào (bypass safety filter) 100%.
         </div>
         <div class="ai-cfg-row">
           <label class="ai-cfg-label">Endpoint</label>
@@ -461,14 +480,14 @@ function buildSidebarHTML() {
           <label class="ai-cfg-label">Max retries (lỗi API)</label>
           <input type="number" id="ai-cfg-retries" class="ai-cfg-input" style="width:100px;" value="3" min="0" max="15"> lần
         </div>
-        <button class="ai-save-cfg-btn">💾 Lưu cài đặt</button>
+        <button class="ai-save-cfg-btn"><i data-lucide="save" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Lưu cài đặt</button>
       </div>
 
       <!-- Debug Log Panel (hidden by default) -->
       <div class="ai-debug-panel" style="display:none;padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);max-height:340px;overflow-y:auto;background:rgba(15,23,42,0.95);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);">
-          <span style="font-weight:bold;color:#34d399;font-size:13px;">🔍 LLM Debug Logs & Tải Trọng Gửi Đi</span>
-          <button class="ai-clear-debug-btn" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;">🗑️ Xóa log</button>
+          <span style="font-weight:bold;color:#34d399;font-size:13px;"><i data-lucide="file-text" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> LLM Debug Logs & Tải Trọng Gửi Đi</span>
+          <button class="ai-clear-debug-btn" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;"><i data-lucide="trash-2" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"></i> Xóa log</button>
         </div>
         <div class="ai-debug-content"></div>
       </div>
@@ -486,8 +505,8 @@ function buildSidebarHTML() {
         <div class="ai-preview-stats"></div>
         <div class="ai-preview-diff"></div>
         <div class="ai-preview-actions">
-          <button class="ai-apply-btn">✅ Áp dụng</button>
-          <button class="ai-reject-btn">❌ Hủy</button>
+          <button class="ai-apply-btn"><i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Áp dụng</button>
+          <button class="ai-reject-btn"><i data-lucide="x-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Hủy</button>
         </div>
       </div>
 
@@ -535,7 +554,7 @@ function _injectSidebar() {
   _bindEvents();
 
   // Tin nhắn chào (chỉ một lần)
-  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
+  appendBubble('assistant', '<i data-lucide="hand" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
 }
 
 function _showSidebar() {
@@ -670,7 +689,7 @@ function _bindEvents() {
     _engine.clearHistory();
     _$sidebar.find('.ai-chat-history').empty();
     _isUserFollowingScroll = true;
-    appendBubble('assistant', '🗑️ Đã xóa lịch sử. Bắt đầu cuộc trò chuyện mới.');
+    appendBubble('assistant', '<i data-lucide="trash-2" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Đã xóa lịch sử. Bắt đầu cuộc trò chuyện mới.');
   });
 
   // Send message
@@ -743,20 +762,20 @@ function _bindEvents() {
           }
         } else if (!finalText && !currentAssistantBubble) {
           currentAssistantBubble = appendBubble('assistant', '');
-          finalizeStreamingBubble('⚠️ **API trả về phản hồi rỗng (0 tokens).**\n\n💡 *Cách xử lý:* Bấm vào biểu tượng **[🔍 Debug Logs]** (`>_`) trên thanh tiêu đề của AI Agency để xem chính xác dữ liệu đã gửi đi và phản hồi/lỗi chi tiết từ SillyTavern hoặc API LLM.');
+          finalizeStreamingBubble('<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#fbbf24;"></i> **API trả về phản hồi rỗng (0 tokens).**\n\n💡 *Cách xử lý:* Bấm vào biểu tượng **[<i data-lucide="terminal" style="width:13px;height:13px;vertical-align:-2px;"></i> Debug Logs]** (`>_`) trên thanh tiêu đề của AI Agency để xem chính xác dữ liệu đã gửi đi và phản hồi/lỗi chi tiết từ SillyTavern hoặc API LLM.');
         }
         if (hasStagingChanges()) renderToolPreview();
         setState('idle');
       },
       onError: (err) => {
         if (err?.name === 'AbortError') {
-          appendBubble('assistant', '⏹️ Đã dừng.');
+          appendBubble('assistant', '<i data-lucide="square" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Đã dừng.');
         } else {
           const errMsg = err?.message || String(err);
           if (!currentAssistantBubble) {
-            appendBubble('assistant', `⚠️ **Lỗi thực thi LLM:** ${errMsg}\n\n💡 Bấm vào nút **[🔍 Debug Logs]** trên thanh tiêu đề để xem chính xác lỗi và dữ liệu gửi đi.`);
+            appendBubble('assistant', `<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#fbbf24;"></i> **Lỗi thực thi LLM:** ${errMsg}\n\n💡 Bấm vào nút **[<i data-lucide="terminal" style="width:13px;height:13px;vertical-align:-2px;"></i> Debug Logs]** trên thanh tiêu đề để xem chính xác lỗi và dữ liệu gửi đi.`);
           } else {
-            finalizeStreamingBubble(streamBuffer + `\n\n⚠️ **Lỗi:** ${errMsg}`);
+            finalizeStreamingBubble(streamBuffer + `\n\n<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#fbbf24;"></i> **Lỗi:** ${errMsg}`);
             streamBuffer = '';
             currentAssistantBubble = null;
           }
@@ -780,7 +799,7 @@ function _bindEvents() {
   _$sidebar.find('.ai-stop-btn').on('click', () => {
     _engine.abort();
     setState('idle');
-    appendBubble('assistant', '⏹️ Đã dừng theo yêu cầu.');
+    appendBubble('assistant', '<i data-lucide="square" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Đã dừng theo yêu cầu.');
   });
 
   // Apply staging
@@ -790,7 +809,7 @@ function _bindEvents() {
       _$sidebar.find('.ai-tool-preview').hide();
       setState('idle');
       toastr.success('Đã áp dụng thay đổi vào Preset Editor!');
-      appendBubble('assistant', '✅ Đã áp dụng các thay đổi vào danh sách bên trái. Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
+      appendBubble('assistant', '<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Đã áp dụng các thay đổi vào danh sách bên trái. Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
       _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Chấp Nhận (Apply) tất cả các thay đổi staged vào Preset Editor. Danh sách block bên trái đã cập nhật thành công. Hãy ghi nhận trạng thái này đã được xác nhận và hỗ trợ tiếp nếu người dùng yêu cầu.]');
     } catch (e) {
       toastr.error('Lỗi khi áp dụng: ' + e.message);
@@ -802,7 +821,7 @@ function _bindEvents() {
     clearStaging();
     _$sidebar.find('.ai-tool-preview').hide();
     setState('idle');
-    appendBubble('assistant', '❌ Đã hủy tất cả thay đổi đang chờ.');
+    appendBubble('assistant', '<i data-lucide="x-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#f87171;"></i> Đã hủy tất cả thay đổi đang chờ.');
     _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Từ Chối (Reject) / Hủy bỏ toàn bộ đề xuất thay đổi staged vừa rồi. Các thay đổi đã bị xóa bỏ hoàn toàn khỏi bộ nhớ tạm. Hãy tiếp tục trò chuyện hoặc hỏi ý kiến người dùng để làm phương án khác.]');
   });
 }
