@@ -143,7 +143,7 @@ export function scanPromptContent(content, promptName, promptId) {
     const cleanName = name?.trim() || '';
     if (!cleanName) return;
     const id = `${promptId}::${cleanName}::${type}::${refs.length}`;
-    refs.push({ id, name: cleanName, type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: truncate(matchStr, 80) });
+    refs.push({ id, name: cleanName, type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: matchStr });
   };
 
   // 1. Balanced macro scanning for {{setvar::...}}, {{addvar::...}}, {{setglobalvar::...}}, {{getvar::...}}, {{getglobalvar::...}}
