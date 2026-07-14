@@ -83,7 +83,8 @@ export function getStagingSummary() {
       varUpdates = Object.entries(fields).map(([stId, info]) => ({
         varName: info?.varName || stId,
         promptId: info?.promptId || '',
-        newValueExcerpt: truncate(info?.newValue || '', 60)
+        newValue: info?.newValue || '',
+        newValueExcerpt: truncate(info?.newValue || '', 200)
       }));
     } else if (id === '__VAR_RENAMES__') {
       varRenames = Object.entries(fields).map(([oldName, newName]) => ({ oldName, newName }));
@@ -270,7 +271,7 @@ async function executeTool(name, args) {
         const lines = (p.content || '').split('\n');
         lines.forEach((line, i) => {
           if (line.toLowerCase().includes(query)) {
-            matches.push({ line: i + 1, excerpt: line.trim().slice(0, 120) });
+            matches.push({ line: i + 1, excerpt: line.trim().slice(0, 1000) });
           }
         });
         if (p.name.toLowerCase().includes(query)) {
