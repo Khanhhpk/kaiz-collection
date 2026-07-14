@@ -1,6 +1,7 @@
 import { escapeHtml, refreshIcons } from '../utils.js';
 import { showLoader, hideLoader, showSubView } from '../ui.js';
 import { getPendingVarChanges, clearPendingVarChanges, applyVarChangesToContent, refreshVarInspector } from './var-inspector.js';
+import { clearStaging } from '../ai/providers/preset-provider.js';
 
 let $promptListContainer;
 let $saveBtn;
@@ -203,6 +204,7 @@ export function initManagePrompt() {
         restoreOriginalSnapshot();
         clearPendingBlockChanges();
         clearPendingVarChanges();
+        clearStaging();
         if ($saveBtn && $saveBtn.length) {
           $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
           refreshIcons();
@@ -620,6 +622,98 @@ export function renderPromptBlocks() {
       handle: '.st-multitool-drag-handle',
     });
   }
+}
+
+// ─── Live Editor Snapshot (cho AI Agency đọc trạng thái làm việc real-time) ────
+export function getCurrentEditorSnapshot() {
+  const container = getPromptContainer();
+  if (!container || !Array.isArray(container.prompts)) return { prompts: [], prompt_order: [] };
+
+  const { renames = {}, valuesBySource = {} } = getPendingVarChanges() || {};
+  const hasVarChanges = Object.keys(renames).length > 0 || Object.keys(valuesBySource).length > 0;
+
+  const $activeItems = $('#st-multitool-prompt-list-active .st-multitool-wb-item');
+  const $inactiveItems = $('#st-multitool-prompt-list-inactive .st-multitool-wb-item');
+  const hasDomItems = $activeItems.length > 0 || $inactiveItems.length > 0;
+
+  const newPrompts = [];
+  const newPromptOrder = [];
+  const originalPrompts = container.prompts;
+
+  if (hasDomItems) {
+    const processItem = ($item, isActiveList) => {
+      const identifier = $item.attr('data-id');
+      if (!identifier || _pendingDeletes.has(identifier)) return;
+
+      const originalBlock = originalPrompts.find(p => String(p.identifier) === String(identifier))
+        || (_pendingAdds.find(p => p.block.identifier === identifier) || {}).block
+        || null;
+
+      if (!originalBlock?.identifier) return;
+
+      let content = $item.find('.st-multitool-prompt-content').val() ?? originalBlock.content ?? '';
+      if (hasVarChanges) content = applyVarChangesToContent(content, identifier, renames, valuesBySource);
+
+      const injPos = parseInt($item.find('.st-prompt-pos').val(), 10);
+      const depthVal = parseInt($item.find('.st-prompt-depth').val(), 10) || originalBlock.injection_depth || 0;
+      const orderVal = parseInt($item.find('.st-prompt-order').val(), 10) || originalBlock.injection_order || 100;
+
+      const newBlock = {
+        ...originalBlock,
+        identifier: originalBlock.identifier,
+        id: originalBlock.identifier,
+        name: $item.find('.st-prompt-name').val() || originalBlock.name || 'Unnamed Block',
+        enabled: $item.find('.st-multitool-prompt-enabled').is(':checked'),
+        content,
+        role: $item.find('.st-prompt-role').val() || originalBlock.role || 'system',
+        system_prompt: $item.find('.st-prompt-sys').is(':checked'),
+        marker: $item.find('.st-prompt-marker').is(':checked'),
+        forbid_overrides: $item.find('.st-prompt-forbid').is(':checked'),
+        injection_position: isNaN(injPos) ? (originalBlock.injection_position ?? 0) : injPos,
+        injection_depth: depthVal,
+        injection_order: orderVal,
+      };
+
+      newPrompts.push(newBlock);
+
+      if (isActiveList) {
+        newPromptOrder.push(newBlock.identifier);
+      }
+    };
+
+    $activeItems.each(function() { processItem($(this), true); });
+    $inactiveItems.each(function() { processItem($(this), false); });
+  } else {
+    originalPrompts.forEach(p => {
+      if (_pendingDeletes.has(p.identifier)) return;
+      let content = p.content || '';
+      if (hasVarChanges) content = applyVarChangesToContent(content, p.identifier, renames, valuesBySource);
+      newPrompts.push({ ...p, content });
+    });
+    _pendingAdds.forEach(p => {
+      if (_pendingDeletes.has(p.block.identifier)) return;
+      let content = p.block.content || '';
+      if (hasVarChanges) content = applyVarChangesToContent(content, p.block.identifier, renames, valuesBySource);
+      newPrompts.push({ ...p.block, content });
+    });
+
+    let promptOrder = [];
+    if (Array.isArray(container.prompt_order)) {
+      const flatOrder = (typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0]?.order))
+        ? container.prompt_order[0].order
+        : container.prompt_order;
+      promptOrder = flatOrder.map(item => typeof item === 'string' ? item : item?.identifier).filter(Boolean);
+    }
+    newPromptOrder.push(...promptOrder.filter(id => !_pendingDeletes.has(id)));
+    _pendingAdds.forEach(p => {
+      if (p.addToLinked && !_pendingDeletes.has(p.block.identifier)) {
+        if (p.insertTop) newPromptOrder.unshift(p.block.identifier);
+        else newPromptOrder.push(p.block.identifier);
+      }
+    });
+  }
+
+  return { prompts: newPrompts, prompt_order: newPromptOrder };
 }
 
 // ─── Save ─────────────────────────────────────────────────────────────────────

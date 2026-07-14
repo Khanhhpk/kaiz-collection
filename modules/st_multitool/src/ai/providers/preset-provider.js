@@ -4,7 +4,7 @@
  * Cung cấp 15 tools cho Agency Engine để đọc/ghi/quản lý ST Prompt Preset.
  */
 
-import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks } from '../../features/manage-prompt.js';
+import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks, getCurrentEditorSnapshot } from '../../features/manage-prompt.js';
 import { getPendingVarChanges, refreshVarInspector, scanPromptContent, applyVarChangesToContent } from '../../features/var-inspector.js';
 import { refreshIcons } from '../../utils.js';
 
@@ -36,18 +36,49 @@ function getContainer() {
 }
 
 function getPrompts() {
-  return getContainer()?.prompts || [];
+  const snapshot = typeof getCurrentEditorSnapshot === 'function'
+    ? getCurrentEditorSnapshot()
+    : { prompts: getContainer()?.prompts || [] };
+  const basePrompts = snapshot?.prompts || getContainer()?.prompts || [];
+
+  // Áp dụng thêm các thay đổi đang staged trong _stagingMap (chưa flush) nếu có
+  const prompts = basePrompts.map(p => {
+    if (_stagingDeletes.has(p.identifier)) return null;
+    if (_stagingMap.has(p.identifier)) {
+      const stagedFields = _stagingMap.get(p.identifier);
+      return { ...p, ...stagedFields, id: p.identifier };
+    }
+    return { ...p };
+  }).filter(Boolean);
+
+  // Thêm các block mới đang staged trong _stagingCreates
+  for (const created of _stagingCreates) {
+    if (!_stagingDeletes.has(created.identifier)) {
+      prompts.push({ ...created });
+    }
+  }
+
+  return prompts;
 }
 
 function getPromptOrder() {
+  if (_stagingMap.has('__ORDER__') && Array.isArray(_stagingMap.get('__ORDER__').order)) {
+    return _stagingMap.get('__ORDER__').order.filter(id => id && !_stagingDeletes.has(id));
+  }
+  const snapshot = typeof getCurrentEditorSnapshot === 'function'
+    ? getCurrentEditorSnapshot()
+    : null;
+  if (snapshot && Array.isArray(snapshot.prompt_order) && snapshot.prompt_order.length > 0) {
+    return snapshot.prompt_order.filter(id => id && !_stagingDeletes.has(id));
+  }
   const container = getContainer();
   if (!container) return [];
   const raw = container.prompt_order || [];
   if (!Array.isArray(raw) || raw.length === 0) return [];
   if (typeof raw[0] === 'object' && Array.isArray(raw[0].order)) {
-    return raw[0].order.map(o => typeof o === 'string' ? o : o.identifier).filter(Boolean);
+    return raw[0].order.map(o => typeof o === 'string' ? o : o.identifier).filter(id => id && !_stagingDeletes.has(id));
   }
-  return raw.map(o => typeof o === 'string' ? o : o.identifier).filter(Boolean);
+  return raw.map(o => typeof o === 'string' ? o : o.identifier).filter(id => id && !_stagingDeletes.has(id));
 }
 
 function findPrompt(identifier) {
@@ -119,6 +150,15 @@ export function getStagingSummary() {
 export async function flushStaging() {
   const container = getContainer();
   if (!container) throw new Error('Không tìm thấy ST container');
+
+  // 0. Trước khi flush staging của AI Agency, đồng bộ toàn bộ chỉnh sửa DOM hiện tại của Preset Editor vào container.prompts
+  if (typeof getCurrentEditorSnapshot === 'function') {
+    const currentSnapshot = getCurrentEditorSnapshot();
+    if (currentSnapshot && Array.isArray(currentSnapshot.prompts) && currentSnapshot.prompts.length > 0) {
+      container.prompts.length = 0;
+      currentSnapshot.prompts.forEach(p => container.prompts.push(JSON.parse(JSON.stringify(p))));
+    }
+  }
 
   // 1. Apply reorder_prompts (__ORDER__) nếu có
   if (_stagingMap.has('__ORDER__')) {
