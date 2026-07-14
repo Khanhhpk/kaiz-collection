@@ -438,8 +438,8 @@ function buildSidebarHTML() {
           <input type="number" id="ai-cfg-maxout" class="ai-cfg-input" style="width:100px;" value="4000"> tokens
         </div>
         <div class="ai-cfg-row">
-          <label class="ai-cfg-label">Max tool loops</label>
-          <input type="number" id="ai-cfg-maxiter" class="ai-cfg-input" style="width:100px;" value="30" min="1" max="200"> lượt/task
+          <label class="ai-cfg-label">Max Auto Agent</label>
+          <input type="number" id="ai-cfg-maxiter" class="ai-cfg-input" style="width:100px;" value="30" min="1" max="200"> Số Call/1 task
         </div>
         <button class="ai-save-cfg-btn">💾 Lưu cài đặt</button>
       </div>
