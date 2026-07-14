@@ -109,7 +109,7 @@ export function showMainView(isBack = false) {
   $('#st-multitool-popup-back-btn').hide();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
   setTimeout(() => { 
-    refreshIcons(document.getElementById('st-multitool-main-view'));
+    refreshIcons();
     if (isBack && elements.body) {
       elements.body.scrollTop(_mainViewScrollPos);
     }
@@ -243,7 +243,7 @@ export async function showSubView(viewId) {
   $('#st-multitool-popup-back-btn').show();
   $(`#${viewId}`).show();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, viewId);
-  setTimeout(() => { refreshIcons(document.getElementById(viewId)); }, 10);
+  setTimeout(() => { refreshIcons(); }, 10);
 }
 
 $(document).on('input', '.st-multitool-search-input', function() {

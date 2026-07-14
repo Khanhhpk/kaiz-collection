@@ -135,7 +135,7 @@ export function initManagePrompt() {
         captureOriginalSnapshot();
         renderPromptBlocks();
         $('#st-multitool-prompt-search').val('').trigger('input');
-        refreshIcons(document.getElementById('st-multitool-manage-prompt-view'));
+        refreshIcons();
       } finally {
         hideLoader();
       }
@@ -205,7 +205,7 @@ export function initManagePrompt() {
         clearPendingVarChanges();
         if ($saveBtn && $saveBtn.length) {
           $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
-          refreshIcons($saveBtn[0]);
+          refreshIcons();
         }
         renderPromptBlocks();
         if (typeof refreshVarInspector === 'function') refreshVarInspector();

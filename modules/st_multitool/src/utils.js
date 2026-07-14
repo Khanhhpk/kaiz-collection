@@ -33,18 +33,28 @@ export function refreshIcons(rootEl = null) {
   if (rootEl) {
     rootNode = rootEl instanceof jQuery ? rootEl[0] : (typeof rootEl === 'string' ? document.querySelector(rootEl) : rootEl);
   } else {
-    rootNode = document.getElementById('st-multitool-modal') || document.body;
+    rootNode = document.getElementById('st-multitool-popup') || document.getElementById('st-multitool-modal') || document.body;
   }
   if (!rootNode) return;
 
-  // Check if there are un-converted icons (i.e. tags with data-lucide that are NOT <svg>)
-  const pendingIcons = rootNode.querySelectorAll('i[data-lucide], span[data-lucide], [data-lucide]:not(svg)');
-  if (pendingIcons.length === 0) return; // Zero work if already rendered!
+  // Check if rootNode itself is a pending icon element
+  const isSelfPending = rootNode.hasAttribute && rootNode.hasAttribute('data-lucide') && rootNode.tagName && rootNode.tagName.toLowerCase() !== 'svg';
+  const pendingIcons = rootNode.querySelectorAll ? rootNode.querySelectorAll('i[data-lucide], span[data-lucide], [data-lucide]:not(svg)') : [];
+  if (!isSelfPending && pendingIcons.length === 0) return; // Zero work if already rendered!
 
-  window.lucide.createIcons({ root: rootNode });
+  // If rootNode is the icon itself (e.g. <i> tag), createIcons needs the parent container to replace it
+  const targetRoot = isSelfPending ? (rootNode.parentElement || rootNode) : rootNode;
+  window.lucide.createIcons({ root: targetRoot });
 
-  // Mark all rendered <svg data-lucide="..."> so future checks do not re-parse/re-render them
-  const renderedSvgs = rootNode.querySelectorAll('svg[data-lucide]');
+  // Mark targetRoot itself if it became an <svg data-lucide="...">
+  if (targetRoot.hasAttribute && targetRoot.hasAttribute('data-lucide') && targetRoot.tagName && targetRoot.tagName.toLowerCase() === 'svg') {
+    const iconName = targetRoot.getAttribute('data-lucide');
+    targetRoot.setAttribute('data-lucide-rendered', iconName);
+    targetRoot.removeAttribute('data-lucide');
+  }
+
+  // Mark all rendered <svg data-lucide="..."> inside targetRoot so future checks do not re-parse/re-render them
+  const renderedSvgs = targetRoot.querySelectorAll ? targetRoot.querySelectorAll('svg[data-lucide]') : [];
   for (let i = 0; i < renderedSvgs.length; i++) {
     const svg = renderedSvgs[i];
     const iconName = svg.getAttribute('data-lucide');
