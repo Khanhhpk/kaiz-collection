@@ -252,12 +252,20 @@ function openEntryEditPanel(uid) {
   const pOut = entry.recursion ? entry.recursion.prevent_outgoing : (entry.prevent_recursion || false);
   $('#st-multitool-manage-wb-entry-prevent-in').prop('checked', pIn);
   $('#st-multitool-manage-wb-entry-prevent-out').prop('checked', pOut);
-
+  $manageWbEditPanel.removeClass('collapsed');
+  $manageWbEditPanel.find('.st-multitool-section-content').show();
+  const $icon = $manageWbEditPanel.find('.st-multitool-collapse-icon');
+  if ($icon.length) {
+    $icon.replaceWith('<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>');
+  }
   $manageWbEditPanel.show();
+  refreshIcons($manageWbEditPanel[0]);
 }
 
 function hideEntryEditPanel() {
   $manageWbEditPanel.hide();
+  $manageWbEditPanel.removeClass('collapsed');
+  $manageWbEditPanel.find('.st-multitool-section-content').show();
   $('#st-multitool-manage-wb-entry-uid').val('');
 }
 

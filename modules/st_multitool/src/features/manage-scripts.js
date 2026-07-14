@@ -21,11 +21,6 @@ export function initManageScripts() {
   $('#st-multitool-manage-script-save-btn').on('click', handleSaveScript);
   $('#st-multitool-manage-script-cancel-btn').on('click', hideScriptEditPanel);
 
-  $('#st-multitool-manage-script-edit-panel .st-multitool-edit-panel-header').on('click', function(e) {
-    if ($(e.target).closest('.st-multitool-card-header-actions').length) return;
-    const $panel = $(this).closest('.st-multitool-edit-panel-collapsible');
-    $panel.toggleClass('collapsed');
-  });
 
   $('#st-multitool-manage-script-view').on('click', '.st-multitool-manage-script-card-header', function() {
     const targetId = $(this).data('target');
@@ -153,8 +148,15 @@ async function openScriptEditPanel(scriptId, type) {
     $('#st-multitool-manage-script-info').val(script.authorNote || script.note || script.info || '');
     $('#st-multitool-manage-script-enabled').prop('checked', script.enabled !== false);
 
+    $manageScriptEditPanel.removeClass('collapsed');
+    $manageScriptEditPanel.find('.st-multitool-section-content').show();
+    const $icon = $manageScriptEditPanel.find('.st-multitool-collapse-icon');
+    if ($icon.length) {
+      $icon.replaceWith('<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>');
+    }
     $manageScriptEditPanel.show();
     $manageScriptEditPanel.find('.st-multitool-manage-script-edit-title').text(`Sửa script ${type === 'global' ? 'Toàn cục' : type === 'preset' ? 'Preset' : 'Nhân vật'}`);
+    refreshIcons($manageScriptEditPanel[0]);
   } catch (e) {
     toastr.error('Tải script thất bại: ' + e.message);
   }
@@ -162,6 +164,8 @@ async function openScriptEditPanel(scriptId, type) {
 
 function hideScriptEditPanel() {
   $manageScriptEditPanel.hide();
+  $manageScriptEditPanel.removeClass('collapsed');
+  $manageScriptEditPanel.find('.st-multitool-section-content').show();
   currentScriptId = '';
   currentScriptType = '';
 }

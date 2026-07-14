@@ -67,11 +67,27 @@ async function init() {
     $("#st-multitool-popup").on(
       "click",
       ".st-multitool-section-header:has(.st-multitool-collapse-icon)",
-      function () {
-        const $content = $(this)
-          .closest(".st-multitool-section")
-          .find(".st-multitool-section-content");
+      function (e) {
+        if ($(e.target).closest('.st-multitool-card-header-actions').length) return;
+        const $section = $(this).closest(".st-multitool-section");
+        const $content = $section.find(".st-multitool-section-content");
         const $icon = $(this).find(".st-multitool-collapse-icon");
+
+        if ($section.hasClass('st-multitool-edit-panel-collapsible')) {
+          const isCollapsing = !$section.hasClass('collapsed');
+          if (isCollapsing) {
+            $section.addClass('collapsed');
+            $content.slideUp(200);
+            $icon.replaceWith(`<i data-lucide="chevron-down" class="st-multitool-collapse-icon"></i>`);
+          } else {
+            $section.removeClass('collapsed');
+            $content.slideDown(200);
+            $icon.replaceWith(`<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>`);
+          }
+          refreshIcons($(this)[0]);
+          return;
+        }
+
         if ($content.is(":visible")) {
           $content.slideUp(200);
           $icon.replaceWith(`<i data-lucide="chevron-down" class="st-multitool-collapse-icon"></i>`);
