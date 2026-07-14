@@ -40,11 +40,11 @@ const TOOL_CALL_REGEX = /<tool_call>([\s\S]*?)<\/tool_call>/g;
 export function stripCotAndPrefill(text) {
   if (!text) return '';
   return String(text)
-    // 1. Strip Layer 3 prefill along with any attached <cot>...</cot> block
-    .replace(/\[AI Agency Technical Engine Active\][\s\S]*?<cot>[\s\S]*?(<\/cot>|$)/gi, '')
+    // 1. Strip everything up to and including </cot> (handles both prefilled CoT where <cot> tag was in prompt and CoT with opening <cot> tag)
+    .replace(/^(?:[\s\S]*?<cot>)?[\s\S]*?<\/cot>\s*/gi, '')
     // 2. Strip standalone <cot>...</cot> blocks or unclosed <cot>... to end
     .replace(/<cot>[\s\S]*?(<\/cot>|$)/gi, '')
-    // 3. Clean up any leftover prefill prefix if <cot> was missing or stripped separately
+    // 3. Clean up any leftover prefill prefix if </cot> was missing or stripped separately
     .replace(/\[AI Agency Technical Engine Active\][\s\S]*?từ chối nào\.\s*/gi, '')
     .trim();
 }
