@@ -1288,16 +1288,16 @@
               </div>
             </div>
 
-            <!-- Tên script -->
+            <!-- Tên Regex -->
             <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
-              <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#f8fafc;">Tên Script / Gợi nhớ:</span>
-              <input type="text" id="st-multitool-manage-regex-script-name" class="st-multitool-input" style="width: 100%; font-size: 14px; padding: 8px 10px; font-weight: 600; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: #f8fafc;" placeholder="Ví dụ: Lọc ký tự thừa / Format lời thoại...">
+              <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#f8fafc;">Tên Regex (Script Name):</span>
+              <input type="text" id="st-multitool-manage-regex-script-name" class="st-multitool-input" style="width: 100%; font-size: 14px; padding: 8px 10px; font-weight: 600; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: #f8fafc;" placeholder="Ví dụ: [Ẩn][Không gửi] tableEdit / Format lời thoại...">
             </div>
 
             <!-- Regex tìm kiếm (Khung to, rõ ràng) -->
             <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#38bdf8;">Biểu thức chính quy tìm kiếm (Find Regex):</span>
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#38bdf8;">Biểu thức tìm kiếm (Find Regex):</span>
                 <span style="font-size:11px; color:#94a3b8; font-family:monospace;">Hỗ trợ pattern JS: /pattern/flags hoặc chuỗi</span>
               </div>
               <textarea id="st-multitool-manage-regex-find-regex" class="st-multitool-textarea" rows="3" style="width: 100%; font-family: 'JetBrains Mono', Consolas, 'Fira Code', monospace; font-size: 14px; line-height: 1.5; color: #38bdf8; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; resize: vertical;" placeholder="Nhập regex (ví dụ: /<think>[\s\S]*?<\/think>/g)"></textarea>
@@ -1315,8 +1315,8 @@
             <!-- Cắt bỏ trước khi thay -->
             <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-                <span class="st-multitool-label" style="font-weight:600; font-size:12px; color:#e2e8f0;">Cắt bỏ chuỗi phụ (Trim Strings):</span>
-                <span style="font-size:11px; color:#64748b;">Mỗi chuỗi cần cắt bỏ nằm trên 1 dòng</span>
+                <span class="st-multitool-label" style="font-weight:600; font-size:12px; color:#e2e8f0;">Chuỗi cần loại bỏ (Trim Strings):</span>
+                <span style="font-size:11px; color:#64748b;">Mỗi chuỗi cần loại bỏ nằm trên 1 dòng</span>
               </div>
               <textarea id="st-multitool-manage-regex-trim-strings" class="st-multitool-textarea" rows="2" style="width: 100%; font-family: monospace; font-size: 13px; background: #1e293b; color: #cbd5e1; border: 1px solid #475569; border-radius: 6px; padding: 8px; resize: vertical;" placeholder="Cắt toàn cục các đoạn text thừa trước khi chạy replace..."></textarea>
             </div>
