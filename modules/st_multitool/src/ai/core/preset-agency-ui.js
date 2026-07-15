@@ -1,6 +1,6 @@
 /**
- * agency-ui.js
- * Chat sidebar UI cho AI Agency trong Preset Editor.
+ * preset-agency-ui.js
+ * Chat sidebar UI cho AI Agency Preset trong Preset Editor.
  * State machine: idle → streaming → tool_calling → pending_confirm → idle
  */
 

@@ -10,7 +10,7 @@ import { initManageScripts, renderManageScriptLists } from "./features/manage-sc
 import { initManageRegex, renderManageRegexLists } from "./features/manage-regex.js";
 import { initManagePrompt } from "./features/manage-prompt.js";
 import { initVarInspector } from "./features/var-inspector.js";
-import { initAIAgency } from "./ai/core/agency-ui.js";
+import { initAIAgency } from "./ai/core/preset-agency-ui.js";
 import { initRegexAgencyUI } from "./ai/core/regex-agency-ui.js";
 import {
   closePopup,
