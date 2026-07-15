@@ -406,6 +406,7 @@ export async function applyStagedSingle(type, key) {
         const idxA = orderMap.has(a.identifier) ? orderMap.get(a.identifier) : 999999;
         const idxB = orderMap.has(b.identifier) ? orderMap.get(b.identifier) : 999999;
         return idxA - idxB;
+      });
       const rawOrder = container.prompt_order || [];
       let oldOrderItems = [];
       let isNested = false;
