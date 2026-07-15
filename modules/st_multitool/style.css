@@ -741,6 +741,17 @@
   cursor: pointer;
 }
 
+.st-multitool-manage-regex-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.st-multitool-manage-regex-item:hover .st-multitool-regex-pill {
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+}
+
 .st-multitool-badge {
   display: inline-block;
   padding: 2px 8px;

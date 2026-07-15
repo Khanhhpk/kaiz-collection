@@ -23,6 +23,27 @@ export function initManageRegex() {
   $('#st-multitool-manage-regex-render-btn').on('click', handleRenderToFrontend);
 
 
+  $('#st-multitool-manage-regex-view').on('click', '.st-multitool-add-regex-btn', function(e) {
+    e.stopPropagation();
+    openNewRegexEditPanel($(this).data('regex-type') || 'global');
+  });
+
+  $('#st-multitool-manage-regex-test-btn').on('click', function() {
+    $('#st-multitool-manage-regex-tester-box').slideToggle(150, function() {
+      if ($(this).is(':visible')) runLiveRegexTest();
+    });
+  });
+
+  $('#st-multitool-manage-regex-tester-close').on('click', function() {
+    $('#st-multitool-manage-regex-tester-box').slideUp(150);
+  });
+
+  $('#st-multitool-manage-regex-test-input, #st-multitool-manage-regex-find-regex, #st-multitool-manage-regex-replace-string').on('input change', function() {
+    if ($('#st-multitool-manage-regex-tester-box').is(':visible')) {
+      runLiveRegexTest();
+    }
+  });
+
   $('#st-multitool-manage-regex-view').on('click', '.st-multitool-manage-script-card-header', function() {
     const targetId = $(this).data('target');
     if (targetId && targetId.startsWith('st-multitool-manage-regex')) {
@@ -74,6 +95,30 @@ export function initManageRegex() {
   });
 }
 
+function runLiveRegexTest() {
+  const input = $('#st-multitool-manage-regex-test-input').val();
+  const patternRaw = $('#st-multitool-manage-regex-find-regex').val();
+  const replaceStr = $('#st-multitool-manage-regex-replace-string').val() || '';
+  const $output = $('#st-multitool-manage-regex-test-output');
+  if (!input || !patternRaw) {
+    $output.val('');
+    return;
+  }
+  try {
+    let regexObj;
+    const match = patternRaw.match(/^\/(.*?)\/([gimsuy]*)$/);
+    if (match) {
+      regexObj = new RegExp(match[1], match[2] || 'g');
+    } else {
+      regexObj = new RegExp(patternRaw, 'g');
+    }
+    const result = input.replace(regexObj, replaceStr);
+    $output.val(result);
+  } catch (err) {
+    $output.val('⚠️ Lỗi cú pháp Regex: ' + err.message);
+  }
+}
+
 function debouncedRender() {
   if (renderDebounceTimer) clearTimeout(renderDebounceTimer);
   renderDebounceTimer = setTimeout(() => {
@@ -109,14 +154,31 @@ function renderRegexList($container, regexes, type) {
     const div = document.createElement('div');
     div.className = 'st-multitool-manage-regex-item';
     div.setAttribute('data-regex-id', regex.id);
+
+    const findPattern = regex.find_regex || '';
+    const shortPattern = findPattern.length > 55 ? findPattern.slice(0, 55) + '...' : (findPattern || 'Chưa nhập pattern');
+    const scopes = [];
+    if (regex.source?.ai_output) scopes.push('<span class="st-multitool-badge" style="background:rgba(14,165,233,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">AI Output</span>');
+    if (regex.source?.user_input) scopes.push('<span class="st-multitool-badge" style="background:rgba(99,102,241,0.2);color:#818cf8;border:1px solid rgba(129,140,248,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">User In</span>');
+    if (regex.source?.slash_command) scopes.push('<span class="st-multitool-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(192,132,252,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">Command</span>');
+    if (regex.source?.world_info) scopes.push('<span class="st-multitool-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">World Info</span>');
+    if (regex.destination?.display) scopes.push('<span class="st-multitool-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(52,211,153,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">Markdown Only</span>');
+    if (scopes.length === 0) scopes.push('<span class="st-multitool-badge" style="background:rgba(100,116,139,0.2);color:#94a3b8;font-size:10px;padding:1px 6px;border-radius:4px;">Chưa gán</span>');
+
     div.innerHTML = `
-      <div class="st-multitool-manage-regex-info">
-        <input type="checkbox" class="st-multitool-manage-regex-enabled" ${regex.enabled !== false ? 'checked' : ''}>
-        <span class="st-multitool-manage-regex-name">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
+      <div class="st-multitool-manage-regex-info" style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-right:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" class="st-multitool-manage-regex-enabled" ${regex.enabled !== false ? 'checked' : ''} style="cursor:pointer;flex-shrink:0;">
+          <span class="st-multitool-manage-regex-name" style="font-weight:700;font-size:14px;color:#f8fafc;">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-left:22px;flex-wrap:wrap;">
+          <div class="st-multitool-regex-pill" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:12px;color:#38bdf8;background:rgba(15,23,42,0.7);border:1px solid rgba(56,189,248,0.3);padding:2px 8px;border-radius:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(findPattern)}">/${escapeHtml(shortPattern)}/</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">${scopes.join('')}</div>
+        </div>
       </div>
-      <div class="st-multitool-manage-regex-actions">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành regex"><i data-lucide="download"></i></button>
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa"><i data-lucide="trash-2"></i></button>
+      <div class="st-multitool-manage-regex-actions" style="display:flex;align-items:center;gap:6px;">
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành JSON" style="padding:4px 8px;"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa" style="padding:4px 8px;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </div>
     `;
     fragment.appendChild(div);
@@ -141,6 +203,44 @@ async function toggleRegexEnabled(regexId, type, isEnabled) {
     toastr.error('Cập nhật thất bại: ' + e.message);
     renderManageRegexLists();
   }
+}
+
+async function openNewRegexEditPanel(type) {
+  currentRegexId = '__NEW__';
+  currentRegexType = type;
+
+  $('#st-multitool-manage-regex-id').val('__NEW__');
+  $('#st-multitool-manage-regex-script-name').val('');
+  $('#st-multitool-manage-regex-find-regex').val('');
+  $('#st-multitool-manage-regex-replace-string').val('');
+  $('#st-multitool-manage-regex-trim-strings').val('');
+
+  $('#st-multitool-manage-regex-enabled').prop('checked', true);
+  $('#st-multitool-manage-regex-run-on-edit').prop('checked', false);
+  $('#st-multitool-manage-regex-substitute-regex').val(0);
+  $('#st-multitool-manage-regex-min-depth').val('');
+  $('#st-multitool-manage-regex-max-depth').val('');
+
+  $('.st-multitool-manage-regex-placement-cb').prop('checked', false);
+  $('.st-multitool-manage-regex-placement-cb[value="2"]').prop('checked', true); // default AI Output
+
+  $('#st-multitool-manage-regex-markdown-only').prop('checked', false);
+  $('#st-multitool-manage-regex-prompt-only').prop('checked', false);
+
+  $('#st-multitool-manage-regex-min-depth-container').hide();
+  $('#st-multitool-manage-regex-max-depth-container').hide();
+  $('#st-multitool-manage-regex-tester-box').hide();
+  $('#st-multitool-manage-regex-preview-container').hide();
+
+  $manageRegexEditPanel.removeClass('collapsed');
+  $manageRegexEditPanel.find('.st-multitool-section-content').show();
+  const $icon = $manageRegexEditPanel.find('.st-multitool-collapse-icon');
+  if ($icon.length) {
+    $icon.replaceWith('<i data-lucide="chevron-up" class="st-multitool-collapse-icon"></i>');
+  }
+  $manageRegexEditPanel.show();
+  $manageRegexEditPanel.find('.st-multitool-manage-regex-edit-title').text(`+ Thêm Regex mới (${type === 'global' ? 'Toàn cục' : type === 'preset' ? 'Preset' : 'Cục bộ'})`);
+  refreshIcons($manageRegexEditPanel[0]);
 }
 
 async function openRegexEditPanel(regexId, type) {
@@ -188,6 +288,8 @@ async function openRegexEditPanel(regexId, type) {
 
     $('#st-multitool-manage-regex-min-depth-container').css('display', regex.substitute_regex === 1 ? 'flex' : 'none');
     $('#st-multitool-manage-regex-max-depth-container').css('display', regex.substitute_regex === 1 ? 'flex' : 'none');
+    $('#st-multitool-manage-regex-tester-box').hide();
+    $('#st-multitool-manage-regex-preview-container').hide();
 
     $manageRegexEditPanel.removeClass('collapsed');
     $manageRegexEditPanel.find('.st-multitool-section-content').show();
@@ -220,32 +322,41 @@ async function handleSaveRegex() {
     if (currentRegexType === 'character') targetOpt = { type: 'character', name: 'current' };
     targetOpt.render = 'debounced';
 
+    const trimRaw = $('#st-multitool-manage-regex-trim-strings').val() || '';
+    const regexData = {
+      script_name: $('#st-multitool-manage-regex-script-name').val() || 'Regex mới',
+      find_regex: $('#st-multitool-manage-regex-find-regex').val() || '',
+      replace_string: $('#st-multitool-manage-regex-replace-string').val() || '',
+      trim_strings: trimRaw.split('\n').map(s => s.trim()).filter(s => s !== ''),
+      enabled: $('#st-multitool-manage-regex-enabled').is(':checked'),
+      run_on_edit: $('#st-multitool-manage-regex-run-on-edit').is(':checked'),
+      substitute_regex: parseInt($('#st-multitool-manage-regex-substitute-regex').val()) || 0,
+      min_depth: $('#st-multitool-manage-regex-min-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-min-depth').val()) : null,
+      max_depth: $('#st-multitool-manage-regex-max-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-max-depth').val()) : null,
+      source: {
+        user_input: $('.st-multitool-manage-regex-placement-cb[value="1"]').is(':checked'),
+        ai_output: $('.st-multitool-manage-regex-placement-cb[value="2"]').is(':checked'),
+        slash_command: $('.st-multitool-manage-regex-placement-cb[value="4"]').is(':checked'),
+        world_info: $('.st-multitool-manage-regex-placement-cb[value="3"]').is(':checked'),
+        reasoning: $('.st-multitool-manage-regex-placement-cb[value="5"]').is(':checked'),
+      },
+      destination: {
+        display: $('#st-multitool-manage-regex-markdown-only').is(':checked'),
+        prompt: $('#st-multitool-manage-regex-prompt-only').is(':checked'),
+      }
+    };
+
     await updateTavernRegexesWith(regexes => {
-      const regex = regexes.find(r => r.id === currentRegexId);
-      if (regex) {
-        regex.script_name = $('#st-multitool-manage-regex-script-name').val();
-        regex.find_regex = $('#st-multitool-manage-regex-find-regex').val();
-        regex.replace_string = $('#st-multitool-manage-regex-replace-string').val();
-        const trimRaw = $('#st-multitool-manage-regex-trim-strings').val() || '';
-        regex.trim_strings = trimRaw.split('\n').map(s => s.trim()).filter(s => s !== '');
-        regex.enabled = $('#st-multitool-manage-regex-enabled').is(':checked');
-        regex.run_on_edit = $('#st-multitool-manage-regex-run-on-edit').is(':checked');
-        regex.substitute_regex = parseInt($('#st-multitool-manage-regex-substitute-regex').val()) || 0;
-        regex.min_depth = $('#st-multitool-manage-regex-min-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-min-depth').val()) : null;
-        regex.max_depth = $('#st-multitool-manage-regex-max-depth').val() !== '' ? parseInt($('#st-multitool-manage-regex-max-depth').val()) : null;
-
-        regex.source = {
-          user_input: $('.st-multitool-manage-regex-placement-cb[value="1"]').is(':checked'),
-          ai_output: $('.st-multitool-manage-regex-placement-cb[value="2"]').is(':checked'),
-          slash_command: $('.st-multitool-manage-regex-placement-cb[value="4"]').is(':checked'),
-          world_info: $('.st-multitool-manage-regex-placement-cb[value="3"]').is(':checked'),
-          reasoning: $('.st-multitool-manage-regex-placement-cb[value="5"]').is(':checked'),
-        };
-
-        regex.destination = {
-          display: $('#st-multitool-manage-regex-markdown-only').is(':checked'),
-          prompt: $('#st-multitool-manage-regex-prompt-only').is(':checked'),
-        };
+      if (currentRegexId === '__NEW__') {
+        regexes.push({
+          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'regex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+          ...regexData
+        });
+      } else {
+        const regex = regexes.find(r => r.id === currentRegexId);
+        if (regex) {
+          Object.assign(regex, regexData);
+        }
       }
       return regexes;
     }, targetOpt);
