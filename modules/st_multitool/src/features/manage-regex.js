@@ -164,8 +164,8 @@ function renderRegexList($container, regexes, type) {
     if (regex.source?.ai_output) scopes.push('<span class="st-multitool-badge" style="background:rgba(14,165,233,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">AI Output</span>');
     if (regex.source?.user_input) scopes.push('<span class="st-multitool-badge" style="background:rgba(99,102,241,0.2);color:#818cf8;border:1px solid rgba(129,140,248,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">User In</span>');
     if (regex.source?.slash_command) scopes.push('<span class="st-multitool-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(192,132,252,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">Command</span>');
-    if (regex.source?.world_info) scopes.push('<span class="st-multitool-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">World Info</span>');
-    if (regex.destination?.display) scopes.push('<span class="st-multitool-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(52,211,153,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">Markdown Only</span>');
+    if (regex.destination?.display) scopes.push('<span class="st-multitool-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(52,211,153,0.3);font-size:10px;padding:2px 6px;border-radius:4px;" title="Alter Chat Display (Markdown Only)">Chat Display (Markdown)</span>');
+    if (regex.destination?.prompt) scopes.push('<span class="st-multitool-badge" style="background:rgba(236,72,153,0.2);color:#f472b6;border:1px solid rgba(244,114,182,0.3);font-size:10px;padding:2px 6px;border-radius:4px;" title="Alter Outgoing Prompt">Prompt Only</span>');
     if (scopes.length === 0) scopes.push('<span class="st-multitool-badge" style="background:rgba(100,116,139,0.2);color:#94a3b8;font-size:10px;padding:2px 6px;border-radius:4px;">Chưa gán</span>');
 
     div.innerHTML = `
