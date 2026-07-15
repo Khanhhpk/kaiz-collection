@@ -715,6 +715,149 @@ async function executeTool(name, args) {
       return { ok: true, staged: true, summary: `Staged batch ${ok}/${updates.length} prompts`, results };
     }
 
+    case 'set_prompt_linked': {
+      const { identifier, linked, position } = args;
+      const p = findPrompt(identifier);
+      if (!p) return { error: `Không tìm thấy prompt: ${identifier}` };
+      if (typeof linked !== 'boolean') return { error: 'Thiếu tham số linked: true hoặc false' };
+
+      const currentOrder = getPromptOrder().slice();
+      const idx = currentOrder.indexOf(identifier);
+
+      if (linked) {
+        if (idx === -1) {
+          if (typeof position === 'number' && position >= 0 && position <= currentOrder.length) {
+            currentOrder.splice(position, 0, identifier);
+          } else {
+            currentOrder.push(identifier);
+          }
+        } else if (typeof position === 'number' && position >= 0 && position < currentOrder.length && position !== idx) {
+          currentOrder.splice(idx, 1);
+          currentOrder.splice(position, 0, identifier);
+        }
+      } else {
+        if (idx !== -1) {
+          currentOrder.splice(idx, 1);
+        }
+      }
+
+      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', {});
+      _stagingMap.get('__ORDER__').order = currentOrder;
+      return {
+        ok: true,
+        staged: true,
+        summary: `Staged chuyển block "${p.name}" thành ${linked ? `Linked (Vị trí: ${currentOrder.indexOf(identifier) + 1})` : 'Unlinked (Kho bên phải)'}`
+      };
+    }
+
+    case 'duplicate_prompt_block': {
+      const { identifier, newName } = args;
+      const p = findPrompt(identifier);
+      if (!p) return { error: `Không tìm thấy prompt gốc: ${identifier}` };
+      const blockName = newName || `${p.name} (Copy)`;
+      const isLinked = getPromptOrder().includes(identifier);
+      const blockData = {
+        name: blockName,
+        content: p.content || '',
+        role: p.role || 'system',
+        injection_position: p.injection_position || 0,
+        injection_depth: p.injection_depth ?? 4,
+        injection_order: p.injection_order ?? 100,
+        system_prompt: p.system_prompt,
+        marker: p.marker,
+        forbid_overrides: p.forbid_overrides,
+        addToLinked: isLinked,
+        insertTop: false
+      };
+      _stagingCreates.push(blockData);
+      return {
+        ok: true,
+        staged: true,
+        summary: `Staged nhân bản block "${p.name}" thành "${blockName}" (${isLinked ? 'Linked' : 'Unlinked'})`
+      };
+    }
+
+    case 'global_replace_in_prompts': {
+      const { target_string, replacement_string = '', only_linked = false } = args;
+      if (!target_string) return { error: 'Thiếu target_string cần thay thế' };
+      const prompts = getPrompts();
+      const linkedIds = new Set(getPromptOrder());
+      let modifiedCount = 0;
+      const modifiedBlocks = [];
+
+      for (const p of prompts) {
+        if (only_linked && !linkedIds.has(p.identifier)) continue;
+        if (!_stagingMap.has(p.identifier)) _stagingMap.set(p.identifier, {});
+        const currentContent = _stagingMap.get(p.identifier).content !== undefined ? _stagingMap.get(p.identifier).content : (p.content || '');
+        if (currentContent.includes(target_string)) {
+          _stagingMap.get(p.identifier).content = currentContent.split(target_string).join(replacement_string);
+          modifiedCount++;
+          modifiedBlocks.push(p.name);
+        }
+      }
+
+      if (modifiedCount === 0) {
+        return { ok: true, staged: false, summary: `Không tìm thấy đoạn văn bản "${target_string}" trong bất kỳ block nào.` };
+      }
+
+      return {
+        ok: true,
+        staged: true,
+        summary: `Staged thay thế toàn cục trong ${modifiedCount} block: ${modifiedBlocks.join(', ')}`,
+        modified_blocks: modifiedBlocks,
+        modified_count: modifiedCount
+      };
+    }
+
+    case 'validate_preset_syntax': {
+      const prompts = getPrompts();
+      const errors = [];
+      const warnings = [];
+
+      for (const p of prompts) {
+        const content = p.content || '';
+        const lines = content.split('\n');
+
+        const openMatches = content.match(/\{\{/g) || [];
+        const closeMatches = content.match(/\}\}/g) || [];
+        if (openMatches.length !== closeMatches.length) {
+          errors.push({
+            identifier: p.identifier,
+            name: p.name,
+            error: `Số lượng ngoặc nhọn mở {{ (${openMatches.length}) và đóng }} (${closeMatches.length}) không khớp nhau.`
+          });
+        }
+
+        lines.forEach((line, idx) => {
+          if (/\{\{(setvr|setva|getvr|setvar::[^:}]+$|\/getvar)/i.test(line)) {
+            warnings.push({
+              identifier: p.identifier,
+              name: p.name,
+              line: idx + 1,
+              warning: `Nghi vấn sai cú pháp biến/macro: "${line.trim()}"`
+            });
+          }
+          if (p.injection_depth !== undefined && p.injection_depth < 0) {
+            warnings.push({
+              identifier: p.identifier,
+              name: p.name,
+              warning: `Injection depth âm (${p.injection_depth}), có thể không hoạt động đúng.`
+            });
+          }
+        });
+      }
+
+      return {
+        ok: true,
+        total_blocks_checked: prompts.length,
+        error_count: errors.length,
+        warning_count: warnings.length,
+        errors,
+        warnings,
+        status: errors.length === 0 ? 'SYNTAX_OK' : 'SYNTAX_ERRORS_FOUND'
+      };
+    }
+
     // ── Write tools – Vars ──────────────────────────────────────────────────
 
     case 'update_var_value': {
@@ -907,12 +1050,18 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 - search_in_prompts — Tìm kiếm văn bản trong tất cả prompts (args: {"query": "..."}).
 - list_vars — Liệt kê tất cả biến {{setvar/getvar}} trong preset.
 
+[NHÓM KIỂM THỬ CÚ PHÁP & QA]
+- validate_preset_syntax — Quét toàn bộ preset để tự động kiểm tra lỗi ngoặc nhọn {{...}} chưa đóng, nghi vấn sai cú pháp biến setvar/getvar hoặc lỗi độ sâu chèn (args: {}).
+
 [NHÓM GHI – BLOCKS (Staged, lưu tạm thời vào bộ nhớ chờ duyệt)]
 - create_prompt_block — Tạo block mới (args: {"name": "...", "content": "...", "role": "system|user|assistant", "addToLinked": true|false, ...}).
 - delete_prompt_block — Đánh dấu xóa block (args: {"identifier": "..."}).
+- set_prompt_linked — Chuyển đổi trạng thái giữa Liên kết (Linked bên trái) và Chưa liên kết (Unlinked kho bên phải) kèm vị trí (args: {"identifier": "...", "linked": true|false, "position": 2}).
+- duplicate_prompt_block — Nhân bản ngay 1 block với 100% nội dung và metadata giữ nguyên (args: {"identifier": "...", "newName": "..."}).
 - update_prompt_content — Cập nhật toàn bộ nội dung 1 block (args: {"identifier": "...", "content": "..."}) -> ƯU TIÊN SỐ 1: Gửi nguyên vẹn toàn bộ nội dung block để bảo toàn cấu trúc và định dạng.
 - append_prompt_content — Nối thêm văn bản vào block (args: {"identifier": "...", "append_text": "..."}) -> FALLBACK KHI BỊ CẮT: Chỉ dùng khi block quá dài vượt token hoặc bị ngắt stream giữa chừng.
 - replace_in_prompt_content — Thay thế đúng đoạn target_string trong block (args: {"identifier": "...", "target_string": "...", "replacement_string": "..."}) -> FALLBACK KHI BỊ CẮT: Chỉ dùng khi update_prompt_content bị Safety Filter hoặc Token Limit ngắt giữa chừng.
+- global_replace_in_prompts — Tìm và thay thế từ khóa toàn cục trên tất cả các block cùng lúc (args: {"target_string": "...", "replacement_string": "...", "only_linked": true|false}).
 - update_prompt_name — Đổi tên block (args: {"identifier": "...", "name": "..."}).
 - update_prompt_meta — Cập nhật metadata (args: {"identifier": "...", "role": "...", "injection_position": 0, "injection_depth": 4}).
 - toggle_prompt_enabled — Bật/tắt block (args: {"identifier": "...", "enabled": true|false}).
@@ -930,7 +1079,7 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 QUY TRÌNH HOẠT ĐỘNG CHỦ ĐỘNG & TỰ ĐỘNG HÓA SIÊU VIỆT (AUTONOMOUS AGENT WORKFLOW)
 ================================================================================
 Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong việc khảo sát, ra quyết định và thực thi công việc mà không cần hỏi lại người dùng những chi tiết nhỏ:
-- Bước 1 (Chủ động Khảo sát - Proactive Discovery): Khi nhận yêu cầu chung (ví dụ "tối ưu preset", "sửa lỗi", "cải thiện CoT"), HÃY TỰ ĐỘNG gọi 'list_prompts' và 'list_vars' ngay lập tức để tự quét toàn bộ cấu trúc. Đừng bao giờ hỏi lại người dùng ID block hay chờ người dùng chỉ định tận tay! Nếu cần khảo sát kỹ nội dung toàn bộ block linked, hãy sử dụng ngay tool cấp cao 'get_all_linked_prompts'.
+- Bước 1 (Chủ động Khảo sát - Proactive Discovery): Khi nhận yêu cầu chung (ví dụ "tối ưu preset", "sửa lỗi", "cải thiện CoT"), HÃY TỰ ĐỘNG gọi 'list_prompts' và 'list_vars' ngay lập tức để tự quét toàn bộ cấu trúc. Đừng bao giờ hỏi lại người dùng ID block hay chờ người dùng chỉ định tận tay! Nếu cần khảo sát kỹ nội dung toàn bộ block linked, hãy sử dụng ngay tool cấp cao 'get_all_linked_prompts'. Nếu nghi ngờ có lỗi cú pháp, hãy tự động gọi 'validate_preset_syntax'.
 - Bước 2 (Suy luận Kế hoạch & Quyền Tự Quyết): Dùng <cot>...</cot> để suy luận và lên kế hoạch. NGUYÊN TẮC CỐT LÕI: ƯU TIÊN SỐ 1 là gửi NGUYÊN VẸN toàn bộ nội dung block bằng 'update_prompt_content' hoặc 'batch_update_prompts' để đảm bảo tính toàn vẹn văn bản. Bạn có toàn quyền quyết định số lượng block cần xử lý trong mỗi batch, cách phân chia bước đi và chiến lược tối ưu hóa để hoàn thành trọn vẹn yêu cầu của người dùng một cách nhanh chóng và chính xác nhất!
 - Bước 3 (Tự Động Kế Tiếp Vòng Lặp - Continuous Execution): Sau khi gọi tool ghi (Batch 1), hệ thống sẽ tự động quay vòng lặp gửi kết quả lại cho bạn. Bạn KHÔNG ĐƯỢC dừng lại hay chờ người dùng xác nhận giữa chừng, mà phải tự động thực thi tiếp Batch 2, Batch 3... cho đến khi hoàn tất 100% kế hoạch!
 - Bước 4 (Tự động Gỡ lỗi - Autonomous Self-Correction): Nếu gọi tool bị lỗi (tham số sai, không tìm thấy ID...), hãy tự động đọc lỗi trong <cot>...</cot>, tự điều chỉnh tham số hoặc gọi 'get_prompt_content' kiểm tra lại, sau đó GỌI LẠI TOOL sửa lỗi ngay lập tức!
@@ -953,11 +1102,15 @@ Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong v
       { name: 'get_prompt_content',     description: 'Đọc nội dung chi tiết 1 prompt', args: ['identifier'] },
       { name: 'search_in_prompts',     description: 'Tìm kiếm trong prompts', args: ['query'] },
       { name: 'list_vars',             description: 'Liệt kê tất cả biến' },
+      { name: 'validate_preset_syntax', description: 'Kiểm thử lỗi cú pháp ngoặc nhọn {{...}} và macro trên toàn preset' },
       { name: 'create_prompt_block',   description: 'Tạo block mới (staged)', args: ['name', 'content', 'role', 'addToLinked'] },
       { name: 'delete_prompt_block',   description: 'Xóa block (staged)', args: ['identifier'] },
+      { name: 'set_prompt_linked',     description: 'Chuyển trạng thái Liên kết/Chưa liên kết kèm vị trí (staged)', args: ['identifier', 'linked', 'position?'] },
+      { name: 'duplicate_prompt_block', description: 'Nhân bản 1 block với 100% nội dung và meta cũ (staged)', args: ['identifier', 'newName?'] },
       { name: 'update_prompt_content', description: 'Cập nhật nội dung (staged)', args: ['identifier', 'content'] },
       { name: 'append_prompt_content', description: 'Nối thêm nội dung vào block (staged - an toàn cho block nhạy cảm/dài)', args: ['identifier', 'append_text'] },
       { name: 'replace_in_prompt_content', description: 'Thay thế đúng đoạn văn bản trong block (staged - kháng safety filter/chống ngắt)', args: ['identifier', 'target_string', 'replacement_string'] },
+      { name: 'global_replace_in_prompts', description: 'Tìm & thay thế từ khóa toàn cục trên tất cả block (staged)', args: ['target_string', 'replacement_string', 'only_linked?'] },
       { name: 'update_prompt_name',    description: 'Đổi tên block (staged)', args: ['identifier', 'name'] },
       { name: 'update_prompt_meta',    description: 'Cập nhật metadata (staged)', args: ['identifier', '...fields'] },
       { name: 'toggle_prompt_enabled', description: 'Bật/tắt block (staged)', args: ['identifier', 'enabled'] },
