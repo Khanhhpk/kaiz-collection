@@ -10,6 +10,7 @@ let currentRegexes = [];
 let currentRegexId = '';
 let currentRegexType = '';
 let renderDebounceTimer = null;
+let liveTestDebounceTimer = null;
 
 export function initManageRegex() {
   $manageRegexGlobalList = $('#st-multitool-manage-regex-global-list');
@@ -40,7 +41,10 @@ export function initManageRegex() {
 
   $('#st-multitool-manage-regex-test-input, #st-multitool-manage-regex-find-regex, #st-multitool-manage-regex-replace-string').on('input change', function() {
     if ($('#st-multitool-manage-regex-tester-box').is(':visible')) {
-      runLiveRegexTest();
+      if (liveTestDebounceTimer) clearTimeout(liveTestDebounceTimer);
+      liveTestDebounceTimer = setTimeout(() => {
+        runLiveRegexTest();
+      }, 250);
     }
   });
 
@@ -130,9 +134,11 @@ function debouncedRender() {
 
 export async function renderManageRegexLists() {
   try {
-    const globalRegexes = await getTavernRegexes({ type: 'global' }) || [];
-    const presetRegexes = await getTavernRegexes({ type: 'preset', name: 'in_use' }) || [];
-    const characterRegexes = await getTavernRegexes({ type: 'character', name: 'current' }) || [];
+    const [globalRegexes, presetRegexes, characterRegexes] = await Promise.all([
+      getTavernRegexes({ type: 'global' }).catch(() => []),
+      getTavernRegexes({ type: 'preset', name: 'in_use' }).catch(() => []),
+      getTavernRegexes({ type: 'character', name: 'current' }).catch(() => [])
+    ]);
 
     renderRegexList($manageRegexGlobalList, globalRegexes, 'global');
     renderRegexList($manageRegexPresetList, presetRegexes, 'preset');
