@@ -551,15 +551,6 @@ function buildRegexSidebarHTML() {
           <button class="ai-reject-btn"><i data-lucide="x-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Hủy tất cả</button>
         </div>
       </div>
-
-      <!-- Suggestion Pills -->
-      <div style="padding:8px 14px 0 14px;display:flex;flex-wrap:wrap;gap:6px;">
-        <span class="ai-regex-pill" data-prompt="Tạo regex lọc bỏ toàn bộ thẻ <think>...</think> và nội dung suy nghĩ bên trong trước khi hiển thị cho người dùng." style="font-size:11px;background:rgba(168,85,247,0.15);color:#d8b4fe;border:1px solid rgba(192,132,252,0.3);padding:3px 8px;border-radius:12px;cursor:pointer;">⚡ Lọc thẻ &lt;think&gt;</span>
-        <span class="ai-regex-pill" data-prompt="Tự động kiểm tra và tối ưu hóa hiệu năng của Regex mục tiêu hiện tại, loại bỏ nguy cơ giật lag do catastrophic backtracking." style="font-size:11px;background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:3px 8px;border-radius:12px;cursor:pointer;">🛡️ Tối ưu chống giật lag</span>
-        <span class="ai-regex-pill" data-prompt="Tạo regex chuyển đổi cú pháp [IMG_GEN]mô tả ảnh[/IMG_GEN] sang định dạng thẻ ảnh Markdown ![image](https://pollinations.ai/prompt/mô%20tả%20ảnh) hiển thị trong khung chat." style="font-size:11px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);padding:3px 8px;border-radius:12px;cursor:pointer;">🖼️ Tạo ảnh Markdown</span>
-        <span class="ai-regex-pill" data-prompt="Giải thích chi tiết ý nghĩa từng nhóm và cờ (flags) của Regex mục tiêu hiện tại, đồng thời gợi ý cải tiến." style="font-size:11px;background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);padding:3px 8px;border-radius:12px;cursor:pointer;">💡 Giải thích & Đánh giá</span>
-      </div>
-
       <!-- Input Area -->
       <div class="ai-input-area">
         <textarea class="ai-input-textarea" placeholder="Nhập yêu cầu Regex cho AI Agent... (Shift+Enter xuống dòng)" rows="2"></textarea>
@@ -706,15 +697,6 @@ function _bindEvents() {
     populateRegexAgencyDropdown();
     toastr.info('Đã làm mới danh sách Regex mục tiêu.');
   });
-
-  // Suggestion Pills click
-  _$sidebar.find('.ai-regex-pill').on('click', function() {
-    const promptText = $(this).attr('data-prompt');
-    const $textarea = _$sidebar.find('.ai-input-textarea');
-    $textarea.val(promptText);
-    $textarea.focus();
-  });
-
   // Clear history
   _$sidebar.find('.ai-clear-btn').on('click', () => {
     _engine.clearHistory();

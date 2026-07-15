@@ -2,6 +2,7 @@ import { generateUUID, refreshIcons } from '../utils.js';
 import { extractContentFromMessage } from './sync.js';
 import { isDefaultCollapse } from './settings.js';
 import { updateTavernRegexesWith, updateScriptTreesWith } from '../api.js';
+import { importRegexToSandbox } from './manage-regex.js';
 
 export let extractedFrontendCards = [];
 export let extractedScriptCards = [];
@@ -51,12 +52,6 @@ export function initScripts() {
   $crLoadBtn = $('#st-multitool-cr-load-btn');
   $crFileInput = $('#st-multitool-cr-file-input');
 
-  $mainImportRegexBtn = $('#st-multitool-main-import-regex-btn');
-  $mainImportRegexOptions = $('#st-multitool-main-import-regex-options');
-  $mainImportRegexGlobalBtn = $('#st-multitool-main-import-regex-global-btn');
-  $mainImportRegexPresetBtn = $('#st-multitool-main-import-regex-preset-btn');
-  $mainImportRegexCharacterBtn = $('#st-multitool-main-import-regex-character-btn');
-  $mainRegexFileInput = $('#st-multitool-main-regex-file-input');
 
   $ssExtractBtn = $('#st-multitool-ss-extract-btn');
   $ssCardsContainer = $('#st-multitool-ss-cards-container');
@@ -84,82 +79,6 @@ export function initScripts() {
   $crDownloadBtn.on('click', () => handleRegexDownload('cr'));
   $crLoadBtn.on('click', () => $crFileInput.click());
   $crFileInput.on('change', e => handleRegexFileLoad(e, 'cr'));
-
-  $mainImportRegexBtn.on('click', () => {
-    const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
-    if (isCharacterSelected) {
-      $mainImportRegexCharacterBtn.show();
-    } else {
-      $mainImportRegexCharacterBtn.hide();
-    }
-    $mainImportRegexOptions.slideToggle();
-  });
-
-  $mainImportRegexGlobalBtn.on('click', () => {
-    currentRegexImportTarget = 'global';
-    $mainRegexFileInput.click();
-  });
-  $mainImportRegexPresetBtn.on('click', () => {
-    currentRegexImportTarget = 'preset';
-    $mainRegexFileInput.click();
-  });
-  $mainImportRegexCharacterBtn.on('click', () => {
-    currentRegexImportTarget = 'character';
-    $mainRegexFileInput.click();
-  });
-
-  $mainRegexFileInput.on('change', function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async function (e) {
-      try {
-        const data = JSON.parse(e.target.result);
-
-        const tavernRegex = data.id ? data : {
-          id: data.id || generateUUID(),
-          script_name: data.scriptName || data.script_name || data.name || 'Regex chưa có tên',
-          enabled: data.disabled !== undefined ? !data.disabled : (data.enabled !== false),
-          find_regex: data.findRegex || data.find_regex || '<Mở bảng điều khiển>',
-          replace_string: data.replaceString || data.replace_string || data.content || '',
-          trim_strings: Array.isArray(data.trimStrings) ? data.trimStrings.join('\n') : (data.trim_strings || ''),
-          source: data.source || {
-            user_input: false,
-            ai_output: true,
-            slash_command: false,
-            world_info: false,
-            reasoning: false,
-          },
-          destination: data.destination || {
-            display: true,
-            prompt: false,
-          },
-          run_on_edit: data.runOnEdit || data.run_on_edit || false,
-          min_depth: data.minDepth || data.min_depth || null,
-          max_depth: data.maxDepth || data.max_depth || null,
-        };
-
-        let targetOpt = { type: 'global' };
-        if (currentRegexImportTarget === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
-        if (currentRegexImportTarget === 'character') targetOpt = { type: 'character', name: 'current' };
-
-        await updateTavernRegexesWith(regexes => {
-          regexes.push(tavernRegex);
-          return regexes;
-        }, targetOpt);
-        toastr.success(
-          `Nhập thành công vào ${currentRegexImportTarget === 'global' ? 'Toàn cục' : currentRegexImportTarget === 'preset' ? 'Preset' : 'Cục bộ'} regex!`,
-        );
-        $mainImportRegexOptions.slideUp();
-      } catch (err) {
-        toastr.error('Nhập thất bại: ' + err.message);
-      }
-      $mainRegexFileInput.val('');
-    };
-    reader.readAsText(file);
-  });
-
   $ssExtractBtn.on('click', () => handleExtractScript('ss'));
   $ssCardsContainer.on('click', '.ss-import-global-btn', function () {
     handleScriptImport('ss', 'global', $(this).data('id'));
@@ -418,20 +337,7 @@ export async function handleRegexImport(prefix, targetType, cardId = null) {
   if (regexObj.error) return toastr.warning(regexObj.error);
   try {
     const tavernRegex = convertToTavernRegex(regexObj);
-    
-    let targetOpt = { type: targetType };
-    if (targetType === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
-    if (targetType === 'character') targetOpt = { type: 'character', name: 'current' };
-
-    await updateTavernRegexesWith(
-      regexes => {
-        regexes.push(tavernRegex);
-        return regexes;
-      },
-      targetOpt,
-    );
-    const typeName = targetType === 'global' ? 'Toàn cục' : targetType === 'preset' ? 'Preset' : 'Cục bộ';
-    toastr.success(`Nhập thành công vào ${typeName} regex!`);
+    importRegexToSandbox(tavernRegex, targetType);
   } catch (e) {
     toastr.error(`Nhập thất bại: ${e.message}`);
   }

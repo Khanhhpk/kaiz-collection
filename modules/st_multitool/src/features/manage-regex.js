@@ -22,18 +22,66 @@ export function initManageRegex() {
   $manageRegexEditPanel = $('#st-multitool-manage-regex-edit-panel');
   initRegexAgencyUI();
 
-  $('#st-multitool-manage-regex-refresh-btn').off('click').on('click', () => {
-    if (_originalRegexSnapshot && JSON.stringify(_cachedAllRegexes) !== JSON.stringify(_originalRegexSnapshot)) {
-      if (!confirm('Bạn có thay đổi chưa lưu trong Sandbox. Tải lại từ SillyTavern sẽ làm mất các thay đổi này?')) return;
-    }
-    renderManageRegexLists(true);
-    toastr.info('Đã tải lại danh sách Regex gốc từ SillyTavern.');
-  });
-
   $('#st-multitool-manage-regex-save-all-btn').off('click').on('click', saveAllRegexesToST);
   $('#st-multitool-manage-regex-reset-all-btn').off('click').on('click', () => {
     if (!confirm('Xác nhận hoàn tác tất cả các thay đổi trong Sandbox về trạng thái gốc của SillyTavern?')) return;
     restoreOriginalRegexSnapshot();
+  });
+
+  let currentRegexImportTarget = 'global';
+  $('#st-multitool-manage-regex-import-btn').off('click').on('click', () => {
+    $('#st-multitool-manage-regex-import-drawer').slideToggle(150);
+  });
+  $('#st-multitool-manage-regex-import-global-btn').off('click').on('click', () => {
+    currentRegexImportTarget = 'global';
+    $('#st-multitool-manage-regex-file-input').click();
+  });
+  $('#st-multitool-manage-regex-import-preset-btn').off('click').on('click', () => {
+    currentRegexImportTarget = 'preset';
+    $('#st-multitool-manage-regex-file-input').click();
+  });
+  $('#st-multitool-manage-regex-import-character-btn').off('click').on('click', () => {
+    currentRegexImportTarget = 'character';
+    $('#st-multitool-manage-regex-file-input').click();
+  });
+
+  $('#st-multitool-manage-regex-file-input').off('change').on('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        const data = JSON.parse(evt.target.result);
+        const tavernRegex = data.id ? data : {
+          id: data.id || ('regex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)),
+          script_name: data.scriptName || data.script_name || data.name || 'Regex chưa có tên',
+          enabled: data.disabled !== undefined ? !data.disabled : (data.enabled !== false),
+          find_regex: data.findRegex || data.find_regex || '<Mở bảng điều khiển>',
+          replace_string: data.replaceString || data.replace_string || data.content || '',
+          trim_strings: Array.isArray(data.trimStrings) ? data.trimStrings.join('\n') : (data.trim_strings || ''),
+          source: data.source || {
+            user_input: false,
+            ai_output: true,
+            slash_command: false,
+            world_info: false,
+            reasoning: false,
+          },
+          destination: data.destination || {
+            display: true,
+            prompt: false,
+          },
+          run_on_edit: data.runOnEdit || data.run_on_edit || false,
+          min_depth: data.minDepth || data.min_depth || null,
+          max_depth: data.maxDepth || data.max_depth || null,
+        };
+        importRegexToSandbox(tavernRegex, currentRegexImportTarget);
+        $('#st-multitool-manage-regex-import-drawer').slideUp(150);
+      } catch (err) {
+        toastr.error('Nhập tệp Regex thất bại: ' + err.message);
+      }
+      $('#st-multitool-manage-regex-file-input').val('');
+    };
+    reader.readAsText(file);
   });
 
   $('#st-multitool-manage-regex-save-btn').off('click').on('click', handleSaveRegex);
@@ -190,7 +238,7 @@ function debouncedRender() {
   }, 100);
 }
 
-export async function renderManageRegexLists(forceFetch = true) {
+export async function renderManageRegexLists(forceFetch = false) {
   try {
     if (forceFetch || !_originalRegexSnapshot) {
       const [globalRegexes, presetRegexes, characterRegexes] = await Promise.all([
@@ -657,5 +705,25 @@ function updateTargetRegexInfo() {
     }
   }
   if (typeof refreshIcons === 'function' && $info[0]) refreshIcons($info[0]);
+}
+
+export function importRegexToSandbox(tavernRegex, targetType = 'global') {
+  if (!_cachedAllRegexes[targetType]) _cachedAllRegexes[targetType] = [];
+  if (!tavernRegex.id) {
+    tavernRegex.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'regex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  }
+  _cachedAllRegexes[targetType].push(tavernRegex);
+  markRegexesDirty();
+  renderCachedRegexLists();
+  toastr.success(`Đã nhập Regex "${tavernRegex.script_name || 'chưa có tên'}" vào Sandbox (${targetType === 'global' ? 'Toàn cục' : targetType === 'preset' ? 'Preset' : 'Cục bộ'}). Nhấn "Lưu tất cả Regex" trên thanh công cụ để lưu chính thức vào SillyTavern!`);
+}
+
+export function cleanupManageRegexView() {
+  const $view = $('#st-multitool-manage-regex-view');
+  $view.removeClass('ai-agency-active');
+  $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+  hideRegexEditPanel();
+  $('#st-multitool-manage-regex-tester-box').hide();
+  $('#st-multitool-manage-regex-import-drawer').hide();
 }
 

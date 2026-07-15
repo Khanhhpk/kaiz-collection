@@ -196,7 +196,7 @@
               Thiết lập quy tắc biểu thức chính quy (Regex) để tự động hóa chỉnh sửa văn bản AI.
             </div>
             <div class="st-multitool-dash-card-body">
-              <div class="st-multitool-card-actions-grid">
+              <div class="st-multitool-card-actions-grid" style="grid-template-columns: 1fr;">
                 <button id="st-multitool-goto-manage-regex-btn" class="st-multitool-dash-btn highlight">
                   <i data-lucide="file-text"></i>
                   <div>
@@ -204,29 +204,6 @@
                     <small>Xem và bật/tắt quy tắc</small>
                   </div>
                 </button>
-                <button id="st-multitool-goto-create-regex-btn" class="st-multitool-dash-btn">
-                  <i data-lucide="plus"></i>
-                  <div>
-                    <span>Tạo Regex mới</span>
-                    <small>Thêm quy tắc mới</small>
-                  </div>
-                </button>
-                <button id="st-multitool-main-import-regex-btn" class="st-multitool-dash-btn">
-                  <i data-lucide="folder-open"></i>
-                  <div>
-                    <span>Nhập Regex</span>
-                    <small>Từ tệp tin .json</small>
-                  </div>
-                </button>
-              </div>
-              <div id="st-multitool-main-import-regex-options" class="st-multitool-import-drawer" style="display: none;">
-                <span class="st-multitool-label">Chọn đích nhập regex:</span>
-                <div class="st-multitool-drawer-btns">
-                  <button id="st-multitool-main-import-regex-global-btn" class="st-multitool-dash-btn-small">Toàn cục</button>
-                  <button id="st-multitool-main-import-regex-preset-btn" class="st-multitool-dash-btn-small">Preset</button>
-                  <button id="st-multitool-main-import-regex-character-btn" class="st-multitool-dash-btn-small">Nhân vật</button>
-                </div>
-                <input type="file" id="st-multitool-main-regex-file-input" style="display: none" accept=".json" />
               </div>
             </div>
           </div>
@@ -1202,7 +1179,7 @@
               </h4>
             </div>
             <div class="st-multitool-section-content" style="overflow: visible; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
-              <!-- Action Bar cho Regex (Lưu, Hoàn tác, AI Agency) -->
+              <!-- Action Bar cho Regex (Lưu, Hoàn tác, Nhập Regex, AI Agency) -->
               <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
                 <button id="st-multitool-manage-regex-save-all-btn" class="st-multitool-btn-hero primary" style="flex: 1; min-width: 140px; padding: 8px 12px; min-height: 36px; font-size: 13px;">
                   <i data-lucide="save"></i> Lưu tất cả Regex
@@ -1210,12 +1187,21 @@
                 <button id="st-multitool-manage-regex-reset-all-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Hoàn tác tất cả thay đổi chưa lưu (Reset Sandbox)">
                   <i data-lucide="rotate-ccw"></i>
                 </button>
-                <button id="st-multitool-manage-regex-refresh-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Tải lại gốc từ SillyTavern">
-                  <i data-lucide="refresh-cw"></i>
+                <button id="st-multitool-manage-regex-import-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Nhập tệp tin .json Regex vào Sandbox">
+                  <i data-lucide="folder-open"></i> Nhập Regex
                 </button>
                 <button id="st-multitool-regex-ai-agency-toggle-btn-inline" class="st-multitool-btn-hero" style="flex: 1; min-width: 130px; background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18)); border: 1px solid rgba(192,132,252,0.45); color: #d8b4fe; padding: 8px 12px; min-height: 36px; font-size: 13px; font-weight: 600; border-radius: 6px; transition: all 0.2s ease;" title="Mở Trợ lý AI Agency bên tab side">
                   <i data-lucide="bot"></i> AI Agency Regex
                 </button>
+              </div>
+              <div id="st-multitool-manage-regex-import-drawer" class="st-multitool-import-drawer" style="display: none; margin-bottom: 8px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); padding: 12px; border-radius: 8px;">
+                <span class="st-multitool-label" style="display: block; margin-bottom: 8px; color: #e2e8f0; font-weight: 600; font-size: 13px;">Chọn đích để thêm vào Sandbox:</span>
+                <div class="st-multitool-drawer-btns" style="display: flex; gap: 8px;">
+                  <button id="st-multitool-manage-regex-import-global-btn" class="st-multitool-dash-btn-small" style="background: rgba(56,189,248,0.2); border: 1px solid #38bdf8; color: #38bdf8;">Toàn cục</button>
+                  <button id="st-multitool-manage-regex-import-preset-btn" class="st-multitool-dash-btn-small" style="background: rgba(192,132,252,0.2); border: 1px solid #c084fc; color: #c084fc;">Preset</button>
+                  <button id="st-multitool-manage-regex-import-character-btn" class="st-multitool-dash-btn-small" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; color: #34d399;">Nhân vật</button>
+                </div>
+                <input type="file" id="st-multitool-manage-regex-file-input" style="display: none" accept=".json" />
               </div>
               <div class="st-multitool-manage-script-cards st-multitool-regex-cards-grid" style="display: flex; flex-direction: column; gap: 14px; height: auto; overflow: visible;">
               <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">

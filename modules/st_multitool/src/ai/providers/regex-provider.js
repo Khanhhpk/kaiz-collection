@@ -4,7 +4,7 @@
  * Cung cấp tools cho Agency Engine để đọc/ghi/quản lý/test ST Regex rules qua Staging Buffer.
  */
 
-import { getTavernRegexes, updateTavernRegexesWith } from '../../api.js';
+import { getTavernRegexes } from '../../api.js';
 import { _cachedAllRegexes, renderCachedRegexLists, markRegexesDirty } from '../../features/manage-regex.js';
 
 // ─── Staging Buffer ───────────────────────────────────────────────────────────
