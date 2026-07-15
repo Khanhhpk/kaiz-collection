@@ -179,9 +179,9 @@ function renderRegexList($container, regexes, type) {
           <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${scopes.join('')}</div>
         </div>
       </div>
-      <div class="st-multitool-manage-regex-actions" style="display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;align-items:center !important;gap:6px !important;flex:0 0 auto !important;flex-shrink:0 !important;">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành JSON" style="padding:6px 10px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa" style="padding:6px 10px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+      <div class="st-multitool-manage-regex-actions" style="display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;flex:0 0 auto !important;flex-shrink:0 !important;">
+        <button class="st-multitool-regex-action-btn st-multitool-manage-regex-download" title="Tải xuống thành JSON" style="background: rgba(14,165,233,0.15); border: 1px solid rgba(56,189,248,0.35); color: #38bdf8; border-radius: 6px; padding: 7px 11px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; cursor: pointer;"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+        <button class="st-multitool-regex-action-btn st-multitool-manage-regex-delete" title="Xóa" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(248,113,113,0.35); color: #f87171; border-radius: 6px; padding: 7px 11px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; cursor: pointer;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </div>
     `;
     fragment.appendChild(div);

@@ -1793,3 +1793,63 @@ input:checked + .st-multitool-toggle-slider:before {
   font-size: 12px;
 }
 .ai-stop-btn:hover { background: rgba(248,113,113,0.2); }
+
+/* --- Modern Glassmorphic Regex Suite Buttons --- */
+.st-multitool-add-regex-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 230, 184, 0.35), rgba(0, 255, 204, 0.18)) !important;
+  border-color: #00ffd0 !important;
+  color: #fff !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 14px rgba(0, 230, 184, 0.35) !important;
+}
+.st-multitool-add-regex-btn:active {
+  transform: translateY(0) !important;
+}
+
+.st-multitool-manage-regex-download:hover {
+  background: rgba(14, 165, 233, 0.3) !important;
+  border-color: #38bdf8 !important;
+  color: #fff !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3) !important;
+}
+
+.st-multitool-manage-regex-delete:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+  border-color: #f87171 !important;
+  color: #fff !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.35) !important;
+}
+
+.st-multitool-regex-save-btn:hover {
+  background: linear-gradient(135deg, #00ffd0 0%, #00e6b8 100%) !important;
+  color: #021c15 !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 18px rgba(0, 230, 184, 0.45) !important;
+}
+
+.st-multitool-regex-cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.22) !important;
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.45) !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
+}
+
+.st-multitool-regex-test-btn:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.32) 0%, rgba(14, 165, 233, 0.22) 100%) !important;
+  border-color: #38bdf8 !important;
+  color: #fff !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 5px 15px rgba(56, 189, 248, 0.35) !important;
+}
+
+.st-multitool-regex-render-btn:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.38) 0%, rgba(168, 85, 247, 0.32) 100%) !important;
+  border-color: #c084fc !important;
+  color: #fff !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 18px rgba(168, 85, 247, 0.35) !important;
+}
+

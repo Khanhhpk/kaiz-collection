@@ -1204,7 +1204,7 @@
                     <i data-lucide="globe"></i> Regex toàn cục
                   </div>
                   <div style="display:flex;align-items:center;gap:6px;">
-                    <button type="button" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary st-multitool-add-regex-btn" data-regex-type="global" title="Thêm Regex toàn cục mới" style="padding:2px 8px;font-size:11px;">+ Thêm</button>
+                    <button type="button" class="st-multitool-add-regex-btn" data-regex-type="global" title="Thêm Regex toàn cục mới" style="background: linear-gradient(135deg, rgba(0, 230, 184, 0.2), rgba(0, 255, 204, 0.08)); border: 1px solid rgba(0, 230, 184, 0.45); color: #00ffd0; border-radius: 6px; padding: 4px 12px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0, 230, 184, 0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;">+ Thêm</button>
                     <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                   </div>
                 </div>
@@ -1218,7 +1218,7 @@
                     <i data-lucide="bookmark"></i> Regex preset
                   </div>
                   <div style="display:flex;align-items:center;gap:6px;">
-                    <button type="button" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary st-multitool-add-regex-btn" data-regex-type="preset" title="Thêm Regex preset mới" style="padding:2px 8px;font-size:11px;">+ Thêm</button>
+                    <button type="button" class="st-multitool-add-regex-btn" data-regex-type="preset" title="Thêm Regex preset mới" style="background: linear-gradient(135deg, rgba(0, 230, 184, 0.2), rgba(0, 255, 204, 0.08)); border: 1px solid rgba(0, 230, 184, 0.45); color: #00ffd0; border-radius: 6px; padding: 4px 12px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0, 230, 184, 0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;">+ Thêm</button>
                     <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                   </div>
                 </div>
@@ -1232,7 +1232,7 @@
                     <i data-lucide="user"></i> Regex cục bộ
                   </div>
                   <div style="display:flex;align-items:center;gap:6px;">
-                    <button type="button" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary st-multitool-add-regex-btn" data-regex-type="character" title="Thêm Regex cục bộ mới" style="padding:2px 8px;font-size:11px;">+ Thêm</button>
+                    <button type="button" class="st-multitool-add-regex-btn" data-regex-type="character" title="Thêm Regex cục bộ mới" style="background: linear-gradient(135deg, rgba(0, 230, 184, 0.2), rgba(0, 255, 204, 0.08)); border: 1px solid rgba(0, 230, 184, 0.45); color: #00ffd0; border-radius: 6px; padding: 4px 12px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0, 230, 184, 0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;">+ Thêm</button>
                     <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                   </div>
                 </div>
@@ -1247,9 +1247,9 @@
           <div class="st-multitool-section-header st-multitool-edit-panel-header" data-target="st-multitool-manage-regex-edit-content">
             <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
               <span><i data-lucide="edit"></i> <span class="st-multitool-manage-regex-edit-title">Sửa regex</span> <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>
-              <div class="st-multitool-card-header-actions">
-                <button id="st-multitool-manage-regex-save-btn" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary"><i data-lucide="save" style="width:14px;height:14px;"></i> Lưu Regex</button>
-                <button id="st-multitool-manage-regex-cancel-btn" class="st-multitool-button st-multitool-btn-small"><i data-lucide="x" style="width:14px;height:14px;"></i> Hủy</button>
+              <div class="st-multitool-card-header-actions" style="display:flex; gap:8px; align-items:center;">
+                <button id="st-multitool-manage-regex-save-btn" class="st-multitool-regex-save-btn" style="background: linear-gradient(135deg, #00e6b8 0%, #00b38f 100%); color: #042f24; border: 1px solid #00ffd0; font-weight: 700; font-size: 13px; border-radius: 6px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0, 230, 184, 0.25); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="save" style="width:14px;height:14px;"></i> Lưu Regex</button>
+                <button id="st-multitool-manage-regex-cancel-btn" class="st-multitool-regex-cancel-btn" style="background: rgba(100, 116, 139, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); font-weight: 600; font-size: 13px; border-radius: 6px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; cursor: pointer;"><i data-lucide="x" style="width:14px;height:14px;"></i> Hủy</button>
               </div>
             </h4>
           </div>
@@ -1266,7 +1266,7 @@
                 </div>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button id="st-multitool-manage-regex-test-btn" type="button" class="st-multitool-button st-multitool-btn-small" style="background: rgba(56,189,248,0.15); border: 1px solid #38bdf8; color: #38bdf8; font-weight:600;"><i data-lucide="play-circle" style="width:14px;height:14px;"></i> Kiểm thử Live Match</button>
+                <button id="st-multitool-manage-regex-test-btn" type="button" class="st-multitool-regex-test-btn" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(14, 165, 233, 0.12) 100%); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="play-circle" style="width:14px;height:14px;"></i> Kiểm thử Live Match</button>
               </div>
             </div>
 
@@ -1371,7 +1371,7 @@
 
             <!-- Action render preview -->
             <div style="margin-top: 6px; display:flex; justify-content:flex-start; gap:10px;">
-              <button id="st-multitool-manage-regex-render-btn" type="button" class="st-multitool-button st-multitool-btn-small" style="background:#1e293b; border:1px solid #475569;"><i data-lucide="eye"></i> Render HTML Preview</button>
+              <button id="st-multitool-manage-regex-render-btn" type="button" class="st-multitool-regex-render-btn" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%); color: #d8b4fe; border: 1px solid rgba(192, 132, 252, 0.45); border-radius: 6px; padding: 7px 16px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="eye" style="width:14px;height:14px;"></i> Render HTML Preview</button>
             </div>
             <div id="st-multitool-manage-regex-preview-container" style="display: none; margin-top: 10px; border: 1px solid var(--st-multitool-border); border-radius: 6px; background: #fff; min-height: 250px; overflow: auto;"></div>
           </div>
