@@ -1504,20 +1504,24 @@ input:checked + .st-multitool-toggle-slider:before {
   box-shadow: -6px 0 20px rgba(0,0,0,0.4);
 }
 
-#st-multitool-manage-prompt-view.ai-agency-active .ai-agency-sidebar {
+#st-multitool-manage-prompt-view.ai-agency-active .ai-agency-sidebar,
+#st-multitool-manage-regex-view.ai-agency-active .ai-agency-sidebar {
   display: flex;
 }
 
-/* Responsive: Trên màn hình hoặc khung hẹp (<= 950px), AI Agency chuyển thành overlay drawer nổi bên phải để không bóp nghẹt Preset Editor */
+/* Responsive: Trên màn hình hoặc khung hẹp (<= 950px), AI Agency chuyển thành overlay drawer nổi bên phải để không bóp nghẹt Preset/Regex Editor */
 @media (max-width: 950px) {
-  #st-multitool-manage-prompt-view.ai-agency-active {
+  #st-multitool-manage-prompt-view.ai-agency-active,
+  #st-multitool-manage-regex-view.ai-agency-active {
     position: relative !important;
   }
-  #st-multitool-manage-prompt-view.ai-agency-active .ai-prompt-list-panel {
+  #st-multitool-manage-prompt-view.ai-agency-active .ai-prompt-list-panel,
+  #st-multitool-manage-regex-view.ai-agency-active .st-multitool-regex-list-panel {
     min-width: 100% !important;
     width: 100% !important;
   }
-  #st-multitool-manage-prompt-view.ai-agency-active .ai-agency-sidebar {
+  #st-multitool-manage-prompt-view.ai-agency-active .ai-agency-sidebar,
+  #st-multitool-manage-regex-view.ai-agency-active .ai-agency-sidebar {
     position: absolute !important;
     right: 0 !important;
     top: 0 !important;

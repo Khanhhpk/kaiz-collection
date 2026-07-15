@@ -42,15 +42,31 @@ export function initManageRegex() {
   });
 
   // ─── AI Agency Regex Handlers ───
-  $('#st-multitool-send-to-regex-agency-btn').on('click', function() {
-    const $agencyCard = $('#st-multitool-manage-regex-agency-card');
-    $agencyCard.removeClass('collapsed');
-    populateRegexAgencyDropdown(currentRegexId);
-    $agencyCard[0]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    toastr.info('Đã tải Regex "' + ($('#st-multitool-manage-regex-script-name').val() || currentRegexId) + '" vào Trợ lý AI Agency!');
+  $('#st-multitool-regex-ai-agency-toggle-btn').on('click', function() {
+    const $view = $('#st-multitool-manage-regex-view');
+    $view.toggleClass('ai-agency-active');
+    if ($view.hasClass('ai-agency-active')) {
+      populateRegexAgencyDropdown();
+      $(this).css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
+    } else {
+      $(this).css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+    }
   });
 
-  $('#st-multitool-manage-regex-agency-content').on('click', '.st-multitool-regex-agency-pill', function() {
+  $('#st-multitool-regex-agency-close-btn').on('click', function() {
+    $('#st-multitool-manage-regex-view').removeClass('ai-agency-active');
+    $('#st-multitool-regex-ai-agency-toggle-btn').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+  });
+
+  $('#st-multitool-send-to-regex-agency-btn').on('click', function() {
+    const $view = $('#st-multitool-manage-regex-view');
+    $view.addClass('ai-agency-active');
+    $('#st-multitool-regex-ai-agency-toggle-btn').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
+    populateRegexAgencyDropdown(currentRegexId);
+    toastr.info('Đã tải Regex "' + ($('#st-multitool-manage-regex-script-name').val() || currentRegexId) + '" vào Trợ lý AI Agency bên tab side!');
+  });
+
+  $('#st-multitool-regex-agency-sidebar').on('click', '.st-multitool-regex-agency-pill', function() {
     const promptText = $(this).data('prompt');
     $('#st-multitool-regex-agency-prompt-input').val(promptText).focus();
   });
@@ -634,8 +650,8 @@ function runAIAgencyRegexTask() {
     $('#st-multitool-regex-agency-staging-box').slideDown(200);
 
     $runBtn.prop('disabled', false).html('<i data-lucide="cpu" style="width:16px;height:16px;"></i> Phân tích & Thực thi AI Agency');
-    if (typeof refreshIcons === 'function' && $('#st-multitool-manage-regex-agency-card')[0]) {
-      refreshIcons($('#st-multitool-manage-regex-agency-card')[0]);
+    if (typeof refreshIcons === 'function' && $('#st-multitool-regex-agency-sidebar')[0]) {
+      refreshIcons($('#st-multitool-regex-agency-sidebar')[0]);
     }
   }, 450);
 }
