@@ -96,42 +96,112 @@ function cleanAssistantText(text) {
   let s = String(text);
   // 1. Loại bỏ toàn bộ <tool_call>...</tool_call> (hoặc thẻ tool_call đang mở dở)
   s = s.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/gi, '');
-  
-  // 2. Loại bỏ CoT (<cot>...</cot> hoặc prefill bắt đầu trước </cot>)
+
+  // 2. Loại bỏ CoT (<cot>...</cot> hoặc <think>...</think> hoặc prefill)
   if (s.includes('</cot>')) {
     const parts = s.split('</cot>');
     s = parts.slice(1).join('</cot>');
   } else if (s.includes('<cot>')) {
     s = s.replace(/<cot>[\s\S]*?(<\/cot>|$)/gi, '');
   }
-  
+  if (s.includes('</think>')) {
+    const parts = s.split('</think>');
+    s = parts.slice(1).join('</think>');
+  } else if (s.includes('<think>')) {
+    s = s.replace(/<think>[\s\S]*?(<\/think>|$)/gi, '');
+  }
   return s.trim();
+}
+
+function renderAiMarkdownHtml(rawText) {
+  if (!rawText) return '';
+  let s = String(rawText);
+
+  // 1. Bảo vệ các thẻ UI an toàn (icon Lucide, span, b, strong, em, code, pre, details, summary, br) trước khi escape
+  const safeTags = [];
+  s = s.replace(/<(i data-lucide="[^"]+"[^>]*>|<\/i>|span[^>]*>|<\/span>|b>|<\/b>|strong[^>]*>|<\/strong>|em[^>]*>|<\/em>|code[^>]*>|<\/code>|pre[^>]*>|<\/pre>|details[^>]*>|<\/details>|summary[^>]*>|<\/summary>|br\s*\/?>)/gi, (match) => {
+    const placeholder = `__ST_SAFE_UI_TAG_${safeTags.length}__`;
+    safeTags.push(match);
+    return placeholder;
+  });
+
+  // 2. Escape HTML cho phần văn bản còn lại (chống XSS từ AI / dữ liệu)
+  s = typeof escapeHtml === 'function' ? escapeHtml(s) : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+  // 3. Khôi phục lại các thẻ UI an toàn đã bảo vệ
+  s = s.replace(/__ST_SAFE_UI_TAG_(\d+)__/g, (match, idx) => {
+    return safeTags[Number(idx)] || match;
+  });
+
+  // 4. Kiểm tra thư viện marked toàn cục của SillyTavern nếu có (trên window)
+  if (typeof window !== 'undefined' && window.marked && typeof window.marked.parse === 'function') {
+    try {
+      return window.marked.parse(s);
+    } catch (e) {}
+  }
+
+  // 5. Fallback Markdown rành mạch (code blocks, inline code, headings, bold, italic, lists, newlines)
+  // 5.1 Fenced Code Blocks
+  s = s.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (match, lang, codeContent) => {
+    return `<pre class="ai-code-block" style="background:#0b1329;border:1px solid rgba(255,255,255,0.12);padding:8px 10px;border-radius:6px;overflow-x:auto;font-family:Consolas,monospace;font-size:11.5px;margin:6px 0;color:#e2e8f0;"><code>${codeContent}</code></pre>`;
+  });
+
+  // 5.2 Inline Code (`...`)
+  s = s.replace(/`([^`\n]+)`/g, (match, code) => {
+    return `<code style="background:rgba(255,255,255,0.12);padding:2px 5px;border-radius:4px;color:#38bdf8;font-family:Consolas,monospace;font-size:11px;">${code}</code>`;
+  });
+
+  // 5.3 Headings
+  s = s.replace(/^###\s+(.+)$/gm, '<h3 style="color:#c084fc;margin:8px 0 4px 0;font-size:13.5px;font-weight:700;">$1</h3>');
+  s = s.replace(/^##\s+(.+)$/gm, '<h2 style="color:#c084fc;margin:10px 0 4px 0;font-size:14.5px;font-weight:700;">$1</h2>');
+  s = s.replace(/^#\s+(.+)$/gm, '<h1 style="color:#c084fc;margin:12px 0 6px 0;font-size:15.5px;font-weight:700;">$1</h1>');
+
+  // 5.4 Bold (** hoặc __ across multiline)
+  s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong style="color:#f8fafc;font-weight:700;">$1</strong>');
+  s = s.replace(/__([\s\S]+?)__/g, '<strong style="color:#f8fafc;font-weight:700;">$1</strong>');
+
+  // 5.5 Italic (* hoặc _ trong cùng dòng hoặc multiline ngắn)
+  s = s.replace(/\*([^\*\n]+?)\*/g, '<em style="font-style:italic;">$1</em>');
+
+  // 5.6 Bullet lists (- hoặc •)
+  s = s.replace(/^\s*[-•]\s+(.+)$/gm, '<div style="display:flex;gap:6px;margin:3px 0;padding-left:4px;"><span style="color:#c084fc;font-weight:bold;">•</span><span>$1</span></div>');
+
+  // 5.7 Numbered lists (1. 2.)
+  s = s.replace(/^\s*(\d+)\.\s+(.+)$/gm, '<div style="display:flex;gap:6px;margin:3px 0;padding-left:4px;"><span style="color:#38bdf8;font-weight:bold;">$1.</span><span>$2</span></div>');
+
+  // 5.8 Chuyển đổi \n thành <br> (loại bỏ newlines bao quanh thẻ khối để tránh khoảng trắng thừa)
+  s = s.replace(/\n(?=<div|<h[1-3]|<pre|<\/div>|<\/h[1-3]>|<\/pre>)/gi, '');
+  s = s.replace(/(<\/div>|<\/h[1-3]>|<\/pre>)\n/gi, '$1');
+  s = s.replace(/\n/g, '<br>');
+
+  return s;
 }
 
 function formatAssistantBubbleHtml(rawText, isDev) {
   if (!rawText) return '';
-  let finalHtml = '';
 
   if (!isDev) {
     const cleaned = cleanAssistantText(rawText);
-    finalHtml = escapeHtml(cleaned)
-      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-      .replace(/\n/g, '<br>');
+    if (!cleaned && /<tool_call>/i.test(rawText)) {
+      return `<div style="color:#64748b;font-style:italic;font-size:11.5px;padding:2px 0;">[🤖 AI Agency đang thực thi thao tác qua tool...]</div>`;
+    }
+    if (!cleaned) return '';
+    return renderAiMarkdownHtml(cleaned);
   } else {
-    // Trong chế độ Dev View (isDev = true): Hiển thị đầy đủ CoT và Tool Call
-    let s = rawText;
+    // Dev Mode: Hiển thị đầy đủ CoT (<cot> hoặc <think>) và Tool Call (<tool_call>) đẹp, nổi bật
+    let s = String(rawText);
     let htmlParts = [];
 
-    // 1. Tách CoT nếu có (hoặc phần trước </cot>)
+    // 1. Tách CoT/Think nếu có
     if (s.includes('</cot>')) {
       const parts = s.split('</cot>');
       let cotText = parts[0].replace(/^.*<cot>\n?/i, '').trim();
       if (!cotText) cotText = parts[0].trim();
-      
+
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
-        `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;cot&gt;)]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
         `</div>`
       );
       s = parts.slice(1).join('</cot>').trim();
@@ -140,8 +210,32 @@ function formatAssistantBubbleHtml(rawText, isDev) {
       let cotText = parts.slice(1).join('<cot>').trim();
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
-        `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;cot&gt;)]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
+        `</div>`
+      );
+      s = parts[0].trim();
+    }
+
+    if (s.includes('</think>')) {
+      const parts = s.split('</think>');
+      let cotText = parts[0].replace(/^.*<think>\n?/i, '').trim();
+      if (!cotText) cotText = parts[0].trim();
+
+      htmlParts.push(
+        `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;think&gt;)]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
+        `</div>`
+      );
+      s = parts.slice(1).join('</think>').trim();
+    } else if (s.includes('<think>')) {
+      const parts = s.split('<think>');
+      let cotText = parts.slice(1).join('<think>').trim();
+      htmlParts.push(
+        `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;think&gt;)]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
         `</div>`
       );
       s = parts[0].trim();
@@ -157,16 +251,16 @@ function formatAssistantBubbleHtml(rawText, isDev) {
       if (textBefore) {
         htmlParts.push(
           `<div style="margin-bottom:8px;">` +
-          escapeHtml(textBefore).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+          renderAiMarkdownHtml(textBefore) +
           `</div>`
         );
       }
 
       const jsonStr = match[1].trim();
       htmlParts.push(
-        `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:monospace;font-size:11px;color:#e9d5ff;">` +
+        `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:Consolas,monospace;font-size:11px;color:#e9d5ff;">` +
         `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="wrench" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Raw Tool Call]</div>` +
-        `<div style="white-space:pre-wrap;word-break:break-all;">${escapeHtml(jsonStr)}</div>` +
+        `<div style="white-space:pre-wrap;word-break:break-all;">${typeof escapeHtml === 'function' ? escapeHtml(jsonStr) : jsonStr}</div>` +
         `</div>`
       );
 
@@ -177,25 +271,17 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     if (textAfter) {
       htmlParts.push(
         `<div style="margin-top:4px;">` +
-        escapeHtml(textAfter).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+        renderAiMarkdownHtml(textAfter) +
         `</div>`
       );
     }
 
     if (htmlParts.length === 0 && s) {
-      htmlParts.push(escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'));
+      htmlParts.push(renderAiMarkdownHtml(s));
     }
 
-    finalHtml = htmlParts.join('');
+    return htmlParts.join('');
   }
-
-  // Khôi phục các thẻ <i data-lucide="..."></i> hệ thống đã bị escapeHtml biến đổi
-  finalHtml = finalHtml.replace(/&lt;i data-lucide=&quot;([a-zA-Z0-9_-]+)&quot;([\s\S]*?)&gt;&lt;\/i&gt;/gi, (match, iconName, rest) => {
-    const unescapedRest = rest.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-    return `<i data-lucide="${iconName}"${unescapedRest}></i>`;
-  });
-
-  return finalHtml;
 }
 
 function updateAssistantBubbleHtml($bubble, rawText) {
