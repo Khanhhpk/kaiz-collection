@@ -406,17 +406,46 @@ export async function applyStagedSingle(type, key) {
         const idxA = orderMap.has(a.identifier) ? orderMap.get(a.identifier) : 999999;
         const idxB = orderMap.has(b.identifier) ? orderMap.get(b.identifier) : 999999;
         return idxA - idxB;
-      });
       const rawOrder = container.prompt_order || [];
+      let oldOrderItems = [];
+      let isNested = false;
+      let targetNestedObj = null;
+
       if (Array.isArray(rawOrder) && rawOrder.length > 0) {
         if (typeof rawOrder[0] === 'object' && Array.isArray(rawOrder[0].order)) {
-          const oldMap = new Map((rawOrder[0].order || []).map(item => [item.identifier, item]));
-          rawOrder[0].order = order.map(id => oldMap.get(id) || { identifier: id, enabled: true });
+          isNested = true;
+          const ctx = window.SillyTavern?.getContext?.() || {};
+          const charId = ctx.characterId;
+          targetNestedObj = rawOrder.find(o => o.character_id === charId) || rawOrder[0];
+          oldOrderItems = targetNestedObj?.order || [];
         } else {
-          container.prompt_order = order.slice();
+          oldOrderItems = rawOrder;
         }
+      }
+
+      const oldOrderMap = new Map();
+      oldOrderItems.forEach(item => {
+        const id = typeof item === 'string' ? item : item?.identifier;
+        if (id) oldOrderMap.set(id, item);
+      });
+
+      const newOrderArray = [];
+      for (const id of order) {
+        if (oldOrderMap.has(id)) {
+          newOrderArray.push(oldOrderMap.get(id));
+        } else {
+          const p = container.prompts.find(pr => pr.identifier === id);
+          if (p) {
+            newOrderArray.push(typeof oldOrderItems[0] === 'object' && oldOrderItems[0] !== null ? { identifier: id, enabled: p.enabled } : id);
+            oldOrderMap.set(id, true);
+          }
+        }
+      }
+
+      if (isNested && targetNestedObj) {
+        targetNestedObj.order = newOrderArray;
       } else {
-        container.prompt_order = order.slice();
+        container.prompt_order = newOrderArray;
       }
     }
     _stagingMap.delete('__ORDER__');
