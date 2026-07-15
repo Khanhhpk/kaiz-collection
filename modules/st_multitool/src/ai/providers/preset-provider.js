@@ -112,10 +112,12 @@ export function getStagingSummary() {
   for (const [id, fields] of _stagingMap.entries()) {
     if (id === '__VARS__') {
       varUpdates = Object.entries(fields).map(([stId, info]) => ({
+        stId,
         varName: info?.varName || stId,
         promptId: info?.promptId || '',
         newValue: info?.newValue || '',
-        newValueExcerpt: info?.newValue || ''
+        newValueExcerpt: info?.newValue || '',
+        oldValueMatch: info?.oldValueMatch || ''
       }));
     } else if (id === '__VAR_RENAMES__') {
       varRenames = Object.entries(fields).map(([oldName, newName]) => ({ oldName, newName }));
@@ -123,19 +125,41 @@ export function getStagingSummary() {
       reorder = fields.order;
     } else {
       const block = findPrompt(id);
-      updates.push({ identifier: id, name: block?.name || id, fields: Object.keys(fields) });
+      updates.push({
+        identifier: id,
+        name: block?.name || id,
+        fields: Object.keys(fields),
+        oldContent: block?.content || '',
+        newContent: fields.content !== undefined ? fields.content : (block?.content || ''),
+        changes: fields
+      });
     }
   }
 
-  const totalChanges = updates.length + _stagingCreates.length + _stagingDeletes.size + varUpdates.length + varRenames.length + (reorder ? 1 : 0);
+  const creates = _stagingCreates.map((b, idx) => ({
+    index: idx,
+    name: b.name,
+    role: b.role,
+    content: b.content || '',
+    addToLinked: b.addToLinked ?? true
+  }));
+
+  const deletes = [..._stagingDeletes].map(id => {
+    const b = findPrompt(id);
+    return {
+      identifier: id,
+      name: b?.name || id,
+      role: b?.role || 'system',
+      content: b?.content || ''
+    };
+  });
+
+  const totalChanges = updates.length + creates.length + deletes.length + varUpdates.length + varRenames.length + (reorder ? 1 : 0);
 
   return {
     updates,
-    creates: _stagingCreates.map(b => ({ name: b.name, role: b.role })),
-    deletes: [..._stagingDeletes].map(id => {
-      const b = findPrompt(id);
-      return { identifier: id, name: b?.name || id };
-    }),
+    creates,
+    deletes,
     varUpdates,
     varRenames,
     reorder,
@@ -310,6 +334,126 @@ export async function flushStaging() {
     $saveBtn.html('<i data-lucide="save"></i> Lưu Preset (Chưa lưu ST)');
     refreshIcons($saveBtn[0]);
   }
+}
+
+export async function applyStagedSingle(type, key) {
+  const container = getContainer();
+  if (!container) throw new Error('Không tìm thấy ST container');
+
+  const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  if (typeof getCurrentEditorSnapshot === 'function') {
+    const currentSnapshot = getCurrentEditorSnapshot();
+    if (currentSnapshot && Array.isArray(currentSnapshot.prompts) && currentSnapshot.prompts.length > 0) {
+      container.prompts.length = 0;
+      currentSnapshot.prompts.forEach(p => container.prompts.push(JSON.parse(JSON.stringify(p))));
+    }
+  }
+
+  if (type === 'create') {
+    const index = parseInt(key, 10);
+    const blockData = _stagingCreates[index];
+    if (!blockData) return false;
+    const { addToLinked, insertTop, ...data } = blockData;
+    addPromptBlock(data, addToLinked ?? true, insertTop ?? false);
+    _stagingCreates.splice(index, 1);
+  } else if (type === 'delete') {
+    if (!_stagingDeletes.has(key)) return false;
+    deletePromptBlock(key);
+    _stagingDeletes.delete(key);
+  } else if (type === 'update') {
+    const fields = _stagingMap.get(key);
+    if (!fields) return false;
+    const p = container.prompts.find(pr => pr.identifier === key);
+    if (p) {
+      const allowed = ['name', 'content', 'role', 'enabled', 'injection_position', 'injection_depth', 'injection_order', 'system_prompt', 'marker', 'forbid_overrides'];
+      for (const k of allowed) {
+        if (fields[k] !== undefined) p[k] = fields[k];
+      }
+    }
+    _stagingMap.delete(key);
+  } else if (type === 'varUpdate') {
+    const varsMap = _stagingMap.get('__VARS__');
+    if (!varsMap || !varsMap[key]) return false;
+    const info = varsMap[key];
+    const promptsToUpdate = info.promptId ? container.prompts.filter(p => p.identifier === info.promptId) : container.prompts;
+    for (const p of promptsToUpdate) {
+      if (info.oldValueMatch && p.content && p.content.includes(info.oldValueMatch)) {
+        const replaced = `{{${info.matchType || 'set'}::${info.varName}::${info.newValue}}}`;
+        p.content = p.content.replace(info.oldValueMatch, replaced);
+      }
+    }
+    delete varsMap[key];
+    if (Object.keys(varsMap).length === 0) _stagingMap.delete('__VARS__');
+  } else if (type === 'varRename') {
+    const renamesMap = _stagingMap.get('__VAR_RENAMES__');
+    if (!renamesMap || !renamesMap[key]) return false;
+    const newName = renamesMap[key];
+    for (const p of container.prompts) {
+      if (p.content) {
+        const re = new RegExp(`\\{\\{(set|addvar|setglobalvar)::${escapeRegex(key)}::`, 'gi');
+        p.content = p.content.replace(re, `{{$1::${newName}::`);
+      }
+    }
+    delete renamesMap[key];
+    if (Object.keys(renamesMap).length === 0) _stagingMap.delete('__VAR_RENAMES__');
+  } else if (type === 'reorder') {
+    if (!_stagingMap.has('__ORDER__')) return false;
+    const { order } = _stagingMap.get('__ORDER__');
+    if (Array.isArray(order) && order.length > 0) {
+      const orderMap = new Map(order.map((id, index) => [id, index]));
+      container.prompts.sort((a, b) => {
+        const idxA = orderMap.has(a.identifier) ? orderMap.get(a.identifier) : 999999;
+        const idxB = orderMap.has(b.identifier) ? orderMap.get(b.identifier) : 999999;
+        return idxA - idxB;
+      });
+      const rawOrder = container.prompt_order || [];
+      if (Array.isArray(rawOrder) && rawOrder.length > 0) {
+        if (typeof rawOrder[0] === 'object' && Array.isArray(rawOrder[0].order)) {
+          const oldMap = new Map((rawOrder[0].order || []).map(item => [item.identifier, item]));
+          rawOrder[0].order = order.map(id => oldMap.get(id) || { identifier: id, enabled: true });
+        } else {
+          container.prompt_order = order.slice();
+        }
+      } else {
+        container.prompt_order = order.slice();
+      }
+    }
+    _stagingMap.delete('__ORDER__');
+  }
+
+  renderPromptBlocks();
+  try { refreshVarInspector(); } catch (e) {}
+  const $saveBtn = $('#st-multitool-save-prompt-btn');
+  if ($saveBtn.length) {
+    $saveBtn.html('<i data-lucide="save"></i> Lưu Preset (Chưa lưu ST)');
+    if (typeof refreshIcons === 'function') refreshIcons($saveBtn[0]);
+  }
+  return true;
+}
+
+export function rejectStagedSingle(type, key) {
+  if (type === 'create') {
+    const index = parseInt(key, 10);
+    _stagingCreates.splice(index, 1);
+  } else if (type === 'delete') {
+    _stagingDeletes.delete(key);
+  } else if (type === 'update') {
+    _stagingMap.delete(key);
+  } else if (type === 'varUpdate') {
+    if (_stagingMap.has('__VARS__')) {
+      delete _stagingMap.get('__VARS__')[key];
+      if (Object.keys(_stagingMap.get('__VARS__')).length === 0) _stagingMap.delete('__VARS__');
+    }
+  } else if (type === 'varRename') {
+    if (_stagingMap.has('__VAR_RENAMES__')) {
+      delete _stagingMap.get('__VAR_RENAMES__')[key];
+      if (Object.keys(_stagingMap.get('__VAR_RENAMES__')).length === 0) _stagingMap.delete('__VAR_RENAMES__');
+    }
+  } else if (type === 'reorder') {
+    _stagingMap.delete('__ORDER__');
+  }
+  return true;
 }
 
 // ─── Tool Executor ────────────────────────────────────────────────────────────

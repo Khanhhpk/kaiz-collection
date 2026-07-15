@@ -6,9 +6,9 @@
 
 import { createEngine } from './engine.js';
 import { getLLMConfig, setLLMConfig, fetchModels } from './llm-client.js';
-import { PresetContextProvider, getStagingSummary, hasStagingChanges, clearStaging, flushStaging } from '../providers/preset-provider.js';
+import { PresetContextProvider, getStagingSummary, hasStagingChanges, clearStaging, flushStaging, applyStagedSingle, rejectStagedSingle } from '../providers/preset-provider.js';
 import { getDebugLogs, clearDebugLogs } from './debug-logger.js';
-import { refreshIcons } from '../../utils.js';
+import { escapeHtml, refreshIcons } from '../../utils.js';
 
 let _engine = null;
 let _provider = null;
@@ -304,44 +304,137 @@ function renderToolPreview() {
   }
 
   let diffHtml = '';
+
+  // 1. Updates
   for (const upd of summary.updates) {
     if (upd.identifier === '__ORDER__' || upd.identifier === '__VARS__' || upd.identifier === '__VAR_RENAMES__') continue;
+    const diffText = escapeHtml(upd.changes?.content !== undefined
+      ? `=== Nội dung cũ ===\n${upd.oldContent}\n\n=== Nội dung mới ===\n${upd.newContent}`
+      : `Metadata cập nhật: ${JSON.stringify(upd.changes)}`);
     diffHtml += `
-      <div class="ai-diff-item">
-        <div class="ai-diff-name"><i data-lucide="file-edit" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Cập nhật block: <b>${escapeHtml(upd.name)}</b> <span class="ai-diff-fields">[${upd.fields.join(', ')}]</span></div>
+      <div class="ai-diff-item ai-staged-item" data-type="update" data-key="${escapeHtml(upd.identifier)}" style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="file-edit" style="width:14px;height:14px;color:#38bdf8;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Cập nhật: <b style="color:#38bdf8;">${escapeHtml(upd.name)}</b></span>
+            <span style="font-size:11px;color:#94a3b8;background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">[${upd.fields.join(', ')}]</span>
+            <span style="font-size:11px;color:#60a5fa;text-decoration:underline;margin-left:4px;">👁️ Xem chi tiết</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="update" data-key="${escapeHtml(upd.identifier)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="update" data-key="${escapeHtml(upd.identifier)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #38bdf8;">${diffText}</div>
       </div>`;
-  }
-  if (summary.varUpdates && summary.varUpdates.length > 0) {
-    for (const v of summary.varUpdates) {
-      diffHtml += `
-        <div class="ai-diff-item" style="border-left: 3px solid #fde68a; background: rgba(253,230,138,0.08);">
-          <div class="ai-diff-name" style="color:#fde68a;"><i data-lucide="edit-3" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Cập nhật biến: <b>{{setvar::${escapeHtml(v.varName)}::...}}</b></div>
-          ${v.newValueExcerpt ? `<div style="font-size:11px;color:#cbd5e1;margin-top:2px;">"${escapeHtml(v.newValueExcerpt)}"</div>` : ''}
-        </div>`;
-    }
-  }
-  if (summary.varRenames && summary.varRenames.length > 0) {
-    for (const r of summary.varRenames) {
-      diffHtml += `
-        <div class="ai-diff-item" style="border-left: 3px solid #c084fc; background: rgba(192,132,252,0.08);">
-          <div class="ai-diff-name" style="color:#e9d5ff;"><i data-lucide="tag" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Đổi tên biến: <b style="color:#f87171;">${escapeHtml(r.oldName)}</b> ➔ <b style="color:#34d399;">${escapeHtml(r.newName)}</b></div>
-        </div>`;
-    }
-  }
-  if (summary.reorder && summary.reorder.length > 0) {
-    diffHtml += `
-      <div class="ai-diff-item" style="border-left: 3px solid #38bdf8; background: rgba(56,189,248,0.08);">
-        <div class="ai-diff-name" style="color:#38bdf8;"><i data-lucide="arrow-up-down" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Sắp xếp lại thứ tự ${summary.reorder.length} prompt blocks</div>
-      </div>`;
-  }
-  for (const c of summary.creates) {
-    diffHtml += `<div class="ai-diff-item ai-diff-create"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Tạo mới block: <b>${escapeHtml(c.name)}</b></div>`;
-  }
-  for (const d of summary.deletes) {
-    diffHtml += `<div class="ai-diff-item ai-diff-delete"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:#f87171;"></i> Xóa block: <b>${escapeHtml(d.name)}</b></div>`;
   }
 
-  _$sidebar.find('.ai-preview-stats').html(`<i data-lucide="clipboard-list" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> ${summary.totalChanges} thay đổi đang chờ xác nhận`);
+  // 2. Creates
+  for (const c of summary.creates) {
+    const diffText = escapeHtml(`=== THÔNG TIN BLOCK MỚI ===\nTên: ${c.name}\nRole: ${c.role} | Vị trí: ${c.addToLinked ? 'Linked' : 'Unlinked'}\n\n=== Nội dung ===\n${c.content || '(Trống)'}`);
+    diffHtml += `
+      <div class="ai-diff-item ai-staged-item" data-type="create" data-key="${c.index}" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="plus-circle" style="width:14px;height:14px;color:#34d399;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Tạo mới: <b style="color:#34d399;">${escapeHtml(c.name)}</b></span>
+            <span style="font-size:11px;color:#94a3b8;background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">(${c.role}, ${c.addToLinked ? 'Linked' : 'Unlinked'})</span>
+            <span style="font-size:11px;color:#34d399;text-decoration:underline;margin-left:4px;">👁️ Xem nội dung</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="create" data-key="${c.index}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="create" data-key="${c.index}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #34d399;">${diffText}</div>
+      </div>`;
+  }
+
+  // 3. Deletes
+  for (const d of summary.deletes) {
+    const diffText = escapeHtml(`=== BLOCK SẼ BỊ XÓA ===\nTên: ${d.name} (ID: ${d.identifier})\nRole: ${d.role}\n\n=== Nội dung hiện tại ===\n${d.content || '(Trống)'}`);
+    diffHtml += `
+      <div class="ai-diff-item ai-staged-item" data-type="delete" data-key="${escapeHtml(d.identifier)}" style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="trash-2" style="width:14px;height:14px;color:#f87171;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Xóa block: <b style="color:#f87171;">${escapeHtml(d.name)}</b></span>
+            <span style="font-size:11px;color:#f87171;text-decoration:underline;margin-left:4px;">👁️ Xem block bị xóa</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="delete" data-key="${escapeHtml(d.identifier)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="delete" data-key="${escapeHtml(d.identifier)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #f87171;">${diffText}</div>
+      </div>`;
+  }
+
+  // 4. Var Updates
+  if (summary.varUpdates && summary.varUpdates.length > 0) {
+    for (const v of summary.varUpdates) {
+      const diffText = escapeHtml(`=== THAY ĐỔI BIẾN ===\nTên biến: ${v.varName}\nTrong block ID: ${v.promptId || 'Tất cả block'}\nĐoạn cũ: ${v.oldValueMatch || 'N/A'}\nGiá trị mới: ${v.newValue}`);
+      diffHtml += `
+        <div class="ai-diff-item ai-staged-item" data-type="varUpdate" data-key="${escapeHtml(v.stId)}" style="background:rgba(253,230,138,0.06);border:1px solid rgba(253,230,138,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+            <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+              <i data-lucide="edit-3" style="width:14px;height:14px;color:#fde68a;"></i>
+              <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Cập nhật biến: <b style="color:#fde68a;">{{setvar::${escapeHtml(v.varName)}::...}}</b></span>
+              <span style="font-size:11px;color:#fde68a;text-decoration:underline;margin-left:4px;">👁️ Xem thay đổi</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button class="ai-single-apply-btn" data-type="varUpdate" data-key="${escapeHtml(v.stId)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+              <button class="ai-single-reject-btn" data-type="varUpdate" data-key="${escapeHtml(v.stId)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+            </div>
+          </div>
+          <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #fde68a;">${diffText}</div>
+        </div>`;
+    }
+  }
+
+  // 5. Var Renames
+  if (summary.varRenames && summary.varRenames.length > 0) {
+    for (const r of summary.varRenames) {
+      const diffText = escapeHtml(`=== ĐỔI TÊN BIẾN ===\nTên cũ: ${r.oldName}\nTên mới: ${r.newName}`);
+      diffHtml += `
+        <div class="ai-diff-item ai-staged-item" data-type="varRename" data-key="${escapeHtml(r.oldName)}" style="background:rgba(192,132,252,0.06);border:1px solid rgba(192,132,252,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+            <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+              <i data-lucide="tag" style="width:14px;height:14px;color:#c084fc;"></i>
+              <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Đổi tên biến: <b style="color:#f87171;">${escapeHtml(r.oldName)}</b> ➔ <b style="color:#34d399;">${escapeHtml(r.newName)}</b></span>
+              <span style="font-size:11px;color:#c084fc;text-decoration:underline;margin-left:4px;">👁️ Xem chi tiết</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button class="ai-single-apply-btn" data-type="varRename" data-key="${escapeHtml(r.oldName)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+              <button class="ai-single-reject-btn" data-type="varRename" data-key="${escapeHtml(r.oldName)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+            </div>
+          </div>
+          <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #c084fc;">${diffText}</div>
+        </div>`;
+    }
+  }
+
+  // 6. Reorder
+  if (summary.reorder && summary.reorder.length > 0) {
+    const diffText = escapeHtml(`=== THỨ TỰ SẮP XẾP MỚI (${summary.reorder.length} blocks) ===\n` + summary.reorder.map((id, i) => `${i + 1}. ${id}`).join('\n'));
+    diffHtml += `
+      <div class="ai-diff-item ai-staged-item" data-type="reorder" data-key="__ORDER__" style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="arrow-up-down" style="width:14px;height:14px;color:#38bdf8;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Sắp xếp lại thứ tự <b style="color:#38bdf8;">${summary.reorder.length} prompt blocks</b></span>
+            <span style="font-size:11px;color:#38bdf8;text-decoration:underline;margin-left:4px;">👁️ Xem thứ tự mới</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="reorder" data-key="__ORDER__" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="reorder" data-key="__ORDER__" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #38bdf8;">${diffText}</div>
+      </div>`;
+  }
+
+  _$sidebar.find('.ai-preview-stats').html(`<i data-lucide="clipboard-list" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> ${summary.totalChanges} thay đổi đang chờ xác nhận (Bấm vào từng mục để xem Diff chi tiết)`);
   _$sidebar.find('.ai-preview-diff').html(diffHtml);
   if (typeof refreshIcons === 'function' && _$sidebar.find('.ai-tool-preview')[0]) {
     refreshIcons(_$sidebar.find('.ai-tool-preview')[0]);
@@ -833,5 +926,43 @@ function _bindEvents() {
     setState('idle');
     appendBubble('assistant', '<i data-lucide="x-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#f87171;"></i> Đã hủy tất cả thay đổi đang chờ.');
     _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Từ Chối (Reject) / Hủy bỏ toàn bộ đề xuất thay đổi staged vừa rồi. Các thay đổi đã bị xóa bỏ hoàn toàn khỏi bộ nhớ tạm. Hãy tiếp tục trò chuyện hoặc hỏi ý kiến người dùng để làm phương án khác.]');
+  });
+
+  // Event delegation cho Preview Diff (Toggle diff & Single Apply/Reject)
+  _$sidebar.on('click', '.ai-staged-toggle-diff', function() {
+    const $box = $(this).closest('.ai-staged-item').find('.ai-staged-diff-box');
+    $box.slideToggle(150);
+  });
+
+  _$sidebar.on('click', '.ai-single-apply-btn', async function(e) {
+    e.stopPropagation();
+    const type = $(this).attr('data-type');
+    const key = $(this).attr('data-key');
+    try {
+      await applyStagedSingle(type, key);
+      toastr.success('Đã áp dụng riêng thay đổi được chọn!');
+      if (!hasStagingChanges()) {
+        _$sidebar.find('.ai-tool-preview').hide();
+        setState('idle');
+      } else {
+        renderToolPreview();
+      }
+    } catch (err) {
+      toastr.error('Lỗi khi áp dụng riêng: ' + err.message);
+    }
+  });
+
+  _$sidebar.on('click', '.ai-single-reject-btn', function(e) {
+    e.stopPropagation();
+    const type = $(this).attr('data-type');
+    const key = $(this).attr('data-key');
+    rejectStagedSingle(type, key);
+    toastr.info('Đã bỏ thay đổi được chọn.');
+    if (!hasStagingChanges()) {
+      _$sidebar.find('.ai-tool-preview').hide();
+      setState('idle');
+    } else {
+      renderToolPreview();
+    }
   });
 }
