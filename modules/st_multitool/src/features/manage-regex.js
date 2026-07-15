@@ -175,7 +175,7 @@ function renderRegexList($container, regexes, type) {
           <span class="st-multitool-manage-regex-name" style="font-weight:700 !important;font-size:14px !important;color:#f8fafc !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;line-height:1.4 !important;" title="${escapeHtml(regex.script_name || 'Regex chưa có tên')}">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;padding-left:26px;flex-wrap:wrap;width:100%;">
-          <div class="st-multitool-regex-pill" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:11.5px;color:#38bdf8;background:#0b1329;border:1px solid rgba(56,189,248,0.3);padding:2px 8px;border-radius:4px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;" title="${escapeHtml(findPattern)}">/${escapeHtml(shortPattern)}/</div>
+          <div class="st-multitool-regex-pill" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:11.5px;color:#38bdf8;background:#0b1329;border:1px solid rgba(56,189,248,0.3);padding:2px 8px;border-radius:4px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;" title="${escapeHtml(findPattern)}">${escapeHtml(shortPattern)}</div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${scopes.join('')}</div>
         </div>
       </div>
