@@ -88,10 +88,12 @@ export function initManageRegex() {
     downloadRegex(regexId, type);
   });
 
-  $('#st-multitool-manage-regex-substitute-regex').on('change', function() {
-    const val = $(this).val();
-    $('#st-multitool-manage-regex-min-depth-container').css('display', val === '1' ? 'flex' : 'none');
-    $('#st-multitool-manage-regex-max-depth-container').css('display', val === '1' ? 'flex' : 'none');
+  $('#st-multitool-manage-regex-disabled').on('change', function() {
+    $('#st-multitool-manage-regex-enabled').prop('checked', !$(this).is(':checked'));
+  });
+
+  $('#st-multitool-manage-regex-enabled').on('change', function() {
+    $('#st-multitool-manage-regex-disabled').prop('checked', !$(this).is(':checked'));
   });
 }
 
@@ -269,7 +271,8 @@ async function openRegexEditPanel(regexId, type) {
     }
     $('#st-multitool-manage-regex-trim-strings').val(Array.isArray(trimStringsArr) ? trimStringsArr.join('\n') : '');
 
-    $('#st-multitool-manage-regex-enabled').prop('checked', regex.enabled !== false);
+    $('#st-multitool-manage-regex-disabled').prop('checked', regex.disabled === true || regex.enabled === false);
+    $('#st-multitool-manage-regex-enabled').prop('checked', regex.enabled !== false && regex.disabled !== true);
     $('#st-multitool-manage-regex-run-on-edit').prop('checked', regex.run_on_edit || false);
     $('#st-multitool-manage-regex-substitute-regex').val(regex.substitute_regex || 0);
     $('#st-multitool-manage-regex-min-depth').val(regex.min_depth || '');
@@ -287,8 +290,8 @@ async function openRegexEditPanel(regexId, type) {
     $('#st-multitool-manage-regex-markdown-only').prop('checked', regex.destination ? regex.destination.display : false);
     $('#st-multitool-manage-regex-prompt-only').prop('checked', regex.destination ? regex.destination.prompt : false);
 
-    $('#st-multitool-manage-regex-min-depth-container').css('display', regex.substitute_regex === 1 ? 'flex' : 'none');
-    $('#st-multitool-manage-regex-max-depth-container').css('display', regex.substitute_regex === 1 ? 'flex' : 'none');
+    $('#st-multitool-manage-regex-min-depth-container').css('display', 'flex');
+    $('#st-multitool-manage-regex-max-depth-container').css('display', 'flex');
     $('#st-multitool-manage-regex-tester-box').hide();
     $('#st-multitool-manage-regex-preview-container').hide();
 
@@ -329,6 +332,7 @@ async function handleSaveRegex() {
       find_regex: $('#st-multitool-manage-regex-find-regex').val() || '',
       replace_string: $('#st-multitool-manage-regex-replace-string').val() || '',
       trim_strings: trimRaw.split('\n').map(s => s.trim()).filter(s => s !== ''),
+      disabled: $('#st-multitool-manage-regex-disabled').is(':checked'),
       enabled: $('#st-multitool-manage-regex-enabled').is(':checked'),
       run_on_edit: $('#st-multitool-manage-regex-run-on-edit').is(':checked'),
       substitute_regex: parseInt($('#st-multitool-manage-regex-substitute-regex').val()) || 0,

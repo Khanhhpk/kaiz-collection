@@ -1321,47 +1321,50 @@
               <textarea id="st-multitool-manage-regex-trim-strings" class="st-multitool-textarea" rows="2" style="width: 100%; font-family: monospace; font-size: 13px; background: #1e293b; color: #cbd5e1; border: 1px solid #475569; border-radius: 6px; padding: 8px; resize: vertical;" placeholder="Cắt toàn cục các đoạn text thừa trước khi chạy replace..."></textarea>
             </div>
 
-            <!-- Card gộp Checkbox: Phạm vi áp dụng & Chế độ & Tùy chọn -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 4px;">
-              <!-- Cột 1: Phạm vi áp dụng -->
-              <div style="background: rgba(15,23,42,0.4); border: 1px solid #334155; border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap:8px;">
-                <span class="st-multitool-label" style="font-weight:700; font-size:12px; color:#38bdf8; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="target" style="width:14px;height:14px;"></i> Phạm vi áp dụng (Source)</span>
-                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="1"> Đầu vào người dùng (User In)</label>
+            <!-- Card gộp Checkbox: Phạm vi áp dụng & Chế độ & Tùy chọn (3 cột chuẩn SillyTavern) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 6px;">
+              <!-- Cột 1: Phạm vi áp dụng (Affects) & Độ sâu -->
+              <div style="background: rgba(15,23,42,0.65); border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; display:flex; flex-direction:column; gap:8px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#38bdf8; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="target" style="width:14px;height:14px;"></i> Phạm vi áp dụng (Affects)</span>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="1"> Đầu vào người dùng (User Input)</label>
                 <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="2" checked> Đầu ra AI (AI Output)</label>
-                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="4"> Lệnh nhanh (Slash Command)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="4"> Lệnh nhanh (Slash Commands)</label>
                 <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="3"> Thông tin thế giới (World Info)</label>
                 <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="5"> Suy luận (Reasoning)</label>
+                
+                <div style="display:flex; gap:10px; margin-top:6px; border-top:1px dashed #334155; padding-top:10px;">
+                  <div id="st-multitool-manage-regex-min-depth-container" style="display:flex; flex:1; flex-direction:column; gap:4px;">
+                    <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;">Min Depth:</span>
+                    <input type="number" id="st-multitool-manage-regex-min-depth" class="st-multitool-input" style="width:100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:5px 8px; font-size:12.5px;" placeholder="Unlimited">
+                  </div>
+                  <div id="st-multitool-manage-regex-max-depth-container" style="display:flex; flex:1; flex-direction:column; gap:4px;">
+                    <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;">Max Depth:</span>
+                    <input type="number" id="st-multitool-manage-regex-max-depth" class="st-multitool-input" style="width:100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:5px 8px; font-size:12.5px;" placeholder="Unlimited">
+                  </div>
+                </div>
               </div>
 
-              <!-- Cột 2: Tùy chọn trạng thái & Macro -->
-              <div style="background: rgba(15,23,42,0.4); border: 1px solid #334155; border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap:8px;">
-                <span class="st-multitool-label" style="font-weight:700; font-size:12px; color:#c084fc; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="sliders" style="width:14px;height:14px;"></i> Trạng thái & Macro</span>
-                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:600; color:#34d399;"><input type="checkbox" id="st-multitool-manage-regex-enabled"> Đã bật Regex (Enabled)</label>
-                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-run-on-edit"> Chạy khi chỉnh sửa (Run on Edit)</label>
-                <div style="margin-top: 6px; display:flex; flex-direction:column; gap:4px;">
-                  <span class="st-multitool-label" style="font-size:11px; color:#cbd5e1;">Macro khi tìm Regex:</span>
-                  <select id="st-multitool-manage-regex-substitute-regex" class="st-multitool-select" style="width: 100%; background:#1e293b; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:4px 8px;">
-                    <option value="0" selected>Không thay thế Macro (Default)</option>
+              <!-- Cột 2: Tùy chọn khác (Other Options) -->
+              <div style="background: rgba(15,23,42,0.65); border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; display:flex; flex-direction:column; gap:8px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#c084fc; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="sliders" style="width:14px;height:14px;"></i> Tùy chọn khác (Other Options)</span>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:600; color:#f87171;"><input type="checkbox" id="st-multitool-manage-regex-disabled"> Vô hiệu hóa Regex (Disabled)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:600; color:#34d399;"><input type="checkbox" id="st-multitool-manage-regex-enabled" checked> Kích hoạt Regex (Enabled)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-run-on-edit"> Chạy khi chỉnh sửa (Run On Edit)</label>
+                
+                <div style="margin-top: 6px; display:flex; flex-direction:column; gap:6px; border-top:1px dashed #334155; padding-top:10px;">
+                  <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;">Macro trong Find Regex:</span>
+                  <select id="st-multitool-manage-regex-substitute-regex" class="st-multitool-select" style="width: 100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:6px 8px; font-size:12.5px;">
+                    <option value="0" selected>Không thay thế (Don't substitute)</option>
                     <option value="1">Thay thế Macro (Substitute)</option>
                   </select>
                 </div>
               </div>
 
-              <!-- Cột 3: Tạm thời (Destination) & Độ sâu -->
-              <div style="background: rgba(15,23,42,0.4); border: 1px solid #334155; border-radius: 8px; padding: 12px; display:flex; flex-direction:column; gap:8px;">
-                <span class="st-multitool-label" style="font-weight:700; font-size:12px; color:#fbbf24; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="layers" style="width:14px;height:14px;"></i> Hiển thị & Độ sâu</span>
-                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-markdown-only"> Chỉ hiển thị định dạng (Markdown only)</label>
-                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-prompt-only"> Chỉ định dạng prompt (Prompt only)</label>
-                <div style="display:flex; gap:8px; margin-top:4px;">
-                  <div id="st-multitool-manage-regex-min-depth-container" style="display:none; flex:1; flex-direction:column; gap:4px;">
-                    <span class="st-multitool-label" style="font-size:11px;">Min Depth:</span>
-                    <input type="number" id="st-multitool-manage-regex-min-depth" class="st-multitool-input" style="width:100%; background:#1e293b; color:#f8fafc; border:1px solid #475569; border-radius:4px;" placeholder="Vô hạn">
-                  </div>
-                  <div id="st-multitool-manage-regex-max-depth-container" style="display:none; flex:1; flex-direction:column; gap:4px;">
-                    <span class="st-multitool-label" style="font-size:11px;">Max Depth:</span>
-                    <input type="number" id="st-multitool-manage-regex-max-depth" class="st-multitool-input" style="width:100%; background:#1e293b; color:#f8fafc; border:1px solid #475569; border-radius:4px;" placeholder="Vô hạn">
-                  </div>
-                </div>
+              <!-- Cột 3: Khả năng áp dụng (Ephemerality) -->
+              <div style="background: rgba(15,23,42,0.65); border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; display:flex; flex-direction:column; gap:8px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#fbbf24; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="layers" style="width:14px;height:14px;"></i> Khả năng áp dụng (Ephemerality)</span>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:500;"><input type="checkbox" id="st-multitool-manage-regex-markdown-only"> Thay đổi hiển thị Chat (Alter Chat Display)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:500;"><input type="checkbox" id="st-multitool-manage-regex-prompt-only"> Thay đổi Prompt gửi đi (Alter Outgoing Prompt)</label>
               </div>
             </div>
 
