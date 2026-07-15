@@ -1853,3 +1853,20 @@ input:checked + .st-multitool-toggle-slider:before {
   box-shadow: 0 6px 18px rgba(168, 85, 247, 0.35) !important;
 }
 
+/* AI Agency Regex Assistant Styles */
+.st-multitool-regex-agency-pill:hover {
+  transform: translateY(-1.5px) scale(1.02);
+  box-shadow: 0 3px 10px rgba(192, 132, 252, 0.25);
+  filter: brightness(1.15);
+}
+
+.st-multitool-regex-agency-run-btn:hover:not(:disabled) {
+  filter: brightness(1.15);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(192, 132, 252, 0.45) !important;
+}
+
+.st-multitool-regex-agency-run-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+

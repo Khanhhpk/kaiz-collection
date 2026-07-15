@@ -1198,6 +1198,91 @@
           </div>
           <div class="st-multitool-section-content">
             <div class="st-multitool-manage-script-cards">
+              <!-- Card 0: AI Agency Regex Assistant (Dedicated Top-Level Panel) -->
+              <div id="st-multitool-manage-regex-agency-card" class="st-multitool-manage-script-card" style="border: 1px solid rgba(168, 85, 247, 0.45); box-shadow: 0 4px 20px rgba(168, 85, 247, 0.15); background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 27, 75, 0.7) 100%);">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-agency-content" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;">
+                  <div class="st-multitool-manage-script-card-title" style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg, #c084fc, #38bdf8);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(192,132,252,0.3);"><i data-lucide="bot" style="width:18px;height:18px;"></i></div>
+                    <div>
+                      <span style="font-weight:700;font-size:14px;color:#f8fafc;display:flex;align-items:center;gap:8px;">AI Agency Regex Assistant <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:rgba(168,85,247,0.25);color:#d8b4fe;border:1px solid rgba(192,132,252,0.5);">Trợ lý Kỹ sư tự động</span></span>
+                      <div style="font-size:11px;color:#cbd5e1;font-weight:400;margin-top:2px;">Tự động truy cập, phân tích cấu trúc, tối ưu hiệu năng hoặc tạo mới Regex theo yêu cầu tự nhiên.</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon" style="color:#c084fc;"></i>
+                  </div>
+                </div>
+                <div id="st-multitool-manage-regex-agency-content" class="st-multitool-manage-script-card-content" style="padding:16px;display:flex;flex-direction:column;gap:14px;border-top:1px solid rgba(168,85,247,0.2);">
+                  <!-- Target Regex Selector -->
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-weight:700;font-size:12.5px;color:#e2e8f0;display:flex;align-items:center;gap:6px;"><i data-lucide="target" style="width:14px;height:14px;color:#38bdf8;"></i> Chọn Regex mục tiêu để AI Agency truy cập & chỉnh sửa:</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <select id="st-multitool-regex-agency-target-select" class="st-multitool-select" style="flex:1;background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.4);color:#f8fafc;font-weight:600;border-radius:6px;padding:8px 12px;">
+                        <option value="__NEW__">✨ [+ Tạo Regex mới từ đầu (Create New Regex)]</option>
+                      </select>
+                      <button id="st-multitool-regex-agency-refresh-targets" type="button" class="st-multitool-regex-test-btn" style="background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;border-radius:6px;padding:8px 12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;cursor:pointer;" title="Làm mới danh sách Regex"><i data-lucide="refresh-cw" style="width:14px;height:14px;"></i></button>
+                    </div>
+                    <div id="st-multitool-regex-agency-target-info" style="font-size:11.5px;color:#94a3b8;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:8px;font-family:Consolas,monospace;">
+                      <i data-lucide="info" style="width:14px;height:14px;color:#38bdf8;flex-shrink:0;"></i> <span>Chế độ: Tạo Regex mới từ mô tả ngôn ngữ tự nhiên.</span>
+                    </div>
+                  </div>
+
+                  <!-- Prompt / Requirement Textarea -->
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <label style="font-weight:700;font-size:12.5px;color:#e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+                      <span style="display:flex;align-items:center;gap:6px;"><i data-lucide="message-square" style="width:14px;height:14px;color:#c084fc;"></i> Yêu cầu chỉnh sửa / Tạo mới (Natural Language Prompt):</span>
+                      <span style="font-size:11px;color:#94a3b8;font-weight:400;">Hỗ trợ tiếng Việt & tiếng Anh</span>
+                    </label>
+                    <textarea id="st-multitool-regex-agency-prompt-input" class="st-multitool-textarea" rows="3" placeholder="Ví dụ: Tạo regex tự động lọc bỏ các đoạn suy nghĩ <think>...</think> trong tin nhắn AI trước khi hiển thị ra màn hình..." style="width:100%;background:rgba(15,23,42,0.9);border:1px solid rgba(192,132,252,0.35);border-radius:6px;padding:10px;color:#f8fafc;font-size:13px;resize:vertical;"></textarea>
+                    
+                    <!-- Suggestion Pills -->
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;">
+                      <span class="st-multitool-regex-agency-pill" data-prompt="Tạo regex lọc bỏ toàn bộ thẻ <think>...</think> và nội dung suy nghĩ bên trong trước khi hiển thị cho người dùng." style="font-size:11px;background:rgba(168,85,247,0.15);color:#d8b4fe;border:1px solid rgba(192,132,252,0.3);padding:3px 10px;border-radius:14px;cursor:pointer;transition:all 0.2s ease;">⚡ Lọc thẻ &lt;think&gt; (R1/DeepSeek)</span>
+                      <span class="st-multitool-regex-agency-pill" data-prompt="Tự động kiểm tra và tối ưu hóa hiệu năng của Regex mục tiêu hiện tại, loại bỏ nguy cơ giật lag do catastrophic backtracking." style="font-size:11px;background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:3px 10px;border-radius:14px;cursor:pointer;transition:all 0.2s ease;">🛡️ Tối ưu chống giật lag (Anti-backtracking)</span>
+                      <span class="st-multitool-regex-agency-pill" data-prompt="Tạo regex chuyển đổi cú pháp [IMG_GEN]mô tả ảnh[/IMG_GEN] sang định dạng thẻ ảnh Markdown ![image](https://pollinations.ai/prompt/mô%20tả%20ảnh) hiển thị trực tiếp trong khung chat." style="font-size:11px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);padding:3px 10px;border-radius:14px;cursor:pointer;transition:all 0.2s ease;">🖼️ Trình tạo ảnh Markdown (Pollinations)</span>
+                      <span class="st-multitool-regex-agency-pill" data-prompt="Giải thích chi tiết ý nghĩa từng nhóm và cờ (flags) của Regex mục tiêu hiện tại, đồng thời gợi ý cải tiến." style="font-size:11px;background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);padding:3px 10px;border-radius:14px;cursor:pointer;transition:all 0.2s ease;">💡 Giải thích & Đánh giá pattern</span>
+                    </div>
+                  </div>
+
+                  <!-- Action Button -->
+                  <div style="display:flex;justify-content:flex-end;gap:10px;">
+                    <button id="st-multitool-regex-agency-run-btn" type="button" class="st-multitool-regex-agency-run-btn" style="background:linear-gradient(135deg, #c084fc 0%, #818cf8 100%);color:#0f172a;border:1px solid #d8b4fe;font-weight:700;font-size:13.5px;border-radius:6px;padding:8px 20px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(192,132,252,0.3);transition:all 0.2s ease;cursor:pointer;">
+                      <i data-lucide="cpu" style="width:16px;height:16px;"></i> Phân tích & Thực thi AI Agency
+                    </button>
+                  </div>
+
+                  <!-- Staging Diff / Preview Output Box (Hidden by default until AI responds) -->
+                  <div id="st-multitool-regex-agency-staging-box" style="display:none;background:rgba(15,23,42,0.95);border:1px solid #38bdf8;border-radius:8px;padding:14px;flex-direction:column;gap:12px;box-shadow:0 4px 16px rgba(0,0,0,0.4);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:8px;">
+                      <span style="font-weight:700;font-size:13px;color:#38bdf8;display:flex;align-items:center;gap:6px;"><i data-lucide="git-branch" style="width:15px;height:15px;"></i> Bản nháp thay đổi AI Agency (Staging Diff / Preview)</span>
+                      <span id="st-multitool-regex-agency-staging-status" style="font-size:11px;padding:2px 8px;border-radius:12px;background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(52,211,153,0.3);">Sẵn sàng áp dụng</span>
+                    </div>
+
+                    <!-- AI Reasoning / Explanation -->
+                    <div id="st-multitool-regex-agency-explanation" style="font-size:12.5px;color:#e2e8f0;line-height:1.5;background:rgba(30,41,59,0.6);border-left:3px solid #c084fc;padding:10px 12px;border-radius:4px;"></div>
+
+                    <!-- Proposed Regex Diff Details -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                      <div style="display:flex;flex-direction:column;gap:4px;">
+                        <span style="font-size:11px;font-weight:700;color:#94a3b8;">BIỂU THỨC TÌM KIẾM (FIND PATTERN):</span>
+                        <div id="st-multitool-regex-agency-diff-find" style="background:#0b1329;border:1px solid rgba(56,189,248,0.4);border-radius:4px;padding:8px;font-family:Consolas,monospace;font-size:12px;color:#38bdf8;word-break:break-all;"></div>
+                      </div>
+                      <div style="display:flex;flex-direction:column;gap:4px;">
+                        <span style="font-size:11px;font-weight:700;color:#94a3b8;">CHUỖI THAY THẾ (REPLACE STRING):</span>
+                        <div id="st-multitool-regex-agency-diff-replace" style="background:#0b1329;border:1px solid rgba(52,211,153,0.4);border-radius:4px;padding:8px;font-family:Consolas,monospace;font-size:12px;color:#34d399;word-break:break-all;"></div>
+                      </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                      <div id="st-multitool-regex-agency-diff-meta" style="font-size:11px;color:#cbd5e1;"></div>
+                      <div style="display:flex;gap:8px;">
+                        <button id="st-multitool-regex-agency-apply-btn" type="button" class="st-multitool-regex-save-btn" style="background:linear-gradient(135deg, #00e6b8 0%, #00b38f 100%);color:#042f24;border:1px solid #00ffd0;font-weight:700;font-size:12.5px;border-radius:6px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all 0.2s ease;"><i data-lucide="check" style="width:14px;height:14px;"></i> Áp dụng vào Regex mục tiêu</button>
+                        <button id="st-multitool-regex-agency-reject-btn" type="button" class="st-multitool-regex-cancel-btn" style="background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(248,113,113,0.4);font-weight:600;font-size:12.5px;border-radius:6px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all 0.2s ease;"><i data-lucide="x" style="width:14px;height:14px;"></i> Hủy bản nháp</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="st-multitool-manage-script-card">
                 <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-global-list" style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="st-multitool-manage-script-card-title">
@@ -1256,16 +1341,17 @@
           <div id="st-multitool-manage-regex-edit-content" class="st-multitool-section-content" style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
             <input type="hidden" id="st-multitool-manage-regex-id">
             
-            <!-- Banner chuẩn bị AI & Live Tester -->
-            <div class="st-multitool-regex-ai-banner" style="background: linear-gradient(135deg, rgba(14,165,233,0.12) 0%, rgba(168,85,247,0.12) 100%); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <!-- Toolbar Kiểm thử & AI Agency Shortcut -->
+            <div class="st-multitool-regex-ai-banner" style="background: linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.7) 100%); border: 1px solid rgba(168,85,247,0.35); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#38bdf8,#c084fc);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;box-shadow:0 0 10px rgba(56,189,248,0.3);">🤖</div>
+                <div style="width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,#c084fc,#38bdf8);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(192,132,252,0.3);"><i data-lucide="bot" style="width:16px;height:16px;"></i></div>
                 <div>
-                  <div style="font-weight: 700; font-size: 13px; color: #e2e8f0;">AI Agency Regex Assistant <span style="font-size:10px;padding:2px 6px;border-radius:10px;background:rgba(168,85,247,0.25);color:#c084fc;border:1px solid #c084fc;margin-left:4px;">Chuẩn bị kết nối</span></div>
-                  <div style="font-size: 11px; color: #94a3b8;">Tự động phân tích cấu trúc Regex, tối ưu hiệu năng hoặc tạo pattern từ mô tả tự nhiên.</div>
+                  <span style="font-weight: 700; font-size: 13px; color: #f8fafc;">Cần nhờ AI tự động phân tích hoặc tối ưu Regex này?</span>
+                  <div style="font-size: 11px; color: #94a3b8;">Trợ lý AI Agency tại tab ngoài có thể tự động đọc cấu trúc, phát hiện lỗi giật lag và viết lại mẫu chính xác.</div>
                 </div>
               </div>
               <div style="display: flex; gap: 8px;">
+                <button id="st-multitool-send-to-regex-agency-btn" type="button" class="st-multitool-regex-save-btn" style="background: linear-gradient(135deg, rgba(168,85,247,0.2) 0%, rgba(192,132,252,0.12) 100%); border: 1px solid rgba(192,132,252,0.5); color: #d8b4fe; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(168,85,247,0.2); transition: all 0.2s ease; cursor: pointer;" title="Mở Trợ lý AI Agency và chọn sẵn Regex này"><i data-lucide="sparkles" style="width:14px;height:14px;"></i> Chuyển sang AI Agency sửa Regex này</button>
                 <button id="st-multitool-manage-regex-test-btn" type="button" class="st-multitool-regex-test-btn" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(14, 165, 233, 0.12) 100%); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="play-circle" style="width:14px;height:14px;"></i> Kiểm thử Live Match</button>
               </div>
             </div>

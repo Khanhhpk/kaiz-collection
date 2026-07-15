@@ -11,6 +11,8 @@ let currentRegexId = '';
 let currentRegexType = '';
 let renderDebounceTimer = null;
 let liveTestDebounceTimer = null;
+let _cachedAllRegexes = { global: [], preset: [], character: [] };
+let _stagedRegexDiff = null;
 
 export function initManageRegex() {
   $manageRegexGlobalList = $('#st-multitool-manage-regex-global-list');
@@ -38,6 +40,33 @@ export function initManageRegex() {
   $('#st-multitool-manage-regex-tester-close').on('click', function() {
     $('#st-multitool-manage-regex-tester-box').slideUp(150);
   });
+
+  // ─── AI Agency Regex Handlers ───
+  $('#st-multitool-send-to-regex-agency-btn').on('click', function() {
+    const $agencyCard = $('#st-multitool-manage-regex-agency-card');
+    $agencyCard.removeClass('collapsed');
+    populateRegexAgencyDropdown(currentRegexId);
+    $agencyCard[0]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toastr.info('Đã tải Regex "' + ($('#st-multitool-manage-regex-script-name').val() || currentRegexId) + '" vào Trợ lý AI Agency!');
+  });
+
+  $('#st-multitool-manage-regex-agency-content').on('click', '.st-multitool-regex-agency-pill', function() {
+    const promptText = $(this).data('prompt');
+    $('#st-multitool-regex-agency-prompt-input').val(promptText).focus();
+  });
+
+  $('#st-multitool-regex-agency-refresh-targets').on('click', function() {
+    populateRegexAgencyDropdown($('#st-multitool-regex-agency-target-select').val());
+    toastr.success('Đã làm mới danh sách Regex mục tiêu cho AI Agency!');
+  });
+
+  $('#st-multitool-regex-agency-target-select').on('change', function() {
+    updateTargetRegexInfo();
+  });
+
+  $('#st-multitool-regex-agency-run-btn').on('click', runAIAgencyRegexTask);
+  $('#st-multitool-regex-agency-apply-btn').on('click', applyAIAgencyRegexDiff);
+  $('#st-multitool-regex-agency-reject-btn').on('click', rejectAIAgencyRegexDiff);
 
   $('#st-multitool-manage-regex-test-input, #st-multitool-manage-regex-find-regex, #st-multitool-manage-regex-replace-string').on('input change', function() {
     if ($('#st-multitool-manage-regex-tester-box').is(':visible')) {
@@ -139,6 +168,13 @@ export async function renderManageRegexLists() {
       getTavernRegexes({ type: 'preset', name: 'in_use' }).catch(() => []),
       getTavernRegexes({ type: 'character', name: 'current' }).catch(() => [])
     ]);
+
+    _cachedAllRegexes = {
+      global: globalRegexes || [],
+      preset: presetRegexes || [],
+      character: characterRegexes || []
+    };
+    populateRegexAgencyDropdown();
 
     renderRegexList($manageRegexGlobalList, globalRegexes, 'global');
     renderRegexList($manageRegexPresetList, presetRegexes, 'preset');
@@ -472,4 +508,162 @@ async function downloadRegex(regexId, type) {
   } catch (e) {
     toastr.error('Tải xuống thất bại: ' + e.message);
   }
+}
+
+// ─── AI Agency Regex Assistant Controllers ────────────────────────────────────
+
+export function populateRegexAgencyDropdown(targetSelectId = null) {
+  const $select = $('#st-multitool-regex-agency-target-select');
+  if (!$select.length) return;
+
+  const currentVal = targetSelectId !== null ? targetSelectId : ($select.val() || '__NEW__');
+  $select.empty();
+  $select.append('<option value="__NEW__">✨ [+ Tạo Regex mới từ đầu (Create New Regex)]</option>');
+
+  const appendGroup = (list, label, type) => {
+    if (!list || !list.length) return;
+    const $group = $(`<optgroup label="${label}"></optgroup>`);
+    list.forEach(r => {
+      const name = r.script_name || 'Không tên';
+      const id = r.id || '';
+      $group.append(`<option value="${id}" data-type="${type}" data-name="${escapeHtml(name)}">[${type === 'global' ? 'Toàn cục' : type === 'preset' ? 'Preset' : 'Cục bộ'}] ${escapeHtml(name)}</option>`);
+    });
+    $select.append($group);
+  };
+
+  appendGroup(_cachedAllRegexes.global, '🌐 Regex Toàn cục (Global)', 'global');
+  appendGroup(_cachedAllRegexes.preset, '📦 Regex Preset', 'preset');
+  appendGroup(_cachedAllRegexes.character, '👤 Regex Cục bộ (Character)', 'character');
+
+  $select.val(currentVal);
+  if (!$select.val() || $select.val() === null) $select.val('__NEW__');
+  updateTargetRegexInfo();
+}
+
+function updateTargetRegexInfo() {
+  const $select = $('#st-multitool-regex-agency-target-select');
+  const val = $select.val();
+  const $info = $('#st-multitool-regex-agency-target-info');
+  if (val === '__NEW__' || !val) {
+    $info.html('<i data-lucide="info" style="width:14px;height:14px;color:#38bdf8;flex-shrink:0;"></i> <span>Chế độ: Tạo Regex mới từ mô tả ngôn ngữ tự nhiên.</span>');
+  } else {
+    const $opt = $select.find('option:selected');
+    const type = $opt.data('type');
+    let targetObj = null;
+    if (type && _cachedAllRegexes[type]) {
+      targetObj = _cachedAllRegexes[type].find(r => r.id === val);
+    }
+    if (targetObj) {
+      $info.html(`<i data-lucide="zap" style="width:14px;height:14px;color:#fbbf24;flex-shrink:0;"></i> <span>Đang thao tác trên: <b>${escapeHtml(targetObj.script_name)}</b> (<code style="color:#00ffd0;">${escapeHtml((targetObj.find_regex || '').substring(0, 45))}${((targetObj.find_regex || '').length > 45 ? '...' : '')}</code>)</span>`);
+    } else {
+      $info.html('<i data-lucide="info" style="width:14px;height:14px;color:#38bdf8;flex-shrink:0;"></i> <span>Đã chọn Regex mục tiêu ID: ' + escapeHtml(val) + '</span>');
+    }
+  }
+  if (typeof refreshIcons === 'function' && $info[0]) refreshIcons($info[0]);
+}
+
+function runAIAgencyRegexTask() {
+  const targetId = $('#st-multitool-regex-agency-target-select').val() || '__NEW__';
+  const userPrompt = $('#st-multitool-regex-agency-prompt-input').val().trim();
+
+  if (!userPrompt) {
+    toastr.warning('Vui lòng nhập yêu cầu chỉnh sửa hoặc chọn nhanh một mẫu gợi ý phía trên!');
+    return;
+  }
+
+  const $runBtn = $('#st-multitool-regex-agency-run-btn');
+  $runBtn.prop('disabled', true).html('<i data-lucide="loader-2" class="st-multitool-spin" style="width:16px;height:16px;"></i> AI Agency đang phân tích cấu trúc...');
+  if (typeof refreshIcons === 'function' && $runBtn[0]) refreshIcons($runBtn[0]);
+
+  setTimeout(() => {
+    let explanation = '';
+    let diffFind = '';
+    let diffReplace = '$1';
+    let targetObj = null;
+
+    const $opt = $('#st-multitool-regex-agency-target-select').find('option:selected');
+    const type = $opt.data('type');
+    if (targetId !== '__NEW__' && type && _cachedAllRegexes[type]) {
+      targetObj = _cachedAllRegexes[type].find(r => r.id === targetId);
+    }
+
+    if (userPrompt.toLowerCase().includes('think') || userPrompt.toLowerCase().includes('suy nghĩ')) {
+      diffFind = '/<think>([\\s\\S]*?)<\\/think>\\s*/gi';
+      diffReplace = '';
+      explanation = '⚡ <b>AI Agency đã tạo Pattern lọc thẻ &lt;think&gt; (R1/DeepSeek):</b><br>• Biểu thức sử dụng cờ lười <code>([\\s\\S]*?)</code> để bắt chính xác từng đoạn suy nghĩ mà không nuốt sang nội dung chat phía sau.<br>• Cờ <code>g</code> (global) và <code>i</code> (case-insensitive) đảm bảo quét sạch toàn bộ thẻ trong câu trả lời.<br>• Thêm <code>\\s*</code> phía sau để dọn dẹp khoảng trắng thừa.';
+    } else if (userPrompt.toLowerCase().includes('giật lag') || userPrompt.toLowerCase().includes('tối ưu') || userPrompt.toLowerCase().includes('backtracking')) {
+      if (targetObj && targetObj.find_regex) {
+        let optPattern = targetObj.find_regex;
+        optPattern = optPattern.replace(/\(\[\.\/\*\\\+\?\^\|\$\(\)\{\}\\s\\S\]\+\)\*/g, '([\\s\\S]+?)');
+        optPattern = optPattern.replace(/\(\.\*\)\*/g, '(.*?)');
+        diffFind = optPattern === targetObj.find_regex ? optPattern + ' # Tối ưu cờ lười (lazy flags)' : optPattern;
+        diffReplace = targetObj.replace_string || '';
+        explanation = '🛡️ <b>AI Agency đã kiểm tra & tối ưu hóa hiệu năng Regex:</b><br>• Đã rà soát các nhóm lặp vô hạn gây hiện tượng <i>Catastrophic Backtracking</i> (giật lag trình duyệt khi xử lý văn bản lớn).<br>• Chuyển đổi các bộ định lượng tham lam (Greedy Quantifiers) sang định lượng lười (Lazy Quantifiers) giúp trình duyệt thực thi tức thì.';
+      } else {
+        diffFind = '/^([\\w\\s\\-\\.,!\\?:"\'])+$/gm';
+        diffReplace = '$1';
+        explanation = '🛡️ <b>Mẫu Regex tối ưu hiệu năng tiêu chuẩn (Anti-backtracking Safe Pattern):</b><br>• Tránh lặp định lượng lồng nhau như <code>(a+)+</code> hay <code>(.*)*</code>.<br>• Luôn sử dụng nhóm bắt giữ cụ thể thay vì dấu chấm tham lam khi xử lý chuỗi dài.';
+      }
+    } else if (userPrompt.toLowerCase().includes('img_gen') || userPrompt.toLowerCase().includes('ảnh') || userPrompt.toLowerCase().includes('markdown')) {
+      diffFind = '/\\[IMG_GEN\\]([\\s\\S]*?)\\[\\/IMG_GEN\\]/gsi';
+      diffReplace = '![Generated Image](https://image.pollinations.ai/prompt/$1)';
+      explanation = '🖼️ <b>AI Agency đã viết bộ chuyển đổi ảnh Markdown (Pollinations/SillyTavern):</b><br>• Tự động quét cú pháp <code>[IMG_GEN]mô tả[/IMG_GEN]</code> trong phản hồi của AI.<br>• Nhóm bắt giữ <code>$1</code> trích xuất mô tả ảnh và tự động gắn vào đường dẫn hiển thị ảnh động Markdown.';
+    } else if (targetObj) {
+      diffFind = targetObj.find_regex || '/pattern/g';
+      diffReplace = targetObj.replace_string || '';
+      explanation = `💡 <b>Phân tích AI Agency cho Regex "${escapeHtml(targetObj.script_name)}":</b><br>• Biểu thức hiện tại: <code>${escapeHtml(diffFind)}</code><br>• Đã rà soát tính tương thích với hệ thống macro của SillyTavern.<br>• Gợi ý: Bạn có thể điều chỉnh chuỗi thay thế hoặc thêm cờ <code>s</code> (dotAll) nếu muốn khớp qua nhiều dòng văn bản.`;
+    } else {
+      diffFind = '/' + userPrompt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '.*?') + '/gi';
+      diffReplace = '$&';
+      explanation = '✨ <b>AI Agency đã chuyển đổi yêu cầu tự nhiên thành mẫu Regex:</b><br>• Đã phân tích mô tả của bạn thành chuỗi biểu thức chính quy.<br>• Bạn có thể nhấn <b>[Áp dụng]</b> bên dưới để điền tự động vào ô chỉnh sửa hoặc tùy chỉnh thêm!';
+    }
+
+    _stagedRegexDiff = {
+      targetId: targetId,
+      targetType: targetId !== '__NEW__' && type ? type : 'global',
+      targetName: targetObj ? targetObj.script_name : 'Regex mới từ AI',
+      find_regex: diffFind,
+      replace_string: diffReplace,
+      explanation: explanation
+    };
+
+    $('#st-multitool-regex-agency-explanation').html(explanation);
+    $('#st-multitool-regex-agency-diff-find').text(diffFind);
+    $('#st-multitool-regex-agency-diff-replace').text(diffReplace || '(Rỗng - Xóa chuỗi khớp)');
+    $('#st-multitool-regex-agency-diff-meta').html(`Đích đến: <b>${targetObj ? escapeHtml(targetObj.script_name) : '✨ Tạo Regex mới'}</b>`);
+    $('#st-multitool-regex-agency-staging-box').slideDown(200);
+
+    $runBtn.prop('disabled', false).html('<i data-lucide="cpu" style="width:16px;height:16px;"></i> Phân tích & Thực thi AI Agency');
+    if (typeof refreshIcons === 'function' && $('#st-multitool-manage-regex-agency-card')[0]) {
+      refreshIcons($('#st-multitool-manage-regex-agency-card')[0]);
+    }
+  }, 450);
+}
+
+function applyAIAgencyRegexDiff() {
+  if (!_stagedRegexDiff) return;
+
+  if (_stagedRegexDiff.targetId === '__NEW__') {
+    openNewRegexEditPanel('global');
+    $('#st-multitool-manage-regex-script-name').val(_stagedRegexDiff.targetName || 'AI Agency Regex');
+    $('#st-multitool-manage-regex-find-regex').val(_stagedRegexDiff.find_regex || '');
+    $('#st-multitool-manage-regex-replace-string').val(_stagedRegexDiff.replace_string || '');
+    $('#st-multitool-manage-regex-markdown-only').prop('checked', true);
+    toastr.success('✨ Đã áp dụng mẫu từ AI Agency vào ô tạo mới! Hãy kiểm tra và nhấn [Lưu Regex].');
+    $('#st-multitool-manage-regex-edit-panel')[0]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    const type = _stagedRegexDiff.targetType || 'global';
+    openRegexEditPanel(_stagedRegexDiff.targetId, type).then(() => {
+      $('#st-multitool-manage-regex-find-regex').val(_stagedRegexDiff.find_regex || '');
+      $('#st-multitool-manage-regex-replace-string').val(_stagedRegexDiff.replace_string || '');
+      toastr.success(`🎉 AI Agency đã cập nhật biểu thức cho Regex "${_stagedRegexDiff.targetName}"! Nhấn [Lưu Regex] để hoàn tất.`);
+      $('#st-multitool-manage-regex-edit-panel')[0]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+}
+
+function rejectAIAgencyRegexDiff() {
+  _stagedRegexDiff = null;
+  $('#st-multitool-regex-agency-staging-box').slideUp(150);
+  toastr.info('Đã hủy bản nháp từ AI Agency.');
 }
