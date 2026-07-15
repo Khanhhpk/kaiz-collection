@@ -1462,24 +1462,35 @@ input:checked + .st-multitool-toggle-slider:before {
    AI AGENCY SIDEBAR
 ═══════════════════════════════════════════════════════════════ */
 
-/* Split layout: prompt list + AI sidebar */
-#st-multitool-manage-prompt-view {
-  display: flex;
+/* Split layout: prompt list/regex list + AI sidebar */
+.st-multitool-split-view-container,
+#st-multitool-manage-prompt-view,
+#st-multitool-manage-regex-view {
+  display: none;
   flex-direction: row;
   overflow: hidden;
   gap: 0;
+  height: 100%;
+  width: 100%;
+  position: relative;
 }
 
-#st-multitool-manage-prompt-view.ai-agency-active {
+#st-multitool-manage-prompt-view[style*="display: block"],
+#st-multitool-manage-prompt-view[style*="display: flex"],
+#st-multitool-manage-regex-view[style*="display: block"],
+#st-multitool-manage-regex-view[style*="display: flex"],
+#st-multitool-manage-prompt-view.ai-agency-active,
+#st-multitool-manage-regex-view.ai-agency-active {
   display: flex !important;
   flex-direction: row !important;
-  overflow: hidden;
-  gap: 0;
+  overflow: hidden !important;
+  gap: 0 !important;
 }
 
-.ai-prompt-list-panel {
+.ai-prompt-list-panel,
+.st-multitool-regex-list-panel {
   flex: 1 1 auto;
-  min-width: 480px;
+  min-width: 0;
   width: 100%;
   height: 100%;
   overflow-y: auto;
@@ -1488,6 +1499,37 @@ input:checked + .st-multitool-toggle-slider:before {
   flex-direction: column;
   contain: layout;
 }
+
+/* ── Manage Regex View Specific Layout & Un-squished Cards ────────────────── */
+#st-multitool-manage-regex-view .st-multitool-section.st-multitool-regex-main-section {
+  flex: 0 0 auto !important;
+  min-height: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+#st-multitool-manage-regex-view .st-multitool-manage-script-cards.st-multitool-regex-cards-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+#st-multitool-manage-regex-view .st-multitool-manage-script-card.st-multitool-regex-card-box {
+  flex: 0 0 auto !important;
+  min-height: auto !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+#st-multitool-manage-regex-view .st-multitool-manage-script-card-content {
+  flex: 0 0 auto !important;
+  max-height: 280px !important;
+  overflow-y: auto !important;
+}
+
 
 /* ── Sidebar shell (hidden by default unless ai-agency-active) ────────────────── */
 .ai-agency-sidebar {

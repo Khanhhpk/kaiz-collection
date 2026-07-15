@@ -242,6 +242,9 @@ export async function showSubView(viewId) {
   $('#st-multitool-header-title').html(title);
   $('#st-multitool-popup-back-btn').show();
   $(`#${viewId}`).show();
+  if (viewId === 'st-multitool-manage-regex-view' || viewId === 'st-multitool-manage-prompt-view') {
+    $(`#${viewId}`).css({ display: 'flex', 'flex-direction': 'row' });
+  }
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, viewId);
   setTimeout(() => { refreshIcons(); }, 10);
 }

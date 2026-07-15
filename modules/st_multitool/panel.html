@@ -1188,11 +1188,11 @@
         </div>
       </div>
 
-      <div id="st-multitool-manage-regex-view" style="display: none; flex-direction: row; gap: 0; height: 100%; position: relative;">
+      <div id="st-multitool-manage-regex-view" class="st-multitool-split-view-container" style="display: none; flex-direction: row; gap: 0; height: 100%; width: 100%; position: relative; overflow: hidden;">
         <!-- Left Panel: Main Regex List & Editor -->
-        <div class="st-multitool-regex-list-panel" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 15px; height: 100%; overflow-y: auto; padding-right: 4px;">
-          <div class="st-multitool-section" style="flex: 1; min-height: 0;">
-            <div class="st-multitool-section-header" style="display:flex; justify-content: space-between; align-items: center;">
+        <div class="st-multitool-regex-list-panel" style="flex: 1 1 auto; min-width: 0; width: 100%; display: flex; flex-direction: column; gap: 15px; height: 100%; overflow-y: auto; overflow-x: hidden; padding-right: 4px;">
+          <div class="st-multitool-section st-multitool-regex-main-section" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none; overflow: visible;">
+            <div class="st-multitool-section-header" style="display:flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
               <h4>
                 <i data-lucide="code"></i> Quản lý regex
                 <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
@@ -1203,9 +1203,9 @@
                 </button>
               </div>
             </div>
-            <div class="st-multitool-section-content">
-              <div class="st-multitool-manage-script-cards">
-              <div class="st-multitool-manage-script-card">
+            <div class="st-multitool-section-content" style="overflow: visible; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
+              <div class="st-multitool-manage-script-cards st-multitool-regex-cards-grid" style="display: flex; flex-direction: column; gap: 14px; height: auto; overflow: visible;">
+              <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">
                 <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-global-list" style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="globe"></i> Regex toàn cục
@@ -1215,11 +1215,11 @@
                     <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                   </div>
                 </div>
-                <div id="st-multitool-manage-regex-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                <div id="st-multitool-manage-regex-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content" style="flex: 0 0 auto; max-height: 280px; overflow-y: auto; padding: 10px;">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
                 </div>
               </div>
-              <div class="st-multitool-manage-script-card">
+              <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">
                 <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-preset-list" style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="bookmark"></i> Regex preset
@@ -1229,11 +1229,11 @@
                     <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                   </div>
                 </div>
-                <div id="st-multitool-manage-regex-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                <div id="st-multitool-manage-regex-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content" style="flex: 0 0 auto; max-height: 280px; overflow-y: auto; padding: 10px;">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
                 </div>
               </div>
-              <div class="st-multitool-manage-script-card">
+              <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">
                 <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-character-list" style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="user"></i> Regex cục bộ
@@ -1243,14 +1243,15 @@
                     <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
                   </div>
                 </div>
-                <div id="st-multitool-manage-regex-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                <div id="st-multitool-manage-regex-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content" style="flex: 0 0 auto; max-height: 280px; overflow-y: auto; padding: 10px;">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </div>
-        <div id="st-multitool-manage-regex-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; max-height: 85%; overflow-y: auto; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); border-top: 2px solid var(--st-multitool-primary);">
+        <div id="st-multitool-manage-regex-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; flex: 0 0 auto; max-height: none; overflow: visible; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); border-top: 2px solid var(--st-multitool-primary);">
           <div class="st-multitool-section-header st-multitool-edit-panel-header" data-target="st-multitool-manage-regex-edit-content">
             <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
               <span><i data-lucide="edit"></i> <span class="st-multitool-manage-regex-edit-title">Sửa regex</span> <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>
@@ -1525,8 +1526,8 @@
         </div>
       </div>
 
-      <div id="st-multitool-manage-prompt-view" style="display: none; height: 100%; display: flex; flex-direction: row; overflow: hidden; gap: 0;">
-        <div class="ai-prompt-list-panel" style="flex: 1 1 auto; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;">
+      <div id="st-multitool-manage-prompt-view" class="st-multitool-split-view-container" style="display: none; flex-direction: row; gap: 0; height: 100%; width: 100%; position: relative; overflow: hidden;">
+        <div class="ai-prompt-list-panel" style="flex: 1 1 auto; min-width: 0; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;">
           <div class="st-multitool-section-desc">
             Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
           </div>
