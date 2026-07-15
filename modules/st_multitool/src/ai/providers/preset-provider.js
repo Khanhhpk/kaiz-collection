@@ -746,7 +746,7 @@ async function executeTool(name, args) {
       return {
         ok: true,
         staged: true,
-        summary: `Staged chuyển block "${p.name}" thành ${linked ? `Linked (Vị trí: ${currentOrder.indexOf(identifier) + 1})` : 'Unlinked (Kho bên phải)'}`
+        summary: `Staged chuyển block "${p.name}" thành ${linked ? `Linked (Vị trí: ${currentOrder.indexOf(identifier) + 1})` : 'Unlinked (Chưa liên kết)'}`
       };
     }
 
@@ -1056,7 +1056,7 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 [NHÓM GHI – BLOCKS (Staged, lưu tạm thời vào bộ nhớ chờ duyệt)]
 - create_prompt_block — Tạo block mới (args: {"name": "...", "content": "...", "role": "system|user|assistant", "addToLinked": true|false, ...}).
 - delete_prompt_block — Đánh dấu xóa block (args: {"identifier": "..."}).
-- set_prompt_linked — Chuyển đổi trạng thái giữa Liên kết (Linked bên trái) và Chưa liên kết (Unlinked kho bên phải) kèm vị trí (args: {"identifier": "...", "linked": true|false, "position": 2}).
+- set_prompt_linked — Chuyển đổi trạng thái giữa Liên kết (Linked / Đang hoạt động) và Chưa liên kết (Unlinked / Không hoạt động) kèm vị trí chèn (args: {"identifier": "...", "linked": true|false, "position": 2}).
 - duplicate_prompt_block — Nhân bản ngay 1 block với 100% nội dung và metadata giữ nguyên (args: {"identifier": "...", "newName": "..."}).
 - update_prompt_content — Cập nhật toàn bộ nội dung 1 block (args: {"identifier": "...", "content": "..."}) -> ƯU TIÊN SỐ 1: Gửi nguyên vẹn toàn bộ nội dung block để bảo toàn cấu trúc và định dạng.
 - append_prompt_content — Nối thêm văn bản vào block (args: {"identifier": "...", "append_text": "..."}) -> FALLBACK KHI BỊ CẮT: Chỉ dùng khi block quá dài vượt token hoặc bị ngắt stream giữa chừng.

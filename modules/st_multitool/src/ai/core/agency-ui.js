@@ -904,8 +904,8 @@ function _bindEvents() {
       _$sidebar.find('.ai-tool-preview').hide();
       setState('idle');
       toastr.success('Đã áp dụng thay đổi vào Preset Editor!');
-      appendBubble('assistant', '<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Đã áp dụng các thay đổi vào danh sách bên trái. Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
-      _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Chấp Nhận (Apply) tất cả các thay đổi staged vào Preset Editor. Danh sách block bên trái đã cập nhật thành công. Hãy ghi nhận trạng thái này đã được xác nhận và hỗ trợ tiếp nếu người dùng yêu cầu.]');
+      appendBubble('assistant', '<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Đã áp dụng các thay đổi vào Preset Editor (Linked / Unlinked). Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
+      _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Chấp Nhận (Apply) tất cả các thay đổi staged vào Preset Editor. Danh sách prompt (Linked & Unlinked) đã cập nhật thành công. Hãy ghi nhận trạng thái này đã được xác nhận và hỗ trợ tiếp nếu người dùng yêu cầu.]');
     } catch (e) {
       toastr.error('Lỗi khi áp dụng: ' + e.message);
     }
