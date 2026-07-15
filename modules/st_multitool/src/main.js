@@ -11,6 +11,7 @@ import { initManageRegex, renderManageRegexLists } from "./features/manage-regex
 import { initManagePrompt } from "./features/manage-prompt.js";
 import { initVarInspector } from "./features/var-inspector.js";
 import { initAIAgency } from "./ai/core/agency-ui.js";
+import { initRegexAgencyUI } from "./ai/core/regex-agency-ui.js";
 import {
   closePopup,
   elements,
@@ -185,6 +186,7 @@ async function init() {
     initManagePrompt();
     initVarInspector();
     initAIAgency();
+    initRegexAgencyUI();
 
     showMainView();
     console.log(`[${MODULE_NAME}] Khởi tạo hoàn tất`);
