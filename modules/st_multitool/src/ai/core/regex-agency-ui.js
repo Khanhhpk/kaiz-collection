@@ -764,7 +764,7 @@ function _bindEvents() {
 // ─── Entry Point ──────────────────────────────────────────────────────────────
 
 export function initRegexAgencyUI() {
-  const $container = $('#st-multitool-manage-regex-view .st-multitool-split-view-container');
+  const $container = $('#st-multitool-manage-regex-view');
   if (!$container.length) return;
 
   if (!_engine) {
