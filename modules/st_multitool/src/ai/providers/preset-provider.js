@@ -1056,7 +1056,7 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 [NHÓM GHI – BLOCKS (Staged, lưu tạm thời vào bộ nhớ chờ duyệt)]
 - create_prompt_block — Tạo block mới (args: {"name": "...", "content": "...", "role": "system|user|assistant", "addToLinked": true|false, ...}).
 - delete_prompt_block — Đánh dấu xóa block (args: {"identifier": "..."}).
-- set_prompt_linked — Chuyển đổi trạng thái giữa Liên kết (Linked / Đang hoạt động) và Chưa liên kết (Unlinked / Không hoạt động) kèm vị trí chèn (args: {"identifier": "...", "linked": true|false, "position": 2}).
+- set_prompt_linked — Chuyển đổi trạng thái Liên kết / Chưa liên kết HOẶC DI CHUYỂN vị trí của 1 block cụ thể (args: {"identifier": "...", "linked": true|false, "position": 2}). -> CHIẾN LƯỢC SẮP XẾP NHANH: Khi bạn chỉ muốn di chuyển/chèn vị trí của 1 đến vài block riêng lẻ, hãy dùng 'set_prompt_linked' (có thể gọi liên tiếp vài lần trong 1 lượt) siêu gọn nhẹ, không cần phải dùng 'reorder_prompts' gửi lại toàn bộ mảng ID dài!
 - duplicate_prompt_block — Nhân bản ngay 1 block với 100% nội dung và metadata giữ nguyên (args: {"identifier": "...", "newName": "..."}).
 - update_prompt_content — Cập nhật toàn bộ nội dung 1 block (args: {"identifier": "...", "content": "..."}) -> ƯU TIÊN SỐ 1: Gửi nguyên vẹn toàn bộ nội dung block để bảo toàn cấu trúc và định dạng.
 - append_prompt_content — Nối thêm văn bản vào block (args: {"identifier": "...", "append_text": "..."}) -> FALLBACK KHI BỊ CẮT: Chỉ dùng khi block quá dài vượt token hoặc bị ngắt stream giữa chừng.
@@ -1065,7 +1065,7 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 - update_prompt_name — Đổi tên block (args: {"identifier": "...", "name": "..."}).
 - update_prompt_meta — Cập nhật metadata (args: {"identifier": "...", "role": "...", "injection_position": 0, "injection_depth": 4}).
 - toggle_prompt_enabled — Bật/tắt block (args: {"identifier": "...", "enabled": true|false}).
-- reorder_prompts — Sắp xếp lại thứ tự (args: {"order": ["id1", "id2", ...]}).
+- reorder_prompts — Sắp xếp lại thứ tự toàn bộ preset (args: {"order": ["id1", "id2", ...]}). -> CHỈ DÙNG khi bạn muốn cấu trúc lại toàn bộ thứ tự mảng từ đầu đến cuối.
 - batch_update_prompts — Cập nhật đồng thời nhiều block nguyên vẹn trong 1 lệnh (args: {"updates": [{"identifier": "...", "content": "...", "name": "..."}]}) -> ƯU TIÊN GỬI NGUYÊN VẸN THEO BATCH ĐỂ TỐI ƯU TỐC ĐỘ.
 
 [NHÓM GHI – BIẾN VARS (Staged)]
@@ -1080,7 +1080,7 @@ QUY TRÌNH HOẠT ĐỘNG CHỦ ĐỘNG & TỰ ĐỘNG HÓA SIÊU VIỆT (AUTONO
 ================================================================================
 Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong việc khảo sát, ra quyết định và thực thi công việc mà không cần hỏi lại người dùng những chi tiết nhỏ:
 - Bước 1 (Chủ động Khảo sát - Proactive Discovery): Khi nhận yêu cầu chung (ví dụ "tối ưu preset", "sửa lỗi", "cải thiện CoT"), HÃY TỰ ĐỘNG gọi 'list_prompts' và 'list_vars' ngay lập tức để tự quét toàn bộ cấu trúc. Đừng bao giờ hỏi lại người dùng ID block hay chờ người dùng chỉ định tận tay! Nếu cần khảo sát kỹ nội dung toàn bộ block linked, hãy sử dụng ngay tool cấp cao 'get_all_linked_prompts'. Nếu nghi ngờ có lỗi cú pháp, hãy tự động gọi 'validate_preset_syntax'.
-- Bước 2 (Suy luận Kế hoạch & Quyền Tự Quyết): Dùng <cot>...</cot> để suy luận và lên kế hoạch. NGUYÊN TẮC CỐT LÕI: ƯU TIÊN SỐ 1 là gửi NGUYÊN VẸN toàn bộ nội dung block bằng 'update_prompt_content' hoặc 'batch_update_prompts' để đảm bảo tính toàn vẹn văn bản. Bạn có toàn quyền quyết định số lượng block cần xử lý trong mỗi batch, cách phân chia bước đi và chiến lược tối ưu hóa để hoàn thành trọn vẹn yêu cầu của người dùng một cách nhanh chóng và chính xác nhất!
+- Bước 2 (Suy luận Kế hoạch & Quyền Tự Quyết): Dùng <cot>...</cot> để suy luận và lên kế hoạch. NGUYÊN TẮC CỐT LÕI: ƯU TIÊN SỐ 1 là gửi NGUYÊN VẸN toàn bộ nội dung block bằng 'update_prompt_content' hoặc 'batch_update_prompts' để đảm bảo tính toàn vẹn văn bản. Nếu chỉ cần sắp xếp/di chuyển vị trí của một vài block lẻ, hãy tự tin gọi 'set_prompt_linked' (có thể gọi liên tiếp nhiều lệnh trong 1 lượt) để di chuyển cực gọn mà không phải gánh toàn bộ mảng ID của 'reorder_prompts'.
 - Bước 3 (Tự Động Kế Tiếp Vòng Lặp - Continuous Execution): Sau khi gọi tool ghi (Batch 1), hệ thống sẽ tự động quay vòng lặp gửi kết quả lại cho bạn. Bạn KHÔNG ĐƯỢC dừng lại hay chờ người dùng xác nhận giữa chừng, mà phải tự động thực thi tiếp Batch 2, Batch 3... cho đến khi hoàn tất 100% kế hoạch!
 - Bước 4 (Tự động Gỡ lỗi - Autonomous Self-Correction): Nếu gọi tool bị lỗi (tham số sai, không tìm thấy ID...), hãy tự động đọc lỗi trong <cot>...</cot>, tự điều chỉnh tham số hoặc gọi 'get_prompt_content' kiểm tra lại, sau đó GỌI LẠI TOOL sửa lỗi ngay lập tức!
 - Bước 5 (Chốt Kế Hoạch - Finalizing): CHỈ KHI toàn bộ công việc đã xong hoàn toàn 100%, bạn MỚI GỌI BẮT BUỘC lệnh <tool_call>{"name": "save_preset"}</tool_call> ở bước cuối cùng để hiển thị bảng tóm tắt Diff Preview cho người dùng bấm Áp Dụng (Apply) hoặc Từ Chối (Reject).`;
@@ -1105,7 +1105,7 @@ Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong v
       { name: 'validate_preset_syntax', description: 'Kiểm thử lỗi cú pháp ngoặc nhọn {{...}} và macro trên toàn preset' },
       { name: 'create_prompt_block',   description: 'Tạo block mới (staged)', args: ['name', 'content', 'role', 'addToLinked'] },
       { name: 'delete_prompt_block',   description: 'Xóa block (staged)', args: ['identifier'] },
-      { name: 'set_prompt_linked',     description: 'Chuyển trạng thái Liên kết/Chưa liên kết kèm vị trí (staged)', args: ['identifier', 'linked', 'position?'] },
+      { name: 'set_prompt_linked',     description: 'Chuyển đổi trạng thái HOẶC di chuyển nhanh vị trí 1 block cụ thể (staged)', args: ['identifier', 'linked', 'position?'] },
       { name: 'duplicate_prompt_block', description: 'Nhân bản 1 block với 100% nội dung và meta cũ (staged)', args: ['identifier', 'newName?'] },
       { name: 'update_prompt_content', description: 'Cập nhật nội dung (staged)', args: ['identifier', 'content'] },
       { name: 'append_prompt_content', description: 'Nối thêm nội dung vào block (staged - an toàn cho block nhạy cảm/dài)', args: ['identifier', 'append_text'] },
@@ -1114,7 +1114,7 @@ Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong v
       { name: 'update_prompt_name',    description: 'Đổi tên block (staged)', args: ['identifier', 'name'] },
       { name: 'update_prompt_meta',    description: 'Cập nhật metadata (staged)', args: ['identifier', '...fields'] },
       { name: 'toggle_prompt_enabled', description: 'Bật/tắt block (staged)', args: ['identifier', 'enabled'] },
-      { name: 'reorder_prompts',       description: 'Sắp xếp lại thứ tự (staged)', args: ['order[]'] },
+      { name: 'reorder_prompts',       description: 'Sắp xếp lại thứ tự toàn bộ mảng ID preset (staged)', args: ['order[]'] },
       { name: 'batch_update_prompts',  description: 'Cập nhật batch (staged)', args: ['updates[]'] },
       { name: 'update_var_value',      description: 'Cập nhật giá trị var (staged)', args: ['sourceId', 'newValue'] },
       { name: 'rename_var',            description: 'Đổi tên biến (staged)', args: ['oldName', 'newName'] },
