@@ -1202,6 +1202,21 @@
               </h4>
             </div>
             <div class="st-multitool-section-content" style="overflow: visible; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
+              <!-- Action Bar cho Regex (Lưu, Hoàn tác, AI Agency) -->
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
+                <button id="st-multitool-manage-regex-save-all-btn" class="st-multitool-btn-hero primary" style="flex: 1; min-width: 140px; padding: 8px 12px; min-height: 36px; font-size: 13px;">
+                  <i data-lucide="save"></i> Lưu tất cả Regex
+                </button>
+                <button id="st-multitool-manage-regex-reset-all-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Hoàn tác tất cả thay đổi chưa lưu (Reset Sandbox)">
+                  <i data-lucide="rotate-ccw"></i>
+                </button>
+                <button id="st-multitool-manage-regex-refresh-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Tải lại gốc từ SillyTavern">
+                  <i data-lucide="refresh-cw"></i>
+                </button>
+                <button id="st-multitool-regex-ai-agency-toggle-btn-inline" class="st-multitool-btn-hero" style="flex: 1; min-width: 130px; background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18)); border: 1px solid rgba(192,132,252,0.45); color: #d8b4fe; padding: 8px 12px; min-height: 36px; font-size: 13px; font-weight: 600; border-radius: 6px; transition: all 0.2s ease;" title="Mở Trợ lý AI Agency bên tab side">
+                  <i data-lucide="bot"></i> AI Agency Regex
+                </button>
+              </div>
               <div class="st-multitool-manage-script-cards st-multitool-regex-cards-grid" style="display: flex; flex-direction: column; gap: 14px; height: auto; overflow: visible;">
               <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">
                 <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-global-list" style="display:flex;justify-content:space-between;align-items:center;">
@@ -1253,7 +1268,7 @@
             <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
               <span><i data-lucide="edit"></i> <span class="st-multitool-manage-regex-edit-title">Sửa regex</span> <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>
               <div class="st-multitool-card-header-actions" style="display:flex; gap:8px; align-items:center;">
-                <button id="st-multitool-manage-regex-save-btn" class="st-multitool-regex-save-btn" style="background: linear-gradient(135deg, #00e6b8 0%, #00b38f 100%); color: #042f24; border: 1px solid #00ffd0; font-weight: 700; font-size: 13px; border-radius: 6px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0, 230, 184, 0.25); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="save" style="width:14px;height:14px;"></i> Lưu Regex</button>
+                <button id="st-multitool-manage-regex-save-btn" class="st-multitool-regex-save-btn" style="background: linear-gradient(135deg, #00e6b8 0%, #00b38f 100%); color: #042f24; border: 1px solid #00ffd0; font-weight: 700; font-size: 13px; border-radius: 6px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0, 230, 184, 0.25); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="check" style="width:14px;height:14px;"></i> Áp dụng vào Sandbox</button>
                 <button id="st-multitool-manage-regex-cancel-btn" class="st-multitool-regex-cancel-btn" style="background: rgba(100, 116, 139, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); font-weight: 600; font-size: 13px; border-radius: 6px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; cursor: pointer;"><i data-lucide="x" style="width:14px;height:14px;"></i> Hủy</button>
               </div>
             </h4>

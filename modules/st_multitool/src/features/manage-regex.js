@@ -13,7 +13,7 @@ let currentRegexType = '';
 let renderDebounceTimer = null;
 let liveTestDebounceTimer = null;
 export let _cachedAllRegexes = { global: [], preset: [], character: [] };
-let _stagedRegexDiff = null;
+let _originalRegexSnapshot = null;
 
 export function initManageRegex() {
   $manageRegexGlobalList = $('#st-multitool-manage-regex-global-list');
@@ -22,10 +22,23 @@ export function initManageRegex() {
   $manageRegexEditPanel = $('#st-multitool-manage-regex-edit-panel');
   initRegexAgencyUI();
 
-  $('#st-multitool-manage-regex-refresh-btn').on('click', debouncedRender);
-  $('#st-multitool-manage-regex-save-btn').on('click', handleSaveRegex);
-  $('#st-multitool-manage-regex-cancel-btn').on('click', hideRegexEditPanel);
-  $('#st-multitool-manage-regex-render-btn').on('click', handleRenderToFrontend);
+  $('#st-multitool-manage-regex-refresh-btn').off('click').on('click', () => {
+    if (_originalRegexSnapshot && JSON.stringify(_cachedAllRegexes) !== JSON.stringify(_originalRegexSnapshot)) {
+      if (!confirm('Bạn có thay đổi chưa lưu trong Sandbox. Tải lại từ SillyTavern sẽ làm mất các thay đổi này?')) return;
+    }
+    renderManageRegexLists(true);
+    toastr.info('Đã tải lại danh sách Regex gốc từ SillyTavern.');
+  });
+
+  $('#st-multitool-manage-regex-save-all-btn').off('click').on('click', saveAllRegexesToST);
+  $('#st-multitool-manage-regex-reset-all-btn').off('click').on('click', () => {
+    if (!confirm('Xác nhận hoàn tác tất cả các thay đổi trong Sandbox về trạng thái gốc của SillyTavern?')) return;
+    restoreOriginalRegexSnapshot();
+  });
+
+  $('#st-multitool-manage-regex-save-btn').off('click').on('click', handleSaveRegex);
+  $('#st-multitool-manage-regex-cancel-btn').off('click').on('click', hideRegexEditPanel);
+  $('#st-multitool-manage-regex-render-btn').off('click').on('click', handleRenderToFrontend);
 
 
   $('#st-multitool-manage-regex-view').on('click', '.st-multitool-add-regex-btn', function(e) {
@@ -44,21 +57,21 @@ export function initManageRegex() {
   });
 
   // ─── AI Agency Regex Handlers ───
-  $('#st-multitool-regex-ai-agency-toggle-btn').off('click').on('click', function() {
+  $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').off('click').on('click', function() {
     initRegexAgencyUI();
     const $view = $('#st-multitool-manage-regex-view');
     $view.toggleClass('ai-agency-active');
     if ($view.hasClass('ai-agency-active')) {
       populateRegexAgencyDropdown();
-      $(this).css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
+      $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
     } else {
-      $(this).css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+      $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
     }
   });
 
   $('#st-multitool-regex-agency-close-btn').off('click').on('click', function() {
     $('#st-multitool-manage-regex-view').removeClass('ai-agency-active');
-    $('#st-multitool-regex-ai-agency-toggle-btn').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+    $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
   });
 
   $('#st-multitool-send-to-regex-agency-btn').off('click').on('click', function() {
@@ -177,30 +190,37 @@ function debouncedRender() {
   }, 100);
 }
 
-export async function renderManageRegexLists() {
+export async function renderManageRegexLists(forceFetch = true) {
   try {
-    const [globalRegexes, presetRegexes, characterRegexes] = await Promise.all([
-      getTavernRegexes({ type: 'global' }).catch(() => []),
-      getTavernRegexes({ type: 'preset', name: 'in_use' }).catch(() => []),
-      getTavernRegexes({ type: 'character', name: 'current' }).catch(() => [])
-    ]);
+    if (forceFetch || !_originalRegexSnapshot) {
+      const [globalRegexes, presetRegexes, characterRegexes] = await Promise.all([
+        getTavernRegexes({ type: 'global' }).catch(() => []),
+        getTavernRegexes({ type: 'preset', name: 'in_use' }).catch(() => []),
+        getTavernRegexes({ type: 'character', name: 'current' }).catch(() => [])
+      ]);
 
-    _cachedAllRegexes = {
-      global: globalRegexes || [],
-      preset: presetRegexes || [],
-      character: characterRegexes || []
-    };
-    populateRegexAgencyDropdown();
+      _cachedAllRegexes = {
+        global: globalRegexes ? JSON.parse(JSON.stringify(globalRegexes)) : [],
+        preset: presetRegexes ? JSON.parse(JSON.stringify(presetRegexes)) : [],
+        character: characterRegexes ? JSON.parse(JSON.stringify(characterRegexes)) : []
+      };
+      _originalRegexSnapshot = JSON.parse(JSON.stringify(_cachedAllRegexes));
+    }
 
-    renderRegexList($manageRegexGlobalList, globalRegexes, 'global');
-    renderRegexList($manageRegexPresetList, presetRegexes, 'preset');
-    renderRegexList($manageRegexCharacterList, characterRegexes, 'character');
+    renderCachedRegexLists();
   } catch (e) {
     console.error('Tải regex thất bại:', e);
     $manageRegexGlobalList.html('<div class="st-multitool-empty-msg">Tải thất bại</div>');
     $manageRegexPresetList.html('<div class="st-multitool-empty-msg">Tải thất bại</div>');
     $manageRegexCharacterList.html('<div class="st-multitool-empty-msg">Tải thất bại</div>');
   }
+}
+
+export function renderCachedRegexLists() {
+  populateRegexAgencyDropdown();
+  renderRegexList($manageRegexGlobalList, _cachedAllRegexes.global || [], 'global');
+  renderRegexList($manageRegexPresetList, _cachedAllRegexes.preset || [], 'preset');
+  renderRegexList($manageRegexCharacterList, _cachedAllRegexes.character || [], 'character');
 }
 
 function renderRegexList($container, regexes, type) {
@@ -250,19 +270,17 @@ function renderRegexList($container, regexes, type) {
 
 async function toggleRegexEnabled(regexId, type, isEnabled) {
   try {
-    let targetOpt = { type: type };
-    if (type === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
-    if (type === 'character') targetOpt = { type: 'character', name: 'current' };
-
-    await updateTavernRegexesWith(regexes => {
-      const regex = regexes.find(r => r.id === regexId);
-      if (regex) regex.enabled = isEnabled;
-      return regexes;
-    }, targetOpt);
-    toastr.success(isEnabled ? 'Đã bật regex' : 'Đã tắt regex');
+    const list = _cachedAllRegexes[type] || [];
+    const item = list.find(r => r.id === regexId);
+    if (item) {
+      item.enabled = isEnabled;
+      item.disabled = !isEnabled;
+    }
+    toastr.success(isEnabled ? 'Đã bật regex (Sandbox)' : 'Đã tắt regex (Sandbox)');
+    markRegexesDirty();
   } catch (e) {
     toastr.error('Cập nhật thất bại: ' + e.message);
-    renderManageRegexLists();
+    renderCachedRegexLists();
   }
 }
 
@@ -306,11 +324,7 @@ async function openNewRegexEditPanel(type) {
 
 async function openRegexEditPanel(regexId, type) {
   try {
-    let targetOpt = { type: type };
-    if (type === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
-    if (type === 'character') targetOpt = { type: 'character', name: 'current' };
-
-    const regexes = await getTavernRegexes(targetOpt) || [];
+    const regexes = _cachedAllRegexes[type] || [];
     const regex = regexes.find(r => r.id === regexId);
 
     if (!regex) return;
@@ -384,11 +398,6 @@ async function handleSaveRegex() {
   if (!currentRegexId || !currentRegexType) return;
 
   try {
-    let targetOpt = { type: currentRegexType };
-    if (currentRegexType === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
-    if (currentRegexType === 'character') targetOpt = { type: 'character', name: 'current' };
-    targetOpt.render = 'debounced';
-
     const trimRaw = $('#st-multitool-manage-regex-trim-strings').val() || '';
     const regexData = {
       script_name: $('#st-multitool-manage-regex-script-name').val() || 'Regex mới',
@@ -414,26 +423,31 @@ async function handleSaveRegex() {
       }
     };
 
-    await updateTavernRegexesWith(regexes => {
-      if (currentRegexId === '__NEW__') {
-        regexes.push({
-          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'regex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+    const targetList = _cachedAllRegexes[currentRegexType] || [];
+    if (currentRegexId === '__NEW__') {
+      const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'regex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+      targetList.push({
+        id: newId,
+        ...regexData
+      });
+    } else {
+      const regex = targetList.find(r => r.id === currentRegexId);
+      if (regex) {
+        Object.assign(regex, regexData);
+      } else {
+        targetList.push({
+          id: currentRegexId,
           ...regexData
         });
-      } else {
-        const regex = regexes.find(r => r.id === currentRegexId);
-        if (regex) {
-          Object.assign(regex, regexData);
-        }
       }
-      return regexes;
-    }, targetOpt);
+    }
 
-    toastr.success('Lưu thành công! (Vui lòng tải lại trang/F5 để thẻ gốc hiển thị thay đổi)');
+    toastr.success('Đã cập nhật vào Sandbox! Nhấn "Lưu tất cả Regex" trên thanh công cụ để lưu vào SillyTavern.');
     hideRegexEditPanel();
-    renderManageRegexLists();
+    renderCachedRegexLists();
+    markRegexesDirty();
   } catch (e) {
-    toastr.error('Lưu thất bại: ' + e.message);
+    toastr.error('Cập nhật thất bại: ' + e.message);
   }
 }
 
@@ -485,20 +499,17 @@ function handleRenderToFrontend() {
 }
 
 async function deleteRegex(regexId, type) {
-  if (!confirm('Xác nhận xóa regex này?')) return;
+  if (!confirm('Xác nhận xóa regex này khỏi Sandbox?')) return;
 
   try {
-    let targetOpt = { type: type };
-    if (type === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
-    if (type === 'character') targetOpt = { type: 'character', name: 'current' };
+    if (_cachedAllRegexes[type]) {
+      _cachedAllRegexes[type] = _cachedAllRegexes[type].filter(r => r.id !== regexId);
+    }
 
-    await updateTavernRegexesWith(regexes => {
-      return regexes.filter(r => r.id !== regexId);
-    }, targetOpt);
-
-    toastr.success('Xóa thành công');
-    renderManageRegexLists();
+    toastr.success('Đã xóa khỏi Sandbox (Chưa lưu SillyTavern)');
+    renderCachedRegexLists();
     if (currentRegexId === regexId) hideRegexEditPanel();
+    markRegexesDirty();
   } catch (e) {
     toastr.error('Xóa thất bại: ' + e.message);
   }
@@ -506,12 +517,8 @@ async function deleteRegex(regexId, type) {
 
 async function downloadRegex(regexId, type) {
   try {
-    let targetOpt = { type: type };
-    if (type === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
-    if (type === 'character') targetOpt = { type: 'character', name: 'current' };
-
-    const regexes = await getTavernRegexes(targetOpt) || [];
-    const regex = regexes.find(r => r.id === regexId);
+    const list = _cachedAllRegexes[type] || [];
+    const regex = list.find(r => r.id === regexId);
     if (!regex) return toastr.error('Không tìm thấy regex');
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(regex, null, 2));
@@ -524,6 +531,80 @@ async function downloadRegex(regexId, type) {
   } catch (e) {
     toastr.error('Tải xuống thất bại: ' + e.message);
   }
+}
+
+export function markRegexesDirty() {
+  const $saveBtn = $('#st-multitool-manage-regex-save-all-btn');
+  if ($saveBtn.length) {
+    $saveBtn.html('<i data-lucide="save"></i> Lưu tất cả Regex (Chưa lưu ST)');
+    $saveBtn.css('background', 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)');
+    $saveBtn.css('color', '#1e293b');
+    refreshIcons($saveBtn[0]);
+  }
+}
+
+export async function saveAllRegexesToST() {
+  const $saveBtn = $('#st-multitool-manage-regex-save-all-btn');
+  const oldHtml = $saveBtn.html();
+  $saveBtn.html('<i data-lucide="loader" class="st-multitool-spin"></i> Đang lưu...').prop('disabled', true);
+
+  try {
+    const scopes = ['global', 'preset', 'character'];
+    let savedCount = 0;
+
+    for (const scope of scopes) {
+      let targetOpt = { type: scope };
+      if (scope === 'preset') targetOpt = { type: 'preset', name: 'in_use' };
+      if (scope === 'character') targetOpt = { type: 'character', name: 'current' };
+
+      const scopeList = _cachedAllRegexes[scope] || [];
+      try {
+        await updateTavernRegexesWith(() => {
+          return JSON.parse(JSON.stringify(scopeList));
+        }, targetOpt);
+        savedCount++;
+      } catch (err) {
+        if (scope === 'character' && (err.message || '').includes('current')) {
+          console.warn('[ManageRegex] Bỏ qua lưu scope character do không có nhân vật active.');
+        } else if (scope === 'preset' && (err.message || '').includes('in_use')) {
+          console.warn('[ManageRegex] Bỏ qua lưu scope preset do không có preset active.');
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    toastr.success('Đã lưu thành công tất cả Regex vào SillyTavern!');
+    $saveBtn.html('<i data-lucide="save"></i> Lưu tất cả Regex').prop('disabled', false);
+    $saveBtn.css('background', '');
+    $saveBtn.css('color', '');
+    refreshIcons($saveBtn[0]);
+
+    // Re-fetch to confirm and update original snapshot
+    await renderManageRegexLists(true);
+  } catch (e) {
+    console.error('[ManageRegex] saveAllRegexesToST error:', e);
+    toastr.error('Lưu SillyTavern thất bại: ' + e.message);
+    $saveBtn.html(oldHtml).prop('disabled', false);
+  }
+}
+
+export function restoreOriginalRegexSnapshot() {
+  if (!_originalRegexSnapshot) {
+    renderManageRegexLists(true);
+    return;
+  }
+  _cachedAllRegexes = JSON.parse(JSON.stringify(_originalRegexSnapshot));
+  renderCachedRegexLists();
+
+  const $saveBtn = $('#st-multitool-manage-regex-save-all-btn');
+  if ($saveBtn.length) {
+    $saveBtn.html('<i data-lucide="save"></i> Lưu tất cả Regex');
+    $saveBtn.css('background', '');
+    $saveBtn.css('color', '');
+    refreshIcons($saveBtn[0]);
+  }
+  toastr.info('Đã hoàn tác (Reset Sandbox về trạng thái ban đầu của SillyTavern)');
 }
 
 // ─── AI Agency Regex Assistant Controllers ────────────────────────────────────

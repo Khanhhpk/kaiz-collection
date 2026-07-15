@@ -5,7 +5,7 @@
  */
 
 import { getTavernRegexes, updateTavernRegexesWith } from '../../api.js';
-import { renderManageRegexLists } from '../../features/manage-regex.js';
+import { _cachedAllRegexes, renderCachedRegexLists, markRegexesDirty } from '../../features/manage-regex.js';
 
 // ─── Staging Buffer ───────────────────────────────────────────────────────────
 // Mọi thay đổi từ tool write đều đi qua staging buffer trước, chưa lưu thẳng vào ST.
@@ -78,40 +78,41 @@ export async function applyStagedSingle(type, key) {
     if (idx !== -1) {
       const item = _stagingCreates[idx];
       _stagingCreates.splice(idx, 1);
-      const targetOpt = getTargetOptFromScope(item.scope);
-      await updateTavernRegexesWith(list => {
-        list.push(item);
-        return list;
-      }, targetOpt);
-      await renderManageRegexLists();
+      const sc = item.scope || 'global';
+      if (!_cachedAllRegexes[sc]) _cachedAllRegexes[sc] = [];
+      _cachedAllRegexes[sc].push(item);
+      renderCachedRegexLists();
+      markRegexesDirty();
     }
   } else if (type === 'update') {
     const staged = _stagingMap.get(key);
     if (staged) {
       _stagingMap.delete(key);
-      const targetOpt = getTargetOptFromScope(staged.scope);
-      await updateTavernRegexesWith(list => {
-        const item = list.find(r => r.id === key);
+      for (const sc of ['global', 'preset', 'character']) {
+        const list = _cachedAllRegexes[sc] || [];
+        const item = list.find(r => r.id === key || r.script_name === key);
         if (item) {
           Object.assign(item, staged);
           delete item._old_find_regex;
           delete item._old_replace_string;
           delete item._old_script_name;
           delete item._old_disabled;
+          break;
         }
-        return list;
-      }, targetOpt);
-      await renderManageRegexLists();
+      }
+      renderCachedRegexLists();
+      markRegexesDirty();
     }
   } else if (type === 'delete') {
     if (_stagingDeletes.has(key)) {
       _stagingDeletes.delete(key);
-      // Try deleting across scopes
-      for (const scope of ['global', 'preset', 'character']) {
-        const targetOpt = getTargetOptFromScope(scope);
-        await updateTavernRegexesWith(list => list.filter(r => r.id !== key), targetOpt);
+      for (const sc of ['global', 'preset', 'character']) {
+        if (_cachedAllRegexes[sc]) {
+          _cachedAllRegexes[sc] = _cachedAllRegexes[sc].filter(r => r.id !== key && r.script_name !== key);
+        }
       }
-      await renderManageRegexLists();
+      renderCachedRegexLists();
+      markRegexesDirty();
     }
   }
 }
@@ -131,36 +132,36 @@ export async function flushStaging() {
 
   const scopes = ['global', 'preset', 'character'];
   for (const scope of scopes) {
-    const targetOpt = getTargetOptFromScope(scope);
-    await updateTavernRegexesWith(list => {
-      // Deletes
-      list = list.filter(r => !_stagingDeletes.has(r.id));
+    let list = _cachedAllRegexes[scope] || [];
 
-      // Updates
-      for (const item of list) {
-        if (_stagingMap.has(item.id)) {
-          const staged = _stagingMap.get(item.id);
-          Object.assign(item, staged);
-          delete item._old_find_regex;
-          delete item._old_replace_string;
-          delete item._old_script_name;
-          delete item._old_disabled;
-        }
+    // Deletes
+    list = list.filter(r => !_stagingDeletes.has(r.id) && !_stagingDeletes.has(r.script_name));
+
+    // Updates
+    for (const item of list) {
+      if (_stagingMap.has(item.id) || _stagingMap.has(item.script_name)) {
+        const staged = _stagingMap.get(item.id) || _stagingMap.get(item.script_name);
+        Object.assign(item, staged);
+        delete item._old_find_regex;
+        delete item._old_replace_string;
+        delete item._old_script_name;
+        delete item._old_disabled;
       }
+    }
 
-      // Creates for this scope
-      for (const created of _stagingCreates) {
-        if ((created.scope || 'global') === scope && !_stagingDeletes.has(created.id)) {
-          list.push(created);
-        }
+    // Creates for this scope
+    for (const created of _stagingCreates) {
+      if ((created.scope || 'global') === scope && !_stagingDeletes.has(created.id)) {
+        list.push(created);
       }
+    }
 
-      return list;
-    }, targetOpt);
+    _cachedAllRegexes[scope] = list;
   }
 
   clearStaging();
-  await renderManageRegexLists();
+  renderCachedRegexLists();
+  markRegexesDirty();
 }
 
 function getTargetOptFromScope(scope) {
@@ -267,8 +268,7 @@ Quy trình tự động hóa: Khi cần sửa hoặc tạo mới, hãy chủ đ�
     const results = {};
 
     for (const sc of scopes) {
-      const targetOpt = getTargetOptFromScope(sc);
-      let list = await getTavernRegexes(targetOpt).catch(() => []);
+      let list = _cachedAllRegexes[sc] || [];
       if (search) {
         const q = search.toLowerCase();
         list = list.filter(r => 
@@ -290,8 +290,7 @@ Quy trình tự động hóa: Khi cần sửa hoặc tạo mới, hãy chủ đ�
   async _getRegexDetails({ id, scope }) {
     const scopes = scope ? [scope] : ['global', 'preset', 'character'];
     for (const sc of scopes) {
-      const targetOpt = getTargetOptFromScope(sc);
-      const list = await getTavernRegexes(targetOpt).catch(() => []);
+      const list = _cachedAllRegexes[sc] || [];
       const found = list.find(r => r.id === id || r.script_name === id);
       if (found) {
         return { ok: true, scope: sc, details: found };
@@ -366,7 +365,7 @@ Quy trình tự động hóa: Khi cần sửa hoặc tạo mới, hãy chủ đ�
     let foundScope = scope || 'global';
     const scopesToSearch = scope ? [scope] : ['global', 'preset', 'character'];
     for (const sc of scopesToSearch) {
-      const list = await getTavernRegexes(getTargetOptFromScope(sc)).catch(() => []);
+      const list = _cachedAllRegexes[sc] || [];
       const match = list.find(r => r.id === id || r.script_name === id);
       if (match) {
         oldObj = match;
@@ -376,7 +375,7 @@ Quy trình tự động hóa: Khi cần sửa hoặc tạo mới, hãy chủ đ�
     }
 
     if (!oldObj && !_stagingMap.has(id)) {
-      return { ok: false, error: `Không tìm thấy Regex ID "${id}" để cập nhật.` };
+      return { ok: false, error: `Không tìm thấy Regex ID "${id}" để cập nhật trong Sandbox.` };
     }
 
     const targetId = oldObj ? oldObj.id : id;

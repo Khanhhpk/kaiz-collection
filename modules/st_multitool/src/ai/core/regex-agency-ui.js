@@ -844,9 +844,9 @@ function _bindEvents() {
       await flushStaging();
       _$sidebar.find('.ai-tool-preview').hide();
       setState('idle');
-      toastr.success('Đã áp dụng toàn bộ thay đổi Regex thành công!');
-      appendBubble('assistant', '<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Đã áp dụng các thay đổi Regex vào SillyTavern! Danh sách Regex đã được làm mới.');
-      _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Áp Dụng (Apply) toàn bộ thay đổi staged vào danh sách Regex SillyTavern thành công.]');
+      toastr.success('Đã áp dụng thay đổi vào Quản lý Regex (Sandbox)!');
+      appendBubble('assistant', '<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Đã áp dụng các thay đổi vào danh sách Quản lý Regex (Sandbox). Hãy bấm nút **"Lưu tất cả Regex"** trên thanh công cụ khi bạn muốn chính thức lưu vào SillyTavern.');
+      _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Chấp Nhận (Apply) tất cả các thay đổi staged vào danh sách Quản lý Regex (Sandbox). Hãy ghi nhận trạng thái này và hỗ trợ tiếp nếu người dùng yêu cầu.]');
     } catch (e) {
       toastr.error('Lỗi khi áp dụng: ' + e.message);
     }
