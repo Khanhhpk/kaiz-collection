@@ -486,6 +486,57 @@ async function executeTool(name, args) {
       return { linked, unlinked, total: prompts.length };
     }
 
+    case 'get_all_linked_prompts': {
+      const includeUnlinked = args?.include_unlinked || args?.includeUnlinked || false;
+      const order = getPromptOrder();
+      const prompts = getPrompts();
+      const linkedFull = order.map(id => {
+        const p = prompts.find(pr => pr.identifier === id);
+        if (!p) return null;
+        return {
+          identifier: p.identifier,
+          name: p.name,
+          content: p.content || '',
+          enabled: p.enabled,
+          role: p.role || 'system',
+          injection_position: p.injection_position,
+          injection_depth: p.injection_depth,
+          injection_order: p.injection_order,
+          system_prompt: p.system_prompt,
+          marker: p.marker,
+          forbid_overrides: p.forbid_overrides,
+          linked: true,
+        };
+      }).filter(Boolean);
+
+      const linkedIds = new Set(order);
+      const unlinkedFull = includeUnlinked ? prompts
+        .filter(p => !linkedIds.has(p.identifier))
+        .map(p => ({
+          identifier: p.identifier,
+          name: p.name,
+          content: p.content || '',
+          enabled: p.enabled,
+          role: p.role || 'system',
+          injection_position: p.injection_position,
+          injection_depth: p.injection_depth,
+          injection_order: p.injection_order,
+          system_prompt: p.system_prompt,
+          marker: p.marker,
+          forbid_overrides: p.forbid_overrides,
+          linked: false,
+        })) : undefined;
+
+      return {
+        ok: true,
+        linked_prompts: linkedFull,
+        unlinked_prompts: unlinkedFull,
+        total_linked: linkedFull.length,
+        total_unlinked: unlinkedFull ? unlinkedFull.length : undefined,
+        note: `Đã đọc thành công toàn bộ chi tiết ${linkedFull.length} block trong danh sách linked (tên, content, role, meta...).`
+      };
+    }
+
     case 'get_prompt_content': {
       const p = findPrompt(args.identifier);
       if (!p) return { error: `Không tìm thấy prompt: ${args.identifier}` };
@@ -850,8 +901,9 @@ CÁC TOOLS CÓ SẴN (gọi bằng XML tag chuẩn):
 Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 
 [NHÓM ĐỌC DỮ LIỆU]
-- list_prompts — Liệt kê tất cả prompts (linked + unlinked, metadata, identifier).
-- get_prompt_content — Đọc nội dung chi tiết 1 prompt (args: {"identifier": "..."}).
+- list_prompts — Liệt kê tất cả prompts (linked + unlinked, metadata, identifier) nhưng KHÔNG kèm nội dung content (nhanh gọn để nắm cấu trúc).
+- get_all_linked_prompts — [TOOL CẤP CAO] Lấy TOÀN BỘ chi tiết của tất cả prompt đang linked bao gồm cả nội dung content, tên, role, injection_depth, meta... (args: {"include_unlinked": true|false}). Hãy sử dụng tool cấp cao này khi bạn cần đọc hiểu toàn diện nội dung các block, hoặc khi list_prompts hay get_prompt_content thông thường không đủ khả năng đáp ứng.
+- get_prompt_content — Đọc nội dung chi tiết 1 prompt cụ thể (args: {"identifier": "..."}).
 - search_in_prompts — Tìm kiếm văn bản trong tất cả prompts (args: {"query": "..."}).
 - list_vars — Liệt kê tất cả biến {{setvar/getvar}} trong preset.
 
@@ -878,7 +930,7 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 QUY TRÌNH HOẠT ĐỘNG CHỦ ĐỘNG & TỰ ĐỘNG HÓA SIÊU VIỆT (AUTONOMOUS AGENT WORKFLOW)
 ================================================================================
 Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong việc khảo sát, ra quyết định và thực thi công việc mà không cần hỏi lại người dùng những chi tiết nhỏ:
-- Bước 1 (Chủ động Khảo sát - Proactive Discovery): Khi nhận yêu cầu chung (ví dụ "tối ưu preset", "sửa lỗi", "cải thiện CoT"), HÃY TỰ ĐỘNG gọi 'list_prompts' và 'list_vars' ngay lập tức để tự quét toàn bộ cấu trúc. Đừng bao giờ hỏi lại người dùng ID block hay chờ người dùng chỉ định tận tay!
+- Bước 1 (Chủ động Khảo sát - Proactive Discovery): Khi nhận yêu cầu chung (ví dụ "tối ưu preset", "sửa lỗi", "cải thiện CoT"), HÃY TỰ ĐỘNG gọi 'list_prompts' và 'list_vars' ngay lập tức để tự quét toàn bộ cấu trúc. Đừng bao giờ hỏi lại người dùng ID block hay chờ người dùng chỉ định tận tay! Nếu cần khảo sát kỹ nội dung toàn bộ block linked, hãy sử dụng ngay tool cấp cao 'get_all_linked_prompts'.
 - Bước 2 (Suy luận Kế hoạch & Quyền Tự Quyết): Dùng <cot>...</cot> để suy luận và lên kế hoạch. NGUYÊN TẮC CỐT LÕI: ƯU TIÊN SỐ 1 là gửi NGUYÊN VẸN toàn bộ nội dung block bằng 'update_prompt_content' hoặc 'batch_update_prompts' để đảm bảo tính toàn vẹn văn bản. Bạn có toàn quyền quyết định số lượng block cần xử lý trong mỗi batch, cách phân chia bước đi và chiến lược tối ưu hóa để hoàn thành trọn vẹn yêu cầu của người dùng một cách nhanh chóng và chính xác nhất!
 - Bước 3 (Tự Động Kế Tiếp Vòng Lặp - Continuous Execution): Sau khi gọi tool ghi (Batch 1), hệ thống sẽ tự động quay vòng lặp gửi kết quả lại cho bạn. Bạn KHÔNG ĐƯỢC dừng lại hay chờ người dùng xác nhận giữa chừng, mà phải tự động thực thi tiếp Batch 2, Batch 3... cho đến khi hoàn tất 100% kế hoạch!
 - Bước 4 (Tự động Gỡ lỗi - Autonomous Self-Correction): Nếu gọi tool bị lỗi (tham số sai, không tìm thấy ID...), hãy tự động đọc lỗi trong <cot>...</cot>, tự điều chỉnh tham số hoặc gọi 'get_prompt_content' kiểm tra lại, sau đó GỌI LẠI TOOL sửa lỗi ngay lập tức!
@@ -896,8 +948,9 @@ Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong v
 
   getTools() {
     return [
-      { name: 'list_prompts',          description: 'Liệt kê tất cả prompts' },
-      { name: 'get_prompt_content',    description: 'Đọc nội dung chi tiết 1 prompt', args: ['identifier'] },
+      { name: 'list_prompts',           description: 'Liệt kê tất cả prompts' },
+      { name: 'get_all_linked_prompts', description: 'Tool cấp cao: Lấy toàn bộ chi tiết (content, tên, meta...) của tất cả prompt trong danh sách link', args: ['include_unlinked?'] },
+      { name: 'get_prompt_content',     description: 'Đọc nội dung chi tiết 1 prompt', args: ['identifier'] },
       { name: 'search_in_prompts',     description: 'Tìm kiếm trong prompts', args: ['query'] },
       { name: 'list_vars',             description: 'Liệt kê tất cả biến' },
       { name: 'create_prompt_block',   description: 'Tạo block mới (staged)', args: ['name', 'content', 'role', 'addToLinked'] },
