@@ -154,7 +154,7 @@ function renderRegexList($container, regexes, type) {
     const div = document.createElement('div');
     div.className = 'st-multitool-manage-regex-item';
     div.setAttribute('data-regex-id', regex.id);
-    div.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; margin-bottom: 8px; gap: 12px; transition: all 0.2s ease;';
+    div.style.cssText = 'display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: space-between !important; padding: 12px 14px !important; background: rgba(15, 23, 42, 0.75) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px !important; margin-bottom: 8px !important; gap: 12px !important; overflow: visible !important; min-height: 60px !important; height: auto !important;';
 
     const findPattern = regex.find_regex || '';
     const shortPattern = findPattern.length > 55 ? findPattern.slice(0, 55) + '...' : (findPattern || 'Chưa nhập pattern');
@@ -167,19 +167,19 @@ function renderRegexList($container, regexes, type) {
     if (scopes.length === 0) scopes.push('<span class="st-multitool-badge" style="background:rgba(100,116,139,0.2);color:#94a3b8;font-size:10px;padding:2px 6px;border-radius:4px;">Chưa gán</span>');
 
     div.innerHTML = `
-      <div class="st-multitool-manage-regex-info" style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;padding-right:8px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <input type="checkbox" class="st-multitool-manage-regex-enabled" ${regex.enabled !== false ? 'checked' : ''} style="cursor:pointer;flex-shrink:0;width:16px;height:16px;accent-color:#00e6b8;">
-          <span class="st-multitool-manage-regex-name" style="font-weight:700;font-size:14px;color:#f8fafc;word-break:break-word;">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
+      <div class="st-multitool-manage-regex-info" style="display:flex !important;flex-direction:column !important;align-items:flex-start !important;gap:6px !important;flex:1 1 auto !important;min-width:0 !important;overflow:hidden !important;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%;max-width:100%;min-width:0;">
+          <input type="checkbox" class="st-multitool-manage-regex-enabled" ${regex.enabled !== false ? 'checked' : ''} style="cursor:pointer;flex-shrink:0;width:16px;height:16px;accent-color:#00e6b8;margin:0;">
+          <span class="st-multitool-manage-regex-name" style="font-weight:700 !important;font-size:14px !important;color:#f8fafc !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;line-height:1.4 !important;" title="${escapeHtml(regex.script_name || 'Regex chưa có tên')}">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;padding-left:26px;flex-wrap:wrap;">
-          <div class="st-multitool-regex-pill" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:11.5px;color:#38bdf8;background:#0b1329;border:1px solid rgba(56,189,248,0.3);padding:3px 8px;border-radius:5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(findPattern)}">/${escapeHtml(shortPattern)}/</div>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;">${scopes.join('')}</div>
+        <div style="display:flex;align-items:center;gap:8px;padding-left:26px;flex-wrap:wrap;width:100%;">
+          <div class="st-multitool-regex-pill" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:11.5px;color:#38bdf8;background:#0b1329;border:1px solid rgba(56,189,248,0.3);padding:2px 8px;border-radius:4px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;" title="${escapeHtml(findPattern)}">/${escapeHtml(shortPattern)}/</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${scopes.join('')}</div>
         </div>
       </div>
-      <div class="st-multitool-manage-regex-actions" style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành JSON" style="padding:5px 9px;"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa" style="padding:5px 9px;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+      <div class="st-multitool-manage-regex-actions" style="display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;align-items:center !important;gap:6px !important;flex:0 0 auto !important;flex-shrink:0 !important;">
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành JSON" style="padding:6px 10px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa" style="padding:6px 10px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </div>
     `;
     fragment.appendChild(div);
