@@ -603,7 +603,10 @@ function buildSidebarHTML() {
     <div class="ai-agency-sidebar" id="st-multitool-ai-agency-sidebar">
       <!-- Header -->
       <div class="ai-header">
-        <span class="ai-header-title"><i data-lucide="bot" style="width:18px;height:18px;margin-right:6px;vertical-align:-3px;color:#38bdf8;"></i> AI Agency</span>
+        <span class="ai-header-title">
+          <i data-lucide="bot" style="width:18px;height:18px;margin-right:6px;vertical-align:-3px;color:#38bdf8;"></i> AI Agency Preset
+          <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;background:rgba(56,189,248,0.25);color:#7dd3fc;border:1px solid rgba(56,189,248,0.5);margin-left:6px;">Preset Editor</span>
+        </span>
         <div class="ai-header-actions">
           <button class="ai-icon-btn ai-dev-view-btn" title="Chế độ Dev View (Hiển thị CoT & Thẻ Tool Call)" style="${getDevButtonStyle()}">
             <i data-lucide="code" style="width:13px;height:13px;"></i> <span>Dev</span>
@@ -735,7 +738,7 @@ function _injectSidebar() {
   _bindEvents();
 
   // Tin nhắn chào (chỉ một lần)
-  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
+  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency Preset. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
 }
 
 function _showSidebar() {
