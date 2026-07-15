@@ -1352,10 +1352,11 @@
                 <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-run-on-edit"> Chạy khi chỉnh sửa (Run On Edit)</label>
                 
                 <div style="margin-top: 6px; display:flex; flex-direction:column; gap:6px; border-top:1px dashed #334155; padding-top:10px;">
-                  <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;">Macro trong Find Regex:</span>
-                  <select id="st-multitool-manage-regex-substitute-regex" class="st-multitool-select" style="width: 100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:6px 8px; font-size:12.5px;">
+                  <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;" title="Substitute {{macros}} in Find Regex before running it">Macro trong Find Regex:</span>
+                  <select id="st-multitool-manage-regex-substitute-regex" class="st-multitool-select" title="Substitute {{macros}} in Find Regex before running it" style="width: 100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:6px 8px; font-size:12.5px;">
                     <option value="0" selected>Không thay thế (Don't substitute)</option>
-                    <option value="1">Thay thế Macro (Substitute)</option>
+                    <option value="1">Thay thế nguyên bản (Substitute - raw)</option>
+                    <option value="2">Thay thế thoát ký tự (Substitute - escaped)</option>
                   </select>
                 </div>
               </div>

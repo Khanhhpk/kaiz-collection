@@ -273,8 +273,13 @@ async function openRegexEditPanel(regexId, type) {
 
     $('#st-multitool-manage-regex-disabled').prop('checked', regex.disabled === true || regex.enabled === false);
     $('#st-multitool-manage-regex-enabled').prop('checked', regex.enabled !== false && regex.disabled !== true);
-    $('#st-multitool-manage-regex-run-on-edit').prop('checked', regex.run_on_edit || false);
-    $('#st-multitool-manage-regex-substitute-regex').val(regex.substitute_regex || 0);
+    let subVal = 0;
+    if (typeof regex.substitute_regex === 'boolean') {
+      subVal = regex.substitute_regex ? 1 : 0;
+    } else if (regex.substitute_regex !== null && regex.substitute_regex !== undefined) {
+      subVal = parseInt(regex.substitute_regex, 10) || 0;
+    }
+    $('#st-multitool-manage-regex-substitute-regex').val(String(subVal));
     $('#st-multitool-manage-regex-min-depth').val(regex.min_depth || '');
     $('#st-multitool-manage-regex-max-depth').val(regex.max_depth || '');
 
