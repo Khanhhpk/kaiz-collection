@@ -13,6 +13,9 @@
         <button id="st-multitool-manage-wb-refresh-btn" class="st-multitool-header-btn" title="Làm mới" style="display: none">
           <i data-lucide="refresh-cw"></i>
         </button>
+        <button id="st-multitool-regex-ai-agency-toggle-btn" class="st-multitool-btn-hero" style="display: none; background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18)); border: 1px solid rgba(192,132,252,0.45); color: #d8b4fe; padding: 4px 14px; min-height: 30px; font-size: 12.5px; font-weight: 600; border-radius: 6px; transition: all 0.2s ease; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(192,132,252,0.2); margin-right: 6px;" title="Mở Trợ lý AI Agency bên tab side (Split Sidebar)">
+          <i data-lucide="bot" style="width:15px;height:15px;color:#38bdf8;"></i> AI Agency Regex
+        </button>
         <button id="st-multitool-manage-regex-refresh-btn" class="st-multitool-header-btn" title="Làm mới" style="display: none">
           <i data-lucide="refresh-cw"></i>
         </button>
@@ -1197,11 +1200,6 @@
                 <i data-lucide="code"></i> Quản lý regex
                 <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
               </h4>
-              <div style="display:flex; align-items: center; gap: 8px;">
-                <button id="st-multitool-regex-ai-agency-toggle-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18)); border: 1px solid rgba(192,132,252,0.45); color: #d8b4fe; padding: 6px 14px; min-height: 32px; font-size: 12.5px; font-weight: 600; border-radius: 6px; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(192,132,252,0.2);" title="Mở Trợ lý AI Agency bên tab side (Split Sidebar)">
-                  <i data-lucide="bot" style="width:15px;height:15px;color:#38bdf8;"></i> AI Agency Regex
-                </button>
-              </div>
             </div>
             <div class="st-multitool-section-content" style="overflow: visible; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
               <div class="st-multitool-manage-script-cards st-multitool-regex-cards-grid" style="display: flex; flex-direction: column; gap: 14px; height: auto; overflow: visible;">
@@ -1250,8 +1248,7 @@
             </div>
             </div>
           </div>
-        </div>
-        <div id="st-multitool-manage-regex-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; flex: 0 0 auto; max-height: none; overflow: visible; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); border-top: 2px solid var(--st-multitool-primary);">
+          <div id="st-multitool-manage-regex-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; flex: 0 0 auto; max-height: none; overflow: visible; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); border-top: 2px solid var(--st-multitool-primary);">
           <div class="st-multitool-section-header st-multitool-edit-panel-header" data-target="st-multitool-manage-regex-edit-content">
             <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
               <span><i data-lucide="edit"></i> <span class="st-multitool-manage-regex-edit-title">Sửa regex</span> <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>

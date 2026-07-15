@@ -107,6 +107,7 @@ export function showMainView(isBack = false) {
 
   $('#st-multitool-header-title').html('<i data-lucide="layout-dashboard" style="margin-right: 8px; vertical-align: -2px;"></i> ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
+  $('#st-multitool-regex-ai-agency-toggle-btn').hide();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
   setTimeout(() => { 
     refreshIcons();
@@ -226,6 +227,7 @@ export async function showSubView(viewId) {
     renderManageRegexLists();
     restoreRegexCardStates();
     $('#st-multitool-manage-regex-refresh-btn').show();
+    $('#st-multitool-regex-ai-agency-toggle-btn').css('display', 'inline-flex');
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
       $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-regex-card').show();
@@ -234,6 +236,7 @@ export async function showSubView(viewId) {
     }
   } else {
     $('#st-multitool-manage-regex-refresh-btn').hide();
+    $('#st-multitool-regex-ai-agency-toggle-btn').hide();
   }
   if (viewId === 'st-multitool-manage-prompt-view') {
     title = '<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Preset Editor';
