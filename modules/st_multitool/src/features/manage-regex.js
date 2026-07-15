@@ -154,31 +154,32 @@ function renderRegexList($container, regexes, type) {
     const div = document.createElement('div');
     div.className = 'st-multitool-manage-regex-item';
     div.setAttribute('data-regex-id', regex.id);
+    div.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; margin-bottom: 8px; gap: 12px; transition: all 0.2s ease;';
 
     const findPattern = regex.find_regex || '';
     const shortPattern = findPattern.length > 55 ? findPattern.slice(0, 55) + '...' : (findPattern || 'Chưa nhập pattern');
     const scopes = [];
-    if (regex.source?.ai_output) scopes.push('<span class="st-multitool-badge" style="background:rgba(14,165,233,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">AI Output</span>');
-    if (regex.source?.user_input) scopes.push('<span class="st-multitool-badge" style="background:rgba(99,102,241,0.2);color:#818cf8;border:1px solid rgba(129,140,248,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">User In</span>');
-    if (regex.source?.slash_command) scopes.push('<span class="st-multitool-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(192,132,252,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">Command</span>');
-    if (regex.source?.world_info) scopes.push('<span class="st-multitool-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">World Info</span>');
-    if (regex.destination?.display) scopes.push('<span class="st-multitool-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(52,211,153,0.3);font-size:10px;padding:1px 6px;border-radius:4px;">Markdown Only</span>');
-    if (scopes.length === 0) scopes.push('<span class="st-multitool-badge" style="background:rgba(100,116,139,0.2);color:#94a3b8;font-size:10px;padding:1px 6px;border-radius:4px;">Chưa gán</span>');
+    if (regex.source?.ai_output) scopes.push('<span class="st-multitool-badge" style="background:rgba(14,165,233,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">AI Output</span>');
+    if (regex.source?.user_input) scopes.push('<span class="st-multitool-badge" style="background:rgba(99,102,241,0.2);color:#818cf8;border:1px solid rgba(129,140,248,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">User In</span>');
+    if (regex.source?.slash_command) scopes.push('<span class="st-multitool-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(192,132,252,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">Command</span>');
+    if (regex.source?.world_info) scopes.push('<span class="st-multitool-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">World Info</span>');
+    if (regex.destination?.display) scopes.push('<span class="st-multitool-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(52,211,153,0.3);font-size:10px;padding:2px 6px;border-radius:4px;">Markdown Only</span>');
+    if (scopes.length === 0) scopes.push('<span class="st-multitool-badge" style="background:rgba(100,116,139,0.2);color:#94a3b8;font-size:10px;padding:2px 6px;border-radius:4px;">Chưa gán</span>');
 
     div.innerHTML = `
-      <div class="st-multitool-manage-regex-info" style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;padding-right:8px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" class="st-multitool-manage-regex-enabled" ${regex.enabled !== false ? 'checked' : ''} style="cursor:pointer;flex-shrink:0;">
-          <span class="st-multitool-manage-regex-name" style="font-weight:700;font-size:14px;color:#f8fafc;">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
+      <div class="st-multitool-manage-regex-info" style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;padding-right:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" class="st-multitool-manage-regex-enabled" ${regex.enabled !== false ? 'checked' : ''} style="cursor:pointer;flex-shrink:0;width:16px;height:16px;accent-color:#00e6b8;">
+          <span class="st-multitool-manage-regex-name" style="font-weight:700;font-size:14px;color:#f8fafc;word-break:break-word;">${escapeHtml(regex.script_name || 'Regex chưa có tên')}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;padding-left:22px;flex-wrap:wrap;">
-          <div class="st-multitool-regex-pill" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:12px;color:#38bdf8;background:rgba(15,23,42,0.7);border:1px solid rgba(56,189,248,0.3);padding:2px 8px;border-radius:4px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(findPattern)}">/${escapeHtml(shortPattern)}/</div>
+        <div style="display:flex;align-items:center;gap:10px;padding-left:26px;flex-wrap:wrap;">
+          <div class="st-multitool-regex-pill" style="font-family:'JetBrains Mono',Consolas,monospace;font-size:11.5px;color:#38bdf8;background:#0b1329;border:1px solid rgba(56,189,248,0.3);padding:3px 8px;border-radius:5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(findPattern)}">/${escapeHtml(shortPattern)}/</div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">${scopes.join('')}</div>
         </div>
       </div>
-      <div class="st-multitool-manage-regex-actions" style="display:flex;align-items:center;gap:6px;">
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành JSON" style="padding:4px 8px;"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
-        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa" style="padding:4px 8px;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+      <div class="st-multitool-manage-regex-actions" style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-download" title="Tải xuống thành JSON" style="padding:5px 9px;"><i data-lucide="download" style="width:14px;height:14px;"></i></button>
+        <button class="st-multitool-button st-multitool-btn-small st-multitool-manage-regex-delete st-multitool-btn-danger" title="Xóa" style="padding:5px 9px;"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
       </div>
     `;
     fragment.appendChild(div);

@@ -1289,14 +1289,14 @@
             </div>
 
             <!-- Tên script -->
-            <div class="st-multitool-group" style="width: 100%;">
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
               <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#f8fafc;">Tên Script / Gợi nhớ:</span>
               <input type="text" id="st-multitool-manage-regex-script-name" class="st-multitool-input" style="width: 100%; font-size: 14px; padding: 8px 10px; font-weight: 600; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: #f8fafc;" placeholder="Ví dụ: Lọc ký tự thừa / Format lời thoại...">
             </div>
 
             <!-- Regex tìm kiếm (Khung to, rõ ràng) -->
-            <div class="st-multitool-group" style="width: 100%;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
                 <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#38bdf8;">Biểu thức chính quy tìm kiếm (Find Regex):</span>
                 <span style="font-size:11px; color:#94a3b8; font-family:monospace;">Hỗ trợ pattern JS: /pattern/flags hoặc chuỗi</span>
               </div>
@@ -1304,8 +1304,8 @@
             </div>
 
             <!-- Chuỗi thay thế -->
-            <div class="st-multitool-group" style="width: 100%;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
                 <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#34d399;">Chuỗi thay thế (Replace String):</span>
                 <span style="font-size:11px; color:#94a3b8; font-family:monospace;">Dùng $1, $2 để gọi lại nhóm bắt (Capture Group)</span>
               </div>
@@ -1313,8 +1313,8 @@
             </div>
 
             <!-- Cắt bỏ trước khi thay -->
-            <div class="st-multitool-group" style="width: 100%;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
                 <span class="st-multitool-label" style="font-weight:600; font-size:12px; color:#e2e8f0;">Cắt bỏ chuỗi phụ (Trim Strings):</span>
                 <span style="font-size:11px; color:#64748b;">Mỗi chuỗi cần cắt bỏ nằm trên 1 dòng</span>
               </div>
@@ -1353,11 +1353,11 @@
                 <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-markdown-only"> Chỉ hiển thị định dạng (Markdown only)</label>
                 <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-prompt-only"> Chỉ định dạng prompt (Prompt only)</label>
                 <div style="display:flex; gap:8px; margin-top:4px;">
-                  <div class="st-multitool-group" id="st-multitool-manage-regex-min-depth-container" style="display:none; flex:1;">
+                  <div id="st-multitool-manage-regex-min-depth-container" style="display:none; flex:1; flex-direction:column; gap:4px;">
                     <span class="st-multitool-label" style="font-size:11px;">Min Depth:</span>
                     <input type="number" id="st-multitool-manage-regex-min-depth" class="st-multitool-input" style="width:100%; background:#1e293b; color:#f8fafc; border:1px solid #475569; border-radius:4px;" placeholder="Vô hạn">
                   </div>
-                  <div class="st-multitool-group" id="st-multitool-manage-regex-max-depth-container" style="display:none; flex:1;">
+                  <div id="st-multitool-manage-regex-max-depth-container" style="display:none; flex:1; flex-direction:column; gap:4px;">
                     <span class="st-multitool-label" style="font-size:11px;">Max Depth:</span>
                     <input type="number" id="st-multitool-manage-regex-max-depth" class="st-multitool-input" style="width:100%; background:#1e293b; color:#f8fafc; border:1px solid #475569; border-radius:4px;" placeholder="Vô hạn">
                   </div>
