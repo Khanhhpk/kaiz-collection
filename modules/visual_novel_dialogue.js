@@ -2092,7 +2092,128 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     // ========== NGUỒN ANIME API FREE SIÊU MƯỢT ==========
+    async function advancedBooruFetch(url, sourceConfig = {}) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        try {
+            const r = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (r.status === 429) {
+                if (typeof showToast === 'function') showToast(`🚫 Lỗi Rate Limit: API đang quá tải. Hãy thử lại sau!`, 'error');
+                return [];
+            }
+            if (!r.ok) return [];
+            
+            let data = [];
+            const contentType = r.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const json = await r.json();
+                data = json.post || json.posts || json || [];
+            } else {
+                const text = await r.text();
+                try {
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(text, "text/xml");
+                    const posts = xml.getElementsByTagName('post');
+                    data = Array.from(posts).map(p => {
+                        const attrs = {};
+                        for (let i = 0; i < p.attributes.length; i++) {
+                            attrs[p.attributes[i].name] = p.attributes[i].value;
+                        }
+                        return attrs;
+                    });
+                } catch(e) { }
+            }
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                if (typeof showToast === 'function') showToast(`⏳ Quá thời gian phản hồi: Máy chủ Booru đang chậm.`, 'error');
+            }
+            return [];
+        }
+    }
+
     const API_SOURCES = {
+        'safebooru': {
+            label: 'Safebooru (SFW)',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim().replace(/ /g, '_');
+                const page = opts.offset || 0;
+                if (!tags) tags = 'all';
+                const url = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${encodeURIComponent(tags)}&limit=24&pid=${page}`;
+                const data = await advancedBooruFetch(url);
+                return data.map(item => ({
+                    url: item.file_url ? item.file_url : `https://safebooru.org//images/${item.directory}/${item.image}`,
+                    tags: item.tags ? item.tags.split(' ') : [],
+                    nsfw: false,
+                    src: 'safebooru'
+                }));
+            }
+        },
+        'danbooru': {
+            label: 'Danbooru DB',
+            sfw: true, nsfw: true,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim().replace(/ /g, '_');
+                const page = (opts.offset || 0) + 1;
+                let searchTags = tags ? tags : '';
+                if (opts.nsfw) {
+                    searchTags = searchTags ? `${searchTags} rating:explicit` : 'rating:explicit';
+                } else {
+                    searchTags = searchTags ? `${searchTags} rating:general` : 'rating:general';
+                }
+                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(searchTags)}&limit=24&page=${page}`;
+                const data = await advancedBooruFetch(url);
+                return data.filter(item => item.file_url || item.large_file_url).map(item => ({
+                    url: item.large_file_url || item.file_url,
+                    tags: item.tag_string ? item.tag_string.split(' ') : [],
+                    nsfw: opts.nsfw,
+                    src: 'danbooru'
+                }));
+            }
+        },
+        'gelbooru': {
+            label: 'Gelbooru DB',
+            sfw: true, nsfw: true,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim().replace(/ /g, '_');
+                const page = opts.offset || 0;
+                let searchTags = tags;
+                if (opts.nsfw) {
+                    searchTags = searchTags ? `${searchTags} rating:explicit` : 'rating:explicit';
+                } else {
+                    searchTags = searchTags ? `${searchTags} rating:general` : 'rating:general';
+                }
+                const url = `https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags=${encodeURIComponent(searchTags)}&limit=24&pid=${page}`;
+                const data = await advancedBooruFetch(url);
+                return data.filter(item => item.file_url).map(item => ({
+                    url: item.file_url,
+                    tags: item.tags ? item.tags.split(' ') : [],
+                    nsfw: opts.nsfw,
+                    src: 'gelbooru'
+                }));
+            }
+        },
+        'rule34': {
+            label: 'Rule34 (NSFW)',
+            sfw: false, nsfw: true,
+            async fetch(opts = {}) {
+                if (!opts.nsfw) return [];
+                let tags = (opts.tag || '').trim().replace(/ /g, '_');
+                const page = opts.offset || 0;
+                if (!tags) tags = 'all';
+                const url = `https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&tags=${encodeURIComponent(tags)}&limit=24&pid=${page}`;
+                const data = await advancedBooruFetch(url);
+                return data.filter(item => item.file_url).map(item => ({
+                    url: item.file_url,
+                    tags: item.tags ? item.tags.split(' ') : [],
+                    nsfw: true,
+                    src: 'rule34'
+                }));
+            }
+        },
         'nekos.best': {
             label: 'nekos.best',
             sfw: true, nsfw: false,
@@ -3279,6 +3400,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <button class="vn-src-nav-btn" id="vn-ipm-scroll-left" title="Cuộn tab sang trái">◄</button>
       <div class="vn-img-src-tabs" id="vn-ipm-srctabs">
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
+        <button class="vn-src-tab" data-src="safebooru">Safebooru</button>
+        <button class="vn-src-tab" data-src="danbooru">Danbooru</button>
+        <button class="vn-src-tab" data-src="gelbooru">Gelbooru</button>
+        <button class="vn-src-tab vn-nsfw-only" data-src="rule34" style="color:#ef4444;border-color:#ef4444;display:none;">Rule34 (18+)</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
         <button class="vn-src-tab" data-src="pic.re">Pic.re Art</button>
         <button class="vn-src-tab" data-src="myanimelist">MyAnimeList DB</button>
@@ -3414,6 +3539,20 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (e.target.value !== undefined) fetchImagesForPicker(true);
         });
         $('vn-ipm-fetch').addEventListener('click', () => fetchImagesForPicker(true));
+        const nsfwToggle = $('vn-ipm-nsfw');
+        if (nsfwToggle) {
+            nsfwToggle.addEventListener('change', e => {
+                const rule34Btn = PD.querySelector('.vn-src-tab[data-src="rule34"]');
+                if (rule34Btn) {
+                    rule34Btn.style.display = e.target.checked ? 'inline-block' : 'none';
+                    if (!e.target.checked && imgPickerState.currentSrc === 'rule34') {
+                        // fallback to safebooru if nsfw disabled while on rule34
+                        const safeBtn = PD.querySelector('.vn-src-tab[data-src="safebooru"]');
+                        if (safeBtn) safeBtn.click();
+                    }
+                }
+            });
+        }
         $('vn-ipm-search').addEventListener('keydown', e => { if (e.key === 'Enter') fetchImagesForPicker(true); });
 
         // Live filter: gõ vào ô search → lọc ngay các thumbnail đã tải
@@ -3756,6 +3895,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         // Hiển thị hint về loại tìm kiếm
         const searchHints = {
+            'safebooru':    '🌟 Safebooru (Safe): Cú pháp chuẩn: ten_ho (VD: uzumaki_naruto, frieren, kamado_tanjirou).',
+            'danbooru':     '🌟 Danbooru DB: Kho ảnh đồ sộ, chuẩn xác. Gõ tên_họ (VD: miku). Tự động chặn/mở khoá 18+ theo công tắc.',
+            'gelbooru':     '🌟 Gelbooru DB: Cập nhật siêu nhanh. Gõ tên_họ (VD: hatsune_miku). Nhạy cảm với công tắc NSFW.',
+            'rule34':       '🔞 Rule34: Kho nội dung NSFW độc quyền (Không dành cho trẻ em). Gõ tên_họ nhân vật.',
             'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
             'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
             'pic.re':       '🎨 Pic.re High-Res: Kho ảnh nghệ thuật và hình nền chất lượng siêu cao!',
