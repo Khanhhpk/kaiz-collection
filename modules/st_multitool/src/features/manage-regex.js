@@ -27,13 +27,6 @@ export function initManageRegex() {
   $('#st-multitool-manage-regex-reset-all-btn').off('click').on('click', () => {
     if (hasRegexSandboxChanges() && !confirm('Xác nhận hoàn tác tất cả các thay đổi trong Sandbox về trạng thái gốc của SillyTavern?')) return;
     restoreOriginalRegexSnapshot();
-  });
-  $('#st-multitool-manage-regex-refresh-btn').off('click').on('click', async () => {
-    if (hasRegexSandboxChanges() && !confirm('Sandbox đang có thay đổi chưa lưu. Bạn có muốn tải lại và đồng bộ theo dữ liệu từ SillyTavern không?')) return;
-    await renderManageRegexLists(true);
-    toastr.info('Đã tải lại danh sách Regex từ SillyTavern!');
-  });
-
   let currentRegexImportTarget = 'global';
   $('#st-multitool-manage-regex-import-btn').off('click').on('click', () => {
     $('#st-multitool-manage-regex-import-drawer').slideToggle(150);
