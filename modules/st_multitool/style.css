@@ -1900,11 +1900,6 @@ input:checked + .st-multitool-toggle-slider:before {
 }
 
 /* AI Agency Regex Assistant Styles */
-.st-multitool-regex-agency-pill:hover {
-  transform: translateY(-1.5px) scale(1.02);
-  box-shadow: 0 3px 10px rgba(192, 132, 252, 0.25);
-  filter: brightness(1.15);
-}
 
 .st-multitool-regex-agency-run-btn:hover:not(:disabled) {
   filter: brightness(1.15);

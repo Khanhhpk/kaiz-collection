@@ -99,18 +99,12 @@ function cleanAssistantText(text) {
   // 1. Loại bỏ toàn bộ <tool_call>...</tool_call> (hoặc thẻ tool_call đang mở dở) outside code
   s = s.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/gi, '');
 
-  // 2. Loại bỏ CoT (<cot>...</cot> hoặc <think>...</think> hoặc prefill) outside code
-  if (s.includes('</cot>')) {
-    const parts = s.split('</cot>');
-    s = parts.slice(1).join('</cot>');
-  } else if (s.includes('<cot>')) {
-    s = s.replace(/<cot>[\s\S]*?(<\/cot>|$)/gi, '');
-  }
-  if (s.includes('</think>')) {
-    const parts = s.split('</think>');
-    s = parts.slice(1).join('</think>');
-  } else if (s.includes('<think>')) {
-    s = s.replace(/<think>[\s\S]*?(<\/think>|$)/gi, '');
+  // 2. Loại bỏ CoT (<agency_cot>...</agency_cot> hoặc prefill) outside code
+  if (s.includes('</agency_cot>')) {
+    const parts = s.split('</agency_cot>');
+    s = parts.slice(1).join('</agency_cot>');
+  } else if (s.includes('<agency_cot>')) {
+    s = s.replace(/<agency_cot>[\s\S]*?(<\/agency_cot>|$)/gi, '');
   }
 
   return restoreCodeBlocks(s.trim(), map);
@@ -191,58 +185,32 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     if (!cleaned) return '';
     return renderAiMarkdownHtml(cleaned);
   } else {
-    // Dev Mode: Hiển thị đầy đủ CoT (<cot> hoặc <think>) và Tool Call (<tool_call>) đẹp, nổi bật
+    // Dev Mode: Hiển thị đầy đủ CoT (<agency_cot>) và Tool Call (<tool_call>) đẹp, nổi bật
     const { protectedStr, map } = protectCodeBlocks(rawText);
     let s = protectedStr;
     let htmlParts = [];
 
-    // 1. Tách CoT/Think nếu có
-    if (s.includes('</cot>')) {
-      const parts = s.split('</cot>');
-      let cotText = parts[0].replace(/^.*<cot>\n?/i, '').trim();
+    // 1. Tách CoT (<agency_cot>) nếu có
+    if (s.includes('</agency_cot>')) {
+      const parts = s.split('</agency_cot>');
+      let cotText = parts[0].replace(/^.*<agency_cot>\n?/i, '').trim();
       if (!cotText) cotText = parts[0].trim();
       cotText = restoreCodeBlocks(cotText, map);
 
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;cot&gt;)]</div>` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;agency_cot&gt;)]</div>` +
         `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
         `</div>`
       );
-      s = parts.slice(1).join('</cot>').trim();
-    } else if (s.includes('<cot>')) {
-      const parts = s.split('<cot>');
-      let cotText = parts.slice(1).join('<cot>').trim();
+      s = parts.slice(1).join('</agency_cot>').trim();
+    } else if (s.includes('<agency_cot>')) {
+      const parts = s.split('<agency_cot>');
+      let cotText = parts.slice(1).join('<agency_cot>').trim();
       cotText = restoreCodeBlocks(cotText, map);
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;cot&gt;)]</div>` +
-        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
-        `</div>`
-      );
-      s = parts[0].trim();
-    }
-
-    if (s.includes('</think>')) {
-      const parts = s.split('</think>');
-      let cotText = parts[0].replace(/^.*<think>\n?/i, '').trim();
-      if (!cotText) cotText = parts[0].trim();
-      cotText = restoreCodeBlocks(cotText, map);
-
-      htmlParts.push(
-        `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;think&gt;)]</div>` +
-        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
-        `</div>`
-      );
-      s = parts.slice(1).join('</think>').trim();
-    } else if (s.includes('<think>')) {
-      const parts = s.split('<think>');
-      let cotText = parts.slice(1).join('<think>').trim();
-      cotText = restoreCodeBlocks(cotText, map);
-      htmlParts.push(
-        `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;think&gt;)]</div>` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;agency_cot&gt;)]</div>` +
         `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
         `</div>`
       );
@@ -343,8 +311,8 @@ function renderStreamingBuffer(streamBuffer) {
     return;
   }
 
-  // Nếu chưa gặp </cot> thì AI đang viết suy luận CoT (do prefill từ engine)
-  if (!streamBuffer.includes('</cot>') && !streamBuffer.includes('<cot>')) {
+  // Nếu chưa gặp </agency_cot> hoặc <agency_cot> thì AI đang viết suy luận CoT (do prefill từ engine)
+  if (!streamBuffer.includes('</agency_cot>') && !streamBuffer.includes('<agency_cot>')) {
     if (!$last.find('.ai-cot-streaming-indicator').length) {
       $last.html('<div class="ai-cot-streaming-indicator" style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> <i data-lucide="cpu" style="width:14px;height:14px;color:#64748b;"></i> Đang suy luận kỹ thuật (CoT)...</div>');
       if (typeof refreshIcons === 'function' && $last[0]) refreshIcons($last[0]);

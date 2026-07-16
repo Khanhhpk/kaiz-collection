@@ -2,6 +2,7 @@ import { escapeHtml, refreshIcons } from '../utils.js';
 import { isManageRegexCollapsed } from './settings.js';
 import { getTavernRegexes, updateTavernRegexesWith } from '../api.js';
 import { initRegexAgencyUI, openRegexAgencyPanel } from '../ai/core/regex-agency-ui.js';
+import { normalizeRegexAttributes } from '../ai/providers/regex-provider.js';
 
 let $manageRegexGlobalList;
 let $manageRegexPresetList;
@@ -74,6 +75,7 @@ export function initManageRegex() {
           min_depth: data.minDepth || data.min_depth || null,
           max_depth: data.maxDepth || data.max_depth || null,
         };
+        normalizeRegexAttributes(tavernRegex);
         importRegexToSandbox(tavernRegex, currentRegexImportTarget);
         $('#st-multitool-manage-regex-import-drawer').slideUp(150);
       } catch (err) {
@@ -131,10 +133,6 @@ export function initManageRegex() {
     toastr.info('Đã tải Regex "' + ($('#st-multitool-manage-regex-script-name').val() || currentRegexId) + '" vào Trợ lý AI Agency bên tab side!');
   });
 
-  $('#st-multitool-regex-agency-sidebar').on('click', '.st-multitool-regex-agency-pill', function() {
-    const promptText = $(this).data('prompt');
-    $('#st-multitool-regex-agency-prompt-input').val(promptText).focus();
-  });
 
   $('#st-multitool-regex-agency-refresh-targets').on('click', function() {
     populateRegexAgencyDropdown($('#st-multitool-regex-agency-target-select').val());
@@ -248,9 +246,9 @@ export async function renderManageRegexLists(forceFetch = false) {
       ]);
 
       _cachedAllRegexes = {
-        global: globalRegexes ? JSON.parse(JSON.stringify(globalRegexes)) : [],
-        preset: presetRegexes ? JSON.parse(JSON.stringify(presetRegexes)) : [],
-        character: characterRegexes ? JSON.parse(JSON.stringify(characterRegexes)) : []
+        global: (globalRegexes ? JSON.parse(JSON.stringify(globalRegexes)) : []).map(normalizeRegexAttributes),
+        preset: (presetRegexes ? JSON.parse(JSON.stringify(presetRegexes)) : []).map(normalizeRegexAttributes),
+        character: (characterRegexes ? JSON.parse(JSON.stringify(characterRegexes)) : []).map(normalizeRegexAttributes)
       };
       _originalRegexSnapshot = JSON.parse(JSON.stringify(_cachedAllRegexes));
     }
@@ -376,6 +374,7 @@ async function openRegexEditPanel(regexId, type) {
     const regex = regexes.find(r => r.id === regexId);
 
     if (!regex) return;
+    normalizeRegexAttributes(regex);
 
     currentRegexes = regexes;
     currentRegexId = regexId;
@@ -447,7 +446,7 @@ async function handleSaveRegex() {
 
   try {
     const trimRaw = $('#st-multitool-manage-regex-trim-strings').val() || '';
-    const regexData = {
+    const regexData = normalizeRegexAttributes({
       script_name: $('#st-multitool-manage-regex-script-name').val() || 'Regex mới',
       find_regex: $('#st-multitool-manage-regex-find-regex').val() || '',
       replace_string: $('#st-multitool-manage-regex-replace-string').val() || '',
@@ -469,7 +468,7 @@ async function handleSaveRegex() {
         display: $('#st-multitool-manage-regex-markdown-only').is(':checked'),
         prompt: $('#st-multitool-manage-regex-prompt-only').is(':checked'),
       }
-    };
+    });
 
     const targetList = _cachedAllRegexes[currentRegexType] || [];
     if (currentRegexId === '__NEW__') {
@@ -682,8 +681,9 @@ export function populateRegexAgencyDropdown(targetSelectId = null) {
   const $select = $('#st-multitool-regex-agency-target-select');
   if (!$select.length) return;
 
-  const currentVal = targetSelectId !== null ? targetSelectId : ($select.val() || '__NEW__');
+  const currentVal = targetSelectId !== null ? targetSelectId : ($select.val() || '__AUTO__');
   $select.empty();
+  $select.append('<option value="__AUTO__">🤖 Regex Agency Tự động (Auto / Global Mode)</option>');
   $select.append('<option value="__NEW__">✨ [+ Tạo Regex mới từ đầu (Create New Regex)]</option>');
 
   const appendGroup = (list, label, type) => {
@@ -702,16 +702,18 @@ export function populateRegexAgencyDropdown(targetSelectId = null) {
   appendGroup(_cachedAllRegexes.character, '👤 Regex Cục bộ (Character)', 'character');
 
   $select.val(currentVal);
-  if (!$select.val() || $select.val() === null) $select.val('__NEW__');
+  if (!$select.val() || $select.val() === null) $select.val('__AUTO__');
   updateTargetRegexInfo();
 }
 
-function updateTargetRegexInfo() {
+export function updateTargetRegexInfo() {
   const $select = $('#st-multitool-regex-agency-target-select');
   const val = $select.val();
   const $info = $('#st-multitool-regex-agency-target-info');
-  if (val === '__NEW__' || !val) {
-    $info.html('<i data-lucide="info" style="width:14px;height:14px;color:#38bdf8;flex-shrink:0;"></i> <span>Chế độ: Tạo Regex mới từ mô tả ngôn ngữ tự nhiên.</span>');
+  if (val === '__AUTO__' || !val) {
+    $info.html('<i data-lucide="bot" style="width:14px;height:14px;color:#a855f7;flex-shrink:0;"></i> <span>Chế độ: <b>Tự động toàn quyền</b> (Hoạt động rộng và chung lên toàn bộ Regex hiện có).</span>');
+  } else if (val === '__NEW__') {
+    $info.html('<i data-lucide="plus-circle" style="width:14px;height:14px;color:#38bdf8;flex-shrink:0;"></i> <span>Chế độ: <b>Tạo Regex mới</b> từ mô tả ngôn ngữ tự nhiên.</span>');
   } else {
     const $opt = $select.find('option:selected');
     const type = $opt.data('type');
@@ -720,9 +722,9 @@ function updateTargetRegexInfo() {
       targetObj = _cachedAllRegexes[type].find(r => r.id === val);
     }
     if (targetObj) {
-      $info.html(`<i data-lucide="zap" style="width:14px;height:14px;color:#fbbf24;flex-shrink:0;"></i> <span>Đang thao tác trên: <b>${escapeHtml(targetObj.script_name)}</b> (<code style="color:#00ffd0;">${escapeHtml((targetObj.find_regex || '').substring(0, 45))}${((targetObj.find_regex || '').length > 45 ? '...' : '')}</code>)</span>`);
+      $info.html(`<i data-lucide="crosshair" style="width:14px;height:14px;color:#fbbf24;flex-shrink:0;"></i> <span>Tập trung chỉnh sửa: <b>${escapeHtml(targetObj.script_name)}</b> (<code style="color:#00ffd0;">${escapeHtml((targetObj.find_regex || '').substring(0, 45))}${((targetObj.find_regex || '').length > 45 ? '...' : '')}</code>)</span>`);
     } else {
-      $info.html('<i data-lucide="info" style="width:14px;height:14px;color:#38bdf8;flex-shrink:0;"></i> <span>Đã chọn Regex mục tiêu ID: ' + escapeHtml(val) + '</span>');
+      $info.html('<i data-lucide="crosshair" style="width:14px;height:14px;color:#38bdf8;flex-shrink:0;"></i> <span>Đã chọn Regex mục tiêu ID: ' + escapeHtml(val) + '</span>');
     }
   }
   if (typeof refreshIcons === 'function' && $info[0]) refreshIcons($info[0]);
@@ -730,6 +732,7 @@ function updateTargetRegexInfo() {
 
 export function importRegexToSandbox(tavernRegex, targetType = 'global') {
   if (!_cachedAllRegexes[targetType]) _cachedAllRegexes[targetType] = [];
+  normalizeRegexAttributes(tavernRegex);
   if (!tavernRegex.id) {
     tavernRegex.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'regex_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
   }
