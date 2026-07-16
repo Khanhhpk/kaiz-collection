@@ -2104,13 +2104,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
             if (!r.ok) return [];
             
+            const text = await r.text();
             let data = [];
-            const contentType = r.headers.get("content-type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                const json = await r.json();
+            try {
+                const json = JSON.parse(text);
                 data = json.post || json.posts || json || [];
-            } else {
-                const text = await r.text();
+            } catch (err) {
                 try {
                     const parser = new DOMParser();
                     const xml = parser.parseFromString(text, "text/xml");
