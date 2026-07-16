@@ -2111,124 +2111,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
     }
 
-    // Fetch qua cors.sh proxy cho Safebooru (không có CORS header)
-    async function proxiedBooruFetch(url) {
-        // cors.sh: proxy miễn phí, hỗ trợ CORS, ổn định hơn allorigins
-        const proxyUrl = 'https://cors.sh/' + url;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-        try {
-            const r = await fetch(proxyUrl, {
-                signal: controller.signal,
-                headers: { 'x-cors-api-key': 'temp_' + Date.now() }
-            });
-            clearTimeout(timeoutId);
-            if (!r.ok) return [];
-            const text = await r.text();
-            if (!text) return [];
-            let data;
-            try { data = JSON.parse(text); } catch(e) {
-                // XML fallback (Safebooru đôi khi trả XML)
-                try {
-                    const parser = new DOMParser();
-                    const xml = parser.parseFromString(text, 'text/xml');
-                    const posts = xml.getElementsByTagName('post');
-                    data = Array.from(posts).map(p => {
-                        const attrs = {};
-                        for (let i = 0; i < p.attributes.length; i++) attrs[p.attributes[i].name] = p.attributes[i].value;
-                        return attrs;
-                    });
-                } catch(e2) { return []; }
-            }
-            const arr = data?.post || data?.posts || data || [];
-            return Array.isArray(arr) ? arr : [];
-        } catch(e) {
-            clearTimeout(timeoutId);
-            return [];
-        }
-    }
-
-    // Alias để tương thích với code cũ (không còn dùng trực tiếp cho Gelbooru/Rule34)
-    async function advancedBooruFetch(url) {
-        return proxiedBooruFetch(url);
-    }
-
     const API_SOURCES = {
-        'safebooru': {
-            label: 'Safebooru (SFW)',
-            sfw: true, nsfw: false,
-            async fetch(opts = {}) {
-                // Safebooru.org chặn CORS và proxy, nên dùng safebooru.donmai.us (mirror an toàn của Danbooru)
-                let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const searchTags = tags ? encodeURIComponent(tags) : '';
-                const limit = opts.count || 20;
-                const page = Math.floor((opts.offset || 0) / limit) + 1;
-                const url = `https://safebooru.donmai.us/posts.json?tags=${searchTags}&limit=${limit}&page=${page}`;
-                
-                try {
-                    const data = await directApiFetch(url);
-                    if (!data || !Array.isArray(data)) return [];
-                    return data.map(item => {
-                        let thumbUrl = item.preview_file_url;
-                        let fullUrl = item.large_file_url || item.file_url;
-                        if (item.media_asset && item.media_asset.variants) {
-                            const thumbVariant = item.media_asset.variants.find(v => v.type === '360x360' || v.type === '180x180');
-                            if (thumbVariant) thumbUrl = thumbVariant.url;
-                            const fullVariant = item.media_asset.variants.find(v => v.type === 'sample' || v.type === 'original');
-                            if (fullVariant) fullUrl = fullVariant.url;
-                        }
-                        return {
-                            url: fullUrl,
-                            thumb: thumbUrl,
-                            tags: item.tag_string_character ? item.tag_string_character.split(' ') : [],
-                            source: 'Safebooru'
-                        };
-                    }).filter(i => i.url && i.thumb);
-                } catch (e) {
-                    console.error('Safebooru Error:', e);
-                    return [];
-                }
-            }
-        },
-        'danbooru': {
-            label: 'Danbooru (CORS OK)',
-            sfw: true, nsfw: true,
-            async fetch(opts = {}) {
-                let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const limit = opts.count || 20;
-                const page = Math.floor((opts.offset || 0) / limit) + 1;
-                // Danbooru rating: g=general, s=sensitive, q=questionable, e=explicit
-                // Dùng -rating:e để lọc theo NSFW toggle
-                const ratingFilter = opts.nsfw ? '' : ' -rating:e -rating:q';
-                const searchTags = (tags ? tags : '') + ratingFilter;
-                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(searchTags.trim())}&limit=${limit}&page=${page}`;
-                
-                try {
-                    const data = await directApiFetch(url);
-                    if (!data || !Array.isArray(data)) return [];
-                    
-                    return data.map(item => {
-                        let thumbUrl = item.preview_file_url;
-                        let fullUrl = item.large_file_url || item.file_url;
-                        if (item.media_asset && item.media_asset.variants) {
-                            const thumbVariant = item.media_asset.variants.find(v => v.type === '360x360' || v.type === '180x180');
-                            if (thumbVariant) thumbUrl = thumbVariant.url;
-                            const fullVariant = item.media_asset.variants.find(v => v.type === 'sample' || v.type === 'original');
-                            if (fullVariant) fullUrl = fullVariant.url;
-                        }
-                        return {
-                            url: fullUrl,
-                            thumb: thumbUrl,
-                            tags: item.tag_string_character ? item.tag_string_character.split(' ') : [],
-                            source: 'Danbooru'
-                        };
-                    }).filter(i => i.url && i.thumb);
-                } catch (e) {
-                    console.error('Danbooru Error:', e);
-                    return [];
-                }
-            }
-        },
         'nekos.best': {
             label: 'nekos.best',
             sfw: true, nsfw: false,
@@ -3433,8 +3316,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <button class="vn-src-nav-btn" id="vn-ipm-scroll-left" title="Cuộn tab sang trái">◄</button>
       <div class="vn-img-src-tabs" id="vn-ipm-srctabs">
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
-        <button class="vn-src-tab" data-src="safebooru">🌟 Safebooru</button>
-        <button class="vn-src-tab" data-src="danbooru">Danbooru</button>
         <button class="vn-src-tab" data-src="myanimelist">MyAnimeList</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
         <button class="vn-src-tab" data-src="pic.re">Pic.re Art</button>
@@ -3918,8 +3799,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         // Hiển thị hint về loại tìm kiếm
         const searchHints = {
-            'safebooru':    '🌟 Safebooru (SFW Only): Tìm theo tag Booru chuẩn, VD: frieren, hatsune_miku, rem_(re_zero). Luôn an toàn!',
-            'danbooru':     '🌟 Danbooru (CORS OK): Kho ảnh Booru lớn nhất. Nhập tag (VD: frieren). Tự động lọc SFW/NSFW theo công tắc.',
             'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
             'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
             'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
@@ -3938,7 +3817,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
             if (toolbar && toolbar.parentNode) toolbar.parentNode.insertBefore(hintEl, toolbar.nextSibling);
         }
-        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 11 nguồn ảnh anime miễn phí (Safebooru ✅ · Danbooru ✅ · MyAnimeList ✅ · AniList ✅ + 7 kho khác)!</div>';
+        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 9 nguồn ảnh anime miễn phí (MyAnimeList ✅ · AniList ✅ + 7 kho khác)!</div>';
 
         const skels = [];
         for (let i = 0; i < 12; i++) {
