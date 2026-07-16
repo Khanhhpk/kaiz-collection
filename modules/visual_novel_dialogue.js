@@ -4457,6 +4457,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:trash.svg?color=%23cbd5e1" class="vn-icon">Dọn dẹp Cache</button>
         <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:zap.svg?color=%23fbbf24" class="vn-icon">Test hiệu năng (200)</button>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;">
+        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-local" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:folder-x.svg?color=%23f87171" class="vn-icon">Xoá sạch Kho Local</button>
+        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-link" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:link-2-off.svg?color=%23f87171" class="vn-icon">Xoá sạch Kho Link</button>
+      </div>
       <button class="vn-btn vn-btn-secondary" id="vn-export-cfg"><img src="https://api.iconify.design/lucide:download.svg?color=%23cbd5e1" class="vn-icon">Sao lưu cấu hình ra file JSON (Export)</button>
       <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn"><img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">Nhập cấu hình từ file JSON (Import)</button>
       <input type="file" id="vn-import-cfg-file" accept=".json" style="display:none;" />
@@ -5581,6 +5585,30 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 showToast(`🧹 Đã dọn dẹp bộ nhớ đệm (${count} ảnh cache)!`, 'success');
             });
         }
+        
+        const btnClearLocal = $('vn-btn-clear-local');
+        if (btnClearLocal) {
+            btnClearLocal.addEventListener('click', async () => {
+                if (!confirm('CẢNH BÁO: Bạn có chắc chắn muốn xoá sạch toàn bộ ảnh đã import trong Kho Local? Hành động này không thể hoàn tác!')) return;
+                try {
+                    await clearVNImageDB();
+                    showToast('Đã dọn dẹp sạch Kho Local!', 'success');
+                } catch (e) {
+                    showToast('Lỗi khi xoá Kho Local', 'error');
+                }
+            });
+        }
+
+        const btnClearLink = $('vn-btn-clear-link');
+        if (btnClearLink) {
+            btnClearLink.addEventListener('click', () => {
+                if (!confirm('CẢNH BÁO: Bạn có chắc chắn muốn xoá toàn bộ danh sách link ảnh đã lưu trong Kho Link?')) return;
+                CFG.linkLibrary = [];
+                saveConfig(CFG);
+                showToast('Đã dọn dẹp sạch Kho Link!', 'success');
+            });
+        }
+
         const btnTestPerf = $('vn-btn-test-perf');
         if (btnTestPerf) {
             btnTestPerf.addEventListener('click', () => {
