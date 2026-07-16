@@ -207,7 +207,11 @@ export class AgencyEngine {
 
           let result;
           try {
-            result = await this._provider.executeTool(toolCall.name, toolCall.args, { signal });
+            if (toolCall.name === 'SYSTEM_JSON_PARSE_ERROR') {
+              result = { error: `[LỖI CÚ PHÁP JSON] LLM đã xuất ra một khối <tool_call> bị lỗi cú pháp JSON. Hãy kiểm tra lại dấu ngoặc kép, dấu phẩy, ký tự thoát (escape) và sửa lại cho đúng chuẩn JSON. Chi tiết lỗi: ${toolCall.args.error}\nChuỗi gốc: ${toolCall.args.raw_input}` };
+            } else {
+              result = await this._provider.executeTool(toolCall.name, toolCall.args, { signal });
+            }
           } catch (toolErr) {
             result = { error: toolErr?.message ?? String(toolErr) };
           }
@@ -403,8 +407,11 @@ export class AgencyEngine {
           });
         }
       } catch (parseErr) {
-        // Malformed JSON inside <tool_call> – skip silently.
         console.warn('[AgencyEngine] Failed to parse tool_call JSON:', raw, parseErr);
+        calls.push({
+          name: 'SYSTEM_JSON_PARSE_ERROR',
+          args: { error: parseErr.message, raw_input: raw }
+        });
       }
     }
 

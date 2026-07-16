@@ -8,17 +8,7 @@ import { addPromptBlock, deletePromptBlock, renderPromptBlocks, savePromptBlocks
 import { getPendingVarChanges, refreshVarInspector, scanPromptContent, applyVarChangesToContent } from '../../features/var-inspector.js';
 import { refreshIcons } from '../../utils.js';
 
-// ─── Macro Compatibility Stubs ────────────────────────────────────────────────
-// Tokenization has been deprecated because modern AI models handle raw macros
-// and SillyTavern syntax ({{user}}, {{setvar::...}}) safely without corrupting them.
 
-export function tokenizeMacros(content) {
-  return { tokenized: content || '', tokens: [] };
-}
-
-export function restoreMacros(content, tokens) {
-  return content || '';
-}
 
 // ─── Container helper ─────────────────────────────────────────────────────────
 
