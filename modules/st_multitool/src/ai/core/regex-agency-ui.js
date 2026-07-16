@@ -631,7 +631,7 @@ function _bindEvents() {
   _$sidebar.find('.ai-close-btn').on('click', () => {
     _$sidebar.css('display', '');
     $('#st-multitool-manage-regex-view').removeClass('ai-agency-active');
-    $('#st-multitool-regex-ai-agency-toggle-btn').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+    $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
   });
 
   // Clear Debug
@@ -927,7 +927,7 @@ export function openRegexAgencyPanel() {
   const $sidebar = $('#st-multitool-regex-agency-sidebar');
   $sidebar.css('display', '');
   $('#st-multitool-manage-regex-view').addClass('ai-agency-active');
-  $('#st-multitool-regex-ai-agency-toggle-btn').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
+  $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
   populateRegexAgencyDropdown();
   if (_engine && _engine._provider && typeof _engine._provider.setTargetRegexId === 'function') {
     _engine._provider.setTargetRegexId($('#st-multitool-regex-agency-target-select').val());

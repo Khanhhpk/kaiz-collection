@@ -107,7 +107,6 @@ export function showMainView(isBack = false) {
 
   $('#st-multitool-header-title').html('<i data-lucide="layout-dashboard" style="margin-right: 8px; vertical-align: -2px;"></i> ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
-  $('#st-multitool-regex-ai-agency-toggle-btn').hide();
   cleanupManageRegexView();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
   setTimeout(() => { 
@@ -230,15 +229,12 @@ export async function showSubView(viewId) {
     title = '<i data-lucide="filter" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý regex';
     renderManageRegexLists(false);
     restoreRegexCardStates();
-    $('#st-multitool-regex-ai-agency-toggle-btn').css('display', 'inline-flex');
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
       $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-regex-card').show();
     } else {
       $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-regex-card').hide();
     }
-  } else {
-    $('#st-multitool-regex-ai-agency-toggle-btn').hide();
   }
   if (viewId === 'st-multitool-manage-prompt-view') {
     title = '<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Preset Editor';

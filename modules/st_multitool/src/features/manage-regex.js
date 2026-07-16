@@ -107,28 +107,28 @@ export function initManageRegex() {
   });
 
   // ─── AI Agency Regex Handlers ───
-  $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').off('click').on('click', function() {
+  $('#st-multitool-regex-ai-agency-toggle-btn-inline').off('click').on('click', function() {
     initRegexAgencyUI();
     const $view = $('#st-multitool-manage-regex-view');
     $view.toggleClass('ai-agency-active');
     if ($view.hasClass('ai-agency-active')) {
       populateRegexAgencyDropdown();
-      $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
+      $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
     } else {
-      $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+      $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
     }
   });
 
   $('#st-multitool-regex-agency-close-btn').off('click').on('click', function() {
     $('#st-multitool-manage-regex-view').removeClass('ai-agency-active');
-    $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+    $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
   });
 
   $('#st-multitool-send-to-regex-agency-btn').off('click').on('click', function() {
     initRegexAgencyUI();
     const $view = $('#st-multitool-manage-regex-view');
     $view.addClass('ai-agency-active');
-    $('#st-multitool-regex-ai-agency-toggle-btn').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
+    $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
     populateRegexAgencyDropdown(currentRegexId);
     toastr.info('Đã tải Regex "' + ($('#st-multitool-manage-regex-script-name').val() || currentRegexId) + '" vào Trợ lý AI Agency bên tab side!');
   });
@@ -764,10 +764,16 @@ export function importRegexToSandbox(tavernRegex, targetType = 'global') {
 export function cleanupManageRegexView() {
   const $view = $('#st-multitool-manage-regex-view');
   $view.removeClass('ai-agency-active');
-  $('#st-multitool-regex-ai-agency-toggle-btn, #st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
+  $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
   hideRegexEditPanel();
   $('#st-multitool-manage-regex-tester-box').hide();
   $('#st-multitool-manage-regex-import-drawer').hide();
+
+  const $select = $('#st-multitool-regex-agency-target-select');
+  if ($select.length) {
+    $select.val('__AUTO__');
+    if (typeof updateTargetRegexInfo === 'function') updateTargetRegexInfo();
+  }
 
   // Clear original snapshot so that entering Regex Manager always checks and fetches fresh data from SillyTavern
   _originalRegexSnapshot = null;
