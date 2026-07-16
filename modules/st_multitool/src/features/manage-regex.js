@@ -21,7 +21,7 @@ export function initManageRegex() {
   $manageRegexPresetList = $('#st-multitool-manage-regex-preset-list');
   $manageRegexCharacterList = $('#st-multitool-manage-regex-character-list');
   $manageRegexEditPanel = $('#st-multitool-manage-regex-edit-panel');
-  initRegexAgencyUI();
+  try { initRegexAgencyUI(); } catch (e) { console.warn('[ST Multitool] initRegexAgencyUI warning:', e); }
 
   $('#st-multitool-manage-regex-save-all-btn').off('click').on('click', saveAllRegexesToST);
   $('#st-multitool-manage-regex-reset-all-btn').off('click').on('click', () => {
@@ -499,23 +499,32 @@ async function handleSaveRegex() {
 }
 
 export function restoreRegexCardStates() {
-  const cards = [
-    'st-multitool-manage-regex-global-list',
-    'st-multitool-manage-regex-preset-list',
-    'st-multitool-manage-regex-character-list'
-  ];
+  try {
+    const cards = [
+      'st-multitool-manage-regex-global-list',
+      'st-multitool-manage-regex-preset-list',
+      'st-multitool-manage-regex-character-list'
+    ];
 
-  const defaultCollapsed = isManageRegexCollapsed();
+    const defaultCollapsed = isManageRegexCollapsed();
+    const jq = typeof window !== 'undefined' && (window.jQuery || window.$) ? (window.jQuery || window.$) : (typeof $ === 'function' ? $ : null);
+    if (!jq || typeof jq !== 'function') return;
 
-  cards.forEach(cardId => {
-    const savedState = localStorage.getItem(`st-multitool-regex-card-${cardId}`);
-    const $card = $(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`).closest('.st-multitool-manage-script-card');
-    if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
-      $card.addClass('collapsed');
-    } else {
-      $card.removeClass('collapsed');
-    }
-  });
+    cards.forEach(cardId => {
+      const savedState = localStorage.getItem(`st-multitool-regex-card-${cardId}`);
+      const $header = jq(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`);
+      if (!$header || typeof $header.closest !== 'function') return;
+      const $card = $header.closest('.st-multitool-manage-script-card');
+      if (!$card || typeof $card.addClass !== 'function') return;
+      if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
+        $card.addClass('collapsed');
+      } else {
+        $card.removeClass('collapsed');
+      }
+    });
+  } catch (err) {
+    console.warn('[ST Multitool] restoreRegexCardStates non-fatal error:', err);
+  }
 }
 
 function handleRenderToFrontend() {

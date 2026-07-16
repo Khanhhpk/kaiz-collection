@@ -351,22 +351,31 @@ async function handleCreateEntry() {
 }
 
 export function restoreWbCardStates() {
-  const cards = [
-    'st-multitool-manage-wb-books-card',
-    'st-multitool-manage-wb-entries-card'
-  ];
+  try {
+    const cards = [
+      'st-multitool-manage-wb-books-card',
+      'st-multitool-manage-wb-entries-card'
+    ];
 
-  const defaultCollapsed = isManageWbCollapsed();
+    const defaultCollapsed = isManageWbCollapsed();
+    const jq = typeof window !== 'undefined' && (window.jQuery || window.$) ? (window.jQuery || window.$) : (typeof $ === 'function' ? $ : null);
+    if (!jq || typeof jq !== 'function') return;
 
-  cards.forEach(cardId => {
-    const savedState = localStorage.getItem(`st-multitool-wb-card-${cardId}`);
-    const $card = $(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`).closest('.st-multitool-manage-script-card');
-    if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
-      $card.addClass('collapsed');
-    } else {
-      $card.removeClass('collapsed');
-    }
-  });
+    cards.forEach(cardId => {
+      const savedState = localStorage.getItem(`st-multitool-wb-card-${cardId}`);
+      const $header = jq(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`);
+      if (!$header || typeof $header.closest !== 'function') return;
+      const $card = $header.closest('.st-multitool-manage-script-card');
+      if (!$card || typeof $card.addClass !== 'function') return;
+      if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
+        $card.addClass('collapsed');
+      } else {
+        $card.removeClass('collapsed');
+      }
+    });
+  } catch (err) {
+    console.warn('[ST Multitool] restoreWbCardStates non-fatal error:', err);
+  }
 }
 
 async function handleCreateWorldbook() {
