@@ -606,23 +606,44 @@ export async function saveAllRegexesToST() {
       if (scope === 'character') targetOpt = { type: 'character', name: 'current' };
 
       const scopeList = _cachedAllRegexes[scope] || [];
+      const origList = _originalRegexSnapshot?.[scope] || [];
+      const isModified = !(_originalRegexSnapshot && JSON.stringify(scopeList) === JSON.stringify(origList));
+
+      if (scope === 'character') {
+        const isCharacterSelected = typeof SillyTavern !== 'undefined' && SillyTavern.getContext && SillyTavern.getContext().characterId !== undefined;
+        if (!isCharacterSelected) {
+          if (isModified) {
+            toastr.warning('Lưu ý: Bỏ qua lưu Regex Nhân vật do chưa có Nhân vật nào đang được chọn.');
+          } else {
+            console.info('[ManageRegex] Bỏ qua lưu scope character (không có nhân vật active và không có thay đổi).');
+          }
+          continue;
+        }
+      }
+
+      if ((scope === 'preset' || scope === 'character') && !isModified) {
+        console.info(`[ManageRegex] Bỏ qua lưu scope ${scope} do không có thay đổi nào.`);
+        continue;
+      }
+
       try {
         await updateTavernRegexesWith(() => {
           return JSON.parse(JSON.stringify(scopeList));
         }, targetOpt);
         savedCount++;
       } catch (err) {
-        if (scope === 'character' && (err.message || '').includes('current')) {
-          console.warn('[ManageRegex] Bỏ qua lưu scope character do không có nhân vật active.');
-        } else if (scope === 'preset' && (err.message || '').includes('in_use')) {
-          console.warn('[ManageRegex] Bỏ qua lưu scope preset do không có preset active.');
+        if (scope === 'character' || scope === 'preset') {
+          console.warn(`[ManageRegex] Không thể lưu scope ${scope}:`, err);
+          if (isModified) {
+            toastr.warning(`Lưu ý: Không thể lưu Regex ${scope === 'character' ? 'Nhân vật' : 'Preset'} (${err.message || 'Chưa kích hoạt'})`);
+          }
         } else {
           throw err;
         }
       }
     }
 
-    toastr.success('Đã lưu thành công tất cả Regex vào SillyTavern!');
+    toastr.success('Đã lưu thành công các Regex thay đổi vào SillyTavern!');
     $saveBtn.html('<i data-lucide="save"></i> Lưu tất cả Regex').prop('disabled', false);
     $saveBtn.css('background', '');
     $saveBtn.css('color', '');
