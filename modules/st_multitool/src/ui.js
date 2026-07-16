@@ -131,6 +131,9 @@ export async function showSubView(viewId) {
   if (elements.body && elements.mainView.is(':visible')) {
     _mainViewScrollPos = elements.body.scrollTop();
   }
+  if (viewId !== 'st-multitool-manage-regex-view') {
+    cleanupManageRegexView();
+  }
   elements.mainView.hide();
   [
     elements.selectView,

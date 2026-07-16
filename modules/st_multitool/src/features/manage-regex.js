@@ -25,8 +25,13 @@ export function initManageRegex() {
 
   $('#st-multitool-manage-regex-save-all-btn').off('click').on('click', saveAllRegexesToST);
   $('#st-multitool-manage-regex-reset-all-btn').off('click').on('click', () => {
-    if (!confirm('Xác nhận hoàn tác tất cả các thay đổi trong Sandbox về trạng thái gốc của SillyTavern?')) return;
+    if (hasRegexSandboxChanges() && !confirm('Xác nhận hoàn tác tất cả các thay đổi trong Sandbox về trạng thái gốc của SillyTavern?')) return;
     restoreOriginalRegexSnapshot();
+  });
+  $('#st-multitool-manage-regex-refresh-btn').off('click').on('click', async () => {
+    if (hasRegexSandboxChanges() && !confirm('Sandbox đang có thay đổi chưa lưu. Bạn có muốn tải lại và đồng bộ theo dữ liệu từ SillyTavern không?')) return;
+    await renderManageRegexLists(true);
+    toastr.info('Đã tải lại danh sách Regex từ SillyTavern!');
   });
 
   let currentRegexImportTarget = 'global';
@@ -236,9 +241,14 @@ function debouncedRender() {
   }, 100);
 }
 
+export function hasRegexSandboxChanges() {
+  if (!_originalRegexSnapshot || !_cachedAllRegexes) return false;
+  return JSON.stringify(_originalRegexSnapshot) !== JSON.stringify(_cachedAllRegexes);
+}
+
 export async function renderManageRegexLists(forceFetch = false) {
   try {
-    if (forceFetch || !_originalRegexSnapshot) {
+    if (forceFetch || !_originalRegexSnapshot || !hasRegexSandboxChanges()) {
       const [globalRegexes, presetRegexes, characterRegexes] = await Promise.all([
         getTavernRegexes({ type: 'global' }).catch(() => []),
         getTavernRegexes({ type: 'preset', name: 'in_use' }).catch(() => []),
@@ -251,6 +261,14 @@ export async function renderManageRegexLists(forceFetch = false) {
         character: (characterRegexes ? JSON.parse(JSON.stringify(characterRegexes)) : []).map(normalizeRegexAttributes)
       };
       _originalRegexSnapshot = JSON.parse(JSON.stringify(_cachedAllRegexes));
+
+      const $saveBtn = $('#st-multitool-manage-regex-save-all-btn');
+      if ($saveBtn.length) {
+        $saveBtn.html('<i data-lucide="save"></i> Lưu tất cả Regex');
+        $saveBtn.css('background', '');
+        $saveBtn.css('color', '');
+        if (typeof refreshIcons === 'function') refreshIcons($saveBtn[0]);
+      }
     }
 
     renderCachedRegexLists();
@@ -666,22 +684,19 @@ export async function saveAllRegexesToST() {
   }
 }
 
-export function restoreOriginalRegexSnapshot() {
-  if (!_originalRegexSnapshot) {
-    renderManageRegexLists(true);
-    return;
-  }
-  _cachedAllRegexes = JSON.parse(JSON.stringify(_originalRegexSnapshot));
-  renderCachedRegexLists();
-
+export async function restoreOriginalRegexSnapshot() {
   const $saveBtn = $('#st-multitool-manage-regex-save-all-btn');
+  if ($saveBtn.length) {
+    $saveBtn.html('<i data-lucide="loader" class="st-multitool-spin"></i> Đang hoàn tác...');
+  }
+  await renderManageRegexLists(true);
   if ($saveBtn.length) {
     $saveBtn.html('<i data-lucide="save"></i> Lưu tất cả Regex');
     $saveBtn.css('background', '');
     $saveBtn.css('color', '');
-    refreshIcons($saveBtn[0]);
+    if (typeof refreshIcons === 'function') refreshIcons($saveBtn[0]);
   }
-  toastr.info('Đã hoàn tác (Reset Sandbox về trạng thái ban đầu của SillyTavern)');
+  toastr.info('Đã hoàn tác và đồng bộ chuẩn xác theo dữ liệu gốc hiện tại từ SillyTavern!');
 }
 
 // ─── AI Agency Regex Assistant Controllers ────────────────────────────────────
@@ -758,5 +773,15 @@ export function cleanupManageRegexView() {
   hideRegexEditPanel();
   $('#st-multitool-manage-regex-tester-box').hide();
   $('#st-multitool-manage-regex-import-drawer').hide();
+
+  // Clear original snapshot so that entering Regex Manager always checks and fetches fresh data from SillyTavern
+  _originalRegexSnapshot = null;
+  const $saveBtn = $('#st-multitool-manage-regex-save-all-btn');
+  if ($saveBtn.length) {
+    $saveBtn.html('<i data-lucide="save"></i> Lưu tất cả Regex');
+    $saveBtn.css('background', '');
+    $saveBtn.css('color', '');
+    if (typeof refreshIcons === 'function') refreshIcons($saveBtn[0]);
+  }
 }
 
