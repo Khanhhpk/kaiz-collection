@@ -513,8 +513,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
         if (!safe) return fallback;
         if (isLocalImageRef(safe)) {
             if (VN_IDB_OBJECT_URL_CACHE[safe]) {
-                const idx = VN_IDB_OBJECT_URL_KEYS.indexOf(safe);
-                if (idx !== -1) { VN_IDB_OBJECT_URL_KEYS.splice(idx, 1); VN_IDB_OBJECT_URL_KEYS.push(safe); }
                 return VN_IDB_OBJECT_URL_CACHE[safe];
             }
             getLocalImageObjectUrl(safe).then(objectUrl => {
@@ -545,7 +543,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
             tx.oncomplete = () => {
                 db.close();
                 Object.keys(VN_IDB_OBJECT_URL_CACHE).forEach(k => { try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[k]); } catch (e) { } delete VN_IDB_OBJECT_URL_CACHE[k]; });
-                VN_IDB_OBJECT_URL_KEYS.length = 0;
                 resolve();
             };
             tx.onerror = () => { db.close(); reject(tx.error || new Error('Không xoá được IndexedDB ảnh.')); };
@@ -592,8 +589,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
             if (VN_IDB_OBJECT_URL_CACHE[ref]) {
                 try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[ref]); } catch (e) { }
                 delete VN_IDB_OBJECT_URL_CACHE[ref];
-                const idx = VN_IDB_OBJECT_URL_KEYS.indexOf(ref);
-                if (idx !== -1) VN_IDB_OBJECT_URL_KEYS.splice(idx, 1);
             }
         } finally {
             db.close();
