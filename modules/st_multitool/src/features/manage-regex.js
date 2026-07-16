@@ -109,25 +109,31 @@ export function initManageRegex() {
   $('#st-multitool-regex-ai-agency-toggle-btn-inline').off('click').on('click', function() {
     initRegexAgencyUI();
     const $view = $('#st-multitool-manage-regex-view');
+    const $popup = $('#st-multitool-popup, .st-multitool-popup-container');
     $view.toggleClass('ai-agency-active');
     if ($view.hasClass('ai-agency-active')) {
+      $popup.addClass('ai-agency-expanded');
       const currentVal = $('#st-multitool-regex-agency-target-select').val();
       populateRegexAgencyDropdown(!currentVal || currentVal === '__NEW__' ? '__AUTO__' : currentVal);
       $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
     } else {
+      $popup.removeClass('ai-agency-expanded');
       $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
     }
   });
 
   $('#st-multitool-regex-agency-close-btn').off('click').on('click', function() {
     $('#st-multitool-manage-regex-view').removeClass('ai-agency-active');
+    $('#st-multitool-popup, .st-multitool-popup-container').removeClass('ai-agency-expanded');
     $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
   });
 
   $('#st-multitool-send-to-regex-agency-btn').off('click').on('click', function() {
     initRegexAgencyUI();
     const $view = $('#st-multitool-manage-regex-view');
+    const $popup = $('#st-multitool-popup, .st-multitool-popup-container');
     $view.addClass('ai-agency-active');
+    $popup.addClass('ai-agency-expanded');
     $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
     populateRegexAgencyDropdown(currentRegexId);
     toastr.info('Đã tải Regex "' + ($('#st-multitool-manage-regex-script-name').val() || currentRegexId) + '" vào Trợ lý AI Agency bên tab side!');

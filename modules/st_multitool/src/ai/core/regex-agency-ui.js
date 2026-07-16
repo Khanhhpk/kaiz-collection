@@ -627,10 +627,11 @@ function _bindEvents() {
     }
   });
 
-  // Close button
+  // Close Sidebar
   _$sidebar.find('.ai-close-btn').on('click', () => {
     _$sidebar.css('display', '');
     $('#st-multitool-manage-regex-view').removeClass('ai-agency-active');
+    $('#st-multitool-popup, .st-multitool-popup-container').removeClass('ai-agency-expanded');
     $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');
   });
 
