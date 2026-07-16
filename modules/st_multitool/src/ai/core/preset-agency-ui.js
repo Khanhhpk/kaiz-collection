@@ -93,11 +93,13 @@ function appendBubble(role, content, opts = {}) {
 
 function cleanAssistantText(text) {
   if (!text) return '';
-  let s = String(text);
-  // 1. Loại bỏ toàn bộ <tool_call>...</tool_call> (hoặc thẻ tool_call đang mở dở)
+  const { protectedStr, map } = protectCodeBlocks(text);
+  let s = protectedStr;
+
+  // 1. Loại bỏ toàn bộ <tool_call>...</tool_call> (hoặc thẻ tool_call đang mở dở) outside code
   s = s.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/gi, '');
 
-  // 2. Loại bỏ CoT (<cot>...</cot> hoặc <think>...</think> hoặc prefill)
+  // 2. Loại bỏ CoT (<cot>...</cot> hoặc <think>...</think> hoặc prefill) outside code
   if (s.includes('</cot>')) {
     const parts = s.split('</cot>');
     s = parts.slice(1).join('</cot>');
@@ -110,7 +112,8 @@ function cleanAssistantText(text) {
   } else if (s.includes('<think>')) {
     s = s.replace(/<think>[\s\S]*?(<\/think>|$)/gi, '');
   }
-  return s.trim();
+
+  return restoreCodeBlocks(s.trim(), map);
 }
 
 function renderAiMarkdownHtml(rawText) {
@@ -189,7 +192,8 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     return renderAiMarkdownHtml(cleaned);
   } else {
     // Dev Mode: Hiển thị đầy đủ CoT (<cot> hoặc <think>) và Tool Call (<tool_call>) đẹp, nổi bật
-    let s = String(rawText);
+    const { protectedStr, map } = protectCodeBlocks(rawText);
+    let s = protectedStr;
     let htmlParts = [];
 
     // 1. Tách CoT/Think nếu có
@@ -197,6 +201,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
       const parts = s.split('</cot>');
       let cotText = parts[0].replace(/^.*<cot>\n?/i, '').trim();
       if (!cotText) cotText = parts[0].trim();
+      cotText = restoreCodeBlocks(cotText, map);
 
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
@@ -208,6 +213,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     } else if (s.includes('<cot>')) {
       const parts = s.split('<cot>');
       let cotText = parts.slice(1).join('<cot>').trim();
+      cotText = restoreCodeBlocks(cotText, map);
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
         `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;cot&gt;)]</div>` +
@@ -221,6 +227,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
       const parts = s.split('</think>');
       let cotText = parts[0].replace(/^.*<think>\n?/i, '').trim();
       if (!cotText) cotText = parts[0].trim();
+      cotText = restoreCodeBlocks(cotText, map);
 
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
@@ -232,6 +239,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     } else if (s.includes('<think>')) {
       const parts = s.split('<think>');
       let cotText = parts.slice(1).join('<think>').trim();
+      cotText = restoreCodeBlocks(cotText, map);
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
         `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;think&gt;)]</div>` +
@@ -247,7 +255,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     let match;
 
     while ((match = toolCallRegex.exec(s)) !== null) {
-      const textBefore = s.slice(lastIndex, match.index).trim();
+      const textBefore = restoreCodeBlocks(s.slice(lastIndex, match.index).trim(), map);
       if (textBefore) {
         htmlParts.push(
           `<div style="margin-bottom:8px;">` +
@@ -256,7 +264,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
         );
       }
 
-      const jsonStr = match[1].trim();
+      const jsonStr = restoreCodeBlocks(match[1].trim(), map);
       htmlParts.push(
         `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:Consolas,monospace;font-size:11px;color:#e9d5ff;">` +
         `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="wrench" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Raw Tool Call]</div>` +
@@ -267,7 +275,7 @@ function formatAssistantBubbleHtml(rawText, isDev) {
       lastIndex = toolCallRegex.lastIndex;
     }
 
-    const textAfter = s.slice(lastIndex).trim();
+    const textAfter = restoreCodeBlocks(s.slice(lastIndex).trim(), map);
     if (textAfter) {
       htmlParts.push(
         `<div style="margin-top:4px;">` +
