@@ -2197,6 +2197,116 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             sfw: true, nsfw: false,
             async fetch(opts = {}) {
                 const query = (opts.tag || '').trim().toLowerCase();
+                const allCats = ['waifu', 'neko', 'kitsune', 'shinobu', 'megumin', 'hug', 'pat', 'slap', 'cuddle', 'smile', 'blush', 'happy', 'wink', 'poke', 'dance', 'husbando', 'cry', 'baka', 'stare', 'think', 'bored', 'shrug', 'thumbsup', 'laugh'];
+                const matchedCats = query
+                    ? allCats.filter(c => c === query || c.includes(query) || query.includes(c) || query.split(' ').some(w => w.length > 2 && (c.includes(w) || w.includes(c))))
+                    : [];
+                const fetchCat = async (cat) => {
+                    try {
+                        const r = await fetch(`https://nekos.best/api/v2/${cat}?amount=20`);
+                        if (!r.ok) return [];
+                        const d = await r.json();
+                        return (d.results || []).map(i => ({
+                            url: i.url,
+                            tags: [cat, i.anime_name, i.artist_name].filter(Boolean),
+                            nsfw: false,
+                            src: 'nekos.best',
+                        }));
+                    } catch { return []; }
+                };
+                let items = [];
+                if (matchedCats.length > 0) {
+                    const batches = await Promise.all(matchedCats.slice(0, 4).map(c => fetchCat(c)));
+                    items = batches.flat();
+                } else {
+                    items = await fetchCat('waifu');
+                }
+                const seen = new Set();
+                return items.filter(i => { if (seen.has(i.url)) return false; seen.add(i.url); return true; });
+            },
+            tags: ['waifu', 'neko', 'kitsune', 'shinobu', 'megumin', 'hug', 'pat', 'slap', 'cuddle', 'smile', 'blush', 'happy', 'wink', 'poke', 'dance', 'husbando', 'cry', 'baka', 'stare', 'think']
+        },
+        'anilist': {
+            label: 'AniList DB',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                const query = (opts.tag || '').trim();
+                const page = Math.floor((opts.offset || 0) / 16) + 1;
+                const gql = query
+                    ? `{ Page(page: ${page}, perPage: 16) { characters(search: "${query.replace(/"/g, '')}") { name { full } image { large } } } }`
+                    : `{ Page(page: ${page}, perPage: 16) { characters(sort: [FAVOURITES_DESC]) { name { full } image { large } } } }`;
+                const r = await fetch('https://graphql.anilist.co', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ query: gql })
+                });
+                if (!r.ok) return [];
+                const d = await r.json();
+                return (d.data?.Page?.characters || []).map(c => ({
+                    url: c.image?.large,
+                    tags: [c.name?.full || 'AniList', 'official', 'character'],
+                    nsfw: false,
+                    src: 'anilist'
+                })).filter(i => i.url);
+            },
+            tags: ['Rem', 'Marin Kitagawa', 'Frieren', 'Hatsune Miku', 'Raiden Shogun', 'Gawr Gura', 'Kurumi Tokisaki', 'Emilia', 'Albedo', 'Zero Two', 'Mai Sakurajima', 'Kaguya Shinomiya', 'Mikasa', 'Asuna', 'Kafka', 'Firefly', 'Gojo Satoru', 'Levi Ackerman', 'Luffy', 'Zoro']
+        },
+        'pic.re': {
+            label: 'Pic.re Art DB',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                const count = Math.min(opts.count || 12, 16);
+                const results = await Promise.all(Array.from({length: count}, () => fetch('https://pic.re/image.json').then(r => r.json()).catch(() => null)));
+                return [...new Set(results.filter(r => r && r.file_url).map(d => 'https://' + d.file_url))].map(url => ({
+                    url,
+                    tags: ['highres', 'pic.re', 'wallpaper', 'art'],
+                    nsfw: false,
+                    src: 'pic.re'
+                }));
+            },
+            tags: ['highres', 'wallpaper', 'anime', 'aesthetic', 'art', 'portrait']
+        },
+        'nekos.life': {
+            label: 'nekos.life',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                const query = (opts.tag || '').trim().toLowerCase();
+                const validCats = ['waifu', 'neko', 'shinobu', 'megumin', 'avatar', 'fox_girl', 'cuddle', 'hug', 'pat', 'smug', 'kiss', 'slap', 'poke'];
+                const cat = validCats.includes(query) ? query : 'waifu';
+                const count = Math.min(opts.count || 12, 16);
+                const results = await Promise.all(Array.from({length: count}, () => fetch(`https://nekos.life/api/v2/img/${cat}`).then(r => r.json()).catch(() => null)));
+                return [...new Set(results.filter(r => r && r.url).map(d => d.url))].map(url => ({ url, tags: [cat, 'nekos.life'], nsfw: false, src: 'nekos.life' }));
+            },
+            tags: ['waifu', 'neko', 'shinobu', 'megumin', 'avatar', 'fox_girl', 'cuddle', 'hug', 'pat', 'smug', 'kiss', 'slap', 'poke']
+        },
+        'nekos.moe': {
+            label: 'nekos.moe',
+            sfw: true, nsfw: true,
+            async fetch(opts = {}) {
+                const count = Math.min(opts.count || 16, 20);
+                const nsfw = opts.nsfw || false;
+                const query = (opts.tag || '').trim();
+                let images = [];
+                if (query) {
+                    try {
+                        const res = await fetch('https://nekos.moe/api/v1/images/search', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tags: query.split(','), limit: count, nsfw, skip: opts.offset || 0 })
+                        });
+                        if (res.ok) images = (await res.json()).images || [];
+                    } catch (e) {}
+                }
+                if (images.length === 0) {
+                    const r = await fetch(`https://nekos.moe/api/v1/random/image?count=${count}&nsfw=${nsfw}`);
+                    if (r.ok) images = (await r.json()).images || [];
+                }
+                return images.map(i => ({
+                    url: `https://nekos.moe/image/${i.id}`,
+                    tags: i.tags || ['waifu'],
+                    nsfw: i.nsfw || false,
+                    src: 'nekos.moe'
+                }));
             },
             tags: ['waifu', 'neko', '1girl', 'solo', 'maid', 'uniform', 'cat_ears', 'blush', 'smile']
         },
@@ -3833,16 +3943,29 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             img.src = resolveImageSrc(item.thumb || item.url, VN_BLANK_IMG);
             if (isLocalImageRef(item.url)) hydrateLocalImageEl(img, item.url);
             img.loading = 'lazy';
+            img.referrerPolicy = 'no-referrer';
             img.alt = (item.tags || []).join(',');
             cell.title = (item.tags || []).join(' • ');
             img.onerror = () => {
-                cell.style.display = 'none';
+                // Chỉ ẩn ảnh lỗi nếu đang dùng thumb, thử fallback sang url gốc trước
+                if (img.src !== item.url && item.url && img.src !== resolveImageSrc(item.url, VN_BLANK_IMG)) {
+                    img.src = resolveImageSrc(item.url, VN_BLANK_IMG);
+                    return;
+                }
+                // Nếu là kho thư viện thì ẩn và xử lý
                 if (item._library === 'url') {
+                    cell.style.display = 'none';
                     const removed = removeUrlFromLibrary(item.url);
                     if (removed) {
                         showToast('Đã xoá 1 link ảnh lỗi khỏi Kho Link.', 'warning', 3500);
                         scheduleLinkLibraryRefresh();
                     }
+                } else if (item._library === 'local') {
+                    cell.style.display = 'none';
+                } else {
+                    // API images: chỉ ẩn cell nếu cả thumb lẫn url đều lỗi
+                    cell.style.opacity = '0.3';
+                    img.title = 'Ảnh không tải được (lỗi CORS hoặc domain chặn)';
                 }
             };
             img.addEventListener('click', () => selectImage(item.url));
