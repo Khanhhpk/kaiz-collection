@@ -111,7 +111,8 @@ export function initManageRegex() {
     const $view = $('#st-multitool-manage-regex-view');
     $view.toggleClass('ai-agency-active');
     if ($view.hasClass('ai-agency-active')) {
-      populateRegexAgencyDropdown();
+      const currentVal = $('#st-multitool-regex-agency-target-select').val();
+      populateRegexAgencyDropdown(!currentVal || currentVal === '__NEW__' ? '__AUTO__' : currentVal);
       $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
     } else {
       $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18))');

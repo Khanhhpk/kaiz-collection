@@ -527,12 +527,12 @@ function buildRegexSidebarHTML() {
           <i data-lucide="target" style="width:14px;height:14px;color:#c084fc;"></i>
           <span style="font-size:12px;font-weight:700;color:#e2e8f0;">Regex mục tiêu:</span>
           <select id="st-multitool-regex-agency-target-select" class="st-multitool-select" style="flex:1;background:rgba(15,23,42,0.9);border:1px solid rgba(192,132,252,0.4);color:#f8fafc;font-weight:600;border-radius:6px;padding:6px 10px;font-size:12px;">
-            <option value="__NEW__">✨ [+ Tạo Regex mới từ đầu]</option>
+            <option value="__AUTO__">🤖 Regex Agency Tự động (Auto / Global Mode)</option>
           </select>
           <button id="st-multitool-regex-agency-refresh-targets" type="button" style="background:rgba(192,132,252,0.15);border:1px solid rgba(192,132,252,0.4);color:#d8b4fe;border-radius:6px;padding:6px 8px;cursor:pointer;" title="Làm mới danh sách Regex"><i data-lucide="refresh-cw" style="width:13px;height:13px;"></i></button>
         </div>
         <div id="st-multitool-regex-agency-target-info" style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:6px;">
-          <i data-lucide="info" style="width:13px;height:13px;color:#38bdf8;"></i> Chế độ: Tạo mới Regex từ mô tả tự nhiên hoặc kiểm thử.
+          <i data-lucide="bot" style="width:14px;height:14px;color:#a855f7;flex-shrink:0;"></i> Chế độ: <b>Tự động toàn quyền</b> (Hoạt động rộng và chung lên toàn bộ Regex hiện có).
         </div>
       </div>
 
@@ -907,7 +907,7 @@ export function initRegexAgencyUI() {
 
   renderRegexConfigPanel();
   window._stMultitoolLLMConfig = getLLMConfig();
-  populateRegexAgencyDropdown();
+  populateRegexAgencyDropdown('__AUTO__');
   if (_engine && _engine._provider && typeof _engine._provider.setTargetRegexId === 'function') {
     _engine._provider.setTargetRegexId($('#st-multitool-regex-agency-target-select').val());
   }
@@ -928,7 +928,8 @@ export function openRegexAgencyPanel() {
   $sidebar.css('display', '');
   $('#st-multitool-manage-regex-view').addClass('ai-agency-active');
   $('#st-multitool-regex-ai-agency-toggle-btn-inline').css('background', 'linear-gradient(135deg, rgba(192,132,252,0.35), rgba(56,189,248,0.35))');
-  populateRegexAgencyDropdown();
+  const currentVal = $('#st-multitool-regex-agency-target-select').val();
+  populateRegexAgencyDropdown(!currentVal || currentVal === '__NEW__' ? '__AUTO__' : currentVal);
   if (_engine && _engine._provider && typeof _engine._provider.setTargetRegexId === 'function') {
     _engine._provider.setTargetRegexId($('#st-multitool-regex-agency-target-select').val());
   }
