@@ -2161,7 +2161,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 // Safebooru.org chặn CORS và proxy, nên dùng safebooru.donmai.us (mirror an toàn của Danbooru)
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
                 const searchTags = tags ? encodeURIComponent(tags) : '';
-                const url = `https://safebooru.donmai.us/posts.json?tags=${searchTags}&limit=${VN_IMG_LIMIT}`;
+                const limit = opts.count || 20;
+                const page = Math.floor((opts.offset || 0) / limit) + 1;
+                const url = `https://safebooru.donmai.us/posts.json?tags=${searchTags}&limit=${limit}&page=${page}`;
                 
                 try {
                     const data = await directApiFetch(url);
@@ -2193,21 +2195,38 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             sfw: true, nsfw: true,
             async fetch(opts = {}) {
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const page = Math.floor((opts.offset || 0) / 20) + 1;
+                const limit = opts.count || 20;
+                const page = Math.floor((opts.offset || 0) / limit) + 1;
                 // Danbooru rating: g=general, s=sensitive, q=questionable, e=explicit
                 // Dùng -rating:e để lọc theo NSFW toggle
                 const ratingFilter = opts.nsfw ? '' : ' -rating:e -rating:q';
                 const searchTags = (tags ? tags : '') + ratingFilter;
-                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(searchTags.trim())}&limit=20&page=${page}`;
-                const data = await directApiFetch(url);
-                if (!data || !Array.isArray(data)) return [];
-                return data.map(item => ({
-                    url: item.large_file_url || item.file_url,  // large_file_url available to anon
-                    thumb: item.preview_file_url,               // 180x180 thumbnail từ CDN
-                    tags: [item.tag_string_character, item.tag_string_general].filter(Boolean),
-                    nsfw: opts.nsfw,
-                    src: 'danbooru'
-                })).filter(i => i.url && i.thumb);  // chỉ lấy item có cả url lẫn thumb
+                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(searchTags.trim())}&limit=${limit}&page=${page}`;
+                
+                try {
+                    const data = await directApiFetch(url);
+                    if (!data || !Array.isArray(data)) return [];
+                    
+                    return data.map(item => {
+                        let thumbUrl = item.preview_file_url;
+                        let fullUrl = item.large_file_url || item.file_url;
+                        if (item.media_asset && item.media_asset.variants) {
+                            const thumbVariant = item.media_asset.variants.find(v => v.type === '360x360' || v.type === '180x180');
+                            if (thumbVariant) thumbUrl = thumbVariant.url;
+                            const fullVariant = item.media_asset.variants.find(v => v.type === 'sample' || v.type === 'original');
+                            if (fullVariant) fullUrl = fullVariant.url;
+                        }
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tag_string_character ? item.tag_string_character.split(' ') : [],
+                            source: 'Danbooru'
+                        };
+                    }).filter(i => i.url && i.thumb);
+                } catch (e) {
+                    console.error('Danbooru Error:', e);
+                    return [];
+                }
             }
         },
         'nekos.best': {
