@@ -444,7 +444,7 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
     function openVNImageDB() {
         return new Promise((resolve, reject) => {
             if (!PW.indexedDB) { reject(new Error('Trình duyệt không hỗ trợ IndexedDB.')); return; }
-            const req = PW.indexedDB.open(VN_IDB_DB_NAME, 1);
+            const req = PW.indexedDB.open(VN_IDB_DB_NAME, 2);
             req.onupgradeneeded = () => {
                 const db = req.result;
                 if (!db.objectStoreNames.contains(VN_IDB_STORE)) db.createObjectStore(VN_IDB_STORE, { keyPath: 'id' });
