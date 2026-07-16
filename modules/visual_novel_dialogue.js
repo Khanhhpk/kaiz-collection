@@ -2158,19 +2158,34 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             label: 'Safebooru (SFW)',
             sfw: true, nsfw: false,
             async fetch(opts = {}) {
+                // Safebooru.org chặn CORS và proxy, nên dùng safebooru.donmai.us (mirror an toàn của Danbooru)
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const page = opts.offset || 0;
-                // Safebooru không cần tag nếu để trống - lấy latest general
-                const url = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${tags ? encodeURIComponent(tags) : 'rating%3Ageneral'}&limit=24&pid=${page}`;
-                const data = await proxiedBooruFetch(url);
-                return data.map(item => ({
-                    url: item.file_url || `https://safebooru.org//images/${item.directory}/${item.image}`,
-                    // preview_url là thumbnail nhỏ (150px), sample_url là medium
-                    thumb: item.preview_url || item.sample_url || null,
-                    tags: item.tags ? item.tags.split(' ') : [],
-                    nsfw: false,
-                    src: 'safebooru'
-                }));
+                const searchTags = tags ? encodeURIComponent(tags) : '';
+                const url = `https://safebooru.donmai.us/posts.json?tags=${searchTags}&limit=${VN_IMG_LIMIT}`;
+                
+                try {
+                    const data = await directApiFetch(url);
+                    if (!data || !Array.isArray(data)) return [];
+                    return data.map(item => {
+                        let thumbUrl = item.preview_file_url;
+                        let fullUrl = item.large_file_url || item.file_url;
+                        if (item.media_asset && item.media_asset.variants) {
+                            const thumbVariant = item.media_asset.variants.find(v => v.type === '360x360' || v.type === '180x180');
+                            if (thumbVariant) thumbUrl = thumbVariant.url;
+                            const fullVariant = item.media_asset.variants.find(v => v.type === 'sample' || v.type === 'original');
+                            if (fullVariant) fullUrl = fullVariant.url;
+                        }
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tag_string_character ? item.tag_string_character.split(' ') : [],
+                            source: 'Safebooru'
+                        };
+                    }).filter(i => i.url && i.thumb);
+                } catch (e) {
+                    console.error('Safebooru Error:', e);
+                    return [];
+                }
             }
         },
         'danbooru': {
@@ -3988,9 +4003,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 } else if (item._library === 'local') {
                     cell.style.display = 'none';
                 } else {
-                    // API images: chỉ ẩn cell nếu cả thumb lẫn url đều lỗi
-                    cell.style.opacity = '0.3';
-                    img.title = 'Ảnh không tải được (lỗi CORS hoặc domain chặn)';
+                    // Xoá hoàn toàn ảnh lỗi khỏi grid để không làm hỏng giao diện (VD: link 404 từ Danbooru)
+                    cell.remove();
                 }
             };
             img.addEventListener('click', () => selectImage(item.url));
