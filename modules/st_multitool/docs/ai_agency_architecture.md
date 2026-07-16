@@ -80,3 +80,13 @@ Nếu sau này cần tích hợp AI Agency vào **World Info**, **Character Edit
 
 ---
 *(Bảng tổng kết này được tạo ở phiên bản 2.6.0.0. Hãy cập nhật khi có thêm kiến trúc hoặc sửa lỗi lõi).*
+
+---
+
+## 4. Nợ Kỹ Thuật & Cần Refactor (Tech Debt - Từ bản 2.6.0.0)
+Do phát triển nhanh và sao chép cấu trúc từ Preset sang Regex, hệ thống hiện đang bị **trùng lặp mã nguồn (Code Duplication)** rất lớn (lên tới 70%):
+- **Giao diện (UI):** Các hàm parse Markdown (`protectCodeBlocks`, `cleanAssistantText`), chu trình chat (`appendBubble`, `setState`) và cả khối HTML khổng lồ (`buildSidebarHTML`) đang bị lặp lại ở cả `preset-agency-ui.js` và `regex-agency-ui.js`.
+- **Hộp cát (Staging Buffer):** Cơ chế quản lý `_stagingMap`, `_stagingCreates`, `_stagingDeletes` bị lặp lại y hệt giữa hai Provider.
+👉 **Mục tiêu tiếp theo (Nếu rảnh rỗi hoặc khi thêm tính năng thứ 3):**
+   - Rút trích toàn bộ logic UI chung ra một class `AgencyChatUI` (hoặc tệp `ai-ui-utils.js`).
+   - Rút trích logic quản lý hộp cát ra một class `StagingBuffer` chung để các Provider chỉ cần kế thừa.
