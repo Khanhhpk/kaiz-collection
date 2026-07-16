@@ -230,15 +230,9 @@ export class AgencyEngine {
             ? `\n\n📌 [GHIM YÊU CẦU CHÍNH CHỦ CỦA USER]: "${this._pinnedUserGoal}"\n-> Bạn đang ở vòng lặp số ${iterations}/${maxIterations}. Hãy luôn đối chiếu với yêu cầu ghim trên để đảm bảo các thao tác trong batch này bám sát mục tiêu gốc, hoàn thành triệt để 100% công việc và không bị lãng quên hay lạc đề!`
             : '';
 
-          const hasPendingReview = batchResults.some(item => item.result && item.result.pending_review);
-          let feedbackBase = '';
-          if (hasErrorInBatch) {
-            feedbackBase = `[Batch Tool Results - CÓ LỖI/ERROR] (SỐ TOOLS CALL HIỆN TẠI: ${totalToolCallsInThisTask} | VÒNG LẶP AGENTIC: ${iterations}/${maxIterations})\n${resultsFormatted}\n\n⚠️ LƯU Ý TỰ ĐỘNG GỠ LỖI (AUTONOMOUS SELF-CORRECTION): Có tool vừa gọi bị lỗi. Bạn HÃY TỰ ĐỘNG đọc kỹ thông báo lỗi, suy luận trong <agency_cot>...</agency_cot> để tự kiểm tra tham số (${domain.inspectHint}) và GỌI LẠI TOOL sửa lỗi ngay trong lượt này, KHÔNG ĐƯỢC dừng lại hay bỏ cuộc!`;
-          } else if (hasPendingReview) {
-            feedbackBase = `[Batch Tool Results - THÀNH CÔNG] (SỐ TOOLS CALL HIỆN TẠI: ${totalToolCallsInThisTask} | VÒNG LẶP AGENTIC: ${iterations}/${maxIterations})\n${resultsFormatted}\n\n✅ HỆ THỐNG ĐÃ CHẶN TOOL TẠM THỜI: Bảng Diff Preview đang được hiển thị cho người dùng để chờ họ bấm Áp dụng/Hủy. Bạn ĐÃ HOÀN THÀNH XONG nhiệm vụ. TUYỆT ĐỐI KHÔNG ĐƯỢC GỌI THÊM BẤT KỲ TOOL NÀO NỮA ở lượt này. Hãy xuất ra một thông báo giao tiếp ngắn gọn (dưới 50 chữ) mời người dùng kiểm tra bảng Preview và DỪNG LẠI (chỉ chat, không gọi tool)!`;
-          } else {
-            feedbackBase = `[Batch Tool Results - THÀNH CÔNG] (SỐ TOOLS CALL HIỆN TẠI: ${totalToolCallsInThisTask} | VÒNG LẶP AGENTIC: ${iterations}/${maxIterations})\n${resultsFormatted}\n\n👉 HỆ THỐNG AGENTIC LOOP ĐANG HOẠT ĐỘNG: Lượt tool vừa thành công và vòng lặp tiếp theo đã tự động kích hoạt cho bạn! Nếu nhiệm vụ ban đầu vẫn chưa hoàn thành, HÃY TIẾP TỤC thực thi tiếp theo ngay lập tức! TUYỆT ĐỐI KHÔNG ĐƯỢC DỪNG LẠI giữa chừng, không bảo người dùng tự làm phần còn lại. CHỈ KHI NÀO xong 100% toàn bộ yêu cầu mới gọi lệnh ${domain.saveCommand}!`;
-          }
+          const feedbackBase = hasErrorInBatch
+            ? `[Batch Tool Results - CÓ LỖI/ERROR] (SỐ TOOLS CALL HIỆN TẠI: ${totalToolCallsInThisTask} | VÒNG LẶP AGENTIC: ${iterations}/${maxIterations})\n${resultsFormatted}\n\n⚠️ LƯU Ý TỰ ĐỘNG GỠ LỖI (AUTONOMOUS SELF-CORRECTION): Có tool vừa gọi bị lỗi. Bạn HÃY TỰ ĐỘNG đọc kỹ thông báo lỗi, suy luận trong <agency_cot>...</agency_cot> để tự kiểm tra tham số (${domain.inspectHint}) và GỌI LẠI TOOL sửa lỗi ngay trong lượt này, KHÔNG ĐƯỢC dừng lại hay bỏ cuộc!`
+            : `[Batch Tool Results - THÀNH CÔNG] (SỐ TOOLS CALL HIỆN TẠI: ${totalToolCallsInThisTask} | VÒNG LẶP AGENTIC: ${iterations}/${maxIterations})\n${resultsFormatted}\n\n👉 HỆ THỐNG AGENTIC LOOP ĐANG HOẠT ĐỘNG: Lượt tool vừa thành công và vòng lặp tiếp theo đã tự động kích hoạt cho bạn! Nếu nhiệm vụ ban đầu vẫn chưa hoàn thành, HÃY TIẾP TỤC thực thi tiếp theo ngay lập tức! TUYỆT ĐỐI KHÔNG ĐƯỢC DỪNG LẠI giữa chừng, không bảo người dùng tự làm phần còn lại. CHỈ KHI NÀO xong 100% toàn bộ yêu cầu mới gọi lệnh ${domain.saveCommand}!`;
 
           // Append tool results bundle to history using 'user' role for maximum API compatibility with XML tool calls.
           this._pushHistory({
