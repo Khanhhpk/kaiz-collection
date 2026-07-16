@@ -27,6 +27,8 @@ export function initManageRegex() {
   $('#st-multitool-manage-regex-reset-all-btn').off('click').on('click', () => {
     if (hasRegexSandboxChanges() && !confirm('Xác nhận hoàn tác tất cả các thay đổi trong Sandbox về trạng thái gốc của SillyTavern?')) return;
     restoreOriginalRegexSnapshot();
+  });
+
   let currentRegexImportTarget = 'global';
   $('#st-multitool-manage-regex-import-btn').off('click').on('click', () => {
     $('#st-multitool-manage-regex-import-drawer').slideToggle(150);
