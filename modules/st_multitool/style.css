@@ -755,6 +755,7 @@
   overflow: visible !important;
   min-height: 60px !important;
   height: auto !important;
+  flex-shrink: 0 !important;
 }
 
 .st-multitool-manage-regex-info {

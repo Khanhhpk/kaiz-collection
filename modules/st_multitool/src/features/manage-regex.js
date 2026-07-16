@@ -298,7 +298,7 @@ function renderRegexList($container, regexes, type) {
     const div = document.createElement('div');
     div.className = 'st-multitool-manage-regex-item';
     div.setAttribute('data-regex-id', regex.id);
-    div.style.cssText = 'display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: space-between !important; padding: 12px 14px !important; background: rgba(15, 23, 42, 0.75) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px !important; margin-bottom: 8px !important; gap: 12px !important; overflow: visible !important; min-height: 60px !important; height: auto !important;';
+    div.style.cssText = 'display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: space-between !important; padding: 12px 14px !important; background: rgba(15, 23, 42, 0.75) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 8px !important; margin-bottom: 8px !important; gap: 12px !important; overflow: visible !important; min-height: 60px !important; height: auto !important; flex-shrink: 0 !important;';
 
     const findPattern = regex.find_regex || '';
     const shortPattern = findPattern.length > 55 ? findPattern.slice(0, 55) + '...' : (findPattern || 'Chưa nhập pattern');
