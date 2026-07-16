@@ -2111,21 +2111,24 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
     }
 
-    // Fetch qua allorigins proxy cho Safebooru (không có CORS header)
+    // Fetch qua cors.sh proxy cho Safebooru (không có CORS header)
     async function proxiedBooruFetch(url) {
-        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+        // cors.sh: proxy miễn phí, hỗ trợ CORS, ổn định hơn allorigins
+        const proxyUrl = 'https://cors.sh/' + url;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
         try {
-            const r = await fetch(proxyUrl, { signal: controller.signal });
+            const r = await fetch(proxyUrl, {
+                signal: controller.signal,
+                headers: { 'x-cors-api-key': 'temp_' + Date.now() }
+            });
             clearTimeout(timeoutId);
             if (!r.ok) return [];
-            const envelope = await r.json();
-            const text = envelope.contents || '';
+            const text = await r.text();
             if (!text) return [];
             let data;
             try { data = JSON.parse(text); } catch(e) {
-                // XML fallback
+                // XML fallback (Safebooru đôi khi trả XML)
                 try {
                     const parser = new DOMParser();
                     const xml = parser.parseFromString(text, 'text/xml');
@@ -2157,12 +2160,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             async fetch(opts = {}) {
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
                 const page = opts.offset || 0;
-                if (!tags) tags = 'rating:general';
-                const url = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${encodeURIComponent(tags)}&limit=24&pid=${page}`;
+                // Safebooru không cần tag nếu để trống - lấy latest general
+                const url = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${tags ? encodeURIComponent(tags) : 'rating%3Ageneral'}&limit=24&pid=${page}`;
                 const data = await proxiedBooruFetch(url);
                 return data.map(item => ({
-                    url: item.file_url ? item.file_url : `https://safebooru.org//images/${item.directory}/${item.image}`,
-                    thumb: item.sample_url || null,
+                    url: item.file_url || `https://safebooru.org//images/${item.directory}/${item.image}`,
+                    // preview_url là thumbnail nhỏ (150px), sample_url là medium
+                    thumb: item.preview_url || item.sample_url || null,
                     tags: item.tags ? item.tags.split(' ') : [],
                     nsfw: false,
                     src: 'safebooru'
@@ -2174,22 +2178,21 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             sfw: true, nsfw: true,
             async fetch(opts = {}) {
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const page = Math.floor((opts.offset || 0) / 12) + 1;
-                if (opts.nsfw) {
-                    tags = tags ? `${tags} rating:explicit` : 'rating:explicit';
-                } else {
-                    tags = tags ? `${tags} rating:g,s` : 'rating:g,s';
-                }
-                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(tags)}&limit=20&page=${page}`;
+                const page = Math.floor((opts.offset || 0) / 20) + 1;
+                // Danbooru rating: g=general, s=sensitive, q=questionable, e=explicit
+                // Dùng -rating:e để lọc theo NSFW toggle
+                const ratingFilter = opts.nsfw ? '' : ' -rating:e -rating:q';
+                const searchTags = (tags ? tags : '') + ratingFilter;
+                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(searchTags.trim())}&limit=20&page=${page}`;
                 const data = await directApiFetch(url);
                 if (!data || !Array.isArray(data)) return [];
                 return data.map(item => ({
-                    url: item.file_url || item.large_file_url,
-                    thumb: item.preview_file_url,
+                    url: item.large_file_url || item.file_url,  // large_file_url available to anon
+                    thumb: item.preview_file_url,               // 180x180 thumbnail từ CDN
                     tags: [item.tag_string_character, item.tag_string_general].filter(Boolean),
                     nsfw: opts.nsfw,
                     src: 'danbooru'
-                })).filter(i => i.url);
+                })).filter(i => i.url && i.thumb);  // chỉ lấy item có cả url lẫn thumb
             }
         },
         'nekos.best': {
@@ -2316,19 +2319,41 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             async fetch(opts = {}) {
                 const query = (opts.tag || '').trim();
                 const page = Math.floor((opts.offset || 0) / 16) + 1;
-                // Jikan v4 hỗ trợ search nhân vật theo tên đầy đủ rất tốt
                 const url = query
                     ? `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=16&page=${page}`
                     : `https://api.jikan.moe/v4/top/characters?limit=16&page=${page}`;
-                const r = await fetch(url);
-                if (!r.ok) return [];
-                const d = await r.json();
+                // Jikan đôi khi 429 rate limit hoặc 504 overload - thử tối đa 3 lần
+                const fetchWithRetry = async (retries = 2) => {
+                    const controller = new AbortController();
+                    const tid = setTimeout(() => controller.abort(), 12000);
+                    try {
+                        const r = await fetch(url, { signal: controller.signal });
+                        clearTimeout(tid);
+                        if (r.status === 429 || r.status === 504 || r.status === 503) {
+                            if (retries > 0) {
+                                await new Promise(res => setTimeout(res, 1200));
+                                return fetchWithRetry(retries - 1);
+                            }
+                            return null;
+                        }
+                        if (!r.ok) return null;
+                        return await r.json();
+                    } catch(e) {
+                        clearTimeout(tid);
+                        if (retries > 0 && e.name !== 'AbortError') {
+                            await new Promise(res => setTimeout(res, 800));
+                            return fetchWithRetry(retries - 1);
+                        }
+                        return null;
+                    }
+                };
+                const d = await fetchWithRetry();
+                if (!d) return [];
                 return (d.data || []).filter(c => c && c.images && (c.images.jpg?.image_url || c.images.webp?.image_url)).map(c => ({
                     url: c.images.jpg?.image_url || c.images.webp?.image_url,
-                    tags: [c.name, ...(c.nicknames || []).slice(0, 2), 'anime', 'official'].filter(Boolean),
+                    tags: [c.name, ...(c.nicknames || []).slice(0, 2), 'MAL', 'official'].filter(Boolean),
                     nsfw: false,
-                    src: 'myanimelist',
-                    _searchText: [c.name, ...(c.nicknames || [])].join(' ').toLowerCase()
+                    src: 'myanimelist'
                 }));
             },
             tags: ['Marin Kitagawa', 'Rem', 'Zero Two', 'Megumin', 'Shinobu Oshino', 'Kurumi Tokisaki', 'Asuna', 'Mikasa', 'Kaguya Shinomiya', 'Mai Sakurajima', 'Chizuru Mizuhara', 'Albedo', 'Emilia', 'Roxy Migurdia', 'Frieren', 'Maomao', 'Raiden Shogun', 'Hatsune Miku', 'Furina', 'Hu Tao', 'Gawr Gura', 'Kafka', 'Firefly', 'Gojo Satoru', 'Levi Ackerman', 'Luffy', 'Zoro', 'Kakashi', 'Sung Jin-Woo']
