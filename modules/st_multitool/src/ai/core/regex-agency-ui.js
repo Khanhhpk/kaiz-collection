@@ -765,7 +765,7 @@ function _bindEvents() {
         }
         $last.text(summaryText);
 
-        if (result?.pending_review || hasStagingChanges()) {
+        if (toolName === 'save_regex_changes' || result?.pending_review) {
           renderRegexToolPreview();
           setState('pending_confirm');
         } else {
