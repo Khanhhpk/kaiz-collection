@@ -768,10 +768,8 @@ function _bindEvents() {
 
         if (toolName === 'save_regex_changes' || result?.pending_review) {
           renderRegexToolPreview();
-          setState('pending_confirm');
-        } else {
-          setState('streaming');
         }
+        setState('streaming');
         currentAssistantBubble = null;
         streamBuffer = '';
       },
@@ -789,8 +787,12 @@ function _bindEvents() {
           currentAssistantBubble = appendBubble('assistant', '');
           finalizeStreamingBubble('<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#fbbf24;"></i> **API trả về phản hồi rỗng (0 tokens).**\n\n💡 Bấm vào nút **[<i data-lucide="terminal" style="width:13px;height:13px;vertical-align:-2px;"></i> Debug Logs]** trên thanh tiêu đề để xem chi tiết tải trọng hoặc lỗi từ API.');
         }
-        if (hasStagingChanges()) renderRegexToolPreview();
-        setState('idle');
+        if (hasStagingChanges()) {
+          renderRegexToolPreview();
+          setState('pending_confirm');
+        } else {
+          setState('idle');
+        }
       },
       onError: (err) => {
         if (err?.name === 'AbortError') {

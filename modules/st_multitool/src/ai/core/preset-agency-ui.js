@@ -929,10 +929,8 @@ function _bindEvents() {
         // Nếu tool trả pending_review → hiện preview
         if (result?.pending_review) {
           renderToolPreview();
-          setState('pending_confirm');
-        } else {
-          setState('streaming');
         }
+        setState('streaming');
         currentAssistantBubble = null;
         streamBuffer = '';
       },
@@ -950,8 +948,12 @@ function _bindEvents() {
           currentAssistantBubble = appendBubble('assistant', '');
           finalizeStreamingBubble('<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#fbbf24;"></i> **API trả về phản hồi rỗng (0 tokens).**\n\n💡 *Cách xử lý:* Bấm vào biểu tượng **[<i data-lucide="terminal" style="width:13px;height:13px;vertical-align:-2px;"></i> Debug Logs]** (`>_`) trên thanh tiêu đề của AI Agency để xem chính xác dữ liệu đã gửi đi và phản hồi/lỗi chi tiết từ SillyTavern hoặc API LLM.');
         }
-        if (hasStagingChanges()) renderToolPreview();
-        setState('idle');
+        if (hasStagingChanges()) {
+          renderToolPreview();
+          setState('pending_confirm');
+        } else {
+          setState('idle');
+        }
       },
       onError: (err) => {
         if (err?.name === 'AbortError') {
