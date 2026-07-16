@@ -69,6 +69,32 @@ function scrollToBottomIfFollowing($history, force = false) {
 
 // ─── Formatting Helper ────────────────────────────────────────────────────────
 
+function protectCodeBlocks(text) {
+  if (!text) return { protectedStr: '', map: [] };
+  const map = [];
+  let s = String(text).replace(/```[\s\S]*?```/g, (match) => {
+    const key = `__ST_CODE_BLOCK_${map.length}__`;
+    map.push({ key, value: match });
+    return key;
+  });
+  s = s.replace(/`[^`\n]+`/g, (match) => {
+    const key = `__ST_CODE_BLOCK_${map.length}__`;
+    map.push({ key, value: match });
+    return key;
+  });
+  return { protectedStr: s, map };
+}
+
+function restoreCodeBlocks(text, map) {
+  if (!text) return '';
+  if (!map || !map.length) return String(text);
+  let s = String(text);
+  for (let i = map.length - 1; i >= 0; i--) {
+    s = s.split(map[i].key).join(map[i].value);
+  }
+  return s;
+}
+
 function cleanAssistantText(text) {
   if (!text) return '';
   const { protectedStr, map } = protectCodeBlocks(text);
