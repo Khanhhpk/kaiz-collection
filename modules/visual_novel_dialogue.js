@@ -110,16 +110,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
     const VN_IDB_PREFIX = 'vn-idb://';
     const VN_BLANK_IMG = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>');
     const VN_IDB_OBJECT_URL_CACHE = {};
-    const VN_IDB_OBJECT_URL_KEYS = [];
-    function pruneIdbObjectUrlCache() {
-        if (VN_IDB_OBJECT_URL_KEYS.length > 80) {
-            const toRemove = VN_IDB_OBJECT_URL_KEYS.splice(0, VN_IDB_OBJECT_URL_KEYS.length - 80);
-            toRemove.forEach(k => {
-                try { if (VN_IDB_OBJECT_URL_CACHE[k]) URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[k]); } catch (e) { }
-                delete VN_IDB_OBJECT_URL_CACHE[k];
-            });
-        }
-    }
     const VN_IDB_PENDING = {};
 
     function cloneDeep(obj) {
@@ -509,8 +499,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
                 if (!rec || !rec.blob) throw new Error('Ảnh local không còn tồn tại trong IndexedDB.');
                 const objectUrl = URL.createObjectURL(rec.blob);
                 VN_IDB_OBJECT_URL_CACHE[ref] = objectUrl;
-                if (!VN_IDB_OBJECT_URL_KEYS.includes(ref)) VN_IDB_OBJECT_URL_KEYS.push(ref);
-                pruneIdbObjectUrlCache();
                 return objectUrl;
             } finally {
                 db.close();
@@ -3276,6 +3264,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         nsfw: false,
         images: [],
         offset: 0,
+        localPage: 0,
+        urlPage: 0,
         loading: false,
         selectedUrl: '',
         targetChar: null
@@ -3637,7 +3627,22 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 src: 'local-import',
                 _library: 'local'
             }));
-            renderImgGrid(items, grid);
+            
+            const pageSize = 24;
+            const totalPages = Math.ceil(items.length / pageSize);
+            if (imgPickerState.localPage >= totalPages) imgPickerState.localPage = Math.max(0, totalPages - 1);
+            
+            const start = imgPickerState.localPage * pageSize;
+            const pageItems = items.slice(start, start + pageSize);
+            
+            renderImgGrid(pageItems, grid);
+            
+            if (totalPages > 1) {
+                renderPagination(grid, imgPickerState.localPage, totalPages, (newPage) => {
+                    imgPickerState.localPage = newPage;
+                    renderLocalLibraryGrid();
+                });
+            }
         } catch (err) {
             console.error('[VN Dialogue] Không đọc được Kho Local:', err);
             grid.innerHTML = `<div class="vn-img-placeholder">Không đọc được Kho Local: ${escapeHtml(err.message || 'Không rõ lỗi')}</div>`;
@@ -3660,7 +3665,55 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             try { filename = decodeURIComponent(new URL(url).pathname.split('/').pop() || 'link image'); } catch (e) { filename = 'link image'; }
             return { url, tags: [filename, 'link đã lưu'], nsfw: false, src: 'url-library', _library: 'url' };
         });
-        renderImgGrid(items, grid);
+        
+        const pageSize = 24;
+        const totalPages = Math.ceil(items.length / pageSize);
+        if (imgPickerState.urlPage >= totalPages) imgPickerState.urlPage = Math.max(0, totalPages - 1);
+        
+        const start = imgPickerState.urlPage * pageSize;
+        const pageItems = items.slice(start, start + pageSize);
+        
+        renderImgGrid(pageItems, grid);
+        
+        if (totalPages > 1) {
+            renderPagination(grid, imgPickerState.urlPage, totalPages, (newPage) => {
+                imgPickerState.urlPage = newPage;
+                renderLinkLibraryGrid();
+            });
+        }
+    }
+
+    function renderPagination(grid, currentPage, totalPages, onPageChange) {
+        const wrap = PD.createElement('div');
+        wrap.className = 'vn-pagination-wrap';
+        wrap.style.cssText = 'width: 100%; display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; padding-bottom: 10px; grid-column: 1 / -1;';
+        
+        const prevBtn = PD.createElement('button');
+        prevBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
+        prevBtn.textContent = '⬅ Trang trước';
+        prevBtn.disabled = currentPage <= 0;
+        if (currentPage <= 0) prevBtn.style.opacity = '0.5';
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 0) onPageChange(currentPage - 1);
+        });
+        
+        const info = PD.createElement('span');
+        info.style.cssText = 'color: #94a3b8; font-size: 13px; font-weight: 500;';
+        info.textContent = `Trang ${currentPage + 1} / ${totalPages}`;
+        
+        const nextBtn = PD.createElement('button');
+        nextBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
+        nextBtn.textContent = 'Trang sau ➡';
+        nextBtn.disabled = currentPage >= totalPages - 1;
+        if (currentPage >= totalPages - 1) nextBtn.style.opacity = '0.5';
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages - 1) onPageChange(currentPage + 1);
+        });
+        
+        wrap.appendChild(prevBtn);
+        wrap.appendChild(info);
+        wrap.appendChild(nextBtn);
+        grid.appendChild(wrap);
     }
 
     function renderFavBar() {
