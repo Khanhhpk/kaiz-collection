@@ -2112,6 +2112,84 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     const API_SOURCES = {
+
+        'safebooru': {
+            label: 'Safebooru (SFW)',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim().replace(/ /g, '_');
+                const searchTags = tags ? encodeURIComponent(tags) : '';
+                const limit = opts.count || 20;
+                const page = Math.floor((opts.offset || 0) / limit) + 1;
+                let url = 'https://safebooru.donmai.us/posts.json?tags=' + searchTags + '&limit=' + limit + '&page=' + page;
+                if (opts.auth && opts.auth.login && opts.auth.apiKey) {
+                    url += '&login=' + encodeURIComponent(opts.auth.login) + '&api_key=' + encodeURIComponent(opts.auth.apiKey);
+                }
+                try {
+                    const data = await directApiFetch(url);
+                    if (!data || !Array.isArray(data)) return [];
+                    return data.map(item => {
+                        let thumbUrl = item.preview_file_url;
+                        let fullUrl = item.large_file_url || item.file_url;
+                        if (item.media_asset && item.media_asset.variants) {
+                            const thumbVariant = item.media_asset.variants.find(v => v.type === '360x360' || v.type === '180x180');
+                            if (thumbVariant) thumbUrl = thumbVariant.url;
+                            const fullVariant = item.media_asset.variants.find(v => v.type === 'sample' || v.type === 'original');
+                            if (fullVariant) fullUrl = fullVariant.url;
+                        }
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tag_string_character ? item.tag_string_character.split(' ') : [],
+                            source: 'Safebooru'
+                        };
+                    }).filter(i => i.url && i.thumb);
+                } catch (e) {
+                    console.error('Safebooru Error:', e);
+                    return [];
+                }
+            }
+        },
+        'danbooru': {
+            label: 'Danbooru (CORS OK)',
+            sfw: true, nsfw: true,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim().replace(/ /g, '_');
+                const limit = opts.count || 20;
+                const page = Math.floor((opts.offset || 0) / limit) + 1;
+                const ratingFilter = opts.nsfw ? '' : ' -rating:e -rating:q';
+                const searchTags = (tags ? tags : '') + ratingFilter;
+                let url = 'https://danbooru.donmai.us/posts.json?tags=' + encodeURIComponent(searchTags.trim()) + '&limit=' + limit + '&page=' + page;
+                if (opts.auth && opts.auth.login && opts.auth.apiKey) {
+                    url += '&login=' + encodeURIComponent(opts.auth.login) + '&api_key=' + encodeURIComponent(opts.auth.apiKey);
+                }
+                try {
+                    const data = await directApiFetch(url);
+                    if (!data || !Array.isArray(data)) return [];
+                    return data.map(item => {
+                        let thumbUrl = item.preview_file_url;
+                        let fullUrl = item.large_file_url || item.file_url;
+                        if (item.media_asset && item.media_asset.variants) {
+                            const thumbVariant = item.media_asset.variants.find(v => v.type === '360x360' || v.type === '180x180');
+                            if (thumbVariant) thumbUrl = thumbVariant.url;
+                            const fullVariant = item.media_asset.variants.find(v => v.type === 'sample' || v.type === 'original');
+                            if (fullVariant) fullUrl = fullVariant.url;
+                        }
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: [item.tag_string_character, item.tag_string_general].filter(Boolean),
+                            nsfw: opts.nsfw,
+                            src: 'danbooru'
+                        };
+                    }).filter(i => i.url && i.thumb);
+                } catch (e) {
+                    console.error('Danbooru Error:', e);
+                    return [];
+                }
+            }
+        },
+
         'nekos.best': {
             label: 'nekos.best',
             sfw: true, nsfw: false,
@@ -3316,6 +3394,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <button class="vn-src-nav-btn" id="vn-ipm-scroll-left" title="Cuộn tab sang trái">◄</button>
       <div class="vn-img-src-tabs" id="vn-ipm-srctabs">
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
+        <button class="vn-src-tab" data-src="safebooru">Safebooru</button>
+        <button class="vn-src-tab" data-src="danbooru">Danbooru</button>
         <button class="vn-src-tab" data-src="myanimelist">MyAnimeList</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
         <button class="vn-src-tab" data-src="pic.re">Pic.re Art</button>
@@ -3342,6 +3422,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
       <div style="font-size:11px;color:#94a3b8;margin-top:6px;line-height:1.5;">Link ảnh sẽ được kiểm tra tải thử trước khi lưu. Link lỗi sẽ không lưu hoặc tự xoá khỏi <b>Kho Link</b> khi phát hiện lỗi.</div>
     </div>
+    <div id="vn-ipm-auth-row" style="display:none;margin-top:10px;gap:8px;align-items:center;background:#1e293b;padding:8px;border-radius:6px;">
+      <span style="color:#cbd5e1;font-size:12px;white-space:nowrap;">Danbooru Auth:</span>
+      <input class="vn-img-search" id="vn-ipm-login" placeholder="Username" style="width:100px;" />
+      <input class="vn-img-search" id="vn-ipm-apikey" placeholder="API Key" style="flex:1;" type="password" />
+      <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-auth-save" style="white-space:nowrap;">Lưu Auth</button>
+    </div>
+
     <div id="vn-ipm-local-row" style="display:none;margin-top:10px;">
       <input type="file" id="vn-ipm-fileinput" accept="image/*" multiple style="display:none;" />
       <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-ipm-filebtn" style="width:100%;">📂 Import ảnh từ máy tính vào Kho Local offline</button>
@@ -3425,6 +3512,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ((src === 'local' || src === 'url') && searchEl) searchEl.value = '';
             $('vn-ipm-searchtoolbar').style.display = (src === 'local' || src === 'url') ? 'none' : 'flex';
             $('vn-ipm-url-row').style.display = src === 'url' ? 'block' : 'none';
+            const authRow = $('vn-ipm-auth-row');
+            if(authRow) authRow.style.display = (src === 'safebooru' || src === 'danbooru') ? 'flex' : 'none';
             $('vn-ipm-local-row').style.display = src === 'local' ? 'block' : 'none';
             const fullBox = $('vn-ipm-full-preview-box');
             if (fullBox) fullBox.style.display = 'none';
@@ -3457,6 +3546,21 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 // No longer toggling Rule34 tab
             });
         }
+        
+        const authSaveBtn = $('vn-ipm-auth-save');
+        if (authSaveBtn) {
+            const loginInput = $('vn-ipm-login');
+            const apiInput = $('vn-ipm-apikey');
+            loginInput.value = localStorage.getItem('vn_danbooru_login') || '';
+            apiInput.value = localStorage.getItem('vn_danbooru_apikey') || '';
+            
+            authSaveBtn.onclick = () => {
+                localStorage.setItem('vn_danbooru_login', loginInput.value.trim());
+                localStorage.setItem('vn_danbooru_apikey', apiInput.value.trim());
+                if (window.toastr) { toastr.success('Đã lưu xác thực API Danbooru/Safebooru!'); }
+            };
+        }
+
         $('vn-ipm-search').addEventListener('keydown', e => { if (e.key === 'Enter') fetchImagesForPicker(true); });
 
         // Live filter: gõ vào ô search → lọc ngay các thumbnail đã tải
@@ -3799,6 +3903,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         // Hiển thị hint về loại tìm kiếm
         const searchHints = {
+            'safebooru':    '🌟 Safebooru (Cần API Key): Nhập Username và API Key của Danbooru để vượt rate-limit Cloudflare.',
+            'danbooru':     '🌟 Danbooru (Cần API Key): Kho ảnh lớn nhất. Nhập Auth để vượt Cloudflare. Hỗ trợ SFW/NSFW.',
             'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
             'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
             'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
@@ -3817,7 +3923,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
             if (toolbar && toolbar.parentNode) toolbar.parentNode.insertBefore(hintEl, toolbar.nextSibling);
         }
-        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 9 nguồn ảnh anime miễn phí (MyAnimeList ✅ · AniList ✅ + 7 kho khác)!</div>';
+        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 11 nguồn ảnh anime miễn phí (Danbooru CẦN AUTH) (MyAnimeList ✅ · AniList ✅ + 7 kho khác)!</div>';
 
         const skels = [];
         for (let i = 0; i < 12; i++) {
@@ -3833,7 +3939,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (!apiSrc) throw new Error('Unknown source');
             const tag = PD.getElementById('vn-ipm-search') ? PD.getElementById('vn-ipm-search').value.trim() : '';
             const nsfw = PD.getElementById('vn-ipm-nsfw') ? PD.getElementById('vn-ipm-nsfw').checked : false;
-            const results = await apiSrc.fetch({ tag, nsfw, count: 12, offset: imgPickerState.offset });
+            const danbooruLogin = localStorage.getItem('vn_danbooru_login') || '';
+            const danbooruApiKey = localStorage.getItem('vn_danbooru_apikey') || '';
+            const results = await apiSrc.fetch({ tag, nsfw, count: 12, offset: imgPickerState.offset, auth: { login: danbooruLogin, apiKey: danbooruApiKey } });
             skels.forEach(s => s.remove());
             imgPickerState.offset += results.length;
 
@@ -4020,9 +4128,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (defTab) defTab.classList.add('active');
         const searchtb = PD.getElementById('vn-ipm-searchtoolbar');
         const urlRow = PD.getElementById('vn-ipm-url-row');
+        const authRow = PD.getElementById('vn-ipm-auth-row');
         const localRow = PD.getElementById('vn-ipm-local-row');
         if (searchtb) searchtb.style.display = 'flex';
         if (urlRow) urlRow.style.display = 'none';
+        if (authRow) authRow.style.display = 'none';
         if (localRow) localRow.style.display = 'none';
         imgPickerState.currentSrc = 'nekos.best';
         const grid = PD.getElementById('vn-ipm-grid');
