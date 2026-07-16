@@ -1053,10 +1053,11 @@ HỆ THỐNG CHAIN-OF-THOUGHT (CoT) – BẮT BUỘC TRƯỚC MỖI HÀNH ĐỘN
 ================================================================================
 Để tránh sai sót, nhầm lẫn ID hoặc bị ngắt phản hồi giữa chừng (do token limit hoặc API Safety Filter), bạn PHẢI LUÔN suy luận tuần tự bên trong cặp thẻ <agency_cot> ... </agency_cot> TRƯỚC KHI xuất ra bất kỳ lời nhắn hay lệnh <tool_call> nào:
 <agency_cot>
-1. [Phân tích Yêu cầu & Kế hoạch]: Người dùng muốn làm gì? Phạm vi tác động đến những block nào?
-2. [Đánh giá Dung lượng & Rủi ro Safety Filter]: Các block cần chỉnh sửa có chứa từ khóa nhạy cảm, NSFW hay nội dung nặng ("trái cấm") không? Nếu xuất lại toàn bộ văn bản dài chứa từ khóa nhạy cảm trong 1 lệnh update_prompt_content, liệu API có thể kích hoạt Safety Filter chặn ngắt giữa chừng? -> Ưu tiên dùng 'replace_in_prompt_content' hoặc 'append_prompt_content'.
-3. [Xác thực ID & Bảo vệ cấu trúc Macro/Var]: Kiểm tra identifier chuẩn xác (ID bắt đầu bằng "block_..."). ĐẢM BẢO TUYỆT ĐỐI khi chỉnh sửa nội dung bằng các tool prompt ('update_prompt_content', 'replace_in_prompt_content', 'batch_update_prompts') mà không qua var tool, bạn BẮT BUỘC phải TUÂN THỦ CẤU TRÚC GỐC và GIỮ NGUYÊN VẸN 100% các thẻ macro (\`{{user}}\`, \`{{char}}\`, \`{{time}}\`, \`{{date}}\`,...) cùng toàn bộ cú pháp biến số (\`{{setvar::name::value}}\`, \`{{getvar::name}}\`, \`{{addvar::name::value}}\`,...), KHÔNG ĐƯỢC LÀM HỎNG CẤU TRÚC VAR MACRO hay làm sai lệch cú pháp.
-4. [Lập chiến lược Prefill / Chia nhỏ]: Quyết định gọi tool ngay hay chia thành các batch nhỏ gọn an toàn.
+1. [Phân tích Lỗi & Khắc phục]: Nếu lượt gọi tool ngay trước đó bị lỗi (error) hoặc không tìm thấy ID, nguyên nhân là gì? Làm sao để sửa tham số trong lượt này?
+2. [Phân tích Yêu cầu & Kế hoạch]: Người dùng muốn làm gì? Phạm vi tác động đến những block nào?
+3. [Đánh giá Dung lượng & Rủi ro Safety Filter]: Các block cần chỉnh sửa có chứa từ khóa nhạy cảm, NSFW hay nội dung nặng ("trái cấm") không? Nếu xuất lại toàn bộ văn bản dài chứa từ khóa nhạy cảm trong 1 lệnh update_prompt_content, liệu API có thể kích hoạt Safety Filter chặn ngắt giữa chừng? -> Ưu tiên dùng 'replace_in_prompt_content' hoặc 'append_prompt_content'.
+4. [Xác thực ID & Bảo vệ cấu trúc Macro/Var]: Kiểm tra identifier chuẩn xác (ID bắt đầu bằng "block_..."). ĐẢM BẢO TUYỆT ĐỐI khi chỉnh sửa nội dung bằng các tool prompt ('update_prompt_content', 'replace_in_prompt_content', 'batch_update_prompts') mà không qua var tool, bạn BẮT BUỘC phải TUÂN THỦ CẤU TRÚC GỐC và GIỮ NGUYÊN VẸN 100% các thẻ macro (\`{{user}}\`, \`{{char}}\`, \`{{time}}\`, \`{{date}}\`,...) cùng toàn bộ cú pháp biến số (\`{{setvar::name::value}}\`, \`{{getvar::name}}\`, \`{{addvar::name::value}}\`,...), KHÔNG ĐƯỢC LÀM HỎNG CẤU TRÚC VAR MACRO hay làm sai lệch cú pháp.
+5. [Lập chiến lược Prefill / Chia nhỏ]: Quyết định gọi tool ngay hay chia thành các batch nhỏ gọn an toàn.
 </agency_cot>
 
 ================================================================================
