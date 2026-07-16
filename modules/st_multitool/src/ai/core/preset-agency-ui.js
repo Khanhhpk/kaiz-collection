@@ -1,14 +1,14 @@
 /**
- * agency-ui.js
- * Chat sidebar UI cho AI Agency trong Preset Editor.
+ * preset-agency-ui.js
+ * Chat sidebar UI cho AI Agency Preset trong Preset Editor.
  * State machine: idle → streaming → tool_calling → pending_confirm → idle
  */
 
 import { createEngine } from './engine.js';
 import { getLLMConfig, setLLMConfig, fetchModels } from './llm-client.js';
-import { PresetContextProvider, getStagingSummary, hasStagingChanges, clearStaging, flushStaging } from '../providers/preset-provider.js';
+import { PresetContextProvider, getStagingSummary, hasStagingChanges, clearStaging, flushStaging, applyStagedSingle, rejectStagedSingle } from '../providers/preset-provider.js';
 import { getDebugLogs, clearDebugLogs } from './debug-logger.js';
-import { refreshIcons } from '../../utils.js';
+import { escapeHtml, refreshIcons } from '../../utils.js';
 
 let _engine = null;
 let _provider = null;
@@ -91,57 +91,153 @@ function appendBubble(role, content, opts = {}) {
   return $lastBubble;
 }
 
+function protectCodeBlocks(text) {
+  if (!text) return { protectedStr: '', map: [] };
+  const map = [];
+  let s = String(text).replace(/```[\s\S]*?```/g, (match) => {
+    const key = `__ST_CODE_BLOCK_${map.length}__`;
+    map.push({ key, value: match });
+    return key;
+  });
+  s = s.replace(/`[^`\n]+`/g, (match) => {
+    const key = `__ST_CODE_BLOCK_${map.length}__`;
+    map.push({ key, value: match });
+    return key;
+  });
+  return { protectedStr: s, map };
+}
+
+function restoreCodeBlocks(text, map) {
+  if (!text) return '';
+  if (!map || !map.length) return String(text);
+  let s = String(text);
+  for (let i = map.length - 1; i >= 0; i--) {
+    s = s.split(map[i].key).join(map[i].value);
+  }
+  return s;
+}
+
 function cleanAssistantText(text) {
   if (!text) return '';
-  let s = String(text);
-  // 1. Loại bỏ toàn bộ <tool_call>...</tool_call> (hoặc thẻ tool_call đang mở dở)
+  const { protectedStr, map } = protectCodeBlocks(text);
+  let s = protectedStr;
+
+  // 1. Loại bỏ toàn bộ <tool_call>...</tool_call> (hoặc thẻ tool_call đang mở dở) outside code
   s = s.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/gi, '');
-  
-  // 2. Loại bỏ CoT (<cot>...</cot> hoặc prefill bắt đầu trước </cot>)
-  if (s.includes('</cot>')) {
-    const parts = s.split('</cot>');
-    s = parts.slice(1).join('</cot>');
-  } else if (s.includes('<cot>')) {
-    s = s.replace(/<cot>[\s\S]*?(<\/cot>|$)/gi, '');
+
+  // 2. Loại bỏ CoT (<agency_cot>...</agency_cot> hoặc prefill) outside code
+  if (s.includes('</agency_cot>')) {
+    const parts = s.split('</agency_cot>');
+    s = parts.slice(1).join('</agency_cot>');
+  } else if (s.includes('<agency_cot>')) {
+    s = s.replace(/<agency_cot>[\s\S]*?(<\/agency_cot>|$)/gi, '');
   }
-  
-  return s.trim();
+
+  return restoreCodeBlocks(s.trim(), map);
+}
+
+function renderAiMarkdownHtml(rawText) {
+  if (!rawText) return '';
+  let s = String(rawText);
+
+  // 1. Bảo vệ các thẻ UI an toàn (icon Lucide, span, b, strong, em, code, pre, details, summary, br) trước khi escape
+  const safeTags = [];
+  s = s.replace(/<(i data-lucide="[^"]+"[^>]*>|<\/i>|span[^>]*>|<\/span>|b>|<\/b>|strong[^>]*>|<\/strong>|em[^>]*>|<\/em>|code[^>]*>|<\/code>|pre[^>]*>|<\/pre>|details[^>]*>|<\/details>|summary[^>]*>|<\/summary>|br\s*\/?>)/gi, (match) => {
+    const placeholder = `__ST_SAFE_UI_TAG_${safeTags.length}__`;
+    safeTags.push(match);
+    return placeholder;
+  });
+
+  // 2. Escape HTML cho phần văn bản còn lại (chống XSS từ AI / dữ liệu)
+  s = typeof escapeHtml === 'function' ? escapeHtml(s) : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+  // 3. Khôi phục lại các thẻ UI an toàn đã bảo vệ
+  s = s.replace(/__ST_SAFE_UI_TAG_(\d+)__/g, (match, idx) => {
+    return safeTags[Number(idx)] || match;
+  });
+
+  // 4. Kiểm tra thư viện marked toàn cục của SillyTavern nếu có (trên window)
+  if (typeof window !== 'undefined' && window.marked && typeof window.marked.parse === 'function') {
+    try {
+      return window.marked.parse(s);
+    } catch (e) {}
+  }
+
+  // 5. Fallback Markdown rành mạch (code blocks, inline code, headings, bold, italic, lists, newlines)
+  // 5.1 Fenced Code Blocks
+  s = s.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (match, lang, codeContent) => {
+    return `<pre class="ai-code-block" style="background:#0b1329;border:1px solid rgba(255,255,255,0.12);padding:8px 10px;border-radius:6px;overflow-x:auto;font-family:Consolas,monospace;font-size:11.5px;margin:6px 0;color:#e2e8f0;"><code>${codeContent}</code></pre>`;
+  });
+
+  // 5.2 Inline Code (`...`)
+  s = s.replace(/`([^`\n]+)`/g, (match, code) => {
+    return `<code style="background:rgba(255,255,255,0.12);padding:2px 5px;border-radius:4px;color:#38bdf8;font-family:Consolas,monospace;font-size:11px;">${code}</code>`;
+  });
+
+  // 5.3 Headings
+  s = s.replace(/^###\s+(.+)$/gm, '<h3 style="color:#c084fc;margin:8px 0 4px 0;font-size:13.5px;font-weight:700;">$1</h3>');
+  s = s.replace(/^##\s+(.+)$/gm, '<h2 style="color:#c084fc;margin:10px 0 4px 0;font-size:14.5px;font-weight:700;">$1</h2>');
+  s = s.replace(/^#\s+(.+)$/gm, '<h1 style="color:#c084fc;margin:12px 0 6px 0;font-size:15.5px;font-weight:700;">$1</h1>');
+
+  // 5.4 Bold (** hoặc __ across multiline)
+  s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong style="color:#f8fafc;font-weight:700;">$1</strong>');
+  s = s.replace(/__([\s\S]+?)__/g, '<strong style="color:#f8fafc;font-weight:700;">$1</strong>');
+
+  // 5.5 Italic (* hoặc _ trong cùng dòng hoặc multiline ngắn)
+  s = s.replace(/\*([^\*\n]+?)\*/g, '<em style="font-style:italic;">$1</em>');
+
+  // 5.6 Bullet lists (- hoặc •)
+  s = s.replace(/^\s*[-•]\s+(.+)$/gm, '<div style="display:flex;gap:6px;margin:3px 0;padding-left:4px;"><span style="color:#c084fc;font-weight:bold;">•</span><span>$1</span></div>');
+
+  // 5.7 Numbered lists (1. 2.)
+  s = s.replace(/^\s*(\d+)\.\s+(.+)$/gm, '<div style="display:flex;gap:6px;margin:3px 0;padding-left:4px;"><span style="color:#38bdf8;font-weight:bold;">$1.</span><span>$2</span></div>');
+
+  // 5.8 Chuyển đổi \n thành <br> (loại bỏ newlines bao quanh thẻ khối để tránh khoảng trắng thừa)
+  s = s.replace(/\n(?=<div|<h[1-3]|<pre|<\/div>|<\/h[1-3]>|<\/pre>)/gi, '');
+  s = s.replace(/(<\/div>|<\/h[1-3]>|<\/pre>)\n/gi, '$1');
+  s = s.replace(/\n/g, '<br>');
+
+  return s;
 }
 
 function formatAssistantBubbleHtml(rawText, isDev) {
   if (!rawText) return '';
-  let finalHtml = '';
 
   if (!isDev) {
     const cleaned = cleanAssistantText(rawText);
-    finalHtml = escapeHtml(cleaned)
-      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-      .replace(/\n/g, '<br>');
+    if (!cleaned && /<tool_call>/i.test(rawText)) {
+      return `<div style="color:#64748b;font-style:italic;font-size:11.5px;padding:2px 0;">[🤖 AI Agency đang thực thi thao tác qua tool...]</div>`;
+    }
+    if (!cleaned) return '';
+    return renderAiMarkdownHtml(cleaned);
   } else {
-    // Trong chế độ Dev View (isDev = true): Hiển thị đầy đủ CoT và Tool Call
-    let s = rawText;
+    // Dev Mode: Hiển thị đầy đủ CoT (<agency_cot>) và Tool Call (<tool_call>) đẹp, nổi bật
+    const { protectedStr, map } = protectCodeBlocks(rawText);
+    let s = protectedStr;
     let htmlParts = [];
 
-    // 1. Tách CoT nếu có (hoặc phần trước </cot>)
-    if (s.includes('</cot>')) {
-      const parts = s.split('</cot>');
-      let cotText = parts[0].replace(/^.*<cot>\n?/i, '').trim();
+    // 1. Tách CoT (<agency_cot>) nếu có
+    if (s.includes('</agency_cot>')) {
+      const parts = s.split('</agency_cot>');
+      let cotText = parts[0].replace(/^.*<agency_cot>\n?/i, '').trim();
       if (!cotText) cotText = parts[0].trim();
-      
+      cotText = restoreCodeBlocks(cotText, map);
+
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
-        `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;agency_cot&gt;)]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
         `</div>`
       );
-      s = parts.slice(1).join('</cot>').trim();
-    } else if (s.includes('<cot>')) {
-      const parts = s.split('<cot>');
-      let cotText = parts.slice(1).join('<cot>').trim();
+      s = parts.slice(1).join('</agency_cot>').trim();
+    } else if (s.includes('<agency_cot>')) {
+      const parts = s.split('<agency_cot>');
+      let cotText = parts.slice(1).join('<agency_cot>').trim();
+      cotText = restoreCodeBlocks(cotText, map);
       htmlParts.push(
         `<div class="ai-dev-cot-box" style="margin:4px 0 8px 0;padding:8px 10px;background:rgba(234,179,8,0.1);border-left:3px solid #eab308;border-radius:4px;font-size:11px;color:#fef08a;">` +
-        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought]</div>` +
-        `<div style="white-space:pre-wrap;line-height:1.4;font-family:monospace;">${escapeHtml(cotText)}</div>` +
+        `<div style="color:#facc15;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="brain" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Chain of Thought (&lt;agency_cot&gt;)]</div>` +
+        `<div style="white-space:pre-wrap;line-height:1.4;font-family:Consolas,monospace;">${typeof escapeHtml === 'function' ? escapeHtml(cotText) : cotText}</div>` +
         `</div>`
       );
       s = parts[0].trim();
@@ -153,49 +249,41 @@ function formatAssistantBubbleHtml(rawText, isDev) {
     let match;
 
     while ((match = toolCallRegex.exec(s)) !== null) {
-      const textBefore = s.slice(lastIndex, match.index).trim();
+      const textBefore = restoreCodeBlocks(s.slice(lastIndex, match.index).trim(), map);
       if (textBefore) {
         htmlParts.push(
           `<div style="margin-bottom:8px;">` +
-          escapeHtml(textBefore).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+          renderAiMarkdownHtml(textBefore) +
           `</div>`
         );
       }
 
-      const jsonStr = match[1].trim();
+      const jsonStr = restoreCodeBlocks(match[1].trim(), map);
       htmlParts.push(
-        `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:monospace;font-size:11px;color:#e9d5ff;">` +
+        `<div class="ai-dev-tool-box" style="margin:6px 0 8px 0;padding:8px 10px;background:rgba(168,85,247,0.12);border-left:3px solid #a855f7;border-radius:4px;font-family:Consolas,monospace;font-size:11px;color:#e9d5ff;">` +
         `<div style="color:#c084fc;font-weight:bold;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i data-lucide="wrench" style="width:13px;height:13px;vertical-align:-2px;"></i> [DEV VIEW: Raw Tool Call]</div>` +
-        `<div style="white-space:pre-wrap;word-break:break-all;">${escapeHtml(jsonStr)}</div>` +
+        `<div style="white-space:pre-wrap;word-break:break-all;">${typeof escapeHtml === 'function' ? escapeHtml(jsonStr) : jsonStr}</div>` +
         `</div>`
       );
 
       lastIndex = toolCallRegex.lastIndex;
     }
 
-    const textAfter = s.slice(lastIndex).trim();
+    const textAfter = restoreCodeBlocks(s.slice(lastIndex).trim(), map);
     if (textAfter) {
       htmlParts.push(
         `<div style="margin-top:4px;">` +
-        escapeHtml(textAfter).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') +
+        renderAiMarkdownHtml(textAfter) +
         `</div>`
       );
     }
 
     if (htmlParts.length === 0 && s) {
-      htmlParts.push(escapeHtml(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'));
+      htmlParts.push(renderAiMarkdownHtml(s));
     }
 
-    finalHtml = htmlParts.join('');
+    return htmlParts.join('');
   }
-
-  // Khôi phục các thẻ <i data-lucide="..."></i> hệ thống đã bị escapeHtml biến đổi
-  finalHtml = finalHtml.replace(/&lt;i data-lucide=&quot;([a-zA-Z0-9_-]+)&quot;([\s\S]*?)&gt;&lt;\/i&gt;/gi, (match, iconName, rest) => {
-    const unescapedRest = rest.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-    return `<i data-lucide="${iconName}"${unescapedRest}></i>`;
-  });
-
-  return finalHtml;
 }
 
 function updateAssistantBubbleHtml($bubble, rawText) {
@@ -249,8 +337,8 @@ function renderStreamingBuffer(streamBuffer) {
     return;
   }
 
-  // Nếu chưa gặp </cot> thì AI đang viết suy luận CoT (do prefill từ engine)
-  if (!streamBuffer.includes('</cot>') && !streamBuffer.includes('<cot>')) {
+  // Nếu chưa gặp </agency_cot> hoặc <agency_cot> thì AI đang viết suy luận CoT (do prefill từ engine)
+  if (!streamBuffer.includes('</agency_cot>') && !streamBuffer.includes('<agency_cot>')) {
     if (!$last.find('.ai-cot-streaming-indicator').length) {
       $last.html('<div class="ai-cot-streaming-indicator" style="color:#64748b;font-style:italic;display:flex;align-items:center;gap:6px;"><span class="ai-spinner-dot" style="background:#64748b;"></span><span class="ai-spinner-dot" style="background:#64748b;"></span> <i data-lucide="cpu" style="width:14px;height:14px;color:#64748b;"></i> Đang suy luận kỹ thuật (CoT)...</div>');
       if (typeof refreshIcons === 'function' && $last[0]) refreshIcons($last[0]);
@@ -286,14 +374,6 @@ function finalizeStreamingBubble(fullText) {
   }
 }
 
-function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
 // ─── Tool Preview (Staging Diff) ─────────────────────────────────────────────
 
 function renderToolPreview() {
@@ -304,44 +384,137 @@ function renderToolPreview() {
   }
 
   let diffHtml = '';
+
+  // 1. Updates
   for (const upd of summary.updates) {
     if (upd.identifier === '__ORDER__' || upd.identifier === '__VARS__' || upd.identifier === '__VAR_RENAMES__') continue;
+    const diffText = escapeHtml(upd.changes?.content !== undefined
+      ? `=== Nội dung cũ ===\n${upd.oldContent}\n\n=== Nội dung mới ===\n${upd.newContent}`
+      : `Metadata cập nhật: ${JSON.stringify(upd.changes)}`);
     diffHtml += `
-      <div class="ai-diff-item">
-        <div class="ai-diff-name"><i data-lucide="file-edit" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Cập nhật block: <b>${escapeHtml(upd.name)}</b> <span class="ai-diff-fields">[${upd.fields.join(', ')}]</span></div>
+      <div class="ai-diff-item ai-staged-item" data-type="update" data-key="${escapeHtml(upd.identifier)}" style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="file-edit" style="width:14px;height:14px;color:#38bdf8;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Cập nhật: <b style="color:#38bdf8;">${escapeHtml(upd.name)}</b></span>
+            <span style="font-size:11px;color:#94a3b8;background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">[${upd.fields.join(', ')}]</span>
+            <span style="font-size:11px;color:#60a5fa;text-decoration:underline;margin-left:4px;">👁️ Xem chi tiết</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="update" data-key="${escapeHtml(upd.identifier)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="update" data-key="${escapeHtml(upd.identifier)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #38bdf8;">${diffText}</div>
       </div>`;
-  }
-  if (summary.varUpdates && summary.varUpdates.length > 0) {
-    for (const v of summary.varUpdates) {
-      diffHtml += `
-        <div class="ai-diff-item" style="border-left: 3px solid #fde68a; background: rgba(253,230,138,0.08);">
-          <div class="ai-diff-name" style="color:#fde68a;"><i data-lucide="edit-3" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Cập nhật biến: <b>{{setvar::${escapeHtml(v.varName)}::...}}</b></div>
-          ${v.newValueExcerpt ? `<div style="font-size:11px;color:#cbd5e1;margin-top:2px;">"${escapeHtml(v.newValueExcerpt)}"</div>` : ''}
-        </div>`;
-    }
-  }
-  if (summary.varRenames && summary.varRenames.length > 0) {
-    for (const r of summary.varRenames) {
-      diffHtml += `
-        <div class="ai-diff-item" style="border-left: 3px solid #c084fc; background: rgba(192,132,252,0.08);">
-          <div class="ai-diff-name" style="color:#e9d5ff;"><i data-lucide="tag" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Đổi tên biến: <b style="color:#f87171;">${escapeHtml(r.oldName)}</b> ➔ <b style="color:#34d399;">${escapeHtml(r.newName)}</b></div>
-        </div>`;
-    }
-  }
-  if (summary.reorder && summary.reorder.length > 0) {
-    diffHtml += `
-      <div class="ai-diff-item" style="border-left: 3px solid #38bdf8; background: rgba(56,189,248,0.08);">
-        <div class="ai-diff-name" style="color:#38bdf8;"><i data-lucide="arrow-up-down" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i> Sắp xếp lại thứ tự ${summary.reorder.length} prompt blocks</div>
-      </div>`;
-  }
-  for (const c of summary.creates) {
-    diffHtml += `<div class="ai-diff-item ai-diff-create"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Tạo mới block: <b>${escapeHtml(c.name)}</b></div>`;
-  }
-  for (const d of summary.deletes) {
-    diffHtml += `<div class="ai-diff-item ai-diff-delete"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;color:#f87171;"></i> Xóa block: <b>${escapeHtml(d.name)}</b></div>`;
   }
 
-  _$sidebar.find('.ai-preview-stats').html(`<i data-lucide="clipboard-list" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> ${summary.totalChanges} thay đổi đang chờ xác nhận`);
+  // 2. Creates
+  for (const c of summary.creates) {
+    const diffText = escapeHtml(`=== THÔNG TIN BLOCK MỚI ===\nTên: ${c.name}\nRole: ${c.role} | Vị trí: ${c.addToLinked ? 'Linked' : 'Unlinked'}\n\n=== Nội dung ===\n${c.content || '(Trống)'}`);
+    diffHtml += `
+      <div class="ai-diff-item ai-staged-item" data-type="create" data-key="${c.index}" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="plus-circle" style="width:14px;height:14px;color:#34d399;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Tạo mới: <b style="color:#34d399;">${escapeHtml(c.name)}</b></span>
+            <span style="font-size:11px;color:#94a3b8;background:rgba(255,255,255,0.05);padding:1px 5px;border-radius:3px;">(${c.role}, ${c.addToLinked ? 'Linked' : 'Unlinked'})</span>
+            <span style="font-size:11px;color:#34d399;text-decoration:underline;margin-left:4px;">👁️ Xem nội dung</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="create" data-key="${c.index}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="create" data-key="${c.index}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #34d399;">${diffText}</div>
+      </div>`;
+  }
+
+  // 3. Deletes
+  for (const d of summary.deletes) {
+    const diffText = escapeHtml(`=== BLOCK SẼ BỊ XÓA ===\nTên: ${d.name} (ID: ${d.identifier})\nRole: ${d.role}\n\n=== Nội dung hiện tại ===\n${d.content || '(Trống)'}`);
+    diffHtml += `
+      <div class="ai-diff-item ai-staged-item" data-type="delete" data-key="${escapeHtml(d.identifier)}" style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="trash-2" style="width:14px;height:14px;color:#f87171;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Xóa block: <b style="color:#f87171;">${escapeHtml(d.name)}</b></span>
+            <span style="font-size:11px;color:#f87171;text-decoration:underline;margin-left:4px;">👁️ Xem block bị xóa</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="delete" data-key="${escapeHtml(d.identifier)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="delete" data-key="${escapeHtml(d.identifier)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #f87171;">${diffText}</div>
+      </div>`;
+  }
+
+  // 4. Var Updates
+  if (summary.varUpdates && summary.varUpdates.length > 0) {
+    for (const v of summary.varUpdates) {
+      const diffText = escapeHtml(`=== THAY ĐỔI BIẾN ===\nTên biến: ${v.varName}\nTrong block ID: ${v.promptId || 'Tất cả block'}\nĐoạn cũ: ${v.oldValueMatch || 'N/A'}\nGiá trị mới: ${v.newValue}`);
+      diffHtml += `
+        <div class="ai-diff-item ai-staged-item" data-type="varUpdate" data-key="${escapeHtml(v.stId)}" style="background:rgba(253,230,138,0.06);border:1px solid rgba(253,230,138,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+            <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+              <i data-lucide="edit-3" style="width:14px;height:14px;color:#fde68a;"></i>
+              <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Cập nhật biến: <b style="color:#fde68a;">{{setvar::${escapeHtml(v.varName)}::...}}</b></span>
+              <span style="font-size:11px;color:#fde68a;text-decoration:underline;margin-left:4px;">👁️ Xem thay đổi</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button class="ai-single-apply-btn" data-type="varUpdate" data-key="${escapeHtml(v.stId)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+              <button class="ai-single-reject-btn" data-type="varUpdate" data-key="${escapeHtml(v.stId)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+            </div>
+          </div>
+          <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #fde68a;">${diffText}</div>
+        </div>`;
+    }
+  }
+
+  // 5. Var Renames
+  if (summary.varRenames && summary.varRenames.length > 0) {
+    for (const r of summary.varRenames) {
+      const diffText = escapeHtml(`=== ĐỔI TÊN BIẾN ===\nTên cũ: ${r.oldName}\nTên mới: ${r.newName}`);
+      diffHtml += `
+        <div class="ai-diff-item ai-staged-item" data-type="varRename" data-key="${escapeHtml(r.oldName)}" style="background:rgba(192,132,252,0.06);border:1px solid rgba(192,132,252,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+            <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+              <i data-lucide="tag" style="width:14px;height:14px;color:#c084fc;"></i>
+              <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Đổi tên biến: <b style="color:#f87171;">${escapeHtml(r.oldName)}</b> ➔ <b style="color:#34d399;">${escapeHtml(r.newName)}</b></span>
+              <span style="font-size:11px;color:#c084fc;text-decoration:underline;margin-left:4px;">👁️ Xem chi tiết</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button class="ai-single-apply-btn" data-type="varRename" data-key="${escapeHtml(r.oldName)}" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+              <button class="ai-single-reject-btn" data-type="varRename" data-key="${escapeHtml(r.oldName)}" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+            </div>
+          </div>
+          <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #c084fc;">${diffText}</div>
+        </div>`;
+    }
+  }
+
+  // 6. Reorder
+  if (summary.reorder && summary.reorder.length > 0) {
+    const diffText = escapeHtml(`=== THỨ TỰ SẮP XẾP MỚI (${summary.reorder.length} blocks) ===\n` + summary.reorder.map((id, i) => `${i + 1}. ${id}`).join('\n'));
+    diffHtml += `
+      <div class="ai-diff-item ai-staged-item" data-type="reorder" data-key="__ORDER__" style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:6px;padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="ai-staged-toggle-diff" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
+            <i data-lucide="arrow-up-down" style="width:14px;height:14px;color:#38bdf8;"></i>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Sắp xếp lại thứ tự <b style="color:#38bdf8;">${summary.reorder.length} prompt blocks</b></span>
+            <span style="font-size:11px;color:#38bdf8;text-decoration:underline;margin-left:4px;">👁️ Xem thứ tự mới</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="ai-single-apply-btn" data-type="reorder" data-key="__ORDER__" style="background:rgba(52,211,153,0.15);border:1px solid #34d399;color:#34d399;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Áp dụng riêng</button>
+            <button class="ai-single-reject-btn" data-type="reorder" data-key="__ORDER__" style="background:rgba(248,113,113,0.15);border:1px solid #f87171;color:#f87171;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;">Bỏ</button>
+          </div>
+        </div>
+        <div class="ai-staged-diff-box" style="display:none;margin-top:8px;padding:8px;background:#0f172a;border-radius:4px;font-family:monospace;font-size:11px;color:#e2e8f0;white-space:pre-wrap;max-height:220px;overflow-y:auto;border-left:3px solid #38bdf8;">${diffText}</div>
+      </div>`;
+  }
+
+  _$sidebar.find('.ai-preview-stats').html(`<i data-lucide="clipboard-list" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> ${summary.totalChanges} thay đổi đang chờ xác nhận (Bấm vào từng mục để xem Diff chi tiết)`);
   _$sidebar.find('.ai-preview-diff').html(diffHtml);
   if (typeof refreshIcons === 'function' && _$sidebar.find('.ai-tool-preview')[0]) {
     refreshIcons(_$sidebar.find('.ai-tool-preview')[0]);
@@ -432,7 +605,10 @@ function buildSidebarHTML() {
     <div class="ai-agency-sidebar" id="st-multitool-ai-agency-sidebar">
       <!-- Header -->
       <div class="ai-header">
-        <span class="ai-header-title"><i data-lucide="bot" style="width:18px;height:18px;margin-right:6px;vertical-align:-3px;color:#38bdf8;"></i> AI Agency</span>
+        <span class="ai-header-title">
+          <i data-lucide="bot" style="width:18px;height:18px;margin-right:6px;vertical-align:-3px;color:#38bdf8;"></i> AI Agency Preset
+          <span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;background:rgba(56,189,248,0.25);color:#7dd3fc;border:1px solid rgba(56,189,248,0.5);margin-left:6px;">Preset Editor</span>
+        </span>
         <div class="ai-header-actions">
           <button class="ai-icon-btn ai-dev-view-btn" title="Chế độ Dev View (Hiển thị CoT & Thẻ Tool Call)" style="${getDevButtonStyle()}">
             <i data-lucide="code" style="width:13px;height:13px;"></i> <span>Dev</span>
@@ -564,7 +740,7 @@ function _injectSidebar() {
   _bindEvents();
 
   // Tin nhắn chào (chỉ một lần)
-  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
+  appendBubble('assistant', '👋 Xin chào! Tôi là AI Agency Preset. Bạn muốn làm gì với Preset này?\n\nVí dụ:\n• "Dịch toàn bộ preset sang tiếng Việt"\n• "Tìm block nào có văn phong tự nhiên nhất"\n• "Tạo thêm block system prompt về ngôn ngữ"');
 }
 
 function _showSidebar() {
@@ -753,10 +929,8 @@ function _bindEvents() {
         // Nếu tool trả pending_review → hiện preview
         if (result?.pending_review) {
           renderToolPreview();
-          setState('pending_confirm');
-        } else {
-          setState('streaming');
         }
+        setState('streaming');
         currentAssistantBubble = null;
         streamBuffer = '';
       },
@@ -774,8 +948,12 @@ function _bindEvents() {
           currentAssistantBubble = appendBubble('assistant', '');
           finalizeStreamingBubble('<i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#fbbf24;"></i> **API trả về phản hồi rỗng (0 tokens).**\n\n💡 *Cách xử lý:* Bấm vào biểu tượng **[<i data-lucide="terminal" style="width:13px;height:13px;vertical-align:-2px;"></i> Debug Logs]** (`>_`) trên thanh tiêu đề của AI Agency để xem chính xác dữ liệu đã gửi đi và phản hồi/lỗi chi tiết từ SillyTavern hoặc API LLM.');
         }
-        if (hasStagingChanges()) renderToolPreview();
-        setState('idle');
+        if (hasStagingChanges()) {
+          renderToolPreview();
+          setState('pending_confirm');
+        } else {
+          setState('idle');
+        }
       },
       onError: (err) => {
         if (err?.name === 'AbortError') {
@@ -819,8 +997,8 @@ function _bindEvents() {
       _$sidebar.find('.ai-tool-preview').hide();
       setState('idle');
       toastr.success('Đã áp dụng thay đổi vào Preset Editor!');
-      appendBubble('assistant', '<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Đã áp dụng các thay đổi vào danh sách bên trái. Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
-      _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Chấp Nhận (Apply) tất cả các thay đổi staged vào Preset Editor. Danh sách block bên trái đã cập nhật thành công. Hãy ghi nhận trạng thái này đã được xác nhận và hỗ trợ tiếp nếu người dùng yêu cầu.]');
+      appendBubble('assistant', '<i data-lucide="check-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#34d399;"></i> Đã áp dụng các thay đổi vào Preset Editor (Linked / Unlinked). Hãy bấm nút **"Lưu Preset"** khi bạn muốn chính thức lưu vào SillyTavern.');
+      _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Chấp Nhận (Apply) tất cả các thay đổi staged vào Preset Editor. Danh sách prompt (Linked & Unlinked) đã cập nhật thành công. Hãy ghi nhận trạng thái này đã được xác nhận và hỗ trợ tiếp nếu người dùng yêu cầu.]');
     } catch (e) {
       toastr.error('Lỗi khi áp dụng: ' + e.message);
     }
@@ -833,5 +1011,43 @@ function _bindEvents() {
     setState('idle');
     appendBubble('assistant', '<i data-lucide="x-circle" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;color:#f87171;"></i> Đã hủy tất cả thay đổi đang chờ.');
     _engine?.addMessage('user', '[Hệ thống: Người dùng đã bấm Từ Chối (Reject) / Hủy bỏ toàn bộ đề xuất thay đổi staged vừa rồi. Các thay đổi đã bị xóa bỏ hoàn toàn khỏi bộ nhớ tạm. Hãy tiếp tục trò chuyện hoặc hỏi ý kiến người dùng để làm phương án khác.]');
+  });
+
+  // Event delegation cho Preview Diff (Toggle diff & Single Apply/Reject)
+  _$sidebar.on('click', '.ai-staged-toggle-diff', function() {
+    const $box = $(this).closest('.ai-staged-item').find('.ai-staged-diff-box');
+    $box.slideToggle(150);
+  });
+
+  _$sidebar.on('click', '.ai-single-apply-btn', async function(e) {
+    e.stopPropagation();
+    const type = $(this).attr('data-type');
+    const key = $(this).attr('data-key');
+    try {
+      await applyStagedSingle(type, key);
+      toastr.success('Đã áp dụng riêng thay đổi được chọn!');
+      if (!hasStagingChanges()) {
+        _$sidebar.find('.ai-tool-preview').hide();
+        setState('idle');
+      } else {
+        renderToolPreview();
+      }
+    } catch (err) {
+      toastr.error('Lỗi khi áp dụng riêng: ' + err.message);
+    }
+  });
+
+  _$sidebar.on('click', '.ai-single-reject-btn', function(e) {
+    e.stopPropagation();
+    const type = $(this).attr('data-type');
+    const key = $(this).attr('data-key');
+    rejectStagedSingle(type, key);
+    toastr.info('Đã bỏ thay đổi được chọn.');
+    if (!hasStagingChanges()) {
+      _$sidebar.find('.ai-tool-preview').hide();
+      setState('idle');
+    } else {
+      renderToolPreview();
+    }
   });
 }

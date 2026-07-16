@@ -9,7 +9,7 @@ import { populateSyncWorldbooks } from './features/sync.js';
 import { populateDuplicateSelect, populateRenameSelect, renderDeleteView } from './features/worldbook.js';
 import { renderManageWorldbookList, restoreWbCardStates } from './features/manage-worldbook.js';
 import { renderManageScriptLists, restoreScriptCardStates } from './features/manage-scripts.js';
-import { renderManageRegexLists, restoreRegexCardStates } from './features/manage-regex.js';
+import { renderManageRegexLists, restoreRegexCardStates, cleanupManageRegexView } from './features/manage-regex.js';
 
 export const STORAGE_KEY_LAST_VIEW = 'st-multitool-last-view';
 
@@ -107,6 +107,7 @@ export function showMainView(isBack = false) {
 
   $('#st-multitool-header-title').html('<i data-lucide="layout-dashboard" style="margin-right: 8px; vertical-align: -2px;"></i> ST Multitool - Menu chính');
   $('#st-multitool-popup-back-btn').hide();
+  cleanupManageRegexView();
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, "st-multitool-main-view");
   setTimeout(() => { 
     refreshIcons();
@@ -128,6 +129,9 @@ export function showMainView(isBack = false) {
 export async function showSubView(viewId) {
   if (elements.body && elements.mainView.is(':visible')) {
     _mainViewScrollPos = elements.body.scrollTop();
+  }
+  if (viewId !== 'st-multitool-manage-regex-view') {
+    cleanupManageRegexView();
   }
   elements.mainView.hide();
   [
@@ -223,17 +227,14 @@ export async function showSubView(viewId) {
   }
   if (viewId === 'st-multitool-manage-regex-view') {
     title = '<i data-lucide="filter" style="margin-right: 8px; vertical-align: -2px;"></i> Quản lý regex';
-    renderManageRegexLists();
+    renderManageRegexLists(false);
     restoreRegexCardStates();
-    $('#st-multitool-manage-regex-refresh-btn').show();
     const isCharacterSelected = SillyTavern.getContext().characterId !== undefined;
     if (isCharacterSelected) {
       $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-regex-card').show();
     } else {
       $('#st-multitool-manage-regex-character-list').closest('.st-multitool-manage-regex-card').hide();
     }
-  } else {
-    $('#st-multitool-manage-regex-refresh-btn').hide();
   }
   if (viewId === 'st-multitool-manage-prompt-view') {
     title = '<i data-lucide="bot" style="margin-right: 8px; vertical-align: -2px;"></i> Preset Editor';
@@ -242,6 +243,9 @@ export async function showSubView(viewId) {
   $('#st-multitool-header-title').html(title);
   $('#st-multitool-popup-back-btn').show();
   $(`#${viewId}`).show();
+  if (viewId === 'st-multitool-manage-regex-view' || viewId === 'st-multitool-manage-prompt-view') {
+    $(`#${viewId}`).css({ display: 'flex', 'flex-direction': 'row' });
+  }
   localStorage.setItem(STORAGE_KEY_LAST_VIEW, viewId);
   setTimeout(() => { refreshIcons(); }, 10);
 }

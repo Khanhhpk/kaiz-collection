@@ -195,23 +195,32 @@ async function handleSaveScript() {
 }
 
 export function restoreScriptCardStates() {
-  const cards = [
-    'st-multitool-manage-script-global-list',
-    'st-multitool-manage-script-preset-list',
-    'st-multitool-manage-script-character-list'
-  ];
+  try {
+    const cards = [
+      'st-multitool-manage-script-global-list',
+      'st-multitool-manage-script-preset-list',
+      'st-multitool-manage-script-character-list'
+    ];
 
-  const defaultCollapsed = isManageScriptCollapsed();
+    const defaultCollapsed = isManageScriptCollapsed();
+    const jq = typeof window !== 'undefined' && (window.jQuery || window.$) ? (window.jQuery || window.$) : (typeof $ === 'function' ? $ : null);
+    if (!jq || typeof jq !== 'function') return;
 
-  cards.forEach(cardId => {
-    const savedState = localStorage.getItem(`st-multitool-script-card-${cardId}`);
-    const $card = $(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`).closest('.st-multitool-manage-script-card');
-    if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
-      $card.addClass('collapsed');
-    } else {
-      $card.removeClass('collapsed');
-    }
-  });
+    cards.forEach(cardId => {
+      const savedState = localStorage.getItem(`st-multitool-script-card-${cardId}`);
+      const $header = jq(`.st-multitool-manage-script-card-header[data-target="${cardId}"]`);
+      if (!$header || typeof $header.closest !== 'function') return;
+      const $card = $header.closest('.st-multitool-manage-script-card');
+      if (!$card || typeof $card.addClass !== 'function') return;
+      if (savedState === 'collapsed' || (savedState === null && defaultCollapsed)) {
+        $card.addClass('collapsed');
+      } else {
+        $card.removeClass('collapsed');
+      }
+    });
+  } catch (err) {
+    console.warn('[ST Multitool] restoreScriptCardStates non-fatal error:', err);
+  }
 }
 
 async function deleteScript(scriptId, type) {

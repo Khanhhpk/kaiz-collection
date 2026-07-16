@@ -10,7 +10,8 @@ import { initManageScripts, renderManageScriptLists } from "./features/manage-sc
 import { initManageRegex, renderManageRegexLists } from "./features/manage-regex.js";
 import { initManagePrompt } from "./features/manage-prompt.js";
 import { initVarInspector } from "./features/var-inspector.js";
-import { initAIAgency } from "./ai/core/agency-ui.js";
+import { initAIAgency } from "./ai/core/preset-agency-ui.js";
+import { initRegexAgencyUI } from "./ai/core/regex-agency-ui.js";
 import {
   closePopup,
   elements,
@@ -173,20 +174,29 @@ async function init() {
       localStorage.setItem(STORAGE_KEY_TAG_END, $(this).val());
     });
 
-    initEntries();
-    initScripts();
-    initSettings();
-    initSync();
-    initWorldbook();
-    initPresets();
-    initManageWorldbook();
-    initManageScripts();
-    initManageRegex();
-    initManagePrompt();
-    initVarInspector();
-    initAIAgency();
+    const safeInit = (name, fn) => {
+      try {
+        fn();
+      } catch (err) {
+        console.error(`[${MODULE_NAME}] Lỗi khởi tạo module ${name}:`, err);
+      }
+    };
 
-    showMainView();
+    safeInit('Entries', initEntries);
+    safeInit('Scripts', initScripts);
+    safeInit('Settings', initSettings);
+    safeInit('Sync', initSync);
+    safeInit('Worldbook', initWorldbook);
+    safeInit('Presets', initPresets);
+    safeInit('ManageWorldbook', initManageWorldbook);
+    safeInit('ManageScripts', initManageScripts);
+    safeInit('ManageRegex', initManageRegex);
+    safeInit('ManagePrompt (Preset Editor)', initManagePrompt);
+    safeInit('VarInspector', initVarInspector);
+    safeInit('AIAgency', initAIAgency);
+    safeInit('RegexAgencyUI', initRegexAgencyUI);
+
+    safeInit('MainView', showMainView);
     console.log(`[${MODULE_NAME}] Khởi tạo hoàn tất`);
   } catch (e) {
     console.error(`[${MODULE_NAME}] Khởi tạo thất bại:`, e);

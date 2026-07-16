@@ -12,10 +12,6 @@
         </button>
         <button id="st-multitool-manage-wb-refresh-btn" class="st-multitool-header-btn" title="Làm mới" style="display: none">
           <i data-lucide="refresh-cw"></i>
-        </button>
-        <button id="st-multitool-manage-regex-refresh-btn" class="st-multitool-header-btn" title="Làm mới" style="display: none">
-          <i data-lucide="refresh-cw"></i>
-        </button>
         <button id="st-multitool-popup-back-btn" class="st-multitool-header-btn" title="Về menu chính" style="display: none">
           <i data-lucide="arrow-left"></i>
         </button>
@@ -193,7 +189,7 @@
               Thiết lập quy tắc biểu thức chính quy (Regex) để tự động hóa chỉnh sửa văn bản AI.
             </div>
             <div class="st-multitool-dash-card-body">
-              <div class="st-multitool-card-actions-grid">
+              <div class="st-multitool-card-actions-grid" style="grid-template-columns: 1fr;">
                 <button id="st-multitool-goto-manage-regex-btn" class="st-multitool-dash-btn highlight">
                   <i data-lucide="file-text"></i>
                   <div>
@@ -201,29 +197,6 @@
                     <small>Xem và bật/tắt quy tắc</small>
                   </div>
                 </button>
-                <button id="st-multitool-goto-create-regex-btn" class="st-multitool-dash-btn">
-                  <i data-lucide="plus"></i>
-                  <div>
-                    <span>Tạo Regex mới</span>
-                    <small>Thêm quy tắc mới</small>
-                  </div>
-                </button>
-                <button id="st-multitool-main-import-regex-btn" class="st-multitool-dash-btn">
-                  <i data-lucide="folder-open"></i>
-                  <div>
-                    <span>Nhập Regex</span>
-                    <small>Từ tệp tin .json</small>
-                  </div>
-                </button>
-              </div>
-              <div id="st-multitool-main-import-regex-options" class="st-multitool-import-drawer" style="display: none;">
-                <span class="st-multitool-label">Chọn đích nhập regex:</span>
-                <div class="st-multitool-drawer-btns">
-                  <button id="st-multitool-main-import-regex-global-btn" class="st-multitool-dash-btn-small">Toàn cục</button>
-                  <button id="st-multitool-main-import-regex-preset-btn" class="st-multitool-dash-btn-small">Preset</button>
-                  <button id="st-multitool-main-import-regex-character-btn" class="st-multitool-dash-btn-small">Nhân vật</button>
-                </div>
-                <input type="file" id="st-multitool-main-regex-file-input" style="display: none" accept=".json" />
               </div>
             </div>
           </div>
@@ -238,9 +211,13 @@
               Xem và chỉnh sửa các khối Prompt, System Prompt, Jailbreak của Preset AI hiện tại.
             </div>
             <div class="st-multitool-dash-card-body">
-              <div class="st-multitool-card-actions-grid">
-                <button class="st-multitool-btn-hero primary" id="st-multitool-manage-prompt-btn">
-                  <i data-lucide="edit-3"></i> Preset Editor
+              <div class="st-multitool-card-actions-grid" style="grid-template-columns: 1fr;">
+                <button id="st-multitool-manage-prompt-btn" class="st-multitool-dash-btn highlight">
+                  <i data-lucide="edit-3"></i>
+                  <div>
+                    <span>Preset Editor</span>
+                    <small>Chỉnh sửa các khối prompt</small>
+                  </div>
                 </button>
               </div>
             </div>
@@ -1188,125 +1165,226 @@
         </div>
       </div>
 
-      <div id="st-multitool-manage-regex-view" style="display: none; flex-direction: column; gap: 15px; height: 100%">
-        <div class="st-multitool-section" style="flex: 1; min-height: 0;">
-          <div class="st-multitool-section-header">
-            <h4>
-              <i data-lucide="code"></i> Quản lý regex
-              <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
-            </h4>
-          </div>
-          <div class="st-multitool-section-content">
-            <div class="st-multitool-manage-script-cards">
-              <div class="st-multitool-manage-script-card">
-                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-global-list">
+      <div id="st-multitool-manage-regex-view" class="st-multitool-split-view-container" style="display: none; flex-direction: row; gap: 0; height: 100%; width: 100%; position: relative; overflow: hidden;">
+        <!-- Left Panel: Main Regex List & Editor -->
+        <div class="st-multitool-regex-list-panel" style="flex: 1 1 auto; min-width: 0; width: 100%; display: flex; flex-direction: column; gap: 15px; height: 100%; overflow-y: auto; overflow-x: hidden; padding-right: 4px;">
+          <div class="st-multitool-section st-multitool-regex-main-section" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none; overflow: visible;">
+            <div class="st-multitool-section-header" style="display:flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+              <h4>
+                <i data-lucide="code"></i> Quản lý regex
+                <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i>
+              </h4>
+            </div>
+            <div class="st-multitool-section-content" style="overflow: visible; padding: 14px; display: flex; flex-direction: column; gap: 14px;">
+              <!-- Action Bar cho Regex (Lưu, Hoàn tác, Nhập Regex, AI Agency) -->
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
+                <button id="st-multitool-manage-regex-save-all-btn" class="st-multitool-btn-hero primary" style="flex: 1; min-width: 140px; padding: 8px 12px; min-height: 36px; font-size: 13px;">
+                  <i data-lucide="save"></i> Lưu tất cả Regex
+                </button>
+                <button id="st-multitool-manage-regex-reset-all-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Hoàn tác tất cả thay đổi chưa lưu (Reset Sandbox)">
+                  <i data-lucide="rotate-ccw"></i>
+                </button>
+                <button id="st-multitool-manage-regex-import-btn" class="st-multitool-btn-hero" style="flex: 0 0 auto; background: rgba(255, 255, 255, 0.1); padding: 8px 12px; min-height: 36px; font-size: 13px;" title="Nhập tệp tin .json Regex vào Sandbox">
+                  <i data-lucide="folder-open"></i> Nhập Regex
+                </button>
+                <button id="st-multitool-regex-ai-agency-toggle-btn-inline" class="st-multitool-btn-hero" style="flex: 1; min-width: 130px; background: linear-gradient(135deg, rgba(192,132,252,0.18), rgba(56,189,248,0.18)); border: 1px solid rgba(192,132,252,0.45); color: #d8b4fe; padding: 8px 12px; min-height: 36px; font-size: 13px; font-weight: 600; border-radius: 6px; transition: all 0.2s ease;" title="Mở Trợ lý AI Agency bên tab side">
+                  <i data-lucide="bot"></i> AI Agency Regex
+                </button>
+              </div>
+              <div id="st-multitool-manage-regex-import-drawer" class="st-multitool-import-drawer" style="display: none; margin-bottom: 8px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); padding: 12px; border-radius: 8px;">
+                <span class="st-multitool-label" style="display: block; margin-bottom: 8px; color: #e2e8f0; font-weight: 600; font-size: 13px;">Chọn đích để thêm vào Sandbox:</span>
+                <div class="st-multitool-drawer-btns" style="display: flex; gap: 8px;">
+                  <button id="st-multitool-manage-regex-import-global-btn" class="st-multitool-dash-btn-small" style="background: rgba(56,189,248,0.2); border: 1px solid #38bdf8; color: #38bdf8;">Toàn cục</button>
+                  <button id="st-multitool-manage-regex-import-preset-btn" class="st-multitool-dash-btn-small" style="background: rgba(192,132,252,0.2); border: 1px solid #c084fc; color: #c084fc;">Preset</button>
+                  <button id="st-multitool-manage-regex-import-character-btn" class="st-multitool-dash-btn-small" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; color: #34d399;">Nhân vật</button>
+                </div>
+                <input type="file" id="st-multitool-manage-regex-file-input" style="display: none" accept=".json" />
+              </div>
+              <div class="st-multitool-manage-script-cards st-multitool-regex-cards-grid" style="display: flex; flex-direction: column; gap: 14px; height: auto; overflow: visible;">
+              <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-global-list" style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="globe"></i> Regex toàn cục
                   </div>
-                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button type="button" class="st-multitool-add-regex-btn" data-regex-type="global" title="Thêm Regex toàn cục mới" style="background: linear-gradient(135deg, rgba(0, 230, 184, 0.2), rgba(0, 255, 204, 0.08)); border: 1px solid rgba(0, 230, 184, 0.45); color: #00ffd0; border-radius: 6px; padding: 4px 12px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0, 230, 184, 0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;">+ Thêm</button>
+                    <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                  </div>
                 </div>
-                <div id="st-multitool-manage-regex-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                <div id="st-multitool-manage-regex-global-list" class="st-multitool-manage-list st-multitool-manage-script-card-content" style="flex: 0 0 auto; max-height: 280px; overflow-y: auto; padding: 10px;">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
                 </div>
               </div>
-              <div class="st-multitool-manage-script-card">
-                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-preset-list">
+              <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-preset-list" style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="bookmark"></i> Regex preset
                   </div>
-                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button type="button" class="st-multitool-add-regex-btn" data-regex-type="preset" title="Thêm Regex preset mới" style="background: linear-gradient(135deg, rgba(0, 230, 184, 0.2), rgba(0, 255, 204, 0.08)); border: 1px solid rgba(0, 230, 184, 0.45); color: #00ffd0; border-radius: 6px; padding: 4px 12px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0, 230, 184, 0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;">+ Thêm</button>
+                    <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                  </div>
                 </div>
-                <div id="st-multitool-manage-regex-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                <div id="st-multitool-manage-regex-preset-list" class="st-multitool-manage-list st-multitool-manage-script-card-content" style="flex: 0 0 auto; max-height: 280px; overflow-y: auto; padding: 10px;">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
                 </div>
               </div>
-              <div class="st-multitool-manage-script-card">
-                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-character-list">
+              <div class="st-multitool-manage-script-card st-multitool-regex-card-box" style="flex: 0 0 auto; min-height: auto; height: auto; max-height: none;">
+                <div class="st-multitool-manage-script-card-header" data-target="st-multitool-manage-regex-character-list" style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="st-multitool-manage-script-card-title">
                     <i data-lucide="user"></i> Regex cục bộ
                   </div>
-                  <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button type="button" class="st-multitool-add-regex-btn" data-regex-type="character" title="Thêm Regex cục bộ mới" style="background: linear-gradient(135deg, rgba(0, 230, 184, 0.2), rgba(0, 255, 204, 0.08)); border: 1px solid rgba(0, 230, 184, 0.45); color: #00ffd0; border-radius: 6px; padding: 4px 12px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0, 230, 184, 0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;">+ Thêm</button>
+                    <i data-lucide="chevron-down" class="st-multitool-manage-script-collapse-icon"></i>
+                  </div>
                 </div>
-                <div id="st-multitool-manage-regex-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content">
+                <div id="st-multitool-manage-regex-character-list" class="st-multitool-manage-list st-multitool-manage-script-card-content" style="flex: 0 0 auto; max-height: 280px; overflow-y: auto; padding: 10px;">
                   <div class="st-multitool-empty-msg">Nhấn làm mới để tải danh sách regex.</div>
                 </div>
               </div>
             </div>
+            </div>
           </div>
-        </div>
-        <div id="st-multitool-manage-regex-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; max-height: 60%; overflow-y: auto;">
+          <div id="st-multitool-manage-regex-edit-panel" class="st-multitool-section st-multitool-edit-panel-collapsible" style="display: none; flex: 0 0 auto; max-height: none; overflow: visible; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); border-top: 2px solid var(--st-multitool-primary);">
           <div class="st-multitool-section-header st-multitool-edit-panel-header" data-target="st-multitool-manage-regex-edit-content">
             <h4 style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
               <span><i data-lucide="edit"></i> <span class="st-multitool-manage-regex-edit-title">Sửa regex</span> <i class="fa-solid fa-chevron-up st-multitool-collapse-icon" style="margin-left: 8px; font-size: 0.8em; color: var(--st-multitool-text-muted)"></i></span>
-              <div class="st-multitool-card-header-actions">
-                <button id="st-multitool-manage-regex-save-btn" class="st-multitool-button st-multitool-btn-small st-multitool-btn-primary">Lưu</button>
-                <button id="st-multitool-manage-regex-cancel-btn" class="st-multitool-button st-multitool-btn-small">Hủy</button>
+              <div class="st-multitool-card-header-actions" style="display:flex; gap:8px; align-items:center;">
+                <button id="st-multitool-manage-regex-save-btn" class="st-multitool-regex-save-btn" style="background: linear-gradient(135deg, #00e6b8 0%, #00b38f 100%); color: #042f24; border: 1px solid #00ffd0; font-weight: 700; font-size: 13px; border-radius: 6px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0, 230, 184, 0.25); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="check" style="width:14px;height:14px;"></i> Áp dụng vào Sandbox</button>
+                <button id="st-multitool-manage-regex-cancel-btn" class="st-multitool-regex-cancel-btn" style="background: rgba(100, 116, 139, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); font-weight: 600; font-size: 13px; border-radius: 6px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; cursor: pointer;"><i data-lucide="x" style="width:14px;height:14px;"></i> Hủy</button>
               </div>
             </h4>
           </div>
-          <div id="st-multitool-manage-regex-edit-content" class="st-multitool-section-content">
+          <div id="st-multitool-manage-regex-edit-content" class="st-multitool-section-content" style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
             <input type="hidden" id="st-multitool-manage-regex-id">
-            <div class="st-multitool-row">
-              <div class="st-multitool-group" style="flex: 1">
-                <span class="st-multitool-label">Tên script:</span>
-                <input type="text" id="st-multitool-manage-regex-script-name" class="st-multitool-input" style="width: 100%">
+            
+            <!-- Toolbar Kiểm thử & AI Agency Shortcut -->
+            <div class="st-multitool-regex-ai-banner" style="background: linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.7) 100%); border: 1px solid rgba(168,85,247,0.35); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,#c084fc,#38bdf8);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 8px rgba(192,132,252,0.3);"><i data-lucide="bot" style="width:16px;height:16px;"></i></div>
+                <div>
+                  <span style="font-weight: 700; font-size: 13px; color: #f8fafc;">Cần nhờ AI tự động phân tích hoặc tối ưu Regex này?</span>
+                  <div style="font-size: 11px; color: #94a3b8;">Trợ lý AI Agency tại tab ngoài có thể tự động đọc cấu trúc, phát hiện lỗi giật lag và viết lại mẫu chính xác.</div>
+                </div>
               </div>
-              <div class="st-multitool-group" style="flex: 1">
-                <span class="st-multitool-label">Regex tìm kiếm:</span>
-                <input type="text" id="st-multitool-manage-regex-find-regex" class="st-multitool-input" style="width: 100%">
+              <div style="display: flex; gap: 8px;">
+                <button id="st-multitool-send-to-regex-agency-btn" type="button" class="st-multitool-regex-save-btn" style="background: linear-gradient(135deg, rgba(168,85,247,0.2) 0%, rgba(192,132,252,0.12) 100%); border: 1px solid rgba(192,132,252,0.5); color: #d8b4fe; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(168,85,247,0.2); transition: all 0.2s ease; cursor: pointer;" title="Mở Trợ lý AI Agency và chọn sẵn Regex này"><i data-lucide="sparkles" style="width:14px;height:14px;"></i> Chuyển sang AI Agency sửa Regex này</button>
+                <button id="st-multitool-manage-regex-test-btn" type="button" class="st-multitool-regex-test-btn" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(14, 165, 233, 0.12) 100%); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8; border-radius: 6px; padding: 6px 14px; font-weight: 600; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="play-circle" style="width:14px;height:14px;"></i> Kiểm thử Live Match</button>
               </div>
             </div>
-            <div class="st-multitool-row" style="margin-top: 10px;">
-              <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div style="display: flex; flex-direction: column; gap: 5px">
-                  <span class="st-multitool-label" style="font-weight: bold">Phạm vi áp dụng</span>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="1"> Đầu vào người dùng</label>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="2" checked> Đầu ra AI</label>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="4"> Lệnh nhanh</label>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="3"> Thông tin thế giới</label>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="5"> Suy luận</label>
+
+            <!-- Bộ kiểm thử trực tiếp (Live Tester Box) -->
+            <div id="st-multitool-manage-regex-tester-box" style="display: none; background: #0f172a; border: 1px solid #38bdf8; border-radius: 8px; padding: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-weight: 700; color: #38bdf8; font-size: 13px; display:flex; align-items:center; gap:6px;"><i data-lucide="terminal" style="width:16px;height:16px;"></i> Bộ kiểm thử Regex trực tiếp (Live Regex Tester)</span>
+                <button type="button" id="st-multitool-manage-regex-tester-close" class="st-multitool-button st-multitool-btn-small" style="padding: 2px 8px; font-size: 11px;">Đóng</button>
+              </div>
+              <div class="st-multitool-row" style="gap: 12px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 6px;">
+                  <span class="st-multitool-label" style="color: #cbd5e1; font-size: 12px; font-weight:600;">Văn bản thử nghiệm (Sample Input):</span>
+                  <textarea id="st-multitool-manage-regex-test-input" class="st-multitool-textarea" rows="4" style="width: 100%; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 13px; line-height:1.4; background: #1e293b; color: #f8fafc; border: 1px solid #475569; border-radius: 6px; padding: 8px;" placeholder="Nhập văn bản thử nghiệm vào đây để test biểu thức..."></textarea>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px">
-                  <span class="st-multitool-label" style="font-weight: bold">Tùy chọn khác</span>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-enabled"> Đã bật</label>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-run-on-edit"> Chạy khi chỉnh sửa</label>
-                  <span class="st-multitool-label" style="font-weight: bold; margin-top: 5px">Macro khi tìm regex</span>
-                  <select id="st-multitool-manage-regex-substitute-regex" class="st-multitool-select" style="width: 120px">
-                    <option value="0" selected>Không thay</option>
-                    <option value="1">Thay</option>
-                  </select>
+                <div style="flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 6px;">
+                  <span class="st-multitool-label" style="color: #34d399; font-size: 12px; font-weight:600;">Kết quả sau thay thế (Live Output):</span>
+                  <textarea id="st-multitool-manage-regex-test-output" class="st-multitool-textarea" rows="4" readonly style="width: 100%; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 13px; line-height:1.4; background: #0b1329; color: #34d399; border: 1px solid rgba(52,211,153,0.4); border-radius: 6px; padding: 8px;" placeholder="Kết quả khớp và thay thế sẽ hiển thị tức thì..."></textarea>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px">
-                  <span class="st-multitool-label" style="font-weight: bold">Tạm thời</span>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-markdown-only"> Chỉ hiển thị định dạng</label>
-                  <label class="st-multitool-checkbox-label"><input type="checkbox" id="st-multitool-manage-regex-prompt-only"> Chỉ định dạng prompt</label>
-                  <div style="display: flex; gap: 10px; margin-top: 5px">
-                    <div class="st-multitool-group" id="st-multitool-manage-regex-min-depth-container" style="display: none;">
-                      <span class="st-multitool-label">Độ sâu tối thiểu</span>
-                      <input type="number" id="st-multitool-manage-regex-min-depth" class="st-multitool-input" style="width: 70px" placeholder="Vô hạn">
-                    </div>
-                    <div class="st-multitool-group" id="st-multitool-manage-regex-max-depth-container" style="display: none;">
-                      <span class="st-multitool-label">Độ sâu tối đa</span>
-                      <input type="number" id="st-multitool-manage-regex-max-depth" class="st-multitool-input" style="width: 70px" placeholder="Vô hạn">
-                    </div>
+              </div>
+            </div>
+
+            <!-- Tên Regex -->
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+              <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#f8fafc;">Tên Regex (Script Name):</span>
+              <input type="text" id="st-multitool-manage-regex-script-name" class="st-multitool-input" style="width: 100%; font-size: 14px; padding: 8px 10px; font-weight: 600; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: #f8fafc;" placeholder="Ví dụ: [Ẩn][Không gửi] tableEdit / Format lời thoại...">
+            </div>
+
+            <!-- Regex tìm kiếm (Khung to, rõ ràng) -->
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#38bdf8;">Biểu thức tìm kiếm (Find Regex):</span>
+                <span style="font-size:11px; color:#94a3b8; font-family:monospace;">Hỗ trợ pattern JS: /pattern/flags hoặc chuỗi</span>
+              </div>
+              <textarea id="st-multitool-manage-regex-find-regex" class="st-multitool-textarea" rows="3" style="width: 100%; font-family: 'JetBrains Mono', Consolas, 'Fira Code', monospace; font-size: 14px; line-height: 1.5; color: #38bdf8; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; resize: vertical;" placeholder="Nhập regex (ví dụ: /<think>[\s\S]*?<\/think>/g)"></textarea>
+            </div>
+
+            <!-- Chuỗi thay thế -->
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#34d399;">Chuỗi thay thế (Replace String):</span>
+                <span style="font-size:11px; color:#94a3b8; font-family:monospace;">Dùng $1, $2 để gọi lại nhóm bắt (Capture Group)</span>
+              </div>
+              <textarea id="st-multitool-manage-regex-replace-string" class="st-multitool-textarea" rows="3" style="width: 100%; font-family: 'JetBrains Mono', Consolas, 'Fira Code', monospace; font-size: 14px; line-height: 1.5; color: #34d399; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; resize: vertical;" placeholder="Chuỗi thay thế (để trống nếu muốn xóa bỏ đoạn khớp)..."></textarea>
+            </div>
+
+            <!-- Cắt bỏ trước khi thay -->
+            <div style="width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                <span class="st-multitool-label" style="font-weight:600; font-size:12px; color:#e2e8f0;">Chuỗi cần loại bỏ (Trim Strings):</span>
+                <span style="font-size:11px; color:#64748b;">Mỗi chuỗi cần loại bỏ nằm trên 1 dòng</span>
+              </div>
+              <textarea id="st-multitool-manage-regex-trim-strings" class="st-multitool-textarea" rows="2" style="width: 100%; font-family: monospace; font-size: 13px; background: #1e293b; color: #cbd5e1; border: 1px solid #475569; border-radius: 6px; padding: 8px; resize: vertical;" placeholder="Cắt toàn cục các đoạn text thừa trước khi chạy replace..."></textarea>
+            </div>
+
+            <!-- Card gộp Checkbox: Phạm vi áp dụng & Chế độ & Tùy chọn (3 cột chuẩn SillyTavern) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 6px;">
+              <!-- Cột 1: Phạm vi áp dụng (Affects) & Độ sâu -->
+              <div style="background: rgba(15,23,42,0.65); border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; display:flex; flex-direction:column; gap:8px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#38bdf8; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="target" style="width:14px;height:14px;"></i> Phạm vi áp dụng (Affects)</span>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="1"> Đầu vào người dùng (User Input)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="2" checked> Đầu ra AI (AI Output)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="4"> Lệnh nhanh (Slash Commands)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="3"> Thông tin thế giới (World Info)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" class="st-multitool-manage-regex-placement-cb" value="5"> Suy luận (Reasoning)</label>
+                
+                <div style="display:flex; gap:10px; margin-top:6px; border-top:1px dashed #334155; padding-top:10px;">
+                  <div id="st-multitool-manage-regex-min-depth-container" style="display:flex; flex:1; flex-direction:column; gap:4px;">
+                    <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;">Min Depth:</span>
+                    <input type="number" id="st-multitool-manage-regex-min-depth" class="st-multitool-input" style="width:100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:5px 8px; font-size:12.5px;" placeholder="Unlimited">
+                  </div>
+                  <div id="st-multitool-manage-regex-max-depth-container" style="display:flex; flex:1; flex-direction:column; gap:4px;">
+                    <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;">Max Depth:</span>
+                    <input type="number" id="st-multitool-manage-regex-max-depth" class="st-multitool-input" style="width:100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:5px 8px; font-size:12.5px;" placeholder="Unlimited">
                   </div>
                 </div>
               </div>
+
+              <!-- Cột 2: Tùy chọn khác (Other Options) -->
+              <div style="background: rgba(15,23,42,0.65); border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; display:flex; flex-direction:column; gap:8px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#c084fc; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="sliders" style="width:14px;height:14px;"></i> Tùy chọn khác (Other Options)</span>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:600; color:#f87171;"><input type="checkbox" id="st-multitool-manage-regex-disabled"> Vô hiệu hóa Regex (Disabled)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:600; color:#34d399;"><input type="checkbox" id="st-multitool-manage-regex-enabled" checked> Kích hoạt Regex (Enabled)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer;"><input type="checkbox" id="st-multitool-manage-regex-run-on-edit"> Chạy khi chỉnh sửa (Run On Edit)</label>
+                
+                <div style="margin-top: 6px; display:flex; flex-direction:column; gap:6px; border-top:1px dashed #334155; padding-top:10px;">
+                  <span class="st-multitool-label" style="font-size:11.5px; color:#cbd5e1; font-weight:600;" title="Substitute {{macros}} in Find Regex before running it">Macro trong Find Regex:</span>
+                  <select id="st-multitool-manage-regex-substitute-regex" class="st-multitool-select" title="Substitute {{macros}} in Find Regex before running it" style="width: 100%; background:#0f172a; color:#f8fafc; border:1px solid #475569; border-radius:4px; padding:6px 8px; font-size:12.5px;">
+                    <option value="0" selected>Không thay thế (Don't substitute)</option>
+                    <option value="1">Thay thế nguyên bản (Substitute - raw)</option>
+                    <option value="2">Thay thế thoát ký tự (Substitute - escaped)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Cột 3: Khả năng áp dụng (Ephemerality) -->
+              <div style="background: rgba(15,23,42,0.65); border: 1px solid #334155; border-radius: 8px; padding: 12px 14px; display:flex; flex-direction:column; gap:8px;">
+                <span class="st-multitool-label" style="font-weight:700; font-size:13px; color:#fbbf24; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:2px; display:flex; align-items:center; gap:6px;"><i data-lucide="layers" style="width:14px;height:14px;"></i> Khả năng áp dụng (Ephemerality)</span>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:500;"><input type="checkbox" id="st-multitool-manage-regex-markdown-only"> Thay đổi hiển thị Chat (Alter Chat Display)</label>
+                <label class="st-multitool-checkbox-label" style="cursor:pointer; font-weight:500;"><input type="checkbox" id="st-multitool-manage-regex-prompt-only"> Thay đổi Prompt gửi đi (Alter Outgoing Prompt)</label>
+              </div>
             </div>
-            <div style="margin-top: 10px;">
-              <span class="st-multitool-label">Thay bằng:</span>
-              <textarea id="st-multitool-manage-regex-replace-string" class="st-multitool-textarea" rows="4" style="width: 100%; font-family: monospace;"></textarea>
+
+            <!-- Action render preview -->
+            <div style="margin-top: 6px; display:flex; justify-content:flex-start; gap:10px;">
+              <button id="st-multitool-manage-regex-render-btn" type="button" class="st-multitool-regex-render-btn" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.2) 100%); color: #d8b4fe; border: 1px solid rgba(192, 132, 252, 0.45); border-radius: 6px; padding: 7px 16px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15); transition: all 0.2s ease; cursor: pointer;"><i data-lucide="eye" style="width:14px;height:14px;"></i> Render HTML Preview</button>
             </div>
-            <div style="margin-top: 10px;">
-              <span class="st-multitool-label">Cắt bỏ:</span>
-              <textarea id="st-multitool-manage-regex-trim-strings" class="st-multitool-textarea" rows="2" style="width: 100%;" placeholder="Cắt toàn cục các phần không cần thiết trong kết quả khớp regex trước khi thay thế. Mỗi mục cách nhau bằng xuống dòng."></textarea>
-            </div>
-            <div style="margin-top: 10px;">
-              <button id="st-multitool-manage-regex-render-btn" class="st-multitool-button st-multitool-btn-small"><i data-lucide="eye"></i> Render</button>
-            </div>
-            <div id="st-multitool-manage-regex-preview-container" style="display: none; margin-top: 15px; border: 1px solid var(--st-multitool-border); border-radius: 5px; background: #fff; min-height: 300px; overflow: auto;"></div>
+            <div id="st-multitool-manage-regex-preview-container" style="display: none; margin-top: 10px; border: 1px solid var(--st-multitool-border); border-radius: 6px; background: #fff; min-height: 250px; overflow: auto;"></div>
           </div>
         </div>
+        </div>
+
+        <!-- Right Sidebar: AI Agency Regex Assistant (#st-multitool-regex-agency-sidebar) -->
+        <!-- Sẽ được initRegexAgencyUI() trong regex-agency-ui.js tự động khởi tạo và inject giao diện Chat nhiều vòng lặp chuẩn Preset Editor Agency -->
+        <div id="st-multitool-regex-agency-sidebar" class="ai-agency-sidebar" style="border-left: 1px solid rgba(192, 132, 252, 0.35); display: none;"></div>
       </div>
 
       <!-- Trang con cài đặt tiện ích -->
@@ -1363,8 +1441,8 @@
         </div>
       </div>
 
-      <div id="st-multitool-manage-prompt-view" style="display: none; height: 100%; display: flex; flex-direction: row; overflow: hidden; gap: 0;">
-        <div class="ai-prompt-list-panel" style="flex: 1 1 auto; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;">
+      <div id="st-multitool-manage-prompt-view" class="st-multitool-split-view-container" style="display: none; flex-direction: row; gap: 0; height: 100%; width: 100%; position: relative; overflow: hidden;">
+        <div class="ai-prompt-list-panel" style="flex: 1 1 auto; min-width: 0; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;">
           <div class="st-multitool-section-desc">
             Bật/tắt và chỉnh sửa nội dung các khối (block) Prompt của Preset AI hiện tại.
           </div>
