@@ -2103,7 +2103,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 if (typeof showToast === 'function') showToast('🚫 Rate Limit! Vui lòng thử lại sau vài giây.', 'error');
                 return null;
             }
-            if (!r.ok) return null;
+                        if (!r.ok) {
+                console.warn(`Fetch error for ${url}: ${r.status}`);
+                if (r.status === 401 && url.includes('donmai.us') && window.toastr) {
+                    toastr.error('Lỗi 401: Username hoặc API Key Danbooru không chính xác!', 'Lỗi Xác Thực Danbooru', {timeOut: 8000});
+                } else if ((r.status === 403 || r.status === 422) && url.includes('donmai.us') && window.toastr) {
+                    toastr.error('Lỗi ' + r.status + ': Danbooru từ chối yêu cầu. (Tài khoản thường bị giới hạn tối đa 2 tag. Hãy bật NSFW để tắt bộ lọc tag ẩn!)', 'Lỗi Danbooru API', {timeOut: 8000});
+                }
+                return null;
+            }
             return await r.json();
         } catch (e) {
             clearTimeout(timeoutId);
@@ -2157,7 +2165,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
                 const limit = opts.count || 20;
                 const page = Math.floor((opts.offset || 0) / limit) + 1;
-                const ratingFilter = opts.nsfw ? '' : ' -rating:e -rating:q';
+                const ratingFilter = opts.nsfw ? '' : ' rating:g';
                 const searchTags = (tags ? tags : '') + ratingFilter;
                 let url = 'https://danbooru.donmai.us/posts.json?tags=' + encodeURIComponent(searchTags.trim()) + '&limit=' + limit + '&page=' + page;
                 if (opts.auth && opts.auth.login && opts.auth.apiKey) {
