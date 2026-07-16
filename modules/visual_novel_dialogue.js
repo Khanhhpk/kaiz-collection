@@ -2092,45 +2092,62 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     // ========== NGUỒN ANIME API FREE SIÊU MƯỢT ==========
-    async function advancedBooruFetch(url, sourceConfig = {}) {
+    // Fetch trực tiếp cho các API có CORS sẵn (Danbooru, Jikan, AniList...)
+    async function directApiFetch(url) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
         try {
             const r = await fetch(url, { signal: controller.signal });
             clearTimeout(timeoutId);
             if (r.status === 429) {
-                if (typeof showToast === 'function') showToast(`🚫 Lỗi Rate Limit: API đang quá tải. Hãy thử lại sau!`, 'error');
-                return [];
+                if (typeof showToast === 'function') showToast('🚫 Rate Limit! Vui lòng thử lại sau vài giây.', 'error');
+                return null;
             }
+            if (!r.ok) return null;
+            return await r.json();
+        } catch (e) {
+            clearTimeout(timeoutId);
+            return null;
+        }
+    }
+
+    // Fetch qua allorigins proxy cho Safebooru (không có CORS header)
+    async function proxiedBooruFetch(url) {
+        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        try {
+            const r = await fetch(proxyUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (!r.ok) return [];
-            
-            const text = await r.text();
-            let data = [];
-            try {
-                const json = JSON.parse(text);
-                data = json.post || json.posts || json || [];
-            } catch (err) {
+            const envelope = await r.json();
+            const text = envelope.contents || '';
+            if (!text) return [];
+            let data;
+            try { data = JSON.parse(text); } catch(e) {
+                // XML fallback
                 try {
                     const parser = new DOMParser();
-                    const xml = parser.parseFromString(text, "text/xml");
+                    const xml = parser.parseFromString(text, 'text/xml');
                     const posts = xml.getElementsByTagName('post');
                     data = Array.from(posts).map(p => {
                         const attrs = {};
-                        for (let i = 0; i < p.attributes.length; i++) {
-                            attrs[p.attributes[i].name] = p.attributes[i].value;
-                        }
+                        for (let i = 0; i < p.attributes.length; i++) attrs[p.attributes[i].name] = p.attributes[i].value;
                         return attrs;
                     });
-                } catch(e) { }
+                } catch(e2) { return []; }
             }
-            return Array.isArray(data) ? data : [];
-        } catch (error) {
+            const arr = data?.post || data?.posts || data || [];
+            return Array.isArray(arr) ? arr : [];
+        } catch(e) {
             clearTimeout(timeoutId);
-            if (error.name === 'AbortError') {
-                if (typeof showToast === 'function') showToast(`⏳ Quá thời gian phản hồi: Máy chủ Booru đang chậm.`, 'error');
-            }
             return [];
         }
+    }
+
+    // Alias để tương thích với code cũ (không còn dùng trực tiếp cho Gelbooru/Rule34)
+    async function advancedBooruFetch(url) {
+        return proxiedBooruFetch(url);
     }
 
     const API_SOURCES = {
@@ -2140,11 +2157,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             async fetch(opts = {}) {
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
                 const page = opts.offset || 0;
-                if (!tags) tags = 'all';
+                if (!tags) tags = 'rating:general';
                 const url = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${encodeURIComponent(tags)}&limit=24&pid=${page}`;
-                const data = await advancedBooruFetch(url);
+                const data = await proxiedBooruFetch(url);
                 return data.map(item => ({
                     url: item.file_url ? item.file_url : `https://safebooru.org//images/${item.directory}/${item.image}`,
+                    thumb: item.sample_url || null,
                     tags: item.tags ? item.tags.split(' ') : [],
                     nsfw: false,
                     src: 'safebooru'
@@ -2152,65 +2170,26 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
         },
         'danbooru': {
-            label: 'Danbooru DB',
+            label: 'Danbooru (CORS OK)',
             sfw: true, nsfw: true,
             async fetch(opts = {}) {
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const page = (opts.offset || 0) + 1;
-                let searchTags = tags ? tags : '';
+                const page = Math.floor((opts.offset || 0) / 12) + 1;
                 if (opts.nsfw) {
-                    searchTags = searchTags ? `${searchTags} rating:explicit` : 'rating:explicit';
+                    tags = tags ? `${tags} rating:explicit` : 'rating:explicit';
                 } else {
-                    searchTags = searchTags ? `${searchTags} rating:general` : 'rating:general';
+                    tags = tags ? `${tags} rating:g,s` : 'rating:g,s';
                 }
-                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(searchTags)}&limit=24&page=${page}`;
-                const data = await advancedBooruFetch(url);
-                return data.filter(item => item.file_url || item.large_file_url).map(item => ({
-                    url: item.large_file_url || item.file_url,
-                    tags: item.tag_string ? item.tag_string.split(' ') : [],
+                const url = `https://danbooru.donmai.us/posts.json?tags=${encodeURIComponent(tags)}&limit=20&page=${page}`;
+                const data = await directApiFetch(url);
+                if (!data || !Array.isArray(data)) return [];
+                return data.map(item => ({
+                    url: item.file_url || item.large_file_url,
+                    thumb: item.preview_file_url,
+                    tags: [item.tag_string_character, item.tag_string_general].filter(Boolean),
                     nsfw: opts.nsfw,
                     src: 'danbooru'
-                }));
-            }
-        },
-        'gelbooru': {
-            label: 'Gelbooru DB',
-            sfw: true, nsfw: true,
-            async fetch(opts = {}) {
-                let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const page = opts.offset || 0;
-                let searchTags = tags;
-                if (opts.nsfw) {
-                    searchTags = searchTags ? `${searchTags} rating:explicit` : 'rating:explicit';
-                } else {
-                    searchTags = searchTags ? `${searchTags} rating:general` : 'rating:general';
-                }
-                const url = `https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags=${encodeURIComponent(searchTags)}&limit=24&pid=${page}`;
-                const data = await advancedBooruFetch(url);
-                return data.filter(item => item.file_url).map(item => ({
-                    url: item.file_url,
-                    tags: item.tags ? item.tags.split(' ') : [],
-                    nsfw: opts.nsfw,
-                    src: 'gelbooru'
-                }));
-            }
-        },
-        'rule34': {
-            label: 'Rule34 (NSFW)',
-            sfw: false, nsfw: true,
-            async fetch(opts = {}) {
-                if (!opts.nsfw) return [];
-                let tags = (opts.tag || '').trim().replace(/ /g, '_');
-                const page = opts.offset || 0;
-                if (!tags) tags = 'all';
-                const url = `https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&tags=${encodeURIComponent(tags)}&limit=24&pid=${page}`;
-                const data = await advancedBooruFetch(url);
-                return data.filter(item => item.file_url).map(item => ({
-                    url: item.file_url,
-                    tags: item.tags ? item.tags.split(' ') : [],
-                    nsfw: true,
-                    src: 'rule34'
-                }));
+                })).filter(i => i.url);
             }
         },
         'nekos.best': {
@@ -2218,120 +2197,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             sfw: true, nsfw: false,
             async fetch(opts = {}) {
                 const query = (opts.tag || '').trim().toLowerCase();
-                const allCats = ['waifu', 'neko', 'kitsune', 'shinobu', 'megumin', 'hug', 'pat', 'slap', 'cuddle', 'smile', 'blush', 'happy', 'wink', 'poke', 'dance', 'husbando', 'cry', 'baka', 'stare', 'think', 'bored', 'shrug', 'thumbsup', 'laugh'];
-                const matchedCats = query
-                    ? allCats.filter(c => c === query || c.includes(query) || query.includes(c) || query.split(' ').some(w => w.length > 2 && (c.includes(w) || w.includes(c))))
-                    : [];
-                const fetchCat = async (cat) => {
-                    try {
-                        const r = await fetch(`https://nekos.best/api/v2/${cat}?amount=20`);
-                        if (!r.ok) return [];
-                        const d = await r.json();
-                        return (d.results || []).map(i => ({
-                            url: i.url,
-                            tags: [cat, i.anime_name, i.artist_name].filter(Boolean),
-                            nsfw: false,
-                            src: 'nekos.best',
-                            _searchText: [cat, i.anime_name, i.artist_name, i.url].filter(Boolean).join(' ').toLowerCase()
-                        }));
-                    } catch { return []; }
-                };
-                let items = [];
-                if (matchedCats.length > 0) {
-                    const batches = await Promise.all(matchedCats.slice(0, 4).map(c => fetchCat(c)));
-                    items = batches.flat();
-                } else {
-                    items = await fetchCat('waifu');
-                    if (query) {
-                        const filtered = items.filter(i => i._searchText && i._searchText.includes(query));
-                        if (filtered.length > 0) items = filtered;
-                    }
-                }
-                const seen = new Set();
-                return items.filter(i => { if (seen.has(i.url)) return false; seen.add(i.url); return true; });
-            },
-            tags: ['waifu', 'neko', 'kitsune', 'shinobu', 'megumin', 'hug', 'pat', 'slap', 'cuddle', 'smile', 'blush', 'happy', 'wink', 'poke', 'dance', 'husbando', 'cry', 'baka', 'stare', 'think', 'bored', 'shrug', 'thumbsup']
-        },
-        'anilist': {
-            label: 'AniList DB',
-            sfw: true, nsfw: false,
-            async fetch(opts = {}) {
-                const query = (opts.tag || '').trim();
-                const gql = query
-                    ? `{ Page(page: 1, perPage: 16) { characters(search: "${query.replace(/"/g, '')}") { name { full } image { large } } } }`
-                    : `{ Page(page: 1, perPage: 16) { characters(sort: [FAVOURITES_DESC]) { name { full } image { large } } } }`;
-                const r = await fetch('https://graphql.anilist.co', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ query: gql })
-                });
-                if (!r.ok) return [];
-                const d = await r.json();
-                return (d.data?.Page?.characters || []).map(c => ({
-                    url: c.image?.large,
-                    tags: [c.name?.full || 'AniList', 'official', 'character'],
-                    nsfw: false,
-                    src: 'anilist'
-                })).filter(i => i.url);
-            },
-            tags: ['Rem', 'Marin Kitagawa', 'Frieren', 'Hatsune Miku', 'Raiden Shogun', 'Gawr Gura', 'Kurumi Tokisaki', 'Emilia', 'Albedo', 'Zero Two', 'Mai Sakurajima', 'Kaguya Shinomiya', 'Mikasa', 'Asuna', 'Kafka', 'Firefly', 'Gojo Satoru', 'Levi Ackerman', 'Luffy', 'Zoro']
-        },
-        'pic.re': {
-            label: 'Pic.re Art DB',
-            sfw: true, nsfw: false,
-            async fetch(opts = {}) {
-                const count = Math.min(opts.count || 12, 16);
-                const results = await Promise.all(Array.from({length: count}, () => fetch('https://pic.re/image.json').then(r => r.json()).catch(() => null)));
-                return [...new Set(results.filter(r => r && r.file_url).map(d => 'https://' + d.file_url))].map(url => ({
-                    url,
-                    tags: ['highres', 'pic.re', 'wallpaper', 'art'],
-                    nsfw: false,
-                    src: 'pic.re'
-                }));
-            },
-            tags: ['highres', 'wallpaper', 'anime', 'aesthetic', 'art', 'portrait']
-        },
-        'nekos.life': {
-            label: 'nekos.life',
-            sfw: true, nsfw: false,
-            async fetch(opts = {}) {
-                const query = (opts.tag || '').trim().toLowerCase();
-                const validCats = ['waifu', 'neko', 'shinobu', 'megumin', 'avatar', 'fox_girl', 'cuddle', 'hug', 'pat', 'smug', 'kiss', 'slap', 'poke'];
-                const cat = validCats.includes(query) ? query : 'waifu';
-                const count = Math.min(opts.count || 12, 16);
-                const results = await Promise.all(Array.from({length: count}, () => fetch(`https://nekos.life/api/v2/img/${cat}`).then(r => r.json()).catch(() => null)));
-                return [...new Set(results.filter(r => r && r.url).map(d => d.url))].map(url => ({ url, tags: [cat, 'nekos.life'], nsfw: false, src: 'nekos.life' }));
-            },
-            tags: ['waifu', 'neko', 'shinobu', 'megumin', 'avatar', 'fox_girl', 'cuddle', 'hug', 'pat', 'smug', 'kiss', 'slap', 'poke']
-        },
-        'nekos.moe': {
-            label: 'nekos.moe',
-            sfw: true, nsfw: true,
-            async fetch(opts = {}) {
-                const count = Math.min(opts.count || 16, 20);
-                const nsfw = opts.nsfw || false;
-                const query = (opts.tag || '').trim();
-                let images = [];
-                if (query) {
-                    try {
-                        const res = await fetch('https://nekos.moe/api/v1/images/search', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ tags: query.split(','), limit: count, nsfw, skip: opts.offset || 0 })
-                        });
-                        if (res.ok) images = (await res.json()).images || [];
-                    } catch (e) {}
-                }
-                if (images.length === 0) {
-                    const r = await fetch(`https://nekos.moe/api/v1/random/image?count=${count}&nsfw=${nsfw}`);
-                    if (r.ok) images = (await r.json()).images || [];
-                }
-                return images.map(i => ({
-                    url: `https://nekos.moe/image/${i.id}`,
-                    tags: i.tags || ['waifu'],
-                    nsfw: i.nsfw || false,
-                    src: 'nekos.moe'
-                }));
             },
             tags: ['waifu', 'neko', '1girl', 'solo', 'maid', 'uniform', 'cat_ears', 'blush', 'smile']
         },
@@ -3399,13 +3264,11 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <button class="vn-src-nav-btn" id="vn-ipm-scroll-left" title="Cuộn tab sang trái">◄</button>
       <div class="vn-img-src-tabs" id="vn-ipm-srctabs">
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
-        <button class="vn-src-tab" data-src="safebooru">Safebooru</button>
+        <button class="vn-src-tab" data-src="safebooru">🌟 Safebooru</button>
         <button class="vn-src-tab" data-src="danbooru">Danbooru</button>
-        <button class="vn-src-tab" data-src="gelbooru">Gelbooru</button>
-        <button class="vn-src-tab vn-nsfw-only" data-src="rule34" style="color:#ef4444;border-color:#ef4444;display:none;">Rule34 (18+)</button>
+        <button class="vn-src-tab" data-src="myanimelist">MyAnimeList</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
         <button class="vn-src-tab" data-src="pic.re">Pic.re Art</button>
-        <button class="vn-src-tab" data-src="myanimelist">MyAnimeList DB</button>
         <button class="vn-src-tab" data-src="nekos.life">nekos.life</button>
         <button class="vn-src-tab" data-src="nekos.moe">nekos.moe</button>
         <button class="vn-src-tab" data-src="otakugifs">OtakuGIFs</button>
@@ -3541,15 +3404,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const nsfwToggle = $('vn-ipm-nsfw');
         if (nsfwToggle) {
             nsfwToggle.addEventListener('change', e => {
-                const rule34Btn = PD.querySelector('.vn-src-tab[data-src="rule34"]');
-                if (rule34Btn) {
-                    rule34Btn.style.display = e.target.checked ? 'inline-block' : 'none';
-                    if (!e.target.checked && imgPickerState.currentSrc === 'rule34') {
-                        // fallback to safebooru if nsfw disabled while on rule34
-                        const safeBtn = PD.querySelector('.vn-src-tab[data-src="safebooru"]');
-                        if (safeBtn) safeBtn.click();
-                    }
-                }
+                // No longer toggling Rule34 tab
             });
         }
         $('vn-ipm-search').addEventListener('keydown', e => { if (e.key === 'Enter') fetchImagesForPicker(true); });
@@ -3894,14 +3749,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         // Hiển thị hint về loại tìm kiếm
         const searchHints = {
-            'safebooru':    '🌟 Safebooru (Safe): Cú pháp chuẩn: ten_ho (VD: uzumaki_naruto, frieren, kamado_tanjirou).',
-            'danbooru':     '🌟 Danbooru DB: Kho ảnh đồ sộ, chuẩn xác. Gõ tên_họ (VD: miku). Tự động chặn/mở khoá 18+ theo công tắc.',
-            'gelbooru':     '🌟 Gelbooru DB: Cập nhật siêu nhanh. Gõ tên_họ (VD: hatsune_miku). Nhạy cảm với công tắc NSFW.',
-            'rule34':       '🔞 Rule34: Kho nội dung NSFW độc quyền (Không dành cho trẻ em). Gõ tên_họ nhân vật.',
+            'safebooru':    '🌟 Safebooru (SFW Only): Tìm theo tag Booru chuẩn, VD: frieren, hatsune_miku, rem_(re_zero). Luôn an toàn!',
+            'danbooru':     '🌟 Danbooru (CORS OK): Kho ảnh Booru lớn nhất. Nhập tag (VD: frieren). Tự động lọc SFW/NSFW theo công tắc.',
+            'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
             'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
             'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
             'pic.re':       '🎨 Pic.re High-Res: Kho ảnh nghệ thuật và hình nền chất lượng siêu cao!',
-            'myanimelist':  '✅ MyAnimeList Jikan: Tìm kiếm nhân vật hoặc xem Top Nhân Vật Phổ Biến Nhất!',
             'nekos.life':   '📂 Category: waifu, neko, kiss, hug, pat, cuddle, smug...',
             'nekos.moe':    '🔍 Tag search: blonde_hair, neko, maid, uniform...',
             'otakugifs':    '📂 Category GIF: hug, pat, kiss, cry, smile, blush...',
@@ -3916,7 +3769,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
             if (toolbar && toolbar.parentNode) toolbar.parentNode.insertBefore(hintEl, toolbar.nextSibling);
         }
-        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có tổng cộng 9 nguồn ảnh anime free siêu mượt (bao gồm nekos.best + 8 kho chuẩn GraphQL/CORS)!</div>';
+        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 11 nguồn ảnh anime miễn phí (Safebooru ✅ · Danbooru ✅ · MyAnimeList ✅ · AniList ✅ + 7 kho khác)!</div>';
 
         const skels = [];
         for (let i = 0; i < 12; i++) {
