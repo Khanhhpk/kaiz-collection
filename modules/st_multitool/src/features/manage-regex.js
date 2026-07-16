@@ -25,7 +25,6 @@ export function initManageRegex() {
 
   $('#st-multitool-manage-regex-save-all-btn').off('click').on('click', saveAllRegexesToST);
   $('#st-multitool-manage-regex-reset-all-btn').off('click').on('click', () => {
-    if (hasRegexSandboxChanges() && !confirm('Xác nhận hoàn tác tất cả các thay đổi trong Sandbox về trạng thái gốc của SillyTavern?')) return;
     restoreOriginalRegexSnapshot();
   });
 
@@ -237,13 +236,12 @@ function debouncedRender() {
 }
 
 export function hasRegexSandboxChanges() {
-  if (!_originalRegexSnapshot || !_cachedAllRegexes) return false;
-  return JSON.stringify(_originalRegexSnapshot) !== JSON.stringify(_cachedAllRegexes);
+  return false;
 }
 
 export async function renderManageRegexLists(forceFetch = false) {
   try {
-    if (forceFetch || !_originalRegexSnapshot || !hasRegexSandboxChanges()) {
+    if (forceFetch || !_originalRegexSnapshot) {
       const [globalRegexes, presetRegexes, characterRegexes] = await Promise.all([
         getTavernRegexes({ type: 'global' }).catch(() => []),
         getTavernRegexes({ type: 'preset', name: 'in_use' }).catch(() => []),
