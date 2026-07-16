@@ -888,6 +888,7 @@ function _bindEvents() {
 // ─── Entry Point ──────────────────────────────────────────────────────────────
 
 export function initRegexAgencyUI() {
+  if (_injected) return;
   const $container = $('#st-multitool-manage-regex-view');
   if (!$container.length) return;
 
