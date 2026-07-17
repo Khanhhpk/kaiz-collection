@@ -2116,6 +2116,52 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
     const API_SOURCES = {
 
+                'yande.re': {
+            label: 'Yande.re (NSFW)',
+            sfw: false, nsfw: true,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim();
+                const searchTags = tags ? encodeURIComponent(tags) : '';
+                const limit = opts.count || 20;
+                const page = Math.floor((opts.offset || 0) / limit) + 1; // yande.re uses page, 1-indexed
+                
+                const targetUrl = `https://yande.re/post.json?tags=${searchTags}&limit=${limit}&page=${page}`;
+                
+                const proxies = opts.bypassCors ? [ targetUrl ] : [
+                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+                ];
+                
+                try {
+                    let data = null;
+                    for (const proxyUrl of proxies) {
+                        try {
+                            data = await directApiFetch(proxyUrl, 6000);
+                            if (data && Array.isArray(data)) break;
+                        } catch(err) {}
+                    }
+                    if (!data || !Array.isArray(data)) return [];
+                    
+                    return data.map(item => {
+                        const fullUrl = item.file_url;
+                        const thumbUrl = item.preview_url;
+                        if (!fullUrl || !thumbUrl) return null;
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tags ? item.tags.split(' ') : [],
+                            source: 'Yande.re'
+                        };
+                    }).filter(i => i && i.url && i.thumb);
+                } catch (e) {
+                    console.error('Yande.re Error:', e);
+                    if (window.toastr) toastr.error('Yande.re: Lỗi kết nối Proxy.', 'Lỗi Nguồn');
+                    return [];
+                }
+            }
+        },
+
         'safebooru': {
             label: 'Safebooru (SFW)',
             sfw: true, nsfw: false,
@@ -3464,6 +3510,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <div class="vn-img-src-tabs" id="vn-ipm-srctabs">
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
         <button class="vn-src-tab" data-src="safebooru">Safebooru</button>
+          <button class="vn-src-tab" data-src="yande.re">Yande.re</button>
         <button class="vn-src-tab" data-src="myanimelist">MyAnimeList</button>
           <button class="vn-src-tab" data-src="myanimelist_anime">MAL (Anime)</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
@@ -3963,6 +4010,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         // Hiển thị hint về loại tìm kiếm
         const searchHints = {
             'safebooru':    '🌟 Safebooru.org: Kho ảnh an toàn (SFW). Tải qua Proxy để chống Cloudflare chặn.',
+            'yande.re':     '🔞 Yande.re: Kho ảnh chất lượng cao (Cảnh báo: Có chứa ảnh NSFW).',
             'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
             'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
             'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
