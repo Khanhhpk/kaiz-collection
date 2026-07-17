@@ -2289,20 +2289,18 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             async fetch(opts = {}) {
                 const query = (opts.tag || '').trim();
                 const page = Math.floor((opts.offset || 0) / 16) + 1;
-                const url = query
-                    ? `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=16&page=${page}`
-                    : `https://api.jikan.moe/v4/top/characters?limit=16&page=${page}`;
-                // Jikan đôi khi 429 rate limit hoặc 504 overload - thử tối đa 3 lần
-                const fetchWithRetry = async (retries = 2) => {
+                
+                // Hàm fetch có retry tự động cho Jikan
+                const fetchWithRetry = async (url, retries = 2) => {
                     const controller = new AbortController();
                     const tid = setTimeout(() => controller.abort(), 12000);
                     try {
                         const r = await fetch(url, { signal: controller.signal });
                         clearTimeout(tid);
-                        if (r.status === 429 || r.status === 504 || r.status === 503) {
+                        if (r.status === 429 || r.status >= 500) {
                             if (retries > 0) {
                                 await new Promise(res => setTimeout(res, 1200));
-                                return fetchWithRetry(retries - 1);
+                                return fetchWithRetry(url, retries - 1);
                             }
                             return null;
                         }
@@ -2312,19 +2310,45 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                         clearTimeout(tid);
                         if (retries > 0 && e.name !== 'AbortError') {
                             await new Promise(res => setTimeout(res, 800));
-                            return fetchWithRetry(retries - 1);
+                            return fetchWithRetry(url, retries - 1);
                         }
                         return null;
                     }
                 };
-                const d = await fetchWithRetry();
-                if (!d) return [];
-                return (d.data || []).filter(c => c && c.images && (c.images.jpg?.image_url || c.images.webp?.image_url)).map(c => ({
-                    url: c.images.jpg?.image_url || c.images.webp?.image_url,
-                    tags: [c.name, ...(c.nicknames || []).slice(0, 2), 'MAL', 'official'].filter(Boolean),
-                    nsfw: false,
-                    src: 'myanimelist'
-                }));
+
+                if (query) {
+                    // Bước 1: Tìm kiếm nhân vật lấy mal_id
+                    const charUrl = `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=1`;
+                    const charData = await fetchWithRetry(charUrl);
+                    if (!charData || !charData.data || charData.data.length === 0) return [];
+                    
+                    const malId = charData.data[0].mal_id;
+                    const charName = charData.data[0].name;
+                    const nicknames = charData.data[0].nicknames || [];
+                    
+                    // Bước 2: Lấy toàn bộ album ảnh của nhân vật đó
+                    const picsUrl = `https://api.jikan.moe/v4/characters/${malId}/pictures`;
+                    const picsData = await fetchWithRetry(picsUrl);
+                    if (!picsData || !picsData.data) return [];
+                    
+                    return picsData.data.map(p => ({
+                        url: p.jpg?.image_url || p.webp?.image_url,
+                        tags: [charName, ...nicknames.slice(0, 2), 'MAL', 'official'].filter(Boolean),
+                        nsfw: false,
+                        src: 'myanimelist'
+                    })).filter(i => i.url);
+                } else {
+                    // Nếu không nhập gì, lấy Top nhân vật phổ biến
+                    const topUrl = `https://api.jikan.moe/v4/top/characters?limit=16&page=${page}`;
+                    const d = await fetchWithRetry(topUrl);
+                    if (!d || !d.data) return [];
+                    return d.data.filter(c => c && c.images && (c.images.jpg?.image_url || c.images.webp?.image_url)).map(c => ({
+                        url: c.images.jpg?.image_url || c.images.webp?.image_url,
+                        tags: [c.name, ...(c.nicknames || []).slice(0, 2), 'MAL', 'official'].filter(Boolean),
+                        nsfw: false,
+                        src: 'myanimelist'
+                    }));
+                }
             },
             tags: ['Marin Kitagawa', 'Rem', 'Zero Two', 'Megumin', 'Shinobu Oshino', 'Kurumi Tokisaki', 'Asuna', 'Mikasa', 'Kaguya Shinomiya', 'Mai Sakurajima', 'Chizuru Mizuhara', 'Albedo', 'Emilia', 'Roxy Migurdia', 'Frieren', 'Maomao', 'Raiden Shogun', 'Hatsune Miku', 'Furina', 'Hu Tao', 'Gawr Gura', 'Kafka', 'Firefly', 'Gojo Satoru', 'Levi Ackerman', 'Luffy', 'Zoro', 'Kakashi', 'Sung Jin-Woo']
         },
