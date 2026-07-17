@@ -2116,7 +2116,53 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
     const API_SOURCES = {
 
-                'yande.re': {
+                'rule34': {
+            label: 'Rule34.xxx',
+            sfw: false, nsfw: true,
+            async fetch(opts = {}) {
+                const uid = localStorage.getItem('vn_r34_userid') || '';
+                const key = localStorage.getItem('vn_r34_apikey') || '';
+                if (!uid || !key) {
+                    if (window.toastr) toastr.warning('Bạn phải nhập User ID và API Key để dùng nguồn Rule34.', 'Thiếu xác thực');
+                    return [];
+                }
+                let tags = (opts.tag || '').trim();
+                const searchTags = tags ? encodeURIComponent(tags) : '';
+                const limit = opts.count || 20;
+                const pid = Math.floor((opts.offset || 0) / limit); // rule34.xxx uses pid, 0-indexed
+                
+                const targetUrl = `https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&limit=${limit}&tags=${searchTags}&pid=${pid}&api_key=${key}&user_id=${uid}`;
+                
+                try {
+                    // Trực tiếp fetch do Rule34 cho phép CORS
+                    const data = await directApiFetch(targetUrl, 6000);
+                    if (!data || !Array.isArray(data)) {
+                        if (data && data.success === false) {
+                            if (window.toastr) toastr.error(data.message || 'Lỗi API từ Rule34', 'Thất bại');
+                        }
+                        return [];
+                    }
+                    
+                    return data.map(item => {
+                        const fullUrl = item.file_url;
+                        const thumbUrl = item.preview_url || item.sample_url || fullUrl;
+                        if (!fullUrl || !thumbUrl) return null;
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tags ? item.tags.split(' ') : [],
+                            source: 'Rule34'
+                        };
+                    }).filter(i => i && i.url && i.thumb);
+                } catch (e) {
+                    console.error('Rule34 Error:', e);
+                    if (window.toastr) toastr.error('Rule34: Lỗi kết nối hoặc Key không hợp lệ.', 'Lỗi Nguồn');
+                    return [];
+                }
+            }
+        },
+
+        'yande.re': {
             label: 'Yande.re (NSFW)',
             sfw: false, nsfw: true,
             async fetch(opts = {}) {
@@ -3514,6 +3560,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
         <button class="vn-src-tab" data-src="safebooru">Safebooru</button>
           <button class="vn-src-tab" data-src="yande.re">Yande.re</button>
+        <button class="vn-src-tab" data-src="rule34">Rule34.xxx</button>
         <button class="vn-src-tab" data-src="myanimelist">MyAnimeList</button>
           <button class="vn-src-tab" data-src="myanimelist_anime">MAL (Anime)</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
@@ -3534,6 +3581,18 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <label class="vn-nsfw-toggle"><input type="checkbox" id="vn-ipm-nsfw" /> NSFW</label>
         <label class="vn-nsfw-toggle" title="Nếu đã cài extension Allow CORS, bật cái này để tắt proxy (Tải siêu tốc)"><input type="checkbox" id="vn-ipm-bypass-cors" /> Direct</label>
         <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-fetch">⚡ Tải ảnh</button>
+    </div>
+    
+    <div id="vn-ipm-rule34-auth-row" style="display:none;margin-top:10px;background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;border:1px solid rgba(129,140,248,0.3);">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+        <input class="vn-img-search" id="vn-ipm-r34-user" placeholder="User ID" style="width:120px;" />
+        <input class="vn-img-search" type="password" id="vn-ipm-r34-key" placeholder="API Key" style="width:100%;" />
+        <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-r34-save" style="white-space:nowrap;">💾 Lưu Auth</button>
+      </div>
+      <div style="font-size:11px;color:#94a3b8;line-height:1.4;">
+        * Bắt buộc có API Key để tải ảnh từ <b>Rule34.xxx</b>. (Lưu cục bộ trên trình duyệt).<br>
+        * Hướng dẫn: Đăng ký tài khoản tại Rule34.xxx, vào <b>My Account &gt; Options</b> để xem <b>User ID</b> và xin cấp <b>API Key</b>.
+      </div>
     </div>
     <div id="vn-ipm-url-row" style="display:none;margin-top:10px;">
       <div style="display:flex;gap:8px;align-items:center;">
@@ -3627,6 +3686,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ((src === 'local' || src === 'url') && searchEl) searchEl.value = '';
             $('vn-ipm-searchtoolbar').style.display = (src === 'local' || src === 'url') ? 'none' : 'flex';
             $('vn-ipm-url-row').style.display = src === 'url' ? 'block' : 'none';
+            if($('vn-ipm-rule34-auth-row')) $('vn-ipm-rule34-auth-row').style.display = src === 'rule34' ? 'block' : 'none';
             $('vn-ipm-local-row').style.display = src === 'local' ? 'block' : 'none';
             const fullBox = $('vn-ipm-full-preview-box');
             if (fullBox) fullBox.style.display = 'none';
@@ -3653,6 +3713,17 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (e.target.value !== undefined) fetchImagesForPicker(true);
         });
         $('vn-ipm-fetch').addEventListener('click', () => fetchImagesForPicker(true));
+        
+        const r34SaveBtn = $('vn-ipm-r34-save');
+        if (r34SaveBtn) {
+            $('vn-ipm-r34-user').value = localStorage.getItem('vn_r34_userid') || '';
+            $('vn-ipm-r34-key').value = localStorage.getItem('vn_r34_apikey') || '';
+            r34SaveBtn.addEventListener('click', () => {
+                localStorage.setItem('vn_r34_userid', $('vn-ipm-r34-user').value.trim());
+                localStorage.setItem('vn_r34_apikey', $('vn-ipm-r34-key').value.trim());
+                if (window.toastr) toastr.success('Đã lưu thông tin Rule34 API Key!', 'Thành công');
+            });
+        }
         const nsfwToggle = $('vn-ipm-nsfw');
         if (nsfwToggle) {
             nsfwToggle.addEventListener('change', e => {
@@ -4012,6 +4083,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         // Hiển thị hint về loại tìm kiếm
         const searchHints = {
+            'rule34':       '🔞 Rule34.xxx: Kho ảnh NSFW (Yêu cầu phải nhập API Key).',
             'safebooru':    '🌟 Safebooru.org: Kho ảnh an toàn (SFW). Tải qua Proxy để chống Cloudflare chặn.',
             'yande.re':     '🔞 Yande.re: Kho ảnh chất lượng cao (Cảnh báo: Có chứa ảnh NSFW).',
             'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
@@ -4032,7 +4104,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
             if (toolbar && toolbar.parentNode) toolbar.parentNode.insertBefore(hintEl, toolbar.nextSibling);
         }
-        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 11 nguồn ảnh anime (Có 2 chế độ MAL cực mạnh hỗ trợ tìm kiếm cực xịn)!</div>';
+        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 12 nguồn ảnh anime (Có 2 chế độ MAL cực mạnh hỗ trợ tìm kiếm cực xịn)!</div>';
 
         const skels = [];
         for (let i = 0; i < 12; i++) {
