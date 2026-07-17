@@ -57,7 +57,8 @@
         autoAssignAvatar: false,
         autoAssignByCharName: false,
         charNameSources: ['safebooru'],
-        charNamePrompt: '[QUY TẮC GẮN TÊN NHÂN VẬT ĐẦY ĐỦ (TỰ ĐỘNG GÁN ẢNH)]\nKhi một nhân vật xuất hiện hoặc có lời thoại/suy nghĩ, bạn PHẢI ghi tên đầy đủ (Full name) của nhân vật đó vào bên trong thẻ tên, ví dụ: @Hatsune Miku@, @Kamado Tanjirou@...\nTUYỆT ĐỐI KHÔNG dùng tên viết tắt hay biệt danh. Quy tắc này giúp hệ thống tự động tìm kiếm và gán ảnh chính xác cho nhân vật!',
+        charNameFetchCount: 20,
+        charNamePrompt: '[QUY TẮC NHẬN DIỆN TÊN NHÂN VẬT ĐẦY ĐỦ (TỰ ĐỘNG GÁN ẢNH)]\nĐể hệ thống gán ảnh chính xác, bạn PHẢI phân tích bối cảnh truyện (đặc biệt là đồng nhân/fanfic) và suy luận TÊN ĐẦY ĐỦ (Full Name) chuẩn xác nhất của nhân vật (gồm cả Họ và Tên nếu có thể tra cứu hoặc biết được).\nKhi nhân vật xuất hiện hoặc có lời thoại/suy nghĩ, hãy ghi tên đầy đủ đó vào trong thẻ tên.\nVí dụ: @Hatsune Miku@, @Kamado Tanjirou@...\nTUYỆT ĐỐI KHÔNG dùng tên viết tắt, biệt danh hay tên gọi chung chung. Nếu là nhân vật quần chúng không có tên, giữ nguyên gọi chung.',
         dynamicContextImages: false,
         customRegex: '',
         cleanPatterns: '', // Để trống = giữ nguyên theo regex, không tự xóa
@@ -3017,7 +3018,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
 
         try {
-            const results = await apiSrc.fetch({ tag: tag, count: 20 });
+            const fetchCount = parseInt(CFG.charNameFetchCount) || 20;
+            const results = await apiSrc.fetch({ tag: tag, count: fetchCount });
             if (results && results.length > 0) {
                 const randIdx = Math.floor(Math.random() * results.length);
                 const chosenUrl = results[randIdx].url;
@@ -4794,6 +4796,10 @@ function buildImgPickerModal() {
         <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="rule34">Rule34.xxx</label>
         <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="anilist">AniList DB</label>
       </div>
+      <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+          <div style="font-size:12.5px;color:#cbd5e1;">Số lượng ảnh tra cứu để chọn ngẫu nhiên:</div>
+          <input type="number" id="vn-char-name-fetch-count" class="vn-input" style="width:60px; padding:2px 6px; text-align:center;" min="1" max="100" />
+      </div>
     </div>
     <div class="vn-toggle-row" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);margin-bottom:8px;">
       <div class="vn-toggle-info">
@@ -4975,6 +4981,8 @@ function buildImgPickerModal() {
         cbList.forEach(cb => {
             cb.checked = (CFG.charNameSources || []).includes(cb.value);
         });
+        const cnfc = PD.getElementById('vn-char-name-fetch-count');
+        if (cnfc) cnfc.value = CFG.charNameFetchCount || DEFAULT_CONFIG.charNameFetchCount || 20;
 
         const cnpt = PD.getElementById('vn-char-name-prompt-text');
         if (cnpt) cnpt.value = CFG.charNamePrompt || DEFAULT_CONFIG.charNamePrompt || '';
@@ -5522,6 +5530,17 @@ function buildImgPickerModal() {
                 saveConfig(CFG);
             });
         });
+        const cnfcInput = PD.getElementById('vn-char-name-fetch-count');
+        if (cnfcInput) {
+            cnfcInput.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val) || val < 1) val = 1;
+                if (val > 100) val = 100;
+                CFG.charNameFetchCount = val;
+                e.target.value = val;
+                saveConfig(CFG);
+            });
+        }
 
 
 
