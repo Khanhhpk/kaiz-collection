@@ -2352,6 +2352,76 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             },
             tags: ['Marin Kitagawa', 'Rem', 'Zero Two', 'Megumin', 'Shinobu Oshino', 'Kurumi Tokisaki', 'Asuna', 'Mikasa', 'Kaguya Shinomiya', 'Mai Sakurajima', 'Chizuru Mizuhara', 'Albedo', 'Emilia', 'Roxy Migurdia', 'Frieren', 'Maomao', 'Raiden Shogun', 'Hatsune Miku', 'Furina', 'Hu Tao', 'Gawr Gura', 'Kafka', 'Firefly', 'Gojo Satoru', 'Levi Ackerman', 'Luffy', 'Zoro', 'Kakashi', 'Sung Jin-Woo']
         },
+        'myanimelist_anime': {
+            label: 'MyAnimeList (Anime)',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                const query = (opts.tag || '').trim();
+                const page = Math.floor((opts.offset || 0) / 16) + 1;
+                
+                const fetchWithRetry = async (url, retries = 2) => {
+                    const controller = new AbortController();
+                    const tid = setTimeout(() => controller.abort(), 12000);
+                    try {
+                        const r = await fetch(url, { signal: controller.signal });
+                        clearTimeout(tid);
+                        if (r.status === 429 || r.status >= 500) {
+                            if (retries > 0) {
+                                await new Promise(res => setTimeout(res, 1200));
+                                return fetchWithRetry(url, retries - 1);
+                            }
+                            return null;
+                        }
+                        if (!r.ok) return null;
+                        return await r.json();
+                    } catch(e) {
+                        clearTimeout(tid);
+                        if (retries > 0 && e.name !== 'AbortError') {
+                            await new Promise(res => setTimeout(res, 800));
+                            return fetchWithRetry(url, retries - 1);
+                        }
+                        return null;
+                    }
+                };
+
+                if (query) {
+                    // Bước 1: Tìm kiếm anime lấy mal_id
+                    const animeUrl = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=1`;
+                    const animeData = await fetchWithRetry(animeUrl);
+                    if (!animeData || !animeData.data || animeData.data.length === 0) return [];
+                    
+                    const malId = animeData.data[0].mal_id;
+                    const animeTitle = animeData.data[0].title;
+                    
+                    // Bước 2: Lấy toàn bộ nhân vật trong Anime đó
+                    const charsUrl = `https://api.jikan.moe/v4/anime/${malId}/characters`;
+                    const charsData = await fetchWithRetry(charsUrl);
+                    if (!charsData || !charsData.data) return [];
+                    
+                    return charsData.data.map(c => {
+                        const p = c.character;
+                        return {
+                            url: p.images?.jpg?.image_url || p.images?.webp?.image_url,
+                            tags: [p.name, animeTitle, 'MAL Anime', 'official'].filter(Boolean),
+                            nsfw: false,
+                            src: 'myanimelist_anime'
+                        };
+                    }).filter(i => i.url);
+                } else {
+                    // Nếu không nhập gì, lấy Top Anime
+                    const topUrl = `https://api.jikan.moe/v4/top/anime?limit=16&page=${page}`;
+                    const d = await fetchWithRetry(topUrl);
+                    if (!d || !d.data) return [];
+                    return d.data.filter(a => a && a.images && (a.images.jpg?.image_url || a.images.webp?.image_url)).map(a => ({
+                        url: a.images.jpg?.large_image_url || a.images.jpg?.image_url || a.images.webp?.image_url,
+                        tags: [a.title, 'MAL Anime', 'official'].filter(Boolean),
+                        nsfw: false,
+                        src: 'myanimelist_anime'
+                    }));
+                }
+            },
+            tags: ['Genshin Impact', 'Frieren', 'Neon Genesis Evangelion', 'Naruto', 'One Piece', 'Jujutsu Kaisen', 'Sword Art Online', 'Demon Slayer', 'Bleach', 'Attack on Titan', 'Oshi no Ko', 'Re:Zero']
+        },
         'otakugifs': {
             label: 'OtakuGIFs',
             sfw: true, nsfw: false,
@@ -3910,7 +3980,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
             if (toolbar && toolbar.parentNode) toolbar.parentNode.insertBefore(hintEl, toolbar.nextSibling);
         }
-        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 10 nguồn ảnh anime miễn phí (MyAnimeList ✅ · AniList ✅ + 7 kho khác)!</div>';
+        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 11 nguồn ảnh anime (Có 2 chế độ MAL cực mạnh hỗ trợ tìm kiếm cực xịn)!</div>';
 
         const skels = [];
         for (let i = 0; i < 12; i++) {
