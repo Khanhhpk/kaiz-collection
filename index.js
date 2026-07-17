@@ -187,27 +187,27 @@ const CORE_MODULES = [
 ];
 
 const PHONE_APPS = [
-    { file: 'app_browser.js', path: './modules/app_browser.js', name: 'Trình duyệt Web', desc: 'Lướt web và tìm kiếm ngay trong SillyTavern' },
-    { file: 'app_canvas.js', path: './modules/app_canvas.js', name: 'Vẽ Canvas', desc: 'Ứng dụng vẽ tranh, ghi chú sáng tạo' },
-    { file: 'app_chess.js', path: './modules/app_chess.js', name: 'Cờ vua', desc: 'Giải trí cờ vua cùng nhân vật AI' },
-    { file: 'app_cleanup.js', path: './modules/app_cleanup.js', name: 'Dọn dẹp bộ nhớ', desc: 'Tối ưu hóa hệ thống và giải phóng RAM' },
-    { file: 'app_create_char_wechat.js', path: './modules/app_create_char_wechat.js', name: 'Tạo nhân vật WeChat', desc: 'Tạo card nhân vật nhanh chóng qua tin nhắn' },
-    { file: 'app_create_oc_group_chat.js', path: './modules/app_create_oc_group_chat.js', name: 'Tạo OC Group Chat', desc: 'Tạo nhóm trò chuyện nhiều nhân vật' },
-    { file: 'app_flappy_bird.js', path: './modules/app_flappy_bird.js', name: 'Game Flappy Bird', desc: 'Trò chơi giải trí kinh điển Flappy Bird' },
-    { file: 'app_freegen.js', path: './modules/app_freegen.js', name: 'Freegen AI', desc: 'Tạo ảnh miễn phí tích hợp Freegen' },
-    { file: 'app_infinite_craft.js', path: './modules/app_infinite_craft.js', name: 'Infinite Craft', desc: 'Trò chơi ghép từ và sáng tạo vô tận' },
-    { file: 'app_livestream.js', path: './modules/app_livestream.js', name: 'Livestream', desc: 'Giao diện mô phỏng phát sóng trực tiếp' },
-    { file: 'app_music.js', path: './modules/app_music.js', name: 'Máy nghe nhạc', desc: 'Trình phát nhạc nền thư giãn cho phòng chat' },
-    { file: 'app_news.js', path: './modules/app_news.js', name: 'Đọc tin tức', desc: 'Cập nhật bảng tin thời sự trực tuyến' },
-    { file: 'app_pollinations.js', path: './modules/app_pollinations.js', name: 'Vẽ ảnh Pollinations', desc: 'Tạo ảnh AI tự động qua Pollinations.ai' },
-    { file: 'app_terminal_debug.js', path: './modules/app_terminal_debug.js', name: 'Terminal Debug', desc: 'Bảng điều khiển lập trình và theo dõi lỗi' },
-    { file: 'app_theme.js', path: './modules/app_theme.js', name: 'Giao diện & Chủ đề', desc: 'Tùy chỉnh màu sắc, hình nền điện thoại' },
-    { file: 'app_virtual_tube.js', path: './modules/app_virtual_tube.js', name: 'Virtual Tube', desc: 'Xem video trực tuyến trên điện thoại' },
-    { file: 'app_weather.js', path: './modules/app_weather.js', name: 'Dự báo Thời tiết', desc: 'Cập nhật thời tiết theo thời gian thực' },
-    { file: 'app_wechat_auau.js', path: './modules/app_wechat_auau.js', name: 'WeChat Âu Âu', desc: 'Mạng xã hội và bảng tin phong cách Âu Âu' },
-    { file: 'app_wechat.js', path: './modules/app_wechat.js', name: 'WeChat Nhắn tin', desc: 'Nhắn tin phong cách WeChat với AI' },
-    { file: 'app_world_map.js', path: './modules/app_world_map.js', name: 'Bản đồ thế giới', desc: 'Khám phá bản đồ thế giới trong game' },
-    { file: 'app_youtube.js', path: './modules/app_youtube.js', name: 'YouTube', desc: 'Trình phát video YouTube tích hợp' }
+    { file: 'app_browser.js', path: './modules/phone_apps/app_browser.js', name: 'Trình duyệt Web', desc: 'Lướt web và tìm kiếm ngay trong SillyTavern' },
+    { file: 'app_canvas.js', path: './modules/phone_apps/app_canvas.js', name: 'Vẽ Canvas', desc: 'Ứng dụng vẽ tranh, ghi chú sáng tạo' },
+    { file: 'app_chess.js', path: './modules/phone_apps/app_chess.js', name: 'Cờ vua', desc: 'Giải trí cờ vua cùng nhân vật AI' },
+    { file: 'app_cleanup.js', path: './modules/phone_apps/app_cleanup.js', name: 'Dọn dẹp bộ nhớ', desc: 'Tối ưu hóa hệ thống và giải phóng RAM' },
+    { file: 'app_create_char_wechat.js', path: './modules/phone_apps/app_create_char_wechat.js', name: 'Tạo nhân vật WeChat', desc: 'Tạo card nhân vật nhanh chóng qua tin nhắn' },
+    { file: 'app_create_oc_group_chat.js', path: './modules/phone_apps/app_create_oc_group_chat.js', name: 'Tạo OC Group Chat', desc: 'Tạo nhóm trò chuyện nhiều nhân vật' },
+    { file: 'app_flappy_bird.js', path: './modules/phone_apps/app_flappy_bird.js', name: 'Game Flappy Bird', desc: 'Trò chơi giải trí kinh điển Flappy Bird' },
+    { file: 'app_freegen.js', path: './modules/phone_apps/app_freegen.js', name: 'Freegen AI', desc: 'Tạo ảnh miễn phí tích hợp Freegen' },
+    { file: 'app_infinite_craft.js', path: './modules/phone_apps/app_infinite_craft.js', name: 'Infinite Craft', desc: 'Trò chơi ghép từ và sáng tạo vô tận' },
+    { file: 'app_livestream.js', path: './modules/phone_apps/app_livestream.js', name: 'Livestream', desc: 'Giao diện mô phỏng phát sóng trực tiếp' },
+    { file: 'app_music.js', path: './modules/phone_apps/app_music.js', name: 'Máy nghe nhạc', desc: 'Trình phát nhạc nền thư giãn cho phòng chat' },
+    { file: 'app_news.js', path: './modules/phone_apps/app_news.js', name: 'Đọc tin tức', desc: 'Cập nhật bảng tin thời sự trực tuyến' },
+    { file: 'app_pollinations.js', path: './modules/phone_apps/app_pollinations.js', name: 'Vẽ ảnh Pollinations', desc: 'Tạo ảnh AI tự động qua Pollinations.ai' },
+    { file: 'app_terminal_debug.js', path: './modules/phone_apps/app_terminal_debug.js', name: 'Terminal Debug', desc: 'Bảng điều khiển lập trình và theo dõi lỗi' },
+    { file: 'app_theme.js', path: './modules/phone_apps/app_theme.js', name: 'Giao diện & Chủ đề', desc: 'Tùy chỉnh màu sắc, hình nền điện thoại' },
+    { file: 'app_virtual_tube.js', path: './modules/phone_apps/app_virtual_tube.js', name: 'Virtual Tube', desc: 'Xem video trực tuyến trên điện thoại' },
+    { file: 'app_weather.js', path: './modules/phone_apps/app_weather.js', name: 'Dự báo Thời tiết', desc: 'Cập nhật thời tiết theo thời gian thực' },
+    { file: 'app_wechat_auau.js', path: './modules/phone_apps/app_wechat_auau.js', name: 'WeChat Âu Âu', desc: 'Mạng xã hội và bảng tin phong cách Âu Âu' },
+    { file: 'app_wechat.js', path: './modules/phone_apps/app_wechat.js', name: 'WeChat Nhắn tin', desc: 'Nhắn tin phong cách WeChat với AI' },
+    { file: 'app_world_map.js', path: './modules/phone_apps/app_world_map.js', name: 'Bản đồ thế giới', desc: 'Khám phá bản đồ thế giới trong game' },
+    { file: 'app_youtube.js', path: './modules/phone_apps/app_youtube.js', name: 'YouTube', desc: 'Trình phát video YouTube tích hợp' }
 ];
 
 const UTILITY_MODULES = [
