@@ -1195,28 +1195,40 @@ waitForEnvironment(async (targetWin, jq) => {
     }));
 
     // Bước 3: Nạp PHONE_APPS (Hỗ trợ Smart Delay Load)
-    const loadPhoneAppsLogic = async () => {
+    const loadPhoneAppsLogic = async (isDelayed) => {
+        let phoneSuccess = 0, phoneFail = 0, phoneSkip = 0;
         await Promise.all(PHONE_APPS.map(async (app) => {
             if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
-                console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
+                if (!isDelayed) console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
+                skipCount++;
+                phoneSkip++;
                 return;
             }
             const ok = await safeImport(app.path, app.name);
-            if (ok) successCount++; else failCount++;
+            if (ok) {
+                successCount++;
+                phoneSuccess++;
+            } else {
+                failCount++;
+                phoneFail++;
+            }
         }));
+        if (isDelayed) {
+            console.log(`[KAIZ Collection] 🚀 Nạp Giai đoạn 2 (Phone Apps): ${phoneSuccess} thành công, ${phoneSkip} bỏ qua, ${phoneFail} lỗi.`);
+            console.log(`[KAIZ Collection] 🚀 TỔNG HỆ THỐNG: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
+        }
     };
 
     if (config.optimize_phone_ram) {
-        console.log(`[KAIZ Collection] 🚀 Bật chế độ Tối ưu RAM: Trì hoãn nạp Phone Apps 5 giây...`);
+        console.log(`[KAIZ Collection] 🚀 Bật chế độ Tối ưu RAM: Trì hoãn nạp Phone Apps 10 giây...`);
+        console.log(`[KAIZ Collection] Hoàn tất nạp Giai đoạn 1: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
         setTimeout(() => {
-            loadPhoneAppsLogic().then(() => {
-                console.log(`[KAIZ Collection] 🚀 Đã hoàn tất nạp Phone Apps sau khi Delay.`);
-            });
-        }, 5000);
+            loadPhoneAppsLogic(true);
+        }, 10000);
     } else {
-        await loadPhoneAppsLogic();
+        await loadPhoneAppsLogic(false);
+        console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
     }
-    console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
 });
 
 function initKaizExplorer(doc, targetWin) {
