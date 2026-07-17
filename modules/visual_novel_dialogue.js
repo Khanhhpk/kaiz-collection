@@ -4974,8 +4974,7 @@ function buildImgPickerModal() {
         PD.querySelectorAll('.vn-auto-reg-toggle, #vn-toggle-autoreg, #vn-toggle-autoreg-char').forEach(el => { el.checked = CFG.autoRegisterChars !== false; });
         if (togAutoAssign) togAutoAssign.checked = !!CFG.autoAssignAvatar;
         if (togAutoAssignSet) togAutoAssignSet.checked = !!CFG.autoAssignAvatar;
-        const togAutoAssignNameQuick = PD.getElementById('vn-toggle-auto-assign-name-quick');
-        if (togAutoAssignNameQuick) togAutoAssignNameQuick.checked = CFG.autoAssignByCharName;
+        PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = CFG.autoAssignByCharName; });
 
         const cbList = PD.querySelectorAll('.vn-char-name-source-cb');
         cbList.forEach(cb => {
