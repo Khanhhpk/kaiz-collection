@@ -110,16 +110,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
     const VN_IDB_PREFIX = 'vn-idb://';
     const VN_BLANK_IMG = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>');
     const VN_IDB_OBJECT_URL_CACHE = {};
-    const VN_IDB_OBJECT_URL_KEYS = [];
-    function pruneIdbObjectUrlCache() {
-        if (VN_IDB_OBJECT_URL_KEYS.length > 80) {
-            const toRemove = VN_IDB_OBJECT_URL_KEYS.splice(0, VN_IDB_OBJECT_URL_KEYS.length - 80);
-            toRemove.forEach(k => {
-                try { if (VN_IDB_OBJECT_URL_CACHE[k]) URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[k]); } catch (e) { }
-                delete VN_IDB_OBJECT_URL_CACHE[k];
-            });
-        }
-    }
     const VN_IDB_PENDING = {};
 
     function cloneDeep(obj) {
@@ -454,7 +444,7 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
     function openVNImageDB() {
         return new Promise((resolve, reject) => {
             if (!PW.indexedDB) { reject(new Error('Trình duyệt không hỗ trợ IndexedDB.')); return; }
-            const req = PW.indexedDB.open(VN_IDB_DB_NAME, 1);
+            const req = PW.indexedDB.open(VN_IDB_DB_NAME, 2);
             req.onupgradeneeded = () => {
                 const db = req.result;
                 if (!db.objectStoreNames.contains(VN_IDB_STORE)) db.createObjectStore(VN_IDB_STORE, { keyPath: 'id' });
@@ -509,8 +499,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
                 if (!rec || !rec.blob) throw new Error('Ảnh local không còn tồn tại trong IndexedDB.');
                 const objectUrl = URL.createObjectURL(rec.blob);
                 VN_IDB_OBJECT_URL_CACHE[ref] = objectUrl;
-                if (!VN_IDB_OBJECT_URL_KEYS.includes(ref)) VN_IDB_OBJECT_URL_KEYS.push(ref);
-                pruneIdbObjectUrlCache();
                 return objectUrl;
             } finally {
                 db.close();
@@ -525,8 +513,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
         if (!safe) return fallback;
         if (isLocalImageRef(safe)) {
             if (VN_IDB_OBJECT_URL_CACHE[safe]) {
-                const idx = VN_IDB_OBJECT_URL_KEYS.indexOf(safe);
-                if (idx !== -1) { VN_IDB_OBJECT_URL_KEYS.splice(idx, 1); VN_IDB_OBJECT_URL_KEYS.push(safe); }
                 return VN_IDB_OBJECT_URL_CACHE[safe];
             }
             getLocalImageObjectUrl(safe).then(objectUrl => {
@@ -557,7 +543,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
             tx.oncomplete = () => {
                 db.close();
                 Object.keys(VN_IDB_OBJECT_URL_CACHE).forEach(k => { try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[k]); } catch (e) { } delete VN_IDB_OBJECT_URL_CACHE[k]; });
-                VN_IDB_OBJECT_URL_KEYS.length = 0;
                 resolve();
             };
             tx.onerror = () => { db.close(); reject(tx.error || new Error('Không xoá được IndexedDB ảnh.')); };
@@ -604,8 +589,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
             if (VN_IDB_OBJECT_URL_CACHE[ref]) {
                 try { URL.revokeObjectURL(VN_IDB_OBJECT_URL_CACHE[ref]); } catch (e) { }
                 delete VN_IDB_OBJECT_URL_CACHE[ref];
-                const idx = VN_IDB_OBJECT_URL_KEYS.indexOf(ref);
-                if (idx !== -1) VN_IDB_OBJECT_URL_KEYS.splice(idx, 1);
             }
         } finally {
             db.close();
@@ -2109,7 +2092,174 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     // ========== NGUỒN ANIME API FREE SIÊU MƯỢT ==========
+    // Fetch trực tiếp cho các API có CORS sẵn (Jikan, AniList...)
+    async function directApiFetch(url, timeoutMs = 12000) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const r = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (r.status === 429) {
+                if (typeof showToast === 'function') showToast('🚫 Rate Limit! Vui lòng thử lại sau vài giây.', 'error');
+                return null;
+            }
+                        if (!r.ok) {
+                console.warn(`Fetch error for ${url}: ${r.status}`);
+                return null;
+            }
+            return await r.json();
+        } catch (e) {
+            clearTimeout(timeoutId);
+            return null;
+        }
+    }
+
     const API_SOURCES = {
+
+                'rule34': {
+            label: 'Rule34.xxx',
+            sfw: false, nsfw: true,
+            async fetch(opts = {}) {
+                const uid = localStorage.getItem('vn_r34_userid') || '';
+                const key = localStorage.getItem('vn_r34_apikey') || '';
+                if (!uid || !key) {
+                    if (window.toastr) toastr.warning('Bạn phải nhập User ID và API Key để dùng nguồn Rule34.', 'Thiếu xác thực');
+                    return [];
+                }
+                let tags = (opts.tag || '').trim();
+                const searchTags = tags ? encodeURIComponent(tags) : '';
+                const limit = opts.count || 20;
+                const pid = Math.floor((opts.offset || 0) / limit); // rule34.xxx uses pid, 0-indexed
+                
+                const targetUrl = `https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&limit=${limit}&tags=${searchTags}&pid=${pid}&api_key=${key}&user_id=${uid}`;
+                
+                try {
+                    // Trực tiếp fetch do Rule34 cho phép CORS
+                    const data = await directApiFetch(targetUrl, 6000);
+                    if (!data || !Array.isArray(data)) {
+                        if (data && data.success === false) {
+                            if (window.toastr) toastr.error(data.message || 'Lỗi API từ Rule34', 'Thất bại');
+                        }
+                        return [];
+                    }
+                    
+                    return data.map(item => {
+                        const fullUrl = item.file_url;
+                        const thumbUrl = item.preview_url || item.sample_url || fullUrl;
+                        if (!fullUrl || !thumbUrl) return null;
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tags ? item.tags.split(' ') : [],
+                            source: 'Rule34'
+                        };
+                    }).filter(i => i && i.url && i.thumb);
+                } catch (e) {
+                    console.error('Rule34 Error:', e);
+                    if (window.toastr) toastr.error('Rule34: Lỗi kết nối hoặc Key không hợp lệ.', 'Lỗi Nguồn');
+                    return [];
+                }
+            }
+        },
+
+        'yande.re': {
+            label: 'Yande.re (NSFW)',
+            sfw: false, nsfw: true,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim();
+                if (!opts.nsfw) {
+                    tags = tags ? (tags + ' rating:safe') : 'rating:safe';
+                }
+                const searchTags = tags ? encodeURIComponent(tags) : '';
+                const limit = opts.count || 20;
+                const page = Math.floor((opts.offset || 0) / limit) + 1; // yande.re uses page, 1-indexed
+                
+                const targetUrl = `https://yande.re/post.json?tags=${searchTags}&limit=${limit}&page=${page}`;
+                
+                const proxies = opts.bypassCors ? [ targetUrl ] : [
+                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+                ];
+                
+                try {
+                    let data = null;
+                    for (const proxyUrl of proxies) {
+                        try {
+                            data = await directApiFetch(proxyUrl, 6000);
+                            if (data && Array.isArray(data)) break;
+                        } catch(err) {}
+                    }
+                    if (!data || !Array.isArray(data)) return [];
+                    
+                    return data.map(item => {
+                        const fullUrl = item.file_url;
+                        const thumbUrl = item.preview_url;
+                        if (!fullUrl || !thumbUrl) return null;
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tags ? item.tags.split(' ') : [],
+                            source: 'Yande.re'
+                        };
+                    }).filter(i => i && i.url && i.thumb);
+                } catch (e) {
+                    console.error('Yande.re Error:', e);
+                    if (window.toastr) toastr.error('Yande.re: Lỗi kết nối Proxy.', 'Lỗi Nguồn');
+                    return [];
+                }
+            }
+        },
+
+        'safebooru': {
+            label: 'Safebooru (SFW)',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                let tags = (opts.tag || '').trim();
+                const searchTags = tags ? encodeURIComponent(tags) : '';
+                const limit = opts.count || 20;
+                const pid = Math.floor((opts.offset || 0) / limit); // safebooru.org uses pid, 0-indexed
+                
+                // Tránh cache của proxy bằng timestamp
+                const cacheBust = Date.now();
+                const targetUrl = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${searchTags}&limit=${limit}&pid=${pid}&_=${cacheBust}`;
+                
+                const proxies = opts.bypassCors ? [ targetUrl ] : [
+                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+                ];
+                
+                try {
+                    let data = null;
+                    for (const proxyUrl of proxies) {
+                        try {
+                            data = await directApiFetch(proxyUrl, 6000); // Đợi tối đa 6s mỗi proxy
+                            if (data && Array.isArray(data)) break;
+                        } catch(err) {}
+                    }
+                    if (!data || !Array.isArray(data)) return [];
+                    
+                    return data.map(item => {
+                        const fullUrl = item.file_url || (`https://safebooru.org/images/${item.directory}/${item.image}`);
+                        const thumbUrl = item.preview_url || (`https://safebooru.org/thumbnails/${item.directory}/thumbnail_${item.image}`);
+                        if (!fullUrl || !thumbUrl) return null;
+                        return {
+                            url: fullUrl,
+                            thumb: thumbUrl,
+                            tags: item.tags ? item.tags.split(' ') : [],
+                            source: 'Safebooru'
+                        };
+                    }).filter(i => i && i.url && i.thumb);
+                } catch (e) {
+                    console.error('Safebooru Error:', e);
+                    if (window.toastr) toastr.error('Safebooru: Lỗi kết nối Proxy.', 'Lỗi Nguồn');
+                    return [];
+                }
+            }
+        },
+
+
         'nekos.best': {
             label: 'nekos.best',
             sfw: true, nsfw: false,
@@ -2129,7 +2279,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                             tags: [cat, i.anime_name, i.artist_name].filter(Boolean),
                             nsfw: false,
                             src: 'nekos.best',
-                            _searchText: [cat, i.anime_name, i.artist_name, i.url].filter(Boolean).join(' ').toLowerCase()
                         }));
                     } catch { return []; }
                 };
@@ -2139,24 +2288,21 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     items = batches.flat();
                 } else {
                     items = await fetchCat('waifu');
-                    if (query) {
-                        const filtered = items.filter(i => i._searchText && i._searchText.includes(query));
-                        if (filtered.length > 0) items = filtered;
-                    }
                 }
                 const seen = new Set();
                 return items.filter(i => { if (seen.has(i.url)) return false; seen.add(i.url); return true; });
             },
-            tags: ['waifu', 'neko', 'kitsune', 'shinobu', 'megumin', 'hug', 'pat', 'slap', 'cuddle', 'smile', 'blush', 'happy', 'wink', 'poke', 'dance', 'husbando', 'cry', 'baka', 'stare', 'think', 'bored', 'shrug', 'thumbsup']
+            tags: ['waifu', 'neko', 'kitsune', 'shinobu', 'megumin', 'hug', 'pat', 'slap', 'cuddle', 'smile', 'blush', 'happy', 'wink', 'poke', 'dance', 'husbando', 'cry', 'baka', 'stare', 'think']
         },
         'anilist': {
             label: 'AniList DB',
             sfw: true, nsfw: false,
             async fetch(opts = {}) {
                 const query = (opts.tag || '').trim();
+                const page = Math.floor((opts.offset || 0) / 16) + 1;
                 const gql = query
-                    ? `{ Page(page: 1, perPage: 16) { characters(search: "${query.replace(/"/g, '')}") { name { full } image { large } } } }`
-                    : `{ Page(page: 1, perPage: 16) { characters(sort: [FAVOURITES_DESC]) { name { full } image { large } } } }`;
+                    ? `{ Page(page: ${page}, perPage: 16) { characters(search: "${query.replace(/"/g, '')}") { name { full } image { large } } } }`
+                    : `{ Page(page: ${page}, perPage: 16) { characters(sort: [FAVOURITES_DESC]) { name { full } image { large } } } }`;
                 const r = await fetch('https://graphql.anilist.co', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -2238,22 +2384,138 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             async fetch(opts = {}) {
                 const query = (opts.tag || '').trim();
                 const page = Math.floor((opts.offset || 0) / 16) + 1;
-                // Jikan v4 hỗ trợ search nhân vật theo tên đầy đủ rất tốt
-                const url = query
-                    ? `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=16&page=${page}`
-                    : `https://api.jikan.moe/v4/top/characters?limit=16&page=${page}`;
-                const r = await fetch(url);
-                if (!r.ok) return [];
-                const d = await r.json();
-                return (d.data || []).filter(c => c && c.images && (c.images.jpg?.image_url || c.images.webp?.image_url)).map(c => ({
-                    url: c.images.jpg?.image_url || c.images.webp?.image_url,
-                    tags: [c.name, ...(c.nicknames || []).slice(0, 2), 'anime', 'official'].filter(Boolean),
-                    nsfw: false,
-                    src: 'myanimelist',
-                    _searchText: [c.name, ...(c.nicknames || [])].join(' ').toLowerCase()
-                }));
+                
+                // Hàm fetch có retry tự động cho Jikan
+                const fetchWithRetry = async (url, retries = 2) => {
+                    const controller = new AbortController();
+                    const tid = setTimeout(() => controller.abort(), 12000);
+                    try {
+                        const r = await fetch(url, { signal: controller.signal });
+                        clearTimeout(tid);
+                        if (r.status === 429 || r.status >= 500) {
+                            if (retries > 0) {
+                                await new Promise(res => setTimeout(res, 1200));
+                                return fetchWithRetry(url, retries - 1);
+                            }
+                            return null;
+                        }
+                        if (!r.ok) return null;
+                        return await r.json();
+                    } catch(e) {
+                        clearTimeout(tid);
+                        if (retries > 0 && e.name !== 'AbortError') {
+                            await new Promise(res => setTimeout(res, 800));
+                            return fetchWithRetry(url, retries - 1);
+                        }
+                        return null;
+                    }
+                };
+
+                if (query) {
+                    // Bước 1: Tìm kiếm nhân vật lấy mal_id
+                    const charUrl = `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=1`;
+                    const charData = await fetchWithRetry(charUrl);
+                    if (!charData || !charData.data || charData.data.length === 0) return [];
+                    
+                    const malId = charData.data[0].mal_id;
+                    const charName = charData.data[0].name;
+                    const nicknames = charData.data[0].nicknames || [];
+                    
+                    // Bước 2: Lấy toàn bộ album ảnh của nhân vật đó
+                    const picsUrl = `https://api.jikan.moe/v4/characters/${malId}/pictures`;
+                    const picsData = await fetchWithRetry(picsUrl);
+                    if (!picsData || !picsData.data) return [];
+                    
+                    return picsData.data.map(p => ({
+                        url: p.jpg?.image_url || p.webp?.image_url,
+                        tags: [charName, ...nicknames.slice(0, 2), 'MAL', 'official'].filter(Boolean),
+                        nsfw: false,
+                        src: 'myanimelist'
+                    })).filter(i => i.url);
+                } else {
+                    // Nếu không nhập gì, lấy Top nhân vật phổ biến
+                    const topUrl = `https://api.jikan.moe/v4/top/characters?limit=16&page=${page}`;
+                    const d = await fetchWithRetry(topUrl);
+                    if (!d || !d.data) return [];
+                    return d.data.filter(c => c && c.images && (c.images.jpg?.image_url || c.images.webp?.image_url)).map(c => ({
+                        url: c.images.jpg?.image_url || c.images.webp?.image_url,
+                        tags: [c.name, ...(c.nicknames || []).slice(0, 2), 'MAL', 'official'].filter(Boolean),
+                        nsfw: false,
+                        src: 'myanimelist'
+                    }));
+                }
             },
             tags: ['Marin Kitagawa', 'Rem', 'Zero Two', 'Megumin', 'Shinobu Oshino', 'Kurumi Tokisaki', 'Asuna', 'Mikasa', 'Kaguya Shinomiya', 'Mai Sakurajima', 'Chizuru Mizuhara', 'Albedo', 'Emilia', 'Roxy Migurdia', 'Frieren', 'Maomao', 'Raiden Shogun', 'Hatsune Miku', 'Furina', 'Hu Tao', 'Gawr Gura', 'Kafka', 'Firefly', 'Gojo Satoru', 'Levi Ackerman', 'Luffy', 'Zoro', 'Kakashi', 'Sung Jin-Woo']
+        },
+        'myanimelist_anime': {
+            label: 'MyAnimeList (Anime)',
+            sfw: true, nsfw: false,
+            async fetch(opts = {}) {
+                const query = (opts.tag || '').trim();
+                const page = Math.floor((opts.offset || 0) / 16) + 1;
+                
+                const fetchWithRetry = async (url, retries = 2) => {
+                    const controller = new AbortController();
+                    const tid = setTimeout(() => controller.abort(), 12000);
+                    try {
+                        const r = await fetch(url, { signal: controller.signal });
+                        clearTimeout(tid);
+                        if (r.status === 429 || r.status >= 500) {
+                            if (retries > 0) {
+                                await new Promise(res => setTimeout(res, 1200));
+                                return fetchWithRetry(url, retries - 1);
+                            }
+                            return null;
+                        }
+                        if (!r.ok) return null;
+                        return await r.json();
+                    } catch(e) {
+                        clearTimeout(tid);
+                        if (retries > 0 && e.name !== 'AbortError') {
+                            await new Promise(res => setTimeout(res, 800));
+                            return fetchWithRetry(url, retries - 1);
+                        }
+                        return null;
+                    }
+                };
+
+                if (query) {
+                    // Bước 1: Tìm kiếm anime lấy mal_id
+                    const animeUrl = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=1`;
+                    const animeData = await fetchWithRetry(animeUrl);
+                    if (!animeData || !animeData.data || animeData.data.length === 0) return [];
+                    
+                    const malId = animeData.data[0].mal_id;
+                    const animeTitle = animeData.data[0].title;
+                    
+                    // Bước 2: Lấy toàn bộ nhân vật trong Anime đó
+                    const charsUrl = `https://api.jikan.moe/v4/anime/${malId}/characters`;
+                    const charsData = await fetchWithRetry(charsUrl);
+                    if (!charsData || !charsData.data) return [];
+                    
+                    return charsData.data.map(c => {
+                        const p = c.character;
+                        return {
+                            url: p.images?.jpg?.image_url || p.images?.webp?.image_url,
+                            tags: [p.name, animeTitle, 'MAL Anime', 'official'].filter(Boolean),
+                            nsfw: false,
+                            src: 'myanimelist_anime'
+                        };
+                    }).filter(i => i.url);
+                } else {
+                    // Nếu không nhập gì, lấy Top Anime
+                    const topUrl = `https://api.jikan.moe/v4/top/anime?limit=16&page=${page}`;
+                    const d = await fetchWithRetry(topUrl);
+                    if (!d || !d.data) return [];
+                    return d.data.filter(a => a && a.images && (a.images.jpg?.image_url || a.images.webp?.image_url)).map(a => ({
+                        url: a.images.jpg?.large_image_url || a.images.jpg?.image_url || a.images.webp?.image_url,
+                        tags: [a.title, 'MAL Anime', 'official'].filter(Boolean),
+                        nsfw: false,
+                        src: 'myanimelist_anime'
+                    }));
+                }
+            },
+            tags: ['Genshin Impact', 'Frieren', 'Neon Genesis Evangelion', 'Naruto', 'One Piece', 'Jujutsu Kaisen', 'Sword Art Online', 'Demon Slayer', 'Bleach', 'Attack on Titan', 'Oshi no Ko', 'Re:Zero']
         },
         'otakugifs': {
             label: 'OtakuGIFs',
@@ -3276,13 +3538,48 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         nsfw: false,
         images: [],
         offset: 0,
+        localPage: 0,
+        urlPage: 0,
         loading: false,
         selectedUrl: '',
         targetChar: null
     };
     let imgPickerCallback = null;
 
-    function buildImgPickerModal() {
+    const vnSearchHints = {
+    'rule34':       '🔞 Rule34.xxx: Kho ảnh NSFW (Yêu cầu phải nhập API Key).',
+    'safebooru':    '🌟 Safebooru.org: Kho ảnh an toàn (SFW). Tải qua Proxy để chống Cloudflare chặn.',
+    'yande.re':     '🔞 Yande.re: Kho ảnh chất lượng cao (Cảnh báo: Có chứa ảnh NSFW).',
+    'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
+    'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
+    'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
+    'pic.re':       '🎨 Pic.re High-Res: Kho ảnh nghệ thuật và hình nền chất lượng siêu cao!',
+    'nekos.life':   '📂 Category: waifu, neko, kiss, hug, pat, cuddle, smug...',
+    'nekos.moe':    '🔍 Tag search: blonde_hair, neko, maid, uniform...',
+    'otakugifs':    '📂 Category GIF: hug, pat, kiss, cry, smile, blush...',
+    'nekobot':      '📂 Category: neko, kemonomimi, holo, kanna, food...',
+    'thecatapi':    '🐾 Pet & Beast: Dành cho nhân vật thú cưng, linh thú hoặc avatar đáng yêu!'
+};
+
+function updateVNSearchHint(src) {
+    let hintEl = PD.getElementById('vn-ipm-search-hint');
+    if (!hintEl) {
+        hintEl = PD.createElement('div');
+        hintEl.id = 'vn-ipm-search-hint';
+        hintEl.style.cssText = 'font-size:11px;color:#818cf8;padding:4px 0 2px;line-height:1.5;min-height:18px;';
+        const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
+        // Insert after rule34 auth row if it exists, otherwise after searchtoolbar
+        const authRow = PD.getElementById('vn-ipm-rule34-auth-row');
+        const insertAfterEl = authRow || toolbar;
+        if (insertAfterEl && insertAfterEl.parentNode) {
+            insertAfterEl.parentNode.insertBefore(hintEl, insertAfterEl.nextSibling);
+        }
+    }
+    const hintText = vnSearchHints[src] || '';
+    hintEl.innerHTML = (hintText ? hintText + '<br>' : '') + '<span style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 12 nguồn ảnh anime (Có 2 chế độ MAL cực mạnh hỗ trợ tìm kiếm cực xịn)!</span>';
+}
+
+function buildImgPickerModal() {
         if (PD.getElementById('vn-img-modal-overlay')) return;
         const overlay = PD.createElement('div');
         overlay.id = 'vn-img-modal-overlay';
@@ -3294,9 +3591,13 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <button class="vn-src-nav-btn" id="vn-ipm-scroll-left" title="Cuộn tab sang trái">◄</button>
       <div class="vn-img-src-tabs" id="vn-ipm-srctabs">
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
+        <button class="vn-src-tab" data-src="safebooru">Safebooru</button>
+          <button class="vn-src-tab" data-src="yande.re">Yande.re</button>
+        <button class="vn-src-tab" data-src="rule34">Rule34.xxx</button>
+        <button class="vn-src-tab" data-src="myanimelist">MyAnimeList</button>
+          <button class="vn-src-tab" data-src="myanimelist_anime">MAL (Anime)</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
         <button class="vn-src-tab" data-src="pic.re">Pic.re Art</button>
-        <button class="vn-src-tab" data-src="myanimelist">MyAnimeList DB</button>
         <button class="vn-src-tab" data-src="nekos.life">nekos.life</button>
         <button class="vn-src-tab" data-src="nekos.moe">nekos.moe</button>
         <button class="vn-src-tab" data-src="otakugifs">OtakuGIFs</button>
@@ -3311,7 +3612,27 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <input class="vn-img-search" id="vn-ipm-search" placeholder="Tìm từ khoá / tag..." />
       <select class="vn-img-search" id="vn-ipm-tag" style="max-width:140px;"><option value="">-- Chọn Tag --</option></select>
       <label class="vn-nsfw-toggle"><input type="checkbox" id="vn-ipm-nsfw" /> NSFW</label>
-      <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-fetch">⚡ Tải ảnh</button>
+        <label class="vn-nsfw-toggle" title="Nếu đã cài extension Allow CORS, bật cái này để tắt proxy (Tải siêu tốc)"><input type="checkbox" id="vn-ipm-bypass-cors" /> Direct</label>
+        <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-fetch">⚡ Tải ảnh</button>
+    </div>
+    
+    <div id="vn-ipm-rule34-auth-row" style="display:none;margin-top:10px;background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;border:1px solid rgba(129,140,248,0.3);">
+      <details>
+        <summary style="cursor:pointer; font-size:12px; color:#a78bfa; font-weight:bold; outline:none; user-select:none; margin-bottom: 4px;">
+          ⚙️ Cài đặt Auth Rule34 (Nhấn để thu gọn/mở rộng)
+        </summary>
+        <div style="margin-top: 10px;">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+            <input class="vn-img-search" id="vn-ipm-r34-user" placeholder="User ID" style="width:120px;" />
+            <input class="vn-img-search" type="password" id="vn-ipm-r34-key" placeholder="API Key" style="width:100%;" />
+            <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-r34-save" style="white-space:nowrap;">💾 Lưu Auth</button>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;line-height:1.4;">
+            * Bắt buộc có API Key để tải ảnh từ <b>Rule34.xxx</b>. (Lưu cục bộ trên trình duyệt).<br>
+            * Hướng dẫn: Đăng ký tài khoản tại Rule34.xxx, vào <b>My Account &gt; Options</b> để xem <b>User ID</b> và xin cấp <b>API Key</b>.
+          </div>
+        </div>
+      </details>
     </div>
     <div id="vn-ipm-url-row" style="display:none;margin-top:10px;">
       <div style="display:flex;gap:8px;align-items:center;">
@@ -3320,6 +3641,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       </div>
       <div style="font-size:11px;color:#94a3b8;margin-top:6px;line-height:1.5;">Link ảnh sẽ được kiểm tra tải thử trước khi lưu. Link lỗi sẽ không lưu hoặc tự xoá khỏi <b>Kho Link</b> khi phát hiện lỗi.</div>
     </div>
+
+
     <div id="vn-ipm-local-row" style="display:none;margin-top:10px;">
       <input type="file" id="vn-ipm-fileinput" accept="image/*" multiple style="display:none;" />
       <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-ipm-filebtn" style="width:100%;">📂 Import ảnh từ máy tính vào Kho Local offline</button>
@@ -3351,6 +3674,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 </div>`;
         PD.body.appendChild(overlay);
         setupImgPickerEvents();
+        updateVNSearchHint('nekos.best');
     }
 
     function setupImgPickerEvents() {
@@ -3403,10 +3727,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if ((src === 'local' || src === 'url') && searchEl) searchEl.value = '';
             $('vn-ipm-searchtoolbar').style.display = (src === 'local' || src === 'url') ? 'none' : 'flex';
             $('vn-ipm-url-row').style.display = src === 'url' ? 'block' : 'none';
+            if($('vn-ipm-rule34-auth-row')) $('vn-ipm-rule34-auth-row').style.display = src === 'rule34' ? 'block' : 'none';
             $('vn-ipm-local-row').style.display = src === 'local' ? 'block' : 'none';
             const fullBox = $('vn-ipm-full-preview-box');
             if (fullBox) fullBox.style.display = 'none';
 
+            updateVNSearchHint(src);
             const tagSel = $('vn-ipm-tag');
             const srcDef = API_SOURCES[src];
             tagSel.innerHTML = '<option value="">-- Chọn Tag --</option>';
@@ -3429,6 +3755,37 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (e.target.value !== undefined) fetchImagesForPicker(true);
         });
         $('vn-ipm-fetch').addEventListener('click', () => fetchImagesForPicker(true));
+        
+        const r34SaveBtn = $('vn-ipm-r34-save');
+        if (r34SaveBtn) {
+            const hasKey = !!localStorage.getItem('vn_r34_apikey');
+            const detailsEl = $('vn-ipm-rule34-auth-row').querySelector('details');
+            if (detailsEl && !hasKey) detailsEl.open = true;
+            $('vn-ipm-r34-user').value = localStorage.getItem('vn_r34_userid') || '';
+            $('vn-ipm-r34-key').value = localStorage.getItem('vn_r34_apikey') || '';
+            r34SaveBtn.addEventListener('click', () => {
+                localStorage.setItem('vn_r34_userid', $('vn-ipm-r34-user').value.trim());
+                localStorage.setItem('vn_r34_apikey', $('vn-ipm-r34-key').value.trim());
+                if (window.toastr) toastr.success('Đã lưu thông tin Rule34 API Key!', 'Thành công');
+            });
+        }
+        const nsfwToggle = $('vn-ipm-nsfw');
+        if (nsfwToggle) {
+            nsfwToggle.addEventListener('change', e => {
+                // No longer toggling Rule34 tab
+            });
+        }
+        
+        const bypassToggle = $('vn-ipm-bypass-cors');
+        if (bypassToggle) {
+            bypassToggle.checked = localStorage.getItem('vn_bypass_cors') === 'true';
+            bypassToggle.addEventListener('change', e => {
+                localStorage.setItem('vn_bypass_cors', bypassToggle.checked);
+            });
+        }
+        
+
+
         $('vn-ipm-search').addEventListener('keydown', e => { if (e.key === 'Enter') fetchImagesForPicker(true); });
 
         // Live filter: gõ vào ô search → lọc ngay các thumbnail đã tải
@@ -3637,7 +3994,22 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 src: 'local-import',
                 _library: 'local'
             }));
-            renderImgGrid(items, grid);
+            
+            const pageSize = 24;
+            const totalPages = Math.ceil(items.length / pageSize);
+            if (imgPickerState.localPage >= totalPages) imgPickerState.localPage = Math.max(0, totalPages - 1);
+            
+            const start = imgPickerState.localPage * pageSize;
+            const pageItems = items.slice(start, start + pageSize);
+            
+            renderImgGrid(pageItems, grid);
+            
+            if (totalPages > 1) {
+                renderPagination(grid, imgPickerState.localPage, totalPages, (newPage) => {
+                    imgPickerState.localPage = newPage;
+                    renderLocalLibraryGrid();
+                });
+            }
         } catch (err) {
             console.error('[VN Dialogue] Không đọc được Kho Local:', err);
             grid.innerHTML = `<div class="vn-img-placeholder">Không đọc được Kho Local: ${escapeHtml(err.message || 'Không rõ lỗi')}</div>`;
@@ -3660,7 +4032,55 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             try { filename = decodeURIComponent(new URL(url).pathname.split('/').pop() || 'link image'); } catch (e) { filename = 'link image'; }
             return { url, tags: [filename, 'link đã lưu'], nsfw: false, src: 'url-library', _library: 'url' };
         });
-        renderImgGrid(items, grid);
+        
+        const pageSize = 24;
+        const totalPages = Math.ceil(items.length / pageSize);
+        if (imgPickerState.urlPage >= totalPages) imgPickerState.urlPage = Math.max(0, totalPages - 1);
+        
+        const start = imgPickerState.urlPage * pageSize;
+        const pageItems = items.slice(start, start + pageSize);
+        
+        renderImgGrid(pageItems, grid);
+        
+        if (totalPages > 1) {
+            renderPagination(grid, imgPickerState.urlPage, totalPages, (newPage) => {
+                imgPickerState.urlPage = newPage;
+                renderLinkLibraryGrid();
+            });
+        }
+    }
+
+    function renderPagination(grid, currentPage, totalPages, onPageChange) {
+        const wrap = PD.createElement('div');
+        wrap.className = 'vn-pagination-wrap';
+        wrap.style.cssText = 'width: 100%; display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; padding-bottom: 10px; grid-column: 1 / -1;';
+        
+        const prevBtn = PD.createElement('button');
+        prevBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
+        prevBtn.textContent = '⬅ Trang trước';
+        prevBtn.disabled = currentPage <= 0;
+        if (currentPage <= 0) prevBtn.style.opacity = '0.5';
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 0) onPageChange(currentPage - 1);
+        });
+        
+        const info = PD.createElement('span');
+        info.style.cssText = 'color: #94a3b8; font-size: 13px; font-weight: 500;';
+        info.textContent = `Trang ${currentPage + 1} / ${totalPages}`;
+        
+        const nextBtn = PD.createElement('button');
+        nextBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
+        nextBtn.textContent = 'Trang sau ➡';
+        nextBtn.disabled = currentPage >= totalPages - 1;
+        if (currentPage >= totalPages - 1) nextBtn.style.opacity = '0.5';
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages - 1) onPageChange(currentPage + 1);
+        });
+        
+        wrap.appendChild(prevBtn);
+        wrap.appendChild(info);
+        wrap.appendChild(nextBtn);
+        grid.appendChild(wrap);
     }
 
     function renderFavBar() {
@@ -3706,27 +4126,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         if (reset) { imgPickerState.images = []; imgPickerState.offset = 0; grid.innerHTML = ''; }
 
-        // Hiển thị hint về loại tìm kiếm
-        const searchHints = {
-            'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
-            'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
-            'pic.re':       '🎨 Pic.re High-Res: Kho ảnh nghệ thuật và hình nền chất lượng siêu cao!',
-            'myanimelist':  '✅ MyAnimeList Jikan: Tìm kiếm nhân vật hoặc xem Top Nhân Vật Phổ Biến Nhất!',
-            'nekos.life':   '📂 Category: waifu, neko, kiss, hug, pat, cuddle, smug...',
-            'nekos.moe':    '🔍 Tag search: blonde_hair, neko, maid, uniform...',
-            'otakugifs':    '📂 Category GIF: hug, pat, kiss, cry, smile, blush...',
-            'nekobot':      '📂 Category: neko, kemonomimi, holo, kanna, food...',
-            'thecatapi':    '🐾 Pet & Beast: Dành cho nhân vật thú cưng, linh thú hoặc avatar đáng yêu!'
-        };
-        let hintEl = PD.getElementById('vn-ipm-search-hint');
-        if (!hintEl) {
-            hintEl = PD.createElement('div');
-            hintEl.id = 'vn-ipm-search-hint';
-            hintEl.style.cssText = 'font-size:11px;color:#818cf8;padding:4px 0 2px;line-height:1.5;min-height:18px;';
-            const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
-            if (toolbar && toolbar.parentNode) toolbar.parentNode.insertBefore(hintEl, toolbar.nextSibling);
-        }
-        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có tổng cộng 9 nguồn ảnh anime free siêu mượt (bao gồm nekos.best + 8 kho chuẩn GraphQL/CORS)!</div>';
+        
 
         const skels = [];
         for (let i = 0; i < 12; i++) {
@@ -3742,7 +4142,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (!apiSrc) throw new Error('Unknown source');
             const tag = PD.getElementById('vn-ipm-search') ? PD.getElementById('vn-ipm-search').value.trim() : '';
             const nsfw = PD.getElementById('vn-ipm-nsfw') ? PD.getElementById('vn-ipm-nsfw').checked : false;
-            const results = await apiSrc.fetch({ tag, nsfw, count: 12, offset: imgPickerState.offset });
+            const bypassCors = PD.getElementById('vn-ipm-bypass-cors') ? PD.getElementById('vn-ipm-bypass-cors').checked : false;
+            const results = await apiSrc.fetch({ tag, nsfw, bypassCors, count: 12, offset: imgPickerState.offset });
             skels.forEach(s => s.remove());
             imgPickerState.offset += results.length;
 
@@ -3790,16 +4191,28 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             img.src = resolveImageSrc(item.thumb || item.url, VN_BLANK_IMG);
             if (isLocalImageRef(item.url)) hydrateLocalImageEl(img, item.url);
             img.loading = 'lazy';
+            img.referrerPolicy = 'no-referrer';
             img.alt = (item.tags || []).join(',');
             cell.title = (item.tags || []).join(' • ');
             img.onerror = () => {
-                cell.style.display = 'none';
+                // Chỉ ẩn ảnh lỗi nếu đang dùng thumb, thử fallback sang url gốc trước
+                if (img.src !== item.url && item.url && img.src !== resolveImageSrc(item.url, VN_BLANK_IMG)) {
+                    img.src = resolveImageSrc(item.url, VN_BLANK_IMG);
+                    return;
+                }
+                // Nếu là kho thư viện thì ẩn và xử lý
                 if (item._library === 'url') {
+                    cell.style.display = 'none';
                     const removed = removeUrlFromLibrary(item.url);
                     if (removed) {
                         showToast('Đã xoá 1 link ảnh lỗi khỏi Kho Link.', 'warning', 3500);
                         scheduleLinkLibraryRefresh();
                     }
+                } else if (item._library === 'local') {
+                    cell.style.display = 'none';
+                } else {
+                    // Xoá hoàn toàn ảnh lỗi khỏi grid để không làm hỏng giao diện (VD: link 404)
+                    cell.remove();
                 }
             };
             img.addEventListener('click', () => selectImage(item.url));
@@ -4408,6 +4821,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:trash.svg?color=%23cbd5e1" class="vn-icon">Dọn dẹp Cache</button>
         <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:zap.svg?color=%23fbbf24" class="vn-icon">Test hiệu năng (200)</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;">
+        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-local" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:folder-x.svg?color=%23f87171" class="vn-icon">Xoá sạch Kho Local</button>
+        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-link" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:link-2-off.svg?color=%23f87171" class="vn-icon">Xoá sạch Kho Link</button>
       </div>
       <button class="vn-btn vn-btn-secondary" id="vn-export-cfg"><img src="https://api.iconify.design/lucide:download.svg?color=%23cbd5e1" class="vn-icon">Sao lưu cấu hình ra file JSON (Export)</button>
       <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn"><img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">Nhập cấu hình từ file JSON (Import)</button>
@@ -5533,6 +5950,30 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 showToast(`🧹 Đã dọn dẹp bộ nhớ đệm (${count} ảnh cache)!`, 'success');
             });
         }
+        
+        const btnClearLocal = $('vn-btn-clear-local');
+        if (btnClearLocal) {
+            btnClearLocal.addEventListener('click', async () => {
+                if (!confirm('CẢNH BÁO: Bạn có chắc chắn muốn xoá sạch toàn bộ ảnh đã import trong Kho Local? Hành động này không thể hoàn tác!')) return;
+                try {
+                    await clearVNImageDB();
+                    showToast('Đã dọn dẹp sạch Kho Local!', 'success');
+                } catch (e) {
+                    showToast('Lỗi khi xoá Kho Local', 'error');
+                }
+            });
+        }
+
+        const btnClearLink = $('vn-btn-clear-link');
+        if (btnClearLink) {
+            btnClearLink.addEventListener('click', () => {
+                if (!confirm('CẢNH BÁO: Bạn có chắc chắn muốn xoá toàn bộ danh sách link ảnh đã lưu trong Kho Link?')) return;
+                CFG.linkLibrary = [];
+                saveConfig(CFG);
+                showToast('Đã dọn dẹp sạch Kho Link!', 'success');
+            });
+        }
+
         const btnTestPerf = $('vn-btn-test-perf');
         if (btnTestPerf) {
             btnTestPerf.addEventListener('click', () => {

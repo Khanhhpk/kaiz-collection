@@ -254,7 +254,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.6.0.0';
+const KAIZ_CURRENT_VERSION = '2.6.5.0';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -639,21 +639,20 @@ function showKaizPatchNotes(targetWin) {
                 </div>
                 <div>
                     <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v${KAIZ_CURRENT_VERSION}</div>
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Cuộc Cách Mạng AI Agency Cho Preset Editor!</div>
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Cải Tiến Đột Phá Cho Hệ Thống Chọn Ảnh (Visual Novel)!</div>
                 </div>
             </div>
             <button id="kaiz_btn_close_patch_notes_top" style="background: none; border: none; color: #64748b; font-size: 1.2em; cursor: pointer; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
             Chào mừng bạn đến với bản đại cập nhật <b>v${KAIZ_CURRENT_VERSION}</b> của <b>KAIZ Collection</b>!<br><br>
-            Bản nâng cấp lần này đánh dấu một bước đột phá mang tính lịch sử: <b>Preset Editor (ST Multitool)</b> chính thức được tích hợp hệ thống <b>AI Agency tự chủ cao nhất</b>, biến AI thành một kỹ sư hệ thống thực thụ giúp bạn tối ưu hóa mọi Preset!<br><br>
+            Bản cập nhật v2.6.5.0 mang tới <b>12 kho ảnh</b> khổng lồ cho hệ sinh thái <b>Visual Novel</b>, nổi bật với hệ thống xác thực trực tiếp và cải tiến UI linh hoạt, giúp bạn tha hồ "lấy ảnh anime/NSFW" ngay trong ứng dụng!<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
                 <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new in v${KAIZ_CURRENT_VERSION}?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square; display: flex; flex-direction: column; gap: 10px;">
-                    <li><b style="color: #38bdf8;">🤖 AI Agency (Preset & Regex):</b> Khởi chạy bộ máy Agentic Loop tự chủ cấp cao cho cả Preset Editor và Regex Manager. AI tự động phân tích cấu trúc, đề xuất và thực thi hàng loạt thay đổi, chuẩn hóa mã Regex và cấu trúc Prompt mà không cần hỏi lại từng bước!</li>
-                    <li><b style="color: #34d399;">🛡️ Bảo Vệ Toàn Vẹn Cấu Trúc (Zero Tokenization):</b> AI làm việc trực tiếp với cú pháp gốc (<code style="color:#f8fafc;background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">&#123;&#123;user&#125;&#125;</code>, <code style="color:#f8fafc;background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:4px;">&#123;&#123;char&#125;&#125;</code>...) với độ chính xác 100%, loại bỏ hoàn toàn rủi ro hỏng biến hay biến dạng macro.</li>
-                    <li><b style="color: #f59e0b;">⚡ Tự Động Gỡ Lỗi & Sandbox (Self-Correction & Sandbox):</b> Mọi thay đổi Regex/Preset đều được thực thi trong môi trường Sandbox an toàn. AI tự đọc lỗi Regex, tự gỡ lỗi (Self-Correction) và gom nhóm thay đổi (Batch) để tối ưu Token và hiệu suất!</li>
-                    <li><b style="color: #a855f7;">📐 Tối Ưu Bố Cục UI (Responsive UI):</b> Cải tiến giao diện thanh điều hướng Extensions, tự động sắp xếp lưới mượt mà. Đặc biệt, fix lỗi co rút và đè chữ trong danh sách Regex khi thu hẹp trình duyệt.</li>
+                    <li><b style="color: #38bdf8;">🌟 Mở Rộng 3 Nguồn Ảnh Mới:</b> Tích hợp thêm nguồn ảnh <b style="color:#fff;">Yande.re</b> (Kho ảnh HQ với bộ lọc NSFW) và <b style="color:#fff;">Rule34.xxx</b> (Kho NSFW với Form xác thực API Key riêng biệt cực kỳ bảo mật).</li>
+                    <li><b style="color: #34d399;">⚙️ Hệ Thống UI Auth (Rule34):</b> Tự động hóa quá trình xác thực Rule34. Form nhập User ID và API Key hiện ra trực quan, lưu an toàn vào LocalStorage, có thể đóng mở gọn gàng giúp thoáng màn hình.</li>
+                    <li><b style="color: #a855f7;">🎨 Trải Nghiệm & UI Visual Novel:</b> Các dòng ghi chú/mẹo sử dụng tự động biến đổi động mượt mà khi đổi qua lại giữa 12 nguồn ảnh, không cần bấm tải ảnh!</li>
                 </ul>
             </div>
         </div>
@@ -1109,7 +1108,7 @@ waitForEnvironment(async (targetWin, jq) => {
     
     // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.5.0.0)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.6.0.0') {
+        if (KAIZ_CURRENT_VERSION === '2.6.5.0') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);
