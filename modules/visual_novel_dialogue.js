@@ -57,6 +57,7 @@
         autoAssignAvatar: false,
         autoAssignByCharName: false,
         charNameSources: ['safebooru'],
+        charNamePrompt: '[QUY TẮC GẮN TÊN NHÂN VẬT ĐẦY ĐỦ (TỰ ĐỘNG GÁN ẢNH)]\nKhi một nhân vật xuất hiện hoặc có lời thoại/suy nghĩ, bạn PHẢI ghi tên đầy đủ (Full name) của nhân vật đó vào bên trong thẻ tên, ví dụ: @Hatsune Miku@, @Kamado Tanjirou@...\nTUYỆT ĐỐI KHÔNG dùng tên viết tắt hay biệt danh. Quy tắc này giúp hệ thống tự động tìm kiếm và gán ảnh chính xác cho nhân vật!',
         dynamicContextImages: false,
         customRegex: '',
         cleanPatterns: '', // Để trống = giữ nguyên theo regex, không tự xóa
@@ -4805,7 +4806,16 @@ function buildImgPickerModal() {
       <textarea class="vn-input vn-textarea" id="vn-dynamic-prompt-text" rows="6" style="border-color:rgba(236,72,153,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
       <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Sử dụng macro <code style="background:rgba(236,72,153,0.2);color:#f472b6;padding:1px 5px;border-radius:4px;">{{charTagsList}}</code> để tự động chèn danh sách nhãn cảm xúc/ngữ cảnh hiện có của các nhân vật. Các phần còn lại là prompt bình thường hướng dẫn AI cách viết thẻ tên kèm nhãn.</div>
     </div>
-    <div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
+    
+    <div class="vn-group" id="vn-char-name-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.3);border-radius:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="vn-section-label" style="color:#818cf8;margin:0;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Prompt Tự động gán ảnh theo Tên (Full name)</div>
+        <span id="vn-char-name-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
+      </div>
+      <textarea class="vn-input vn-textarea" id="vn-char-name-prompt-text" rows="5" style="border-color:rgba(129,140,248,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Prompt này sẽ yêu cầu AI xuất Full Name của nhân vật, giúp tìm kiếm ảnh chính xác hơn.</div>
+    </div>
+<div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div class="vn-section-label" style="color:#f43f5e;margin:0;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%23f43f5e" class="vn-icon">Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
         <span id="vn-gender-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
@@ -5690,6 +5700,7 @@ function buildImgPickerModal() {
         $('vn-prompt-save').addEventListener('click', () => {
             if ($('vn-prompt-text')) CFG.customPrompt = $('vn-prompt-text').value;
             if ($('vn-gender-prompt-text')) CFG.genderPrompt = $('vn-gender-prompt-text').value;
+            if ($('vn-char-name-prompt-text')) CFG.charNamePrompt = $('vn-char-name-prompt-text').value;
             if ($('vn-dynamic-prompt-text')) CFG.dynamicPrompt = $('vn-dynamic-prompt-text').value;
             saveConfig(CFG);
             doInjectSystemPrompt();
@@ -5699,6 +5710,7 @@ function buildImgPickerModal() {
             if (!confirm('Khôi phục prompt hướng dẫn & cấu hình bơm về mặc định?')) return;
             CFG.customPrompt = DEFAULT_CONFIG.customPrompt;
             CFG.genderPrompt = DEFAULT_CONFIG.genderPrompt;
+            CFG.charNamePrompt = DEFAULT_CONFIG.charNamePrompt;
             CFG.dynamicPrompt = DEFAULT_CONFIG.dynamicPrompt;
             CFG.wrapRuleBlock = DEFAULT_CONFIG.wrapRuleBlock;
             CFG.injectTarget = DEFAULT_CONFIG.injectTarget;
@@ -5706,6 +5718,7 @@ function buildImgPickerModal() {
             CFG.injectDepth = DEFAULT_CONFIG.injectDepth;
             if ($('vn-prompt-text')) $('vn-prompt-text').value = CFG.customPrompt;
             if ($('vn-gender-prompt-text')) $('vn-gender-prompt-text').value = CFG.genderPrompt;
+            if ($('vn-char-name-prompt-text')) $('vn-char-name-prompt-text').value = CFG.charNamePrompt;
             if ($('vn-dynamic-prompt-text')) $('vn-dynamic-prompt-text').value = CFG.dynamicPrompt;
             if ($('vn-toggle-wrap-rule')) $('vn-toggle-wrap-rule').checked = CFG.wrapRuleBlock;
             if ($('vn-inject-target')) $('vn-inject-target').value = CFG.injectTarget;
