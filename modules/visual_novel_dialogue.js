@@ -3584,15 +3584,22 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     </div>
     
     <div id="vn-ipm-rule34-auth-row" style="display:none;margin-top:10px;background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;border:1px solid rgba(129,140,248,0.3);">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
-        <input class="vn-img-search" id="vn-ipm-r34-user" placeholder="User ID" style="width:120px;" />
-        <input class="vn-img-search" type="password" id="vn-ipm-r34-key" placeholder="API Key" style="width:100%;" />
-        <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-r34-save" style="white-space:nowrap;">💾 Lưu Auth</button>
-      </div>
-      <div style="font-size:11px;color:#94a3b8;line-height:1.4;">
-        * Bắt buộc có API Key để tải ảnh từ <b>Rule34.xxx</b>. (Lưu cục bộ trên trình duyệt).<br>
-        * Hướng dẫn: Đăng ký tài khoản tại Rule34.xxx, vào <b>My Account &gt; Options</b> để xem <b>User ID</b> và xin cấp <b>API Key</b>.
-      </div>
+      <details>
+        <summary style="cursor:pointer; font-size:12px; color:#a78bfa; font-weight:bold; outline:none; user-select:none; margin-bottom: 4px;">
+          ⚙️ Cài đặt Auth Rule34 (Nhấn để thu gọn/mở rộng)
+        </summary>
+        <div style="margin-top: 10px;">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+            <input class="vn-img-search" id="vn-ipm-r34-user" placeholder="User ID" style="width:120px;" />
+            <input class="vn-img-search" type="password" id="vn-ipm-r34-key" placeholder="API Key" style="width:100%;" />
+            <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-r34-save" style="white-space:nowrap;">💾 Lưu Auth</button>
+          </div>
+          <div style="font-size:11px;color:#94a3b8;line-height:1.4;">
+            * Bắt buộc có API Key để tải ảnh từ <b>Rule34.xxx</b>. (Lưu cục bộ trên trình duyệt).<br>
+            * Hướng dẫn: Đăng ký tài khoản tại Rule34.xxx, vào <b>My Account &gt; Options</b> để xem <b>User ID</b> và xin cấp <b>API Key</b>.
+          </div>
+        </div>
+      </details>
     </div>
     <div id="vn-ipm-url-row" style="display:none;margin-top:10px;">
       <div style="display:flex;gap:8px;align-items:center;">
@@ -3716,6 +3723,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         
         const r34SaveBtn = $('vn-ipm-r34-save');
         if (r34SaveBtn) {
+            const hasKey = !!localStorage.getItem('vn_r34_apikey');
+            const detailsEl = $('vn-ipm-rule34-auth-row').querySelector('details');
+            if (detailsEl && !hasKey) detailsEl.open = true;
             $('vn-ipm-r34-user').value = localStorage.getItem('vn_r34_userid') || '';
             $('vn-ipm-r34-key').value = localStorage.getItem('vn_r34_apikey') || '';
             r34SaveBtn.addEventListener('click', () => {
