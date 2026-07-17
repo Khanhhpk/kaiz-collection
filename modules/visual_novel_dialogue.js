@@ -3465,7 +3465,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         <button class="vn-src-tab active" data-src="nekos.best">nekos.best</button>
         <button class="vn-src-tab" data-src="safebooru">Safebooru</button>
         <button class="vn-src-tab" data-src="myanimelist">MyAnimeList</button>
-`n          <button class="vn-src-tab" data-src="myanimelist_anime">MAL (Anime)</button>
+          <button class="vn-src-tab" data-src="myanimelist_anime">MAL (Anime)</button>
         <button class="vn-src-tab" data-src="anilist">AniList DB</button>
         <button class="vn-src-tab" data-src="pic.re">Pic.re Art</button>
         <button class="vn-src-tab" data-src="nekos.life">nekos.life</button>
