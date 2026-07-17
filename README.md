@@ -149,8 +149,10 @@ kaiz-collection/
 ├── README.md           # Tài liệu hướng dẫn
 └── modules/            # Thư mục chứa mã nguồn JS đã tách sạch từ JSON
     ├── phone_core.js
-    ├── app_weather.js
-    ├── app_wechat.js
+    ├── phone_apps/
+    │   ├── app_weather.js
+    │   ├── app_wechat.js
+    │   └── ... (20+ app scripts)
     ... (và vô vàn file module JS khác :>)
 ```
 
