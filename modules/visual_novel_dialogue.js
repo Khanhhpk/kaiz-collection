@@ -2120,7 +2120,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             label: 'Safebooru (SFW)',
             sfw: true, nsfw: false,
             async fetch(opts = {}) {
-                let tags = (opts.tag || '').trim().replace(/ /g, '_');
+                let tags = (opts.tag || '').trim();
                 const searchTags = tags ? encodeURIComponent(tags) : '';
                 const limit = opts.count || 20;
                 const pid = Math.floor((opts.offset || 0) / limit); // safebooru.org uses pid, 0-indexed
