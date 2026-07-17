@@ -2093,9 +2093,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
     // ========== NGUỒN ANIME API FREE SIÊU MƯỢT ==========
     // Fetch trực tiếp cho các API có CORS sẵn (Danbooru, Jikan, AniList...)
-    async function directApiFetch(url) {
+    async function directApiFetch(url, timeoutMs = 12000) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000);
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         try {
             const r = await fetch(url, { signal: controller.signal });
             clearTimeout(timeoutId);
@@ -2128,32 +2128,42 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 let tags = (opts.tag || '').trim().replace(/ /g, '_');
                 const searchTags = tags ? encodeURIComponent(tags) : '';
                 const limit = opts.count || 20;
-                const page = Math.floor((opts.offset || 0) / limit) + 1;
-                let url = 'https://safebooru.donmai.us/posts.json?tags=' + searchTags + '&limit=' + limit + '&page=' + page;
-                if (opts.auth && opts.auth.login && opts.auth.apiKey) {
-                    url += '&login=' + encodeURIComponent(opts.auth.login) + '&api_key=' + encodeURIComponent(opts.auth.apiKey);
-                }
+                const pid = Math.floor((opts.offset || 0) / limit); // safebooru.org uses pid, 0-indexed
+                
+                // Tránh cache của proxy bằng timestamp
+                const cacheBust = Date.now();
+                const targetUrl = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${searchTags}&limit=${limit}&pid=${pid}&_=${cacheBust}`;
+                
+                const proxies = [
+                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+                ];
+                
                 try {
-                    const data = await directApiFetch(url);
+                    let data = null;
+                    for (const proxyUrl of proxies) {
+                        try {
+                            data = await directApiFetch(proxyUrl, 6000); // Đợi tối đa 6s mỗi proxy
+                            if (data && Array.isArray(data)) break;
+                        } catch(err) {}
+                    }
                     if (!data || !Array.isArray(data)) return [];
+                    
                     return data.map(item => {
-                        let thumbUrl = item.preview_file_url;
-                        let fullUrl = item.large_file_url || item.file_url;
-                        if (item.media_asset && item.media_asset.variants) {
-                            const thumbVariant = item.media_asset.variants.find(v => v.type === '360x360' || v.type === '180x180');
-                            if (thumbVariant) thumbUrl = thumbVariant.url;
-                            const fullVariant = item.media_asset.variants.find(v => v.type === 'sample' || v.type === 'original');
-                            if (fullVariant) fullUrl = fullVariant.url;
-                        }
+                        const fullUrl = item.file_url || (`https://safebooru.org/images/${item.directory}/${item.image}`);
+                        const thumbUrl = item.preview_url || (`https://safebooru.org/thumbnails/${item.directory}/thumbnail_${item.image}`);
+                        if (!fullUrl || !thumbUrl) return null;
                         return {
                             url: fullUrl,
                             thumb: thumbUrl,
-                            tags: item.tag_string_character ? item.tag_string_character.split(' ') : [],
+                            tags: item.tags ? item.tags.split(' ') : [],
                             source: 'Safebooru'
                         };
-                    }).filter(i => i.url && i.thumb);
+                    }).filter(i => i && i.url && i.thumb);
                 } catch (e) {
                     console.error('Safebooru Error:', e);
+                    if (window.toastr) toastr.error('Safebooru: Lỗi kết nối Proxy.', 'Lỗi Nguồn');
                     return [];
                 }
             }
@@ -3521,7 +3531,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             $('vn-ipm-searchtoolbar').style.display = (src === 'local' || src === 'url') ? 'none' : 'flex';
             $('vn-ipm-url-row').style.display = src === 'url' ? 'block' : 'none';
             const authRow = $('vn-ipm-auth-row');
-            if(authRow) authRow.style.display = (src === 'safebooru' || src === 'danbooru') ? 'flex' : 'none';
+            if(authRow) authRow.style.display = (src === 'danbooru') ? 'flex' : 'none';
             $('vn-ipm-local-row').style.display = src === 'local' ? 'block' : 'none';
             const fullBox = $('vn-ipm-full-preview-box');
             if (fullBox) fullBox.style.display = 'none';
@@ -3911,7 +3921,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         // Hiển thị hint về loại tìm kiếm
         const searchHints = {
-            'safebooru':    '🌟 Safebooru (Cần API Key): Nhập Username và API Key của Danbooru để vượt rate-limit Cloudflare.',
+            'safebooru':    '🌟 Safebooru.org: Kho ảnh an toàn (SFW). Tải qua Proxy để chống Cloudflare chặn.',
             'danbooru':     '🌟 Danbooru (Cần API Key): Kho ảnh lớn nhất. Nhập Auth để vượt Cloudflare. Hỗ trợ SFW/NSFW.',
             'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
             'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
