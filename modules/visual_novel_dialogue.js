@@ -4968,6 +4968,29 @@ function buildImgPickerModal() {
         PD.querySelectorAll('.vn-auto-reg-toggle, #vn-toggle-autoreg, #vn-toggle-autoreg-char').forEach(el => { el.checked = CFG.autoRegisterChars !== false; });
         if (togAutoAssign) togAutoAssign.checked = !!CFG.autoAssignAvatar;
         if (togAutoAssignSet) togAutoAssignSet.checked = !!CFG.autoAssignAvatar;
+        const togAutoAssignNameQuick = PD.getElementById('vn-toggle-auto-assign-name-quick');
+        if (togAutoAssignNameQuick) togAutoAssignNameQuick.checked = CFG.autoAssignByCharName;
+
+        const cbList = PD.querySelectorAll('.vn-char-name-source-cb');
+        cbList.forEach(cb => {
+            cb.checked = (CFG.charNameSources || []).includes(cb.value);
+        });
+
+        const cnpt = PD.getElementById('vn-char-name-prompt-text');
+        if (cnpt) cnpt.value = CFG.charNamePrompt || DEFAULT_CONFIG.charNamePrompt || '';
+        const cnStatus = PD.getElementById('vn-char-name-prompt-status');
+        if (cnStatus) {
+            if (CFG.autoAssignByCharName) {
+                cnStatus.textContent = '⚡ ĐANG KÍCH HOẠT (TIÊM KÈM)';
+                cnStatus.style.background = 'rgba(129,140,248,0.2)';
+                cnStatus.style.color = '#818cf8';
+            } else {
+                cnStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)';
+                cnStatus.style.background = 'rgba(148,163,184,0.2)';
+                cnStatus.style.color = '#94a3b8';
+            }
+        }
+
         if (togAutoAssignPrompt) togAutoAssignPrompt.checked = !!CFG.autoAssignAvatar;
 
         const togDyn = PD.getElementById('vn-toggle-dynamic-context');
