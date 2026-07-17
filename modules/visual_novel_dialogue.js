@@ -85,21 +85,21 @@ Bạn PHẢI tuân thủ TUYỆT ĐỐI quy tắc định dạng dưới đây c
 
 [MẪU VÍ DỤ CHUẨN - HÃY TUÂN THỦ]:
 Trời bắt đầu chuyển mưa lất phất, không khí lạnh dần.
-@Kazumi@ "Thôi nào, mặc nhanh chiếc áo khoác này vào đi."
-Kazumi nhẹ nhàng khoác chiếc áo lên vai anh, ánh mắt lộ rõ vẻ quan tâm.
-@Itsuki@ *Sao cô ấy lại tốt với mình đến vậy chứ...*
-@Itsuki@ "Cảm ơn em nhiều nhé, Kazumi."`,
+@Hoshino Yue@ "Thôi nào, mặc nhanh chiếc áo khoác này vào đi."
+Hoshino Yue nhẹ nhàng khoác chiếc áo lên vai anh, ánh mắt lộ rõ vẻ quan tâm.
+@Itsuki Natsume@ *Sao cô ấy lại tốt với mình đến vậy chứ...*
+@Itsuki Natsume@ "Cảm ơn em nhiều nhé, Hoshino Yue."`,
         genderPrompt: `[QUY TẮC NHẬN DIỆN GIỚI TÍNH NHÂN VẬT MỚI (TỰ ĐỘNG GÁN ẢNH)]
 Khi một nhân vật xuất hiện hoặc có lời thoại/suy nghĩ, bạn PHẢI ghi kèm giới tính vào bên trong thẻ tên theo định dạng chuẩn:
-- Nhân vật nữ: @TênNhânVật(Nữ)@ hoặc @TênNhânVật(Waifu)@ (ví dụ: @Kazumi(Nữ)@, @Elena(Waifu)@)
-- Nhân vật nam: @TênNhânVật(Nam)@ hoặc @TênNhânVật(Husbando)@ (ví dụ: @Itsuki(Nam)@, @Arthur(Husbando)@)
+- Nhân vật nữ: @TênNhânVật(Nữ)@ hoặc @TênNhânVật(Waifu)@ (ví dụ: @Hoshino Yue(Nữ)@, @Elena(Waifu)@)
+- Nhân vật nam: @TênNhânVật(Nam)@ hoặc @TênNhânVật(Husbando)@ (ví dụ: @Itsuki Natsume(Nam)@, @Arthur(Husbando)@)
 Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đại diện anime Waifu/Husbando phù hợp cho nhân vật!`,
         dynamicPrompt: `[QUY TẮC GẮN NHÃN ẢNH NGỮ CẢNH ĐỘNG (DYNAMIC CONTEXT IMAGES)]
 Hiện tại, các nhân vật có danh sách nhãn cảm xúc/ngữ cảnh sau đây:
 {{charTagsList}}
 
 Khi nhân vật có lời thoại hoặc suy nghĩ, nếu ngữ cảnh hoặc cảm xúc khớp với một trong các nhãn trên, bạn HÃY viết kèm tên nhãn vào trong thẻ tên nhân vật theo định dạng: @TênNhânVật [TênNhãn]@ (hoặc có thêm giới tính nếu cần).
-Ví dụ: @Kazumi [Ăn kem]@ "Món kem này ngon quá đi mất!" hoặc @Kazumi [buồn]@ *Sao anh ấy lại nói vậy với mình chứ...*
+Ví dụ: @Hoshino Yue [Ăn kem]@ "Món kem này ngon quá đi mất!" hoặc @Hoshino Yue [buồn]@ *Sao anh ấy lại nói vậy với mình chứ...*
 Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân vật ở trạng thái bình thường, hãy chỉ ghi tên nhân vật như bình thường.`,
         inchatImgPos: 'top', // top | bottom
         inchatImgMode: 'normal', // normal | always_full
@@ -2740,15 +2740,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     .replace(/\{\{dynamic_tags\}\}/gi, charTagsList.trim())
                     .replace(/\{\{danh_sach_nhan\}\}/gi, charTagsList.trim())
                     .replace(/\{\{tagFormatExample\}\}/gi, getDynamicTagFormatExample('TênNhânVật', 'TênNhãn'))
-                    .replace(/\{\{example1\}\}/gi, getDynamicTagFormatExample('Kazumi', 'Ăn kem'))
-                    .replace(/\{\{example2\}\}/gi, getDynamicTagFormatExample('Kazumi', 'buồn'));
+                    .replace(/\{\{example1\}\}/gi, getDynamicTagFormatExample('Hoshino Yue', 'Ăn kem'))
+                    .replace(/\{\{example2\}\}/gi, getDynamicTagFormatExample('Hoshino Yue', 'buồn'));
 
                 // Nếu dùng mẫu mặc định (@TênNhânVật [TênNhãn]@), tự động chuyển theo regexMode hiện tại
                 if ((CFG.dynamicPrompt || '').trim() === DEFAULT_CONFIG.dynamicPrompt.trim() || !CFG.dynamicPrompt) {
                     dynPrompt = dynPrompt
                         .replace(/@TênNhânVật \[TênNhãn\]@/g, getDynamicTagFormatExample('TênNhânVật', 'TênNhãn'))
-                        .replace(/@Kazumi \[Ăn kem\]@/g, getDynamicTagFormatExample('Kazumi', 'Ăn kem'))
-                        .replace(/@Kazumi \[buồn\]@/g, getDynamicTagFormatExample('Kazumi', 'buồn'));
+                        .replace(/@Hoshino Yue \[Ăn kem\]@/g, getDynamicTagFormatExample('Hoshino Yue', 'Ăn kem'))
+                        .replace(/@Hoshino Yue \[buồn\]@/g, getDynamicTagFormatExample('Hoshino Yue', 'buồn'));
                 }
 
                 const checkHeader = dynPrompt.split('\n')[0].trim();
@@ -2970,7 +2970,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
         }
 
-        // 3. Nếu vẫn còn ngoặc tròn (...), kiểm tra xem có phải là Tag trong ngoặc tròn không (ví dụ Kazumi (Ăn kem))
+        // 3. Nếu vẫn còn ngoặc tròn (...), kiểm tra xem có phải là Tag trong ngoặc tròn không (ví dụ Hoshino Yue (Ăn kem))
         if (!tag) {
             const parenMatch = name.match(TAG_PAREN_RE);
             if (parenMatch) {
@@ -4462,7 +4462,7 @@ function buildImgPickerModal() {
       <div id="vn-add-char-wrap" style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:14px;">
         <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:user-plus.svg?color=%23818cf8" class="vn-icon">Thêm nhanh nhân vật mới</div>
         <div style="display:flex;gap:8px;">
-          <input class="vn-input" id="vn-new-char-name" placeholder="Tên nhân vật (Ví dụ: Kazumi, Itsuki...)" style="flex:1;" />
+          <input class="vn-input" id="vn-new-char-name" placeholder="Tên nhân vật (Ví dụ: Hoshino Yue, Itsuki Natsume...)" style="flex:1;" />
           <button class="vn-btn vn-btn-primary" id="vn-new-char-add"><img src="https://api.iconify.design/lucide:plus.svg?color=white" class="vn-icon">Thêm</button>
         </div>
       </div>
@@ -4976,6 +4976,9 @@ function buildImgPickerModal() {
         if (togAutoAssignSet) togAutoAssignSet.checked = !!CFG.autoAssignAvatar;
         PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = CFG.autoAssignByCharName; });
 
+        const sourcesWrap = PD.getElementById('vn-char-name-sources-wrap');
+        if (sourcesWrap) sourcesWrap.style.display = CFG.autoAssignByCharName ? 'block' : 'none';
+        
         const cbList = PD.querySelectorAll('.vn-char-name-source-cb');
         cbList.forEach(cb => {
             cb.checked = (CFG.charNameSources || []).includes(cb.value);
@@ -6185,7 +6188,7 @@ function buildImgPickerModal() {
                 mockContainer.style.visibility = 'hidden';
                 PD.body.appendChild(mockContainer);
 
-                const sampleNames = ['Kazumi', 'Itsuki', 'Sakura', 'Akira', 'Yuki', 'Hana', 'Ren', 'Sora', 'Mei', 'Hiro'];
+                const sampleNames = ['Hoshino Yue', 'Itsuki Natsume', 'Sakura', 'Akira', 'Yuki', 'Hana', 'Ren', 'Sora', 'Mei', 'Hiro'];
                 for (let i = 0; i < 200; i++) {
                     const mes = PD.createElement('div');
                     mes.className = 'mes';
