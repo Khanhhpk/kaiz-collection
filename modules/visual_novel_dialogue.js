@@ -3546,7 +3546,40 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     };
     let imgPickerCallback = null;
 
-    function buildImgPickerModal() {
+    const vnSearchHints = {
+    'rule34':       '🔞 Rule34.xxx: Kho ảnh NSFW (Yêu cầu phải nhập API Key).',
+    'safebooru':    '🌟 Safebooru.org: Kho ảnh an toàn (SFW). Tải qua Proxy để chống Cloudflare chặn.',
+    'yande.re':     '🔞 Yande.re: Kho ảnh chất lượng cao (Cảnh báo: Có chứa ảnh NSFW).',
+    'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
+    'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
+    'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
+    'pic.re':       '🎨 Pic.re High-Res: Kho ảnh nghệ thuật và hình nền chất lượng siêu cao!',
+    'nekos.life':   '📂 Category: waifu, neko, kiss, hug, pat, cuddle, smug...',
+    'nekos.moe':    '🔍 Tag search: blonde_hair, neko, maid, uniform...',
+    'otakugifs':    '📂 Category GIF: hug, pat, kiss, cry, smile, blush...',
+    'nekobot':      '📂 Category: neko, kemonomimi, holo, kanna, food...',
+    'thecatapi':    '🐾 Pet & Beast: Dành cho nhân vật thú cưng, linh thú hoặc avatar đáng yêu!'
+};
+
+function updateVNSearchHint(src) {
+    let hintEl = PD.getElementById('vn-ipm-search-hint');
+    if (!hintEl) {
+        hintEl = PD.createElement('div');
+        hintEl.id = 'vn-ipm-search-hint';
+        hintEl.style.cssText = 'font-size:11px;color:#818cf8;padding:4px 0 2px;line-height:1.5;min-height:18px;';
+        const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
+        // Insert after rule34 auth row if it exists, otherwise after searchtoolbar
+        const authRow = PD.getElementById('vn-ipm-rule34-auth-row');
+        const insertAfterEl = authRow || toolbar;
+        if (insertAfterEl && insertAfterEl.parentNode) {
+            insertAfterEl.parentNode.insertBefore(hintEl, insertAfterEl.nextSibling);
+        }
+    }
+    const hintText = vnSearchHints[src] || '';
+    hintEl.innerHTML = (hintText ? hintText + '<br>' : '') + '<span style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 12 nguồn ảnh anime (Có 2 chế độ MAL cực mạnh hỗ trợ tìm kiếm cực xịn)!</span>';
+}
+
+function buildImgPickerModal() {
         if (PD.getElementById('vn-img-modal-overlay')) return;
         const overlay = PD.createElement('div');
         overlay.id = 'vn-img-modal-overlay';
@@ -3641,6 +3674,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 </div>`;
         PD.body.appendChild(overlay);
         setupImgPickerEvents();
+        updateVNSearchHint('nekos.best');
     }
 
     function setupImgPickerEvents() {
@@ -3698,6 +3732,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             const fullBox = $('vn-ipm-full-preview-box');
             if (fullBox) fullBox.style.display = 'none';
 
+            updateVNSearchHint(src);
             const tagSel = $('vn-ipm-tag');
             const srcDef = API_SOURCES[src];
             tagSel.innerHTML = '<option value="">-- Chọn Tag --</option>';
@@ -4091,30 +4126,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
         if (reset) { imgPickerState.images = []; imgPickerState.offset = 0; grid.innerHTML = ''; }
 
-        // Hiển thị hint về loại tìm kiếm
-        const searchHints = {
-            'rule34':       '🔞 Rule34.xxx: Kho ảnh NSFW (Yêu cầu phải nhập API Key).',
-            'safebooru':    '🌟 Safebooru.org: Kho ảnh an toàn (SFW). Tải qua Proxy để chống Cloudflare chặn.',
-            'yande.re':     '🔞 Yande.re: Kho ảnh chất lượng cao (Cảnh báo: Có chứa ảnh NSFW).',
-            'myanimelist':  '✅ MyAnimeList Jikan (Advanced): Tìm kiếm nhân vật (VD: miku) → Tải TOÀN BỘ album ảnh của họ từ MAL!',
-            'nekos.best':   '🌟 nekos.best: Kho ảnh waifu, neko, kitsune và ảnh động reaction anime chất lượng cao!',
-            'anilist':      '🌟 AniList GraphQL: Tìm kiếm tên nhân vật (Rem, Frieren, Miku...) hoặc để trống xem Top Yêu Thích!',
-            'pic.re':       '🎨 Pic.re High-Res: Kho ảnh nghệ thuật và hình nền chất lượng siêu cao!',
-            'nekos.life':   '📂 Category: waifu, neko, kiss, hug, pat, cuddle, smug...',
-            'nekos.moe':    '🔍 Tag search: blonde_hair, neko, maid, uniform...',
-            'otakugifs':    '📂 Category GIF: hug, pat, kiss, cry, smile, blush...',
-            'nekobot':      '📂 Category: neko, kemonomimi, holo, kanna, food...',
-            'thecatapi':    '🐾 Pet & Beast: Dành cho nhân vật thú cưng, linh thú hoặc avatar đáng yêu!'
-        };
-        let hintEl = PD.getElementById('vn-ipm-search-hint');
-        if (!hintEl) {
-            hintEl = PD.createElement('div');
-            hintEl.id = 'vn-ipm-search-hint';
-            hintEl.style.cssText = 'font-size:11px;color:#818cf8;padding:4px 0 2px;line-height:1.5;min-height:18px;';
-            const toolbar = PD.getElementById('vn-ipm-searchtoolbar');
-            if (toolbar && toolbar.parentNode) toolbar.parentNode.insertBefore(hintEl, toolbar.nextSibling);
-        }
-        hintEl.innerHTML = (searchHints[src] || '') + '<div style="color:#64748b;font-size:10.5px;margin-top:2px;">💡 Đã có 12 nguồn ảnh anime (Có 2 chế độ MAL cực mạnh hỗ trợ tìm kiếm cực xịn)!</div>';
+        
 
         const skels = [];
         for (let i = 0; i < 12; i++) {
