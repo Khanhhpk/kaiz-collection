@@ -4442,7 +4442,15 @@ function buildImgPickerModal() {
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign" /><span class="vn-slider"></span></label>
       </div>
-      <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.1);">
+      
+      <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(129,140,248,0.4);background:rgba(129,140,248,0.1);">
+        <div class="vn-toggle-info">
+          <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tự động gán ảnh theo Tên nhân vật (Full name)</div>
+          <div class="vn-toggle-desc">Tự động lấy ảnh từ Safebooru/Rule34/Yande.re/AniList (sẽ tắt gán theo giới tính)</div>
+        </div>
+        <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-name-quick" class="vn-auto-assign-name-toggle" /><span class="vn-slider"></span></label>
+      </div>
+<div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.1);">
         <div class="vn-toggle-info">
           <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Bật tính năng Ảnh ngữ cảnh động (Dynamic Context Images)</div>
           <div class="vn-toggle-desc">Bơm danh sách nhãn ảnh vào prompt để AI tự động gắn thẻ và hiển thị ảnh theo cảm xúc/ngữ cảnh truyện (Ăn kem, buồn, vui...)</div>
@@ -4781,7 +4789,10 @@ function buildImgPickerModal() {
     <div id="vn-char-name-sources-wrap" style="display:none; margin-bottom:14px; padding:12px; background:rgba(129,140,248,0.06); border:1px solid rgba(129,140,248,0.3); border-radius:12px;">
       <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:8px;"><img src="https://api.iconify.design/lucide:check-square.svg?color=%23818cf8" class="vn-icon">Chọn nguồn lấy ảnh ngẫu nhiên:</div>
       <div style="display:flex; flex-direction:column; gap:6px;" id="vn-char-name-sources-list">
-        <!-- populated dynamically -->
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="safebooru">Safebooru (SFW)</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="yande.re">Yande.re (NSFW)</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="rule34">Rule34.xxx</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="anilist">AniList DB</label>
       </div>
     </div>
     <div class="vn-toggle-row" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);margin-bottom:8px;">
@@ -5412,8 +5423,14 @@ function buildImgPickerModal() {
             CFG.autoAssignAvatar = checked;
             if (checked && CFG.autoAssignByCharName) {
                 CFG.autoAssignByCharName = false;
-                if ($('vn-toggle-auto-assign-name')) $('vn-toggle-auto-assign-name').checked = false;
+                PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = false; });
                 if ($('vn-char-name-sources-wrap')) $('vn-char-name-sources-wrap').style.display = 'none';
+                const cnStatus = $('vn-char-name-prompt-status');
+                if (cnStatus) {
+                    cnStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)';
+                    cnStatus.style.background = 'rgba(148,163,184,0.2)';
+                    cnStatus.style.color = '#94a3b8';
+                }
             }
             saveConfig(CFG);
             doInjectSystemPrompt();
@@ -5444,16 +5461,45 @@ function buildImgPickerModal() {
                 CFG.autoAssignAvatar = false;
                 if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').checked = false;
                 if ($('vn-toggle-auto-assign-set')) $('vn-toggle-auto-assign-set').checked = false;
+                if ($('vn-toggle-auto-assign')) $('vn-toggle-auto-assign').checked = false;
                 const gStatus = $('vn-gender-prompt-status');
                 if (gStatus) { gStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)'; gStatus.style.background = 'rgba(148,163,184,0.2)'; gStatus.style.color = '#94a3b8'; }
             }
             saveConfig(CFG);
             doInjectSystemPrompt();
-            if ($('vn-toggle-auto-assign-name')) $('vn-toggle-auto-assign-name').checked = checked;
+            PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = checked; });
             if ($('vn-char-name-sources-wrap')) $('vn-char-name-sources-wrap').style.display = checked ? 'block' : 'none';
+            
+            const cnStatus = $('vn-char-name-prompt-status');
+            if (cnStatus) {
+                if (checked) {
+                    cnStatus.textContent = '⚡ ĐANG KÍCH HOẠT (TIÊM KÈM)';
+                    cnStatus.style.background = 'rgba(129,140,248,0.2)';
+                    cnStatus.style.color = '#818cf8';
+                } else {
+                    cnStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)';
+                    cnStatus.style.background = 'rgba(148,163,184,0.2)';
+                    cnStatus.style.color = '#94a3b8';
+                }
+            }
             showToast(checked ? '🌸 Đã bật tự động gán ảnh theo Tên nhân vật!' : 'Đã tắt tự động gán ảnh theo Tên', 'info');
         };
-        if ($('vn-toggle-auto-assign-name')) $('vn-toggle-auto-assign-name').addEventListener('change', e => handleAutoAssignNameChange(e.target.checked));
+        PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => {
+            el.addEventListener('change', e => handleAutoAssignNameChange(e.target.checked));
+        });
+        PD.querySelectorAll('.vn-char-name-source-cb').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                if (!CFG.charNameSources) CFG.charNameSources = [];
+                const val = e.target.value;
+                if (e.target.checked) {
+                    if (!CFG.charNameSources.includes(val)) CFG.charNameSources.push(val);
+                } else {
+                    CFG.charNameSources = CFG.charNameSources.filter(x => x !== val);
+                }
+                saveConfig(CFG);
+            });
+        });
+
 
 
         const handleDynamicContextChange = (checked) => {
