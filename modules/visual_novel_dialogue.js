@@ -2134,7 +2134,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 const cacheBust = Date.now();
                 const targetUrl = `https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&tags=${searchTags}&limit=${limit}&pid=${pid}&_=${cacheBust}`;
                 
-                const proxies = [
+                const proxies = opts.bypassCors ? [ targetUrl ] : [
                     `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
                     `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
                     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
@@ -3431,7 +3431,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
       <input class="vn-img-search" id="vn-ipm-search" placeholder="Tìm từ khoá / tag..." />
       <select class="vn-img-search" id="vn-ipm-tag" style="max-width:140px;"><option value="">-- Chọn Tag --</option></select>
       <label class="vn-nsfw-toggle"><input type="checkbox" id="vn-ipm-nsfw" /> NSFW</label>
-      <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-fetch">⚡ Tải ảnh</button>
+        <label class="vn-nsfw-toggle" title="Nếu đã cài extension Allow CORS, bật cái này để tắt proxy (Tải siêu tốc)"><input type="checkbox" id="vn-ipm-bypass-cors" /> Direct</label>
+        <button class="vn-btn vn-btn-primary vn-btn-sm" id="vn-ipm-fetch">⚡ Tải ảnh</button>
     </div>
     <div id="vn-ipm-url-row" style="display:none;margin-top:10px;">
       <div style="display:flex;gap:8px;align-items:center;">
@@ -3562,6 +3563,14 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         if (nsfwToggle) {
             nsfwToggle.addEventListener('change', e => {
                 // No longer toggling Rule34 tab
+            });
+        }
+        
+        const bypassToggle = $('vn-ipm-bypass-cors');
+        if (bypassToggle) {
+            bypassToggle.checked = localStorage.getItem('vn_bypass_cors') === 'true';
+            bypassToggle.addEventListener('change', e => {
+                localStorage.setItem('vn_bypass_cors', bypassToggle.checked);
             });
         }
         
@@ -3957,9 +3966,10 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             if (!apiSrc) throw new Error('Unknown source');
             const tag = PD.getElementById('vn-ipm-search') ? PD.getElementById('vn-ipm-search').value.trim() : '';
             const nsfw = PD.getElementById('vn-ipm-nsfw') ? PD.getElementById('vn-ipm-nsfw').checked : false;
+            const bypassCors = PD.getElementById('vn-ipm-bypass-cors') ? PD.getElementById('vn-ipm-bypass-cors').checked : false;
             const danbooruLogin = localStorage.getItem('vn_danbooru_login') || '';
             const danbooruApiKey = localStorage.getItem('vn_danbooru_apikey') || '';
-            const results = await apiSrc.fetch({ tag, nsfw, count: 12, offset: imgPickerState.offset, auth: { login: danbooruLogin, apiKey: danbooruApiKey } });
+            const results = await apiSrc.fetch({ tag, nsfw, bypassCors, count: 12, offset: imgPickerState.offset, auth: { login: danbooruLogin, apiKey: danbooruApiKey } });
             skels.forEach(s => s.remove());
             imgPickerState.offset += results.length;
 
