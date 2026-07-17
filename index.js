@@ -226,6 +226,7 @@ function getPhoneConfig() {
         if (saved) {
             const parsed = JSON.parse(saved);
             if (parsed.auto_check_update === undefined) parsed.auto_check_update = true;
+            if (parsed.optimize_phone_ram === undefined) parsed.optimize_phone_ram = false;
             return parsed;
         }
     } catch (e) {
@@ -234,7 +235,8 @@ function getPhoneConfig() {
     return {
         enabled: true,
         disabled_modules: [],
-        auto_check_update: true
+        auto_check_update: true,
+        optimize_phone_ram: false
     };
 }
 
@@ -827,6 +829,19 @@ function renderExtensionSettings(targetWin, jq) {
                                 ${config.auto_check_update !== false ? 'Đang Bật' : 'Đã Tắt'}
                             </span>
                         </label>
+
+                    <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-size: 0.84em; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-rocket" style="color: #f59e0b;"></i>
+                            <span>Tối ưu hóa RAM (Trì hoãn tải Ứng dụng điện thoại để giảm giật lag khởi động):</span>
+                        </span>
+                        <label class="checkbox_label" style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.35); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="kaiz_optimize_ram_cb" ${config.optimize_phone_ram === true ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer; accent-color: #f59e0b;">
+                            <span id="kaiz_optimize_ram_status" style="font-weight: 700; font-size: 0.84em; color: ${config.optimize_phone_ram === true ? '#f59e0b' : '#94a3b8'};">
+                                ${config.optimize_phone_ram === true ? 'Đang Bật' : 'Đã Tắt'}
+                            </span>
+                        </label>
+                    </div>
                     </div>
                 </div>
 
@@ -1070,6 +1085,19 @@ function renderExtensionSettings(targetWin, jq) {
             }
             savePhoneConfig(config);
         });
+
+    const optimizeRamCb = doc.getElementById('kaiz_optimize_ram_cb');
+    if (optimizeRamCb) {
+        optimizeRamCb.addEventListener('change', (e) => {
+            config.optimize_phone_ram = e.target.checked;
+            const statusText = doc.getElementById('kaiz_optimize_ram_status');
+            if (statusText) {
+                statusText.textContent = e.target.checked ? 'Đang Bật' : 'Đã Tắt';
+                statusText.style.color = e.target.checked ? '#f59e0b' : '#94a3b8';
+            }
+            savePhoneConfig(config);
+        });
+    }
     }
 
     const silentF12Cb = doc.getElementById('kaiz_silent_f12_cb');
@@ -1155,8 +1183,8 @@ waitForEnvironment(async (targetWin, jq) => {
     }));
 
     // Bước 2: Nạp song song toàn bộ Phone Apps & Utilities
-    const otherModules = [...PHONE_APPS, ...UTILITY_MODULES];
-    await Promise.all(otherModules.map(async (app) => {
+    // Bước 2: Nạp UTILITY_MODULES
+    await Promise.all(UTILITY_MODULES.map(async (app) => {
         if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
             console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
             skipCount++;
@@ -1166,6 +1194,28 @@ waitForEnvironment(async (targetWin, jq) => {
         if (ok) successCount++; else failCount++;
     }));
 
+    // Bước 3: Nạp PHONE_APPS (Hỗ trợ Smart Delay Load)
+    const loadPhoneAppsLogic = async () => {
+        await Promise.all(PHONE_APPS.map(async (app) => {
+            if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
+                console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
+                return;
+            }
+            const ok = await safeImport(app.path, app.name);
+            if (ok) successCount++; else failCount++;
+        }));
+    };
+
+    if (config.optimize_phone_ram) {
+        console.log(`[KAIZ Collection] 🚀 Bật chế độ Tối ưu RAM: Trì hoãn nạp Phone Apps 5 giây...`);
+        setTimeout(() => {
+            loadPhoneAppsLogic().then(() => {
+                console.log(`[KAIZ Collection] 🚀 Đã hoàn tất nạp Phone Apps sau khi Delay.`);
+            });
+        }, 5000);
+    } else {
+        await loadPhoneAppsLogic();
+    }
     console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
 });
 
