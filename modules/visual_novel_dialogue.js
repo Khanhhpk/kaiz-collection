@@ -2092,7 +2092,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     // ========== NGUỒN ANIME API FREE SIÊU MƯỢT ==========
-    // Fetch trực tiếp cho các API có CORS sẵn (Danbooru, Jikan, AniList...)
+    // Fetch trực tiếp cho các API có CORS sẵn (Jikan, AniList...)
     async function directApiFetch(url, timeoutMs = 12000) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -2105,11 +2105,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
                         if (!r.ok) {
                 console.warn(`Fetch error for ${url}: ${r.status}`);
-                if (r.status === 401 && url.includes('donmai.us') && window.toastr) {
-                    toastr.error('Lỗi 401: Username hoặc API Key Danbooru không chính xác!', 'Lỗi Xác Thực Danbooru', {timeOut: 8000});
-                } else if ((r.status === 403 || r.status === 422) && url.includes('donmai.us') && window.toastr) {
-                    toastr.error('Lỗi ' + r.status + ': Danbooru từ chối yêu cầu. (Tài khoản thường bị giới hạn tối đa 2 tag. Hãy bật NSFW để tắt bộ lọc tag ẩn!)', 'Lỗi Danbooru API', {timeOut: 8000});
-                }
                 return null;
             }
             return await r.json();
@@ -3976,7 +3971,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 } else if (item._library === 'local') {
                     cell.style.display = 'none';
                 } else {
-                    // Xoá hoàn toàn ảnh lỗi khỏi grid để không làm hỏng giao diện (VD: link 404 từ Danbooru)
+                    // Xoá hoàn toàn ảnh lỗi khỏi grid để không làm hỏng giao diện (VD: link 404)
                     cell.remove();
                 }
             };
