@@ -2121,6 +2121,9 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             sfw: false, nsfw: true,
             async fetch(opts = {}) {
                 let tags = (opts.tag || '').trim();
+                if (!opts.nsfw) {
+                    tags = tags ? (tags + ' rating:safe') : 'rating:safe';
+                }
                 const searchTags = tags ? encodeURIComponent(tags) : '';
                 const limit = opts.count || 20;
                 const page = Math.floor((opts.offset || 0) / limit) + 1; // yande.re uses page, 1-indexed
