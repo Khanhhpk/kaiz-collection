@@ -751,12 +751,12 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
     }
 
     let CFG_RAW = loadConfig();
-    let CFG = createDeepProxy(CFG_RAW, () => {
-        // Direct call to localStorage to avoid recursive proxy issues with saveConfig
+    const vnSaveCallback = () => {
         try {
             localStorage.setItem(STORE_KEY, JSON.stringify(CFG));
         } catch(e){}
-    });
+    };
+    let CFG = createDeepProxy(CFG_RAW, vnSaveCallback);
 
 
     function updateSizingVars() {
@@ -6142,7 +6142,7 @@ function buildImgPickerModal() {
             reader.onload = ev => {
                 try {
                     const parsed = JSON.parse(ev.target.result);
-                    CFG = normalizeConfig(parsed);
+                    CFG = createDeepProxy(normalizeConfig(parsed), vnSaveCallback); vnSaveCallback();
                     migrateLegacyDataUrlImagesToIndexedDB();
                     refreshMainModal();
                     forceReRenderAll();
@@ -6155,7 +6155,7 @@ function buildImgPickerModal() {
             if (!confirm('CẢNH BÁO: Xoá toàn bộ danh sách nhân vật, ảnh yêu thích, Kho Link, Kho Local và khôi phục cài đặt gốc?')) return;
             localStorage.removeItem(STORE_KEY);
             clearVNImageDB();
-            CFG = getDefaultConfig();
+            CFG = createDeepProxy(getDefaultConfig(), vnSaveCallback); vnSaveCallback();
             refreshMainModal();
             forceReRenderAll();
             showToast('Đã khôi phục toàn bộ về cài đặt gốc', 'info');
