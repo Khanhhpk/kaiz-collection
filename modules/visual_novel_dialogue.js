@@ -536,8 +536,29 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
         if (!el || !isLocalImageRef(ref)) return;
         el.dataset.vnLocalRef = ref;
         getLocalImageObjectUrl(ref).then(objectUrl => {
-            if (el.dataset.vnLocalRef === ref || el.dataset.origSrc === ref) el.src = objectUrl;
-        }).catch(() => { if (el.classList) el.classList.add('vn-local-img-missing'); });
+            if (el.dataset.vnLocalRef === ref || el.dataset.origSrc === ref) {
+                const removeSkel = () => {
+                    const skel = el.parentElement && el.parentElement.querySelector('.vn-img-skeleton');
+                    if (skel) skel.remove();
+                };
+                el.src = objectUrl;
+                if (el.complete) removeSkel();
+                else {
+                    el.addEventListener('load', function onImgLoad() {
+                        removeSkel();
+                        el.removeEventListener('load', onImgLoad);
+                    });
+                    el.addEventListener('error', function onImgErr() {
+                        removeSkel();
+                        el.removeEventListener('error', onImgErr);
+                    });
+                }
+            }
+        }).catch(() => {
+            if (el.classList) el.classList.add('vn-local-img-missing');
+            const skel = el.parentElement && el.parentElement.querySelector('.vn-img-skeleton');
+            if (skel) skel.remove();
+        });
     }
 
     function clearVNImageDB() {
@@ -634,7 +655,6 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
                 }
             }
             if (changed) {
-                saveConfig(CFG);
                 renderCharGrid && renderCharGrid();
                 forceReRenderAll && forceReRenderAll();
                 showToast('Đã chuyển ảnh Local cũ từ localStorage sang IndexedDB.', 'success', 4000);
@@ -717,7 +737,48 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
         }
     }
 
-    let CFG = loadConfig();
+    
+    function createDeepProxy(target, callback) {
+        if (typeof target !== 'object' || target === null) return target;
+        // Automatically wrap all children
+        for (let key in target) {
+            if (Object.prototype.hasOwnProperty.call(target, key)) {
+                target[key] = createDeepProxy(target[key], callback);
+            }
+        }
+        return new Proxy(target, {
+            set(obj, prop, value) {
+                // If it's array length, we don't necessarily want to trigger save, but it's fine.
+                obj[prop] = createDeepProxy(value, callback);
+                // We use a microtask or debounce to prevent excessive saving
+                if (typeof window.vnSaveDebounce === 'undefined') {
+                    window.vnSaveDebounce = null;
+                }
+                clearTimeout(window.vnSaveDebounce);
+                window.vnSaveDebounce = setTimeout(() => {
+                    callback();
+                }, 100);
+                return true;
+            },
+            deleteProperty(obj, prop) {
+                delete obj[prop];
+                clearTimeout(window.vnSaveDebounce);
+                window.vnSaveDebounce = setTimeout(() => {
+                    callback();
+                }, 100);
+                return true;
+            }
+        });
+    }
+
+    let CFG_RAW = loadConfig();
+    const vnSaveCallback = () => {
+        try {
+            localStorage.setItem(STORE_KEY, JSON.stringify(CFG));
+        } catch(e){}
+    };
+    let CFG = createDeepProxy(CFG_RAW, vnSaveCallback);
+
 
     function updateSizingVars() {
         if (!PD || !PD.documentElement) return;
@@ -3025,7 +3086,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 const chosenUrl = results[randIdx].url;
                 if (chosenUrl && CFG.characters[cleanName] && !CFG.characters[cleanName].avatar) {
                     CFG.characters[cleanName].avatar = chosenUrl;
-                    saveConfig(CFG);
                     const countEl = PD.getElementById('vn-char-count');
                     if (countEl) countEl.textContent = Object.keys(CFG.characters).length;
                     if (PD.getElementById('vn-char-grid')) {
@@ -3065,7 +3125,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                 if (chosenUrl && CFG.characters[cleanName] && !CFG.characters[cleanName].avatar) {
                     CFG.characters[cleanName].avatar = chosenUrl;
                     CFG.characters[cleanName].gender = gender || 'waifu';
-                    saveConfig(CFG);
                     const countEl = PD.getElementById('vn-char-count');
                     if (countEl) countEl.textContent = Object.keys(CFG.characters).length;
                     if (PD.getElementById('vn-char-grid')) {
@@ -3106,7 +3165,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         const charObj = getCharCfg(cleanName);
         if (!charObj) {
             CFG.characters[cleanName] = { avatar: '', color: getNameColor(cleanName), gender: gender || 'waifu' };
-            saveConfig(CFG);
             const countEl = PD.getElementById('vn-char-count');
             if (countEl) countEl.textContent = Object.keys(CFG.characters).length;
             showToast(`✨ Phát hiện nhân vật mới: "${cleanName}"${gender ? ` (${gender === 'husbando' ? 'Nam / Husbando ⚔️' : 'Nữ / Waifu 🌸'})` : ''}`, 'success', 3000);
@@ -3127,7 +3185,6 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             } else if (CFG.autoAssignByCharName && !charObj.avatar) {
                 autoAssignAvatarByName(cleanName);
             } else if (changed) {
-                saveConfig(CFG);
             }
             return false;
         }
@@ -3386,6 +3443,54 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     const ITALIC_STYLE_RE = /font-style\s*:\s*italic/i;
     const EMPTY_P_BR_RE = /<p>\s*(?:<br\s*\/?>)?\s*<\/p>/gi;
 
+
+    const VN_WORKER_CODE = `
+    self.onmessage = function(e) {
+        const { id, htmls, regexString, spanStyleReString } = e.data;
+        const re = new RegExp(regexString, 'gm');
+        const spanRe = new RegExp(spanStyleReString, 'i');
+        const results = htmls.map(raw => {
+            let tokens = [];
+            let lastIndex = 0;
+            re.lastIndex = 0;
+            let match;
+            while ((match = re.exec(raw)) !== null) {
+                if (match.index > lastIndex) {
+                    tokens.push({ type: 'text', content: raw.slice(lastIndex, match.index) });
+                }
+                tokens.push({
+                    type: 'dialogue',
+                    match: match[0],
+                    g1: match[1], g2: match[2], g3: match[3], g4: match[4], g5: match[5], g6: match[6], g7: match[7],
+                    spanStyle: (match[0].match(spanRe) || [])[1] || ''
+                });
+                lastIndex = re.lastIndex;
+            }
+            if (lastIndex < raw.length) {
+                tokens.push({ type: 'text', content: raw.slice(lastIndex) });
+            }
+            return tokens;
+        });
+        self.postMessage({ id, results });
+    };
+    `;
+    let vnWorker = null;
+    let vnWorkerMsgId = 0;
+    const vnWorkerCallbacks = {};
+    try {
+        const blob = new Blob([VN_WORKER_CODE], { type: 'application/javascript' });
+        vnWorker = new Worker(URL.createObjectURL(blob));
+        vnWorker.onmessage = function(e) {
+            const { id, results } = e.data;
+            if (vnWorkerCallbacks[id]) {
+                vnWorkerCallbacks[id](results);
+                delete vnWorkerCallbacks[id];
+            }
+        };
+    } catch(err) {
+        console.warn('[VN Dialogue] Không thể tạo Web Worker, sẽ fallback về Main Thread.', err);
+    }
+
     function processMessage(mesEl, isStreaming = false) {
         const textEl = mesEl.querySelector('.mes_text');
         if (!textEl) return;
@@ -3398,6 +3503,14 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
 
         const hasBlock = textEl.querySelector('.vn-block') !== null;
+        if (!hasBlock) {
+            mesEl._vnMutateCount = 0;
+        } else {
+            mesEl._vnMutateCount = (mesEl._vnMutateCount || 0) + 1;
+            if (mesEl._vnMutateCount > 5) {
+                return;
+            }
+        }
         let raw = (textEl.innerHTML || '').normalize('NFC');
         const needsVersionRerender = hasBlock && mesEl.dataset.vnVersion !== SCRIPT_VERSION && !!mesEl.dataset.vnOriginalHtml && !actuallyStreaming;
         if (needsVersionRerender) {
@@ -3970,7 +4083,6 @@ function buildImgPickerModal() {
         if (!safe) return '';
         const list = Array.isArray(CFG.linkLibrary) ? CFG.linkLibrary : (CFG.linkLibrary = []);
         CFG.linkLibrary = [safe, ...list.filter(u => u !== safe)].slice(0, 500);
-        saveConfig(CFG);
         return safe;
     }
 
@@ -3983,7 +4095,6 @@ function buildImgPickerModal() {
         if (changed) {
             CFG.linkLibrary = next;
             if (Array.isArray(CFG.favourites)) CFG.favourites = CFG.favourites.filter(u => normalizeUrlLibraryEntry(u) !== safe);
-            saveConfig(CFG);
         }
         return changed;
     }
@@ -4084,7 +4195,6 @@ function buildImgPickerModal() {
         if (!grid) return;
         const urls = (Array.isArray(CFG.linkLibrary) ? CFG.linkLibrary : []).map(normalizeUrlLibraryEntry).filter(Boolean);
         CFG.linkLibrary = [...new Set(urls)];
-        saveConfig(CFG);
         grid.innerHTML = '';
         if (!CFG.linkLibrary.length) {
             grid.innerHTML = '<div class="vn-img-placeholder">Kho Link đang trống. Dán link ảnh phía trên rồi nhấn “➕ Lưu link”.</div>';
@@ -4171,7 +4281,6 @@ function buildImgPickerModal() {
             img.addEventListener('contextmenu', e => {
                 e.preventDefault();
                 CFG.favourites = CFG.favourites.filter(u => u !== url);
-                saveConfig(CFG);
                 renderFavBar();
                 showToast('Đã bỏ ghim ảnh khỏi yêu thích', 'info');
             });
@@ -4296,7 +4405,6 @@ function buildImgPickerModal() {
                     favBtn.classList.add('starred');
                     showToast('Đã ghim vào yêu thích ⭐', 'success');
                 }
-                saveConfig(CFG);
                 renderFavBar();
             });
 
@@ -4310,7 +4418,6 @@ function buildImgPickerModal() {
                     e.stopPropagation();
                     if (item._library === 'url') {
                         CFG.linkLibrary = (Array.isArray(CFG.linkLibrary) ? CFG.linkLibrary : []).filter(u => u !== item.url);
-                        saveConfig(CFG);
                         renderLinkLibraryGrid();
                         showToast('Đã xoá link khỏi Kho Link', 'info');
                     } else if (item._library === 'local') {
@@ -5120,7 +5227,6 @@ function buildImgPickerModal() {
                 if (!confirm(`Bạn có chắc muốn xoá nhân vật "${name}"?`)) return;
                 delete CFG.characters[name];
                 _selectedChars.delete(name);
-                saveConfig(CFG);
                 renderCharGrid();
                 closeCharDetail();
                 forceReRenderAll();
@@ -5375,19 +5481,16 @@ function buildImgPickerModal() {
 
         $('vn-toggle-main').addEventListener('change', e => {
             CFG.enabled = e.target.checked;
-            saveConfig(CFG);
             setupObserver();
             setupPromptInjection();
             showToast(CFG.enabled ? 'Đã bật script Visual Novel ✓' : 'Đã tắt script Visual Novel', 'info');
         });
         $('vn-toggle-render').addEventListener('change', e => {
             CFG.renderMode = e.target.checked;
-            saveConfig(CFG);
             if (CFG.renderMode) forceReRenderAll();
         });
         $('vn-toggle-inject').addEventListener('change', e => {
             CFG.promptInjection = e.target.checked;
-            saveConfig(CFG);
             setupPromptInjection();
             showToast(CFG.promptInjection ? 'Đã bật tiêm Prompt hướng dẫn VN Dialogue ✓' : 'Đã tắt tiêm Prompt hướng dẫn VN Dialogue', 'info');
         });
@@ -5395,7 +5498,6 @@ function buildImgPickerModal() {
         if (togWrap) {
             togWrap.addEventListener('change', e => {
                 CFG.wrapRuleBlock = e.target.checked;
-                saveConfig(CFG);
                 showToast(CFG.wrapRuleBlock ? '📦 Đã bật bọc khối luật bằng marker cũ <!-- vn_dialogue_format_marker -->' : 'Đã tắt bọc thẻ khối luật', 'info');
             });
         }
@@ -5405,7 +5507,6 @@ function buildImgPickerModal() {
             injTarget.addEventListener('change', e => {
                 CFG.injectTarget = e.target.value;
                 if (depthWrap) depthWrap.style.display = CFG.injectTarget === 'in_chat' ? 'block' : 'none';
-                saveConfig(CFG);
                 showToast(`📍 Đã đổi vị trí bơm: ${e.target.options[e.target.selectedIndex].text}`, 'success');
             });
         }
@@ -5413,7 +5514,6 @@ function buildImgPickerModal() {
         if (injRole) {
             injRole.addEventListener('change', e => {
                 CFG.injectRole = e.target.value;
-                saveConfig(CFG);
                 showToast(`👤 Đã đổi vai trò bơm: ${e.target.options[e.target.selectedIndex].text}`, 'success');
             });
         }
@@ -5421,13 +5521,11 @@ function buildImgPickerModal() {
         if (injDepth) {
             injDepth.addEventListener('change', e => {
                 CFG.injectDepth = parseInt(e.target.value, 10) || 0;
-                saveConfig(CFG);
                 showToast(`🔢 Đã đặt độ sâu bơm: Depth ${CFG.injectDepth}`, 'info');
             });
         }
         const handleAutoRegChange = (checked) => {
             CFG.autoRegisterChars = checked;
-            saveConfig(CFG);
             PD.querySelectorAll('.vn-auto-reg-toggle, #vn-toggle-autoreg, #vn-toggle-autoreg-char').forEach(el => { el.checked = checked; });
             forceReRenderAll();
             showToast(CFG.autoRegisterChars !== false ? 'Đã bật tự động bắt thẻ nhân vật mới' : 'Đã tắt tự động tạo thẻ (chỉ hiển thị theo danh sách)', 'info');
@@ -5448,7 +5546,6 @@ function buildImgPickerModal() {
                     cnStatus.style.color = '#94a3b8';
                 }
             }
-            saveConfig(CFG);
             doInjectSystemPrompt();
             if ($('vn-toggle-auto-assign')) $('vn-toggle-auto-assign').checked = checked;
                         if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').checked = checked;
@@ -5478,7 +5575,6 @@ function buildImgPickerModal() {
                 const gStatus = $('vn-gender-prompt-status');
                 if (gStatus) { gStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)'; gStatus.style.background = 'rgba(148,163,184,0.2)'; gStatus.style.color = '#94a3b8'; }
             }
-            saveConfig(CFG);
             doInjectSystemPrompt();
             PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = checked; });
             if ($('vn-char-name-sources-wrap')) $('vn-char-name-sources-wrap').style.display = checked ? 'block' : 'none';
@@ -5509,7 +5605,6 @@ function buildImgPickerModal() {
                 } else {
                     CFG.charNameSources = CFG.charNameSources.filter(x => x !== val);
                 }
-                saveConfig(CFG);
             });
         });
         const cnfcInput = PD.getElementById('vn-char-name-fetch-count');
@@ -5520,7 +5615,6 @@ function buildImgPickerModal() {
                 if (val > 100) val = 100;
                 CFG.charNameFetchCount = val;
                 e.target.value = val;
-                saveConfig(CFG);
             });
         }
 
@@ -5528,7 +5622,6 @@ function buildImgPickerModal() {
 
         const handleDynamicContextChange = (checked) => {
             CFG.dynamicContextImages = checked;
-            saveConfig(CFG);
             doInjectSystemPrompt();
             if ($('vn-toggle-dynamic-context')) $('vn-toggle-dynamic-context').checked = checked;
             if ($('vn-toggle-dynamic-context-prompt')) $('vn-toggle-dynamic-context-prompt').checked = checked;
@@ -5557,7 +5650,6 @@ function buildImgPickerModal() {
                 PD.querySelectorAll('#vn-tab-style .vn-style-opt').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
                 CFG.displayStyle = btn.dataset.style;
-                saveConfig(CFG);
                 forceReRenderAll();
                 showToast(`Đã chọn style: ${btn.querySelector('.vn-style-name').textContent}`, 'success');
             });
@@ -5570,7 +5662,6 @@ function buildImgPickerModal() {
                 CFG.regexMode = btn.dataset.regex;
                 const customWrap = PD.getElementById('vn-custom-regex-wrap');
                 if (customWrap) customWrap.style.display = CFG.regexMode === 'custom' ? 'block' : 'none';
-                saveConfig(CFG);
                 forceReRenderAll();
                 showToast(`Đã đổi cú pháp Regex: ${btn.querySelector('.vn-style-name').textContent}`, 'success');
             });
@@ -5579,7 +5670,6 @@ function buildImgPickerModal() {
         if (customRegexInput) {
             customRegexInput.addEventListener('change', e => {
                 CFG.customRegex = e.target.value.trim();
-                saveConfig(CFG);
                 forceReRenderAll();
                 showToast('Đã áp dụng Custom Regex!', 'success');
             });
@@ -5588,7 +5678,6 @@ function buildImgPickerModal() {
         if (cleanInput) {
             cleanInput.addEventListener('change', e => {
                 CFG.cleanPatterns = e.target.value;
-                saveConfig(CFG);
                 forceReRenderAll();
                 showToast('Đã cập nhật quy tắc dọn dẹp lời thoại!', 'success');
             });
@@ -5637,7 +5726,6 @@ function buildImgPickerModal() {
                 const val = parseFloat(e.target.value);
                 if (!CFG.customSizing) CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth' };
                 CFG.customSizing[key] = val;
-                saveConfig(CFG);
                 forceReRenderAll();
             });
         };
@@ -5650,7 +5738,6 @@ function buildImgPickerModal() {
             qualitySelect.addEventListener('change', e => {
                 if (!CFG.customSizing) CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth' };
                 CFG.customSizing.imgQuality = e.target.value;
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã áp dụng chế độ độ phân giải & khử răng cưa mới', 'success');
@@ -5664,7 +5751,6 @@ function buildImgPickerModal() {
                 if (!CFG.customSizing) CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth' };
                 CFG.customSizing.fontFamily = e.target.value;
                 if (fontFamCustom) fontFamCustom.style.display = e.target.value === 'custom' ? 'block' : 'none';
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã thay đổi font chữ lời thoại!', 'success');
@@ -5674,7 +5760,6 @@ function buildImgPickerModal() {
             fontFamCustom.addEventListener('change', e => {
                 if (!CFG.customSizing) CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth' };
                 CFG.customSizing.fontFamilyCustom = e.target.value.trim();
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã áp dụng font chữ tùy chỉnh!', 'success');
@@ -5689,7 +5774,6 @@ function buildImgPickerModal() {
                 const isGlobal = e.target.value === 'global';
                 if ($('vn-sz-textcolor-global-wrap')) $('vn-sz-textcolor-global-wrap').style.display = isGlobal ? 'block' : 'none';
                 if ($('vn-sz-textcolor-perchar-wrap')) $('vn-sz-textcolor-perchar-wrap').style.display = !isGlobal ? 'block' : 'none';
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast(isGlobal ? 'Đã chuyển sang chế độ chỉnh màu chữ Toàn Cục!' : 'Đã bật chế độ chỉnh màu chữ theo Từng Nhân Vật!', 'success');
@@ -5704,7 +5788,6 @@ function buildImgPickerModal() {
                 CFG.customSizing.textColor = e.target.value;
                 const isCustom = e.target.value === 'custom';
                 if (textColorPicker) textColorPicker.style.display = isCustom ? 'inline-block' : 'none';
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã thay đổi màu chữ lời thoại!', 'success');
@@ -5719,7 +5802,6 @@ function buildImgPickerModal() {
             textColorPicker.addEventListener('change', e => {
                 if (!CFG.customSizing) CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth' };
                 CFG.customSizing.textColorCustom = e.target.value;
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã áp dụng màu chữ tùy chỉnh!', 'success');
@@ -5730,7 +5812,6 @@ function buildImgPickerModal() {
         if (imgPosSelect) {
             imgPosSelect.addEventListener('change', e => {
                 CFG.inchatImgPos = e.target.value;
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã áp dụng vị trí mở ảnh trong truyện!', 'success');
@@ -5741,7 +5822,6 @@ function buildImgPickerModal() {
         if (imgModeSelect) {
             imgModeSelect.addEventListener('change', e => {
                 CFG.inchatImgMode = e.target.value;
-                saveConfig(CFG);
                 updateSizingVars();
                 forceReRenderAll();
                 showToast('Đã chuyển đổi chế độ hiển thị ảnh trong truyện!', 'success');
@@ -5754,7 +5834,6 @@ function buildImgPickerModal() {
                 CFG.customSizing = { avatarSize: 52, fontSize: 14.5, maxWidth: 78, imgQuality: 'smooth', fontFamily: 'default', fontFamilyCustom: '', textColor: 'default', textColorCustom: '#ffffff' };
                 CFG.inchatImgPos = 'top';
                 CFG.inchatImgMode = 'normal';
-                saveConfig(CFG);
                 updateSizingVars();
                 updateSizingUI();
                 forceReRenderAll();
@@ -5772,7 +5851,6 @@ function buildImgPickerModal() {
             if ($('vn-gender-prompt-text')) CFG.genderPrompt = $('vn-gender-prompt-text').value;
             if ($('vn-char-name-prompt-text')) CFG.charNamePrompt = $('vn-char-name-prompt-text').value;
             if ($('vn-dynamic-prompt-text')) CFG.dynamicPrompt = $('vn-dynamic-prompt-text').value;
-            saveConfig(CFG);
             doInjectSystemPrompt();
             showToast('💾 Đã lưu và cập nhật tất cả các bảng Prompt hướng dẫn AI!', 'success');
         });
@@ -5795,7 +5873,6 @@ function buildImgPickerModal() {
             if ($('vn-inject-role')) $('vn-inject-role').value = CFG.injectRole;
             if ($('vn-inject-depth')) $('vn-inject-depth').value = CFG.injectDepth;
             if ($('vn-inject-depth-wrap')) $('vn-inject-depth-wrap').style.display = 'block';
-            saveConfig(CFG);
             doInjectSystemPrompt();
             showToast('🔄 Đã khôi phục prompt & vị trí bơm về mặc định!', 'info');
         });
@@ -5805,7 +5882,6 @@ function buildImgPickerModal() {
             if (!name) { showToast('Vui lòng nhập tên nhân vật trước!', 'warning'); return; }
             if (CFG.characters[name]) { showToast('Nhân vật này đã tồn tại trong danh sách!', 'warning'); return; }
             CFG.characters[name] = { avatar: '', color: '', textColor: '' };
-            saveConfig(CFG);
             $('vn-new-char-name').value = '';
             renderCharGrid();
             openCharDetail(name);
@@ -5845,7 +5921,6 @@ function buildImgPickerModal() {
                     }
                 }
             });
-            saveConfig(CFG);
             renderCharGrid();
             forceReRenderAll();
             if (found.size === 0) {
@@ -5888,7 +5963,6 @@ function buildImgPickerModal() {
                     }
                 });
                 _selectedChars.clear();
-                saveConfig(CFG);
                 renderCharGrid();
                 closeCharDetail();
                 forceReRenderAll();
@@ -5973,7 +6047,6 @@ function buildImgPickerModal() {
                     if (CFG.characters[_currentEditChar]) {
                         if (!safeUrl) { showToast('URL ảnh không hợp lệ hoặc không an toàn.', 'warning'); return; }
                         Object.assign(CFG.characters[_currentEditChar], { avatar: safeUrl }, readAvatarAdjustControls());
-                        saveConfig(CFG);
                         renderCharGrid();
                         forceReRenderAll();
                         showToast(`Đã áp dụng ảnh mới cho "${_currentEditChar}"! ✨`, 'success');
@@ -6062,7 +6135,6 @@ function buildImgPickerModal() {
             const oldData = CFG.characters[_currentEditChar] || {};
             CFG.characters[_currentEditChar] = Object.assign({}, oldData, { avatar: avatarUrl, color, textColor, expressions }, avatarAdjust);
             const savedName = _currentEditChar;
-            saveConfig(CFG);
             doInjectSystemPrompt();
             renderCharGrid();
             closeCharDetail();
@@ -6075,7 +6147,6 @@ function buildImgPickerModal() {
             if (!confirm(`Bạn có chắc muốn xoá nhân vật "${_currentEditChar}"?`)) return;
             const delName = _currentEditChar;
             delete CFG.characters[_currentEditChar];
-            saveConfig(CFG);
             renderCharGrid();
             closeCharDetail();
             forceReRenderAll();
@@ -6100,8 +6171,7 @@ function buildImgPickerModal() {
             reader.onload = ev => {
                 try {
                     const parsed = JSON.parse(ev.target.result);
-                    CFG = normalizeConfig(parsed);
-                    saveConfig(CFG);
+                    CFG = createDeepProxy(normalizeConfig(parsed), vnSaveCallback); vnSaveCallback();
                     migrateLegacyDataUrlImagesToIndexedDB();
                     refreshMainModal();
                     forceReRenderAll();
@@ -6114,8 +6184,7 @@ function buildImgPickerModal() {
             if (!confirm('CẢNH BÁO: Xoá toàn bộ danh sách nhân vật, ảnh yêu thích, Kho Link, Kho Local và khôi phục cài đặt gốc?')) return;
             localStorage.removeItem(STORE_KEY);
             clearVNImageDB();
-            CFG = getDefaultConfig();
-            saveConfig(CFG);
+            CFG = createDeepProxy(getDefaultConfig(), vnSaveCallback); vnSaveCallback();
             refreshMainModal();
             forceReRenderAll();
             showToast('Đã khôi phục toàn bộ về cài đặt gốc', 'info');
@@ -6151,7 +6220,6 @@ function buildImgPickerModal() {
             btnClearLink.addEventListener('click', () => {
                 if (!confirm('CẢNH BÁO: Bạn có chắc chắn muốn xoá toàn bộ danh sách link ảnh đã lưu trong Kho Link?')) return;
                 CFG.linkLibrary = [];
-                saveConfig(CFG);
                 showToast('Đã dọn dẹp sạch Kho Link!', 'success');
             });
         }
@@ -6283,7 +6351,6 @@ function buildImgPickerModal() {
             } else {
                 const rect = fab.getBoundingClientRect();
                 CFG.standalonePos = { x: Math.round(rect.left), y: Math.round(rect.top) };
-                saveConfig(CFG);
             }
         });
         fab.addEventListener('pointercancel', e => {
