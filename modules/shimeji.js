@@ -851,6 +851,11 @@
 
     let lastTime = performance.now(); 
     function engineLoop() {
+        if (activeShimejis.length === 0 && activeToys.length === 0 && !activeTrampoline) {
+            isEngineRunning = false;
+            updateDebugPanel();
+            return;
+        }
         let currentTime = performance.now();
         let deltaTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -1863,5 +1868,5 @@
         parentDocument.shmMainLoop = requestAnimationFrame(engineLoop);
     }
 
-    ensureEngineRunning();
+    startEngine();
 })();
