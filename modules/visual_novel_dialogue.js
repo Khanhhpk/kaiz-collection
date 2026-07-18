@@ -536,8 +536,29 @@ Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân
         if (!el || !isLocalImageRef(ref)) return;
         el.dataset.vnLocalRef = ref;
         getLocalImageObjectUrl(ref).then(objectUrl => {
-            if (el.dataset.vnLocalRef === ref || el.dataset.origSrc === ref) el.src = objectUrl;
-        }).catch(() => { if (el.classList) el.classList.add('vn-local-img-missing'); });
+            if (el.dataset.vnLocalRef === ref || el.dataset.origSrc === ref) {
+                const removeSkel = () => {
+                    const skel = el.parentElement && el.parentElement.querySelector('.vn-img-skeleton');
+                    if (skel) skel.remove();
+                };
+                el.src = objectUrl;
+                if (el.complete) removeSkel();
+                else {
+                    el.addEventListener('load', function onImgLoad() {
+                        removeSkel();
+                        el.removeEventListener('load', onImgLoad);
+                    });
+                    el.addEventListener('error', function onImgErr() {
+                        removeSkel();
+                        el.removeEventListener('error', onImgErr);
+                    });
+                }
+            }
+        }).catch(() => {
+            if (el.classList) el.classList.add('vn-local-img-missing');
+            const skel = el.parentElement && el.parentElement.querySelector('.vn-img-skeleton');
+            if (skel) skel.remove();
+        });
     }
 
     function clearVNImageDB() {
@@ -3482,6 +3503,14 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
         }
 
         const hasBlock = textEl.querySelector('.vn-block') !== null;
+        if (!hasBlock) {
+            mesEl._vnMutateCount = 0;
+        } else {
+            mesEl._vnMutateCount = (mesEl._vnMutateCount || 0) + 1;
+            if (mesEl._vnMutateCount > 5) {
+                return;
+            }
+        }
         let raw = (textEl.innerHTML || '').normalize('NFC');
         const needsVersionRerender = hasBlock && mesEl.dataset.vnVersion !== SCRIPT_VERSION && !!mesEl.dataset.vnOriginalHtml && !actuallyStreaming;
         if (needsVersionRerender) {
