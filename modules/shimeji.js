@@ -755,6 +755,7 @@
                 const chosenAction = validChoices[Math.floor(Math.random() * validChoices.length)];
                 if (chosenAction === 'SplitIntoTwo' || chosenAction === 'PullUpShimeji') {
                     setTimeout(() => {
+                        if (aiConfig.enabled === false) return;
                         let newShi = new Shimeji(this.x + (this.faceRight ? -30 : 30), this.y, 'Falling');
                         activeShimejis.push(newShi); ensureEngineRunning();
                     }, 2000); 
