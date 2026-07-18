@@ -187,27 +187,27 @@ const CORE_MODULES = [
 ];
 
 const PHONE_APPS = [
-    { file: 'app_browser.js', path: './modules/app_browser.js', name: 'Trình duyệt Web', desc: 'Lướt web và tìm kiếm ngay trong SillyTavern' },
-    { file: 'app_canvas.js', path: './modules/app_canvas.js', name: 'Vẽ Canvas', desc: 'Ứng dụng vẽ tranh, ghi chú sáng tạo' },
-    { file: 'app_chess.js', path: './modules/app_chess.js', name: 'Cờ vua', desc: 'Giải trí cờ vua cùng nhân vật AI' },
-    { file: 'app_cleanup.js', path: './modules/app_cleanup.js', name: 'Dọn dẹp bộ nhớ', desc: 'Tối ưu hóa hệ thống và giải phóng RAM' },
-    { file: 'app_create_char_wechat.js', path: './modules/app_create_char_wechat.js', name: 'Tạo nhân vật WeChat', desc: 'Tạo card nhân vật nhanh chóng qua tin nhắn' },
-    { file: 'app_create_oc_group_chat.js', path: './modules/app_create_oc_group_chat.js', name: 'Tạo OC Group Chat', desc: 'Tạo nhóm trò chuyện nhiều nhân vật' },
-    { file: 'app_flappy_bird.js', path: './modules/app_flappy_bird.js', name: 'Game Flappy Bird', desc: 'Trò chơi giải trí kinh điển Flappy Bird' },
-    { file: 'app_freegen.js', path: './modules/app_freegen.js', name: 'Freegen AI', desc: 'Tạo ảnh miễn phí tích hợp Freegen' },
-    { file: 'app_infinite_craft.js', path: './modules/app_infinite_craft.js', name: 'Infinite Craft', desc: 'Trò chơi ghép từ và sáng tạo vô tận' },
-    { file: 'app_livestream.js', path: './modules/app_livestream.js', name: 'Livestream', desc: 'Giao diện mô phỏng phát sóng trực tiếp' },
-    { file: 'app_music.js', path: './modules/app_music.js', name: 'Máy nghe nhạc', desc: 'Trình phát nhạc nền thư giãn cho phòng chat' },
-    { file: 'app_news.js', path: './modules/app_news.js', name: 'Đọc tin tức', desc: 'Cập nhật bảng tin thời sự trực tuyến' },
-    { file: 'app_pollinations.js', path: './modules/app_pollinations.js', name: 'Vẽ ảnh Pollinations', desc: 'Tạo ảnh AI tự động qua Pollinations.ai' },
-    { file: 'app_terminal_debug.js', path: './modules/app_terminal_debug.js', name: 'Terminal Debug', desc: 'Bảng điều khiển lập trình và theo dõi lỗi' },
-    { file: 'app_theme.js', path: './modules/app_theme.js', name: 'Giao diện & Chủ đề', desc: 'Tùy chỉnh màu sắc, hình nền điện thoại' },
-    { file: 'app_virtual_tube.js', path: './modules/app_virtual_tube.js', name: 'Virtual Tube', desc: 'Xem video trực tuyến trên điện thoại' },
-    { file: 'app_weather.js', path: './modules/app_weather.js', name: 'Dự báo Thời tiết', desc: 'Cập nhật thời tiết theo thời gian thực' },
-    { file: 'app_wechat_auau.js', path: './modules/app_wechat_auau.js', name: 'WeChat Âu Âu', desc: 'Mạng xã hội và bảng tin phong cách Âu Âu' },
-    { file: 'app_wechat.js', path: './modules/app_wechat.js', name: 'WeChat Nhắn tin', desc: 'Nhắn tin phong cách WeChat với AI' },
-    { file: 'app_world_map.js', path: './modules/app_world_map.js', name: 'Bản đồ thế giới', desc: 'Khám phá bản đồ thế giới trong game' },
-    { file: 'app_youtube.js', path: './modules/app_youtube.js', name: 'YouTube', desc: 'Trình phát video YouTube tích hợp' }
+    { file: 'app_browser.js', path: './modules/phone_apps/app_browser.js', name: 'Trình duyệt Web', desc: 'Lướt web và tìm kiếm ngay trong SillyTavern' },
+    { file: 'app_canvas.js', path: './modules/phone_apps/app_canvas.js', name: 'Vẽ Canvas', desc: 'Ứng dụng vẽ tranh, ghi chú sáng tạo' },
+    { file: 'app_chess.js', path: './modules/phone_apps/app_chess.js', name: 'Cờ vua', desc: 'Giải trí cờ vua cùng nhân vật AI' },
+    { file: 'app_cleanup.js', path: './modules/phone_apps/app_cleanup.js', name: 'Dọn dẹp bộ nhớ', desc: 'Tối ưu hóa hệ thống và giải phóng RAM' },
+    { file: 'app_create_char_wechat.js', path: './modules/phone_apps/app_create_char_wechat.js', name: 'Tạo nhân vật WeChat', desc: 'Tạo card nhân vật nhanh chóng qua tin nhắn' },
+    { file: 'app_create_oc_group_chat.js', path: './modules/phone_apps/app_create_oc_group_chat.js', name: 'Tạo OC Group Chat', desc: 'Tạo nhóm trò chuyện nhiều nhân vật' },
+    { file: 'app_flappy_bird.js', path: './modules/phone_apps/app_flappy_bird.js', name: 'Game Flappy Bird', desc: 'Trò chơi giải trí kinh điển Flappy Bird' },
+    { file: 'app_freegen.js', path: './modules/phone_apps/app_freegen.js', name: 'Freegen AI', desc: 'Tạo ảnh miễn phí tích hợp Freegen' },
+    { file: 'app_infinite_craft.js', path: './modules/phone_apps/app_infinite_craft.js', name: 'Infinite Craft', desc: 'Trò chơi ghép từ và sáng tạo vô tận' },
+    { file: 'app_livestream.js', path: './modules/phone_apps/app_livestream.js', name: 'Livestream', desc: 'Giao diện mô phỏng phát sóng trực tiếp' },
+    { file: 'app_music.js', path: './modules/phone_apps/app_music.js', name: 'Máy nghe nhạc', desc: 'Trình phát nhạc nền thư giãn cho phòng chat' },
+    { file: 'app_news.js', path: './modules/phone_apps/app_news.js', name: 'Đọc tin tức', desc: 'Cập nhật bảng tin thời sự trực tuyến' },
+    { file: 'app_pollinations.js', path: './modules/phone_apps/app_pollinations.js', name: 'Vẽ ảnh Pollinations', desc: 'Tạo ảnh AI tự động qua Pollinations.ai' },
+    { file: 'app_terminal_debug.js', path: './modules/phone_apps/app_terminal_debug.js', name: 'Terminal Debug', desc: 'Bảng điều khiển lập trình và theo dõi lỗi' },
+    { file: 'app_theme.js', path: './modules/phone_apps/app_theme.js', name: 'Giao diện & Chủ đề', desc: 'Tùy chỉnh màu sắc, hình nền điện thoại' },
+    { file: 'app_virtual_tube.js', path: './modules/phone_apps/app_virtual_tube.js', name: 'Virtual Tube', desc: 'Xem video trực tuyến trên điện thoại' },
+    { file: 'app_weather.js', path: './modules/phone_apps/app_weather.js', name: 'Dự báo Thời tiết', desc: 'Cập nhật thời tiết theo thời gian thực' },
+    { file: 'app_wechat_auau.js', path: './modules/phone_apps/app_wechat_auau.js', name: 'WeChat Âu Âu', desc: 'Mạng xã hội và bảng tin phong cách Âu Âu' },
+    { file: 'app_wechat.js', path: './modules/phone_apps/app_wechat.js', name: 'WeChat Nhắn tin', desc: 'Nhắn tin phong cách WeChat với AI' },
+    { file: 'app_world_map.js', path: './modules/phone_apps/app_world_map.js', name: 'Bản đồ thế giới', desc: 'Khám phá bản đồ thế giới trong game' },
+    { file: 'app_youtube.js', path: './modules/phone_apps/app_youtube.js', name: 'YouTube', desc: 'Trình phát video YouTube tích hợp' }
 ];
 
 const UTILITY_MODULES = [
@@ -226,6 +226,7 @@ function getPhoneConfig() {
         if (saved) {
             const parsed = JSON.parse(saved);
             if (parsed.auto_check_update === undefined) parsed.auto_check_update = true;
+            if (parsed.optimize_phone_ram === undefined) parsed.optimize_phone_ram = false;
             return parsed;
         }
     } catch (e) {
@@ -234,7 +235,8 @@ function getPhoneConfig() {
     return {
         enabled: true,
         disabled_modules: [],
-        auto_check_update: true
+        auto_check_update: true,
+        optimize_phone_ram: false
     };
 }
 
@@ -254,7 +256,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.6.5.0';
+const KAIZ_CURRENT_VERSION = '2.7.0.0';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -646,13 +648,12 @@ function showKaizPatchNotes(targetWin) {
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
             Chào mừng bạn đến với bản đại cập nhật <b>v${KAIZ_CURRENT_VERSION}</b> của <b>KAIZ Collection</b>!<br><br>
-            Bản cập nhật v2.6.5.0 mang tới <b>12 kho ảnh</b> khổng lồ cho hệ sinh thái <b>Visual Novel</b>, nổi bật với hệ thống xác thực trực tiếp và cải tiến UI linh hoạt, giúp bạn tha hồ "lấy ảnh anime/NSFW" ngay trong ứng dụng!<br><br>
+            Bản cập nhật v2.7.0.0 mang tới tính năng <b>Gán ảnh tự động bằng Tên nhân vật</b> thông minh, đồng thời sửa lỗi hệ thống lưu trữ ảnh tĩnh nội bộ giúp <b>Visual Novel</b> mượt mà hơn!<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
                 <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new in v${KAIZ_CURRENT_VERSION}?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square; display: flex; flex-direction: column; gap: 10px;">
-                    <li><b style="color: #38bdf8;">🌟 Mở Rộng 3 Nguồn Ảnh Mới:</b> Tích hợp thêm nguồn ảnh <b style="color:#fff;">Yande.re</b> (Kho ảnh HQ với bộ lọc NSFW) và <b style="color:#fff;">Rule34.xxx</b> (Kho NSFW với Form xác thực API Key riêng biệt cực kỳ bảo mật).</li>
-                    <li><b style="color: #34d399;">⚙️ Hệ Thống UI Auth (Rule34):</b> Tự động hóa quá trình xác thực Rule34. Form nhập User ID và API Key hiện ra trực quan, lưu an toàn vào LocalStorage, có thể đóng mở gọn gàng giúp thoáng màn hình.</li>
-                    <li><b style="color: #a855f7;">🎨 Trải Nghiệm & UI Visual Novel:</b> Các dòng ghi chú/mẹo sử dụng tự động biến đổi động mượt mà khi đổi qua lại giữa 12 nguồn ảnh, không cần bấm tải ảnh!</li>
+                    <li><b style="color: #38bdf8;">🌟 Tự động gán ảnh theo Tên (Full Name):</b> Hệ thống giờ đây có thể tự động phân tích bối cảnh truyện (đặc biệt là fanfic, đồng nhân) để tra cứu chính xác tên đầy đủ của nhân vật, từ đó tìm kiếm và gán ảnh đại diện ngẫu nhiên từ 4 nguồn cơ sở dữ liệu lớn (Safebooru, Rule34, Yande.re, AniList) mỗi khi có nhân vật mới xuất hiện trong khung chat.</li>
+                    <li><b style="color: #34d399;">⚙️ Sửa lỗi lưu trữ ảnh Local (IndexedDB):</b> Khắc phục triệt để các vấn đề liên quan đến việc render và đồng bộ cache ảnh local/upload khi tải lại trang, đảm bảo trải nghiệm hiển thị liền mạch.</li>
                 </ul>
             </div>
         </div>
@@ -827,6 +828,19 @@ function renderExtensionSettings(targetWin, jq) {
                                 ${config.auto_check_update !== false ? 'Đang Bật' : 'Đã Tắt'}
                             </span>
                         </label>
+
+                    <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-size: 0.84em; color: #cbd5e1; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-rocket" style="color: #f59e0b;"></i>
+                            <span>Tối ưu hóa RAM (Trì hoãn tải Ứng dụng điện thoại để giảm giật lag khởi động):</span>
+                        </span>
+                        <label class="checkbox_label" style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.35); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);">
+                            <input type="checkbox" id="kaiz_optimize_ram_cb" ${config.optimize_phone_ram === true ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer; accent-color: #f59e0b;">
+                            <span id="kaiz_optimize_ram_status" style="font-weight: 700; font-size: 0.84em; color: ${config.optimize_phone_ram === true ? '#f59e0b' : '#94a3b8'};">
+                                ${config.optimize_phone_ram === true ? 'Đang Bật' : 'Đã Tắt'}
+                            </span>
+                        </label>
+                    </div>
                     </div>
                 </div>
 
@@ -1070,6 +1084,19 @@ function renderExtensionSettings(targetWin, jq) {
             }
             savePhoneConfig(config);
         });
+
+    const optimizeRamCb = doc.getElementById('kaiz_optimize_ram_cb');
+    if (optimizeRamCb) {
+        optimizeRamCb.addEventListener('change', (e) => {
+            config.optimize_phone_ram = e.target.checked;
+            const statusText = doc.getElementById('kaiz_optimize_ram_status');
+            if (statusText) {
+                statusText.textContent = e.target.checked ? 'Đang Bật' : 'Đã Tắt';
+                statusText.style.color = e.target.checked ? '#f59e0b' : '#94a3b8';
+            }
+            savePhoneConfig(config);
+        });
+    }
     }
 
     const silentF12Cb = doc.getElementById('kaiz_silent_f12_cb');
@@ -1108,7 +1135,7 @@ waitForEnvironment(async (targetWin, jq) => {
     
     // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.5.0.0)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.6.5.0') {
+        if (KAIZ_CURRENT_VERSION === '2.7.0.0') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);
@@ -1155,8 +1182,8 @@ waitForEnvironment(async (targetWin, jq) => {
     }));
 
     // Bước 2: Nạp song song toàn bộ Phone Apps & Utilities
-    const otherModules = [...PHONE_APPS, ...UTILITY_MODULES];
-    await Promise.all(otherModules.map(async (app) => {
+    // Bước 2: Nạp UTILITY_MODULES
+    await Promise.all(UTILITY_MODULES.map(async (app) => {
         if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
             console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
             skipCount++;
@@ -1166,7 +1193,41 @@ waitForEnvironment(async (targetWin, jq) => {
         if (ok) successCount++; else failCount++;
     }));
 
-    console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
+    // Bước 3: Nạp PHONE_APPS (Hỗ trợ Smart Delay Load)
+    const loadPhoneAppsLogic = async (isDelayed) => {
+        let phoneSuccess = 0, phoneFail = 0, phoneSkip = 0;
+        await Promise.all(PHONE_APPS.map(async (app) => {
+            if (config.disabled_modules && config.disabled_modules.includes(app.file)) {
+                if (!isDelayed) console.log(`[KAIZ Collection] ⏸️ Bỏ qua module đã tắt: ${app.name}`);
+                skipCount++;
+                phoneSkip++;
+                return;
+            }
+            const ok = await safeImport(app.path, app.name);
+            if (ok) {
+                successCount++;
+                phoneSuccess++;
+            } else {
+                failCount++;
+                phoneFail++;
+            }
+        }));
+        if (isDelayed) {
+            console.log(`[KAIZ Collection] 🚀 Nạp Giai đoạn 2 (Phone Apps): ${phoneSuccess} thành công, ${phoneSkip} bỏ qua, ${phoneFail} lỗi.`);
+            console.log(`[KAIZ Collection] 🚀 TỔNG HỆ THỐNG: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
+        }
+    };
+
+    if (config.optimize_phone_ram) {
+        console.log(`[KAIZ Collection] 🚀 Bật chế độ Tối ưu RAM: Trì hoãn nạp Phone Apps 10 giây...`);
+        console.log(`[KAIZ Collection] Hoàn tất nạp Giai đoạn 1: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
+        setTimeout(() => {
+            loadPhoneAppsLogic(true);
+        }, 10000);
+    } else {
+        await loadPhoneAppsLogic(false);
+        console.log(`[KAIZ Collection] Hoàn tất nạp bộ sưu tập: ${successCount} thành công, ${skipCount} bỏ qua, ${failCount} lỗi.`);
+    }
 });
 
 function initKaizExplorer(doc, targetWin) {
@@ -1388,4 +1449,4 @@ function initKaizExplorer(doc, targetWin) {
     // Init
     doc.getElementById('kaiz_explorer_tab_ctx').style.borderBottom = '2px solid #00d2b4';
     loadData();
-}
+}

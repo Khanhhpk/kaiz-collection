@@ -1149,18 +1149,7 @@
         }, 500);
     }
 
-    if (parentWindow.PhoneSystem && typeof parentWindow.PhoneSystem.registerApp === 'function') {
-        parentWindow.PhoneSystem.registerApp({
-            id: APP_ID,
-            name: 'Dữ liệu Web',
-            icon: '📦',
-            color: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
-            order: 21
-        });
-        parentWindow.PhoneSystem.on('app-opened', (data) => {
-            if (data && data.id === APP_ID) openInspector();
-        });
-    }
+    // Đã bỏ đăng ký app vào PhoneSystem vì có bóng riêng
 
     console.log('[StorageInspector] Đã đăng ký thành công vào Bong Bóng Mẹ v2.1.');
 })();

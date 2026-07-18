@@ -1,5 +1,5 @@
 /**
- * Visual Novel Dialogue Beautifier v0.7.0.0
+ * Visual Novel Dialogue Beautifier v1.0.0.0
  * - Tiêm system prompt cấu trúc lời thoại @Tên@ vào SillyTavern (In-chat Depth 0)
  * - Tự động nhận diện giới tính @Tên(Nữ/Nam)@ và gán ảnh Waifu/Husbando từ neko.best
  * - Quản lý ảnh nhân vật từ 9 free Anime API + Local Upload + Kho Link + Crop Avatar + kho Local/URL lưu lại
@@ -12,7 +12,7 @@
     const PW = window.parent || window;
     const PD = PW.document;
     const SCRIPT_ID = 'vn-dialogue';
-    const SCRIPT_VERSION = 'v0.7.0.0';
+    const SCRIPT_VERSION = 'v1.0.0.0';
     const STORE_KEY = 'VNDialogue_Config_v2';
 
     // ========== DỌN DẸP TRƯỚC KHI KHỞI TẠO ==========
@@ -55,6 +55,10 @@
         regexMode: 'at', // at | japanese | curly | brackets | colon | custom
         autoRegisterChars: true,
         autoAssignAvatar: false,
+        autoAssignByCharName: false,
+        charNameSources: ['safebooru'],
+        charNameFetchCount: 20,
+        charNamePrompt: '[QUY TẮC NHẬN DIỆN TÊN NHÂN VẬT ĐẦY ĐỦ (TỰ ĐỘNG GÁN ẢNH)]\nĐể hệ thống gán ảnh chính xác, bạn PHẢI phân tích bối cảnh truyện (đặc biệt là đồng nhân/fanfic) và suy luận TÊN ĐẦY ĐỦ (Full Name) chuẩn xác nhất của nhân vật (gồm cả Họ và Tên nếu có thể tra cứu hoặc biết được).\nKhi nhân vật xuất hiện hoặc có lời thoại/suy nghĩ, hãy ghi tên đầy đủ đó vào trong thẻ tên.\nVí dụ: @Hatsune Miku@, @Kamado Tanjirou@...\nTUYỆT ĐỐI KHÔNG dùng tên viết tắt, biệt danh hay tên gọi chung chung. Nếu là nhân vật quần chúng không có tên, giữ nguyên gọi chung.',
         dynamicContextImages: false,
         customRegex: '',
         cleanPatterns: '', // Để trống = giữ nguyên theo regex, không tự xóa
@@ -81,21 +85,21 @@ Bạn PHẢI tuân thủ TUYỆT ĐỐI quy tắc định dạng dưới đây c
 
 [MẪU VÍ DỤ CHUẨN - HÃY TUÂN THỦ]:
 Trời bắt đầu chuyển mưa lất phất, không khí lạnh dần.
-@Kazumi@ "Thôi nào, mặc nhanh chiếc áo khoác này vào đi."
-Kazumi nhẹ nhàng khoác chiếc áo lên vai anh, ánh mắt lộ rõ vẻ quan tâm.
-@Itsuki@ *Sao cô ấy lại tốt với mình đến vậy chứ...*
-@Itsuki@ "Cảm ơn em nhiều nhé, Kazumi."`,
+@Hoshino Yue@ "Thôi nào, mặc nhanh chiếc áo khoác này vào đi."
+Hoshino Yue nhẹ nhàng khoác chiếc áo lên vai anh, ánh mắt lộ rõ vẻ quan tâm.
+@Itsuki Natsume@ *Sao cô ấy lại tốt với mình đến vậy chứ...*
+@Itsuki Natsume@ "Cảm ơn em nhiều nhé, Hoshino Yue."`,
         genderPrompt: `[QUY TẮC NHẬN DIỆN GIỚI TÍNH NHÂN VẬT MỚI (TỰ ĐỘNG GÁN ẢNH)]
 Khi một nhân vật xuất hiện hoặc có lời thoại/suy nghĩ, bạn PHẢI ghi kèm giới tính vào bên trong thẻ tên theo định dạng chuẩn:
-- Nhân vật nữ: @TênNhânVật(Nữ)@ hoặc @TênNhânVật(Waifu)@ (ví dụ: @Kazumi(Nữ)@, @Elena(Waifu)@)
-- Nhân vật nam: @TênNhânVật(Nam)@ hoặc @TênNhânVật(Husbando)@ (ví dụ: @Itsuki(Nam)@, @Arthur(Husbando)@)
+- Nhân vật nữ: @TênNhânVật(Nữ)@ hoặc @TênNhânVật(Waifu)@ (ví dụ: @Hoshino Yue(Nữ)@, @Elena(Waifu)@)
+- Nhân vật nam: @TênNhânVật(Nam)@ hoặc @TênNhânVật(Husbando)@ (ví dụ: @Itsuki Natsume(Nam)@, @Arthur(Husbando)@)
 Quy tắc này giúp hệ thống tự động nhận diện và gán ảnh đại diện anime Waifu/Husbando phù hợp cho nhân vật!`,
         dynamicPrompt: `[QUY TẮC GẮN NHÃN ẢNH NGỮ CẢNH ĐỘNG (DYNAMIC CONTEXT IMAGES)]
 Hiện tại, các nhân vật có danh sách nhãn cảm xúc/ngữ cảnh sau đây:
 {{charTagsList}}
 
 Khi nhân vật có lời thoại hoặc suy nghĩ, nếu ngữ cảnh hoặc cảm xúc khớp với một trong các nhãn trên, bạn HÃY viết kèm tên nhãn vào trong thẻ tên nhân vật theo định dạng: @TênNhânVật [TênNhãn]@ (hoặc có thêm giới tính nếu cần).
-Ví dụ: @Kazumi [Ăn kem]@ "Món kem này ngon quá đi mất!" hoặc @Kazumi [buồn]@ *Sao anh ấy lại nói vậy với mình chứ...*
+Ví dụ: @Hoshino Yue [Ăn kem]@ "Món kem này ngon quá đi mất!" hoặc @Hoshino Yue [buồn]@ *Sao anh ấy lại nói vậy với mình chứ...*
 Nếu ngữ cảnh không khớp với nhãn nào trong danh sách, hoặc nhân vật ở trạng thái bình thường, hãy chỉ ghi tên nhân vật như bình thường.`,
         inchatImgPos: 'top', // top | bottom
         inchatImgMode: 'normal', // normal | always_full
@@ -2703,7 +2707,12 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
 
     function getEffectivePrompt() {
         let base = CFG.customPrompt ? CFG.customPrompt.trim() : '';
-        if (CFG.autoAssignAvatar) {
+        if (CFG.autoAssignByCharName) {
+            const nPrompt = (CFG.charNamePrompt || DEFAULT_CONFIG.charNamePrompt || '').trim();
+            if (nPrompt && !base.includes('[QUY TẮC GẮN TÊN NHÂN VẬT ĐẦY ĐỦ')) {
+                base += '\r\n\r\n' + nPrompt;
+            }
+        } else if (CFG.autoAssignAvatar) {
             const gPrompt = (CFG.genderPrompt || DEFAULT_CONFIG.genderPrompt || '').trim();
             if (gPrompt && !base.includes('[QUY TẮC NHẬN DIỆN GIỚI TÍNH')) {
                 base += '\n\n' + gPrompt;
@@ -2731,15 +2740,15 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
                     .replace(/\{\{dynamic_tags\}\}/gi, charTagsList.trim())
                     .replace(/\{\{danh_sach_nhan\}\}/gi, charTagsList.trim())
                     .replace(/\{\{tagFormatExample\}\}/gi, getDynamicTagFormatExample('TênNhânVật', 'TênNhãn'))
-                    .replace(/\{\{example1\}\}/gi, getDynamicTagFormatExample('Kazumi', 'Ăn kem'))
-                    .replace(/\{\{example2\}\}/gi, getDynamicTagFormatExample('Kazumi', 'buồn'));
+                    .replace(/\{\{example1\}\}/gi, getDynamicTagFormatExample('Hoshino Yue', 'Ăn kem'))
+                    .replace(/\{\{example2\}\}/gi, getDynamicTagFormatExample('Hoshino Yue', 'buồn'));
 
                 // Nếu dùng mẫu mặc định (@TênNhânVật [TênNhãn]@), tự động chuyển theo regexMode hiện tại
                 if ((CFG.dynamicPrompt || '').trim() === DEFAULT_CONFIG.dynamicPrompt.trim() || !CFG.dynamicPrompt) {
                     dynPrompt = dynPrompt
                         .replace(/@TênNhânVật \[TênNhãn\]@/g, getDynamicTagFormatExample('TênNhânVật', 'TênNhãn'))
-                        .replace(/@Kazumi \[Ăn kem\]@/g, getDynamicTagFormatExample('Kazumi', 'Ăn kem'))
-                        .replace(/@Kazumi \[buồn\]@/g, getDynamicTagFormatExample('Kazumi', 'buồn'));
+                        .replace(/@Hoshino Yue \[Ăn kem\]@/g, getDynamicTagFormatExample('Hoshino Yue', 'Ăn kem'))
+                        .replace(/@Hoshino Yue \[buồn\]@/g, getDynamicTagFormatExample('Hoshino Yue', 'buồn'));
                 }
 
                 const checkHeader = dynPrompt.split('\n')[0].trim();
@@ -2961,7 +2970,7 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
         }
 
-        // 3. Nếu vẫn còn ngoặc tròn (...), kiểm tra xem có phải là Tag trong ngoặc tròn không (ví dụ Kazumi (Ăn kem))
+        // 3. Nếu vẫn còn ngoặc tròn (...), kiểm tra xem có phải là Tag trong ngoặc tròn không (ví dụ Hoshino Yue (Ăn kem))
         if (!tag) {
             const parenMatch = name.match(TAG_PAREN_RE);
             if (parenMatch) {
@@ -2988,6 +2997,56 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
     }
 
     const FETCHING_AVATARS = new Set();
+
+    async function autoAssignAvatarByName(cleanName) {
+        if (!cleanName || !CFG.characters[cleanName]) return;
+        if (CFG.characters[cleanName].avatar && CFG.characters[cleanName].avatar.trim()) return;
+        if (FETCHING_AVATARS.has(cleanName.toLowerCase())) return;
+
+        const sources = CFG.charNameSources || [];
+        if (sources.length === 0) return;
+
+        FETCHING_AVATARS.add(cleanName.toLowerCase());
+        const srcKey = sources[Math.floor(Math.random() * sources.length)];
+        const apiSrc = API_SOURCES[srcKey];
+        if (!apiSrc) { FETCHING_AVATARS.delete(cleanName.toLowerCase()); return; }
+
+        let tag = cleanName.trim();
+        // Booru sources usually require snake_case tags, AniList DB works fine with spaces
+        if (['safebooru', 'yande.re', 'rule34'].includes(srcKey)) {
+            tag = tag.toLowerCase().replace(/\s+/g, '_');
+        }
+
+        try {
+            const fetchCount = parseInt(CFG.charNameFetchCount) || 20;
+            const results = await apiSrc.fetch({ tag: tag, count: fetchCount });
+            if (results && results.length > 0) {
+                const randIdx = Math.floor(Math.random() * results.length);
+                const chosenUrl = results[randIdx].url;
+                if (chosenUrl && CFG.characters[cleanName] && !CFG.characters[cleanName].avatar) {
+                    CFG.characters[cleanName].avatar = chosenUrl;
+                    saveConfig(CFG);
+                    const countEl = PD.getElementById('vn-char-count');
+                    if (countEl) countEl.textContent = Object.keys(CFG.characters).length;
+                    if (PD.getElementById('vn-char-grid')) {
+                        renderCharGrid();
+                    }
+                    if (_currentEditChar === cleanName) {
+                        const detUrlEl = PD.getElementById('vn-char-det-avatar-url');
+                        if (detUrlEl) {
+                            detUrlEl.value = chosenUrl;
+                            PD.getElementById('vn-char-det-avatar-preview').src = chosenUrl;
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching auto avatar by name:', e);
+        } finally {
+            FETCHING_AVATARS.delete(cleanName.toLowerCase());
+        }
+    }
+
     async function autoAssignAvatarForChar(cleanName, gender) {
         if (!cleanName || !CFG.characters[cleanName]) return;
         if (CFG.characters[cleanName].avatar && CFG.characters[cleanName].avatar.trim()) return;
@@ -3053,6 +3112,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             showToast(`✨ Phát hiện nhân vật mới: "${cleanName}"${gender ? ` (${gender === 'husbando' ? 'Nam / Husbando ⚔️' : 'Nữ / Waifu 🌸'})` : ''}`, 'success', 3000);
             if (CFG.autoAssignAvatar) {
                 autoAssignAvatarForChar(cleanName, gender || 'waifu');
+            } else if (CFG.autoAssignByCharName) {
+                autoAssignAvatarByName(cleanName);
             }
             return true;
         } else {
@@ -3063,6 +3124,8 @@ html[data-vn-img-mode="always_full"] .vn-block:not(.vn-collapsed-img) .vn-avatar
             }
             if (CFG.autoAssignAvatar && !charObj.avatar) {
                 autoAssignAvatarForChar(cleanName, gender || charObj.gender || 'waifu');
+            } else if (CFG.autoAssignByCharName && !charObj.avatar) {
+                autoAssignAvatarByName(cleanName);
             } else if (changed) {
                 saveConfig(CFG);
             }
@@ -4381,7 +4444,15 @@ function buildImgPickerModal() {
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign" /><span class="vn-slider"></span></label>
       </div>
-      <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.1);">
+      
+      <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(129,140,248,0.4);background:rgba(129,140,248,0.1);">
+        <div class="vn-toggle-info">
+          <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tự động gán ảnh theo Tên nhân vật (Full name)</div>
+          <div class="vn-toggle-desc">Tự động lấy ảnh từ Safebooru/Rule34/Yande.re/AniList (sẽ tắt gán theo giới tính)</div>
+        </div>
+        <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-name-quick" class="vn-auto-assign-name-toggle" /><span class="vn-slider"></span></label>
+      </div>
+<div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.1);">
         <div class="vn-toggle-info">
           <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Bật tính năng Ảnh ngữ cảnh động (Dynamic Context Images)</div>
           <div class="vn-toggle-desc">Bơm danh sách nhãn ảnh vào prompt để AI tự động gắn thẻ và hiển thị ảnh theo cảm xúc/ngữ cảnh truyện (Ăn kem, buồn, vui...)</div>
@@ -4391,7 +4462,7 @@ function buildImgPickerModal() {
       <div id="vn-add-char-wrap" style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:14px;">
         <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:user-plus.svg?color=%23818cf8" class="vn-icon">Thêm nhanh nhân vật mới</div>
         <div style="display:flex;gap:8px;">
-          <input class="vn-input" id="vn-new-char-name" placeholder="Tên nhân vật (Ví dụ: Kazumi, Itsuki...)" style="flex:1;" />
+          <input class="vn-input" id="vn-new-char-name" placeholder="Tên nhân vật (Ví dụ: Hoshino Yue, Itsuki Natsume...)" style="flex:1;" />
           <button class="vn-btn vn-btn-primary" id="vn-new-char-add"><img src="https://api.iconify.design/lucide:plus.svg?color=white" class="vn-icon">Thêm</button>
         </div>
       </div>
@@ -4709,6 +4780,27 @@ function buildImgPickerModal() {
       </div>
       <div style="font-size:11.5px;color:#94a3b8;margin-top:8px;"><img src="https://api.iconify.design/lucide:lightbulb.svg?color=%23fbbf24" class="vn-icon" style="width:14px;height:14px;"><b>Khuyên dùng:</b> In-Chat + Role System + Depth 0 (Bơm ngay sát câu cuối cùng để AI nhớ cấu trúc thoại tốt nhất).</div>
     </div>
+    
+    <div class="vn-toggle-row" style="border-color:rgba(129,140,248,0.3);background:rgba(129,140,248,0.08);margin-bottom:8px;">
+      <div class="vn-toggle-info">
+        <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tự động gán ảnh theo Tên nhân vật (Full name)</div>
+        <div class="vn-toggle-desc">Tìm ảnh qua Safebooru/Rule34/Yande.re/AniList khi có nhân vật mới. (Sẽ tự tắt Gán ảnh theo giới tính)</div>
+      </div>
+      <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-name" /><span class="vn-slider"></span></label>
+    </div>
+    <div id="vn-char-name-sources-wrap" style="display:none; margin-bottom:14px; padding:12px; background:rgba(129,140,248,0.06); border:1px solid rgba(129,140,248,0.3); border-radius:12px;">
+      <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:8px;"><img src="https://api.iconify.design/lucide:check-square.svg?color=%23818cf8" class="vn-icon">Chọn nguồn lấy ảnh ngẫu nhiên:</div>
+      <div style="display:flex; flex-direction:column; gap:6px;" id="vn-char-name-sources-list">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="safebooru">Safebooru (SFW)</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="yande.re">Yande.re (NSFW)</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="rule34">Rule34.xxx</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="anilist">AniList DB</label>
+      </div>
+      <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+          <div style="font-size:12.5px;color:#cbd5e1;">Số lượng ảnh tra cứu để chọn ngẫu nhiên:</div>
+          <input type="number" id="vn-char-name-fetch-count" class="vn-input" style="width:60px; padding:2px 6px; text-align:center;" min="1" max="100" />
+      </div>
+    </div>
     <div class="vn-toggle-row" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);margin-bottom:8px;">
       <div class="vn-toggle-info">
         <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
@@ -4731,7 +4823,16 @@ function buildImgPickerModal() {
       <textarea class="vn-input vn-textarea" id="vn-dynamic-prompt-text" rows="6" style="border-color:rgba(236,72,153,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
       <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Sử dụng macro <code style="background:rgba(236,72,153,0.2);color:#f472b6;padding:1px 5px;border-radius:4px;">{{charTagsList}}</code> để tự động chèn danh sách nhãn cảm xúc/ngữ cảnh hiện có của các nhân vật. Các phần còn lại là prompt bình thường hướng dẫn AI cách viết thẻ tên kèm nhãn.</div>
     </div>
-    <div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
+    
+    <div class="vn-group" id="vn-char-name-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.3);border-radius:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="vn-section-label" style="color:#818cf8;margin:0;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Prompt Tự động gán ảnh theo Tên (Full name)</div>
+        <span id="vn-char-name-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
+      </div>
+      <textarea class="vn-input vn-textarea" id="vn-char-name-prompt-text" rows="5" style="border-color:rgba(129,140,248,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Prompt này sẽ yêu cầu AI xuất Full Name của nhân vật, giúp tìm kiếm ảnh chính xác hơn.</div>
+    </div>
+<div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <div class="vn-section-label" style="color:#f43f5e;margin:0;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%23f43f5e" class="vn-icon">Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
         <span id="vn-gender-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
@@ -4803,20 +4904,7 @@ function buildImgPickerModal() {
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
     </div>
-    <div class="vn-toggle-row">
-      <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
-        <div class="vn-toggle-desc">Tự động bổ sung quy tắc @Tên(Nữ/Nam)@ vào Prompt và gán ngẫu nhiên ảnh từ neko.best</div>
-      </div>
-      <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-set" /><span class="vn-slider"></span></label>
-    </div>
-    <div class="vn-toggle-row">
-      <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Bật tính năng Ảnh ngữ cảnh động (Dynamic Context Images)</div>
-        <div class="vn-toggle-desc">Bơm danh sách nhãn ảnh của nhân vật vào prompt để AI tự chọn ảnh theo mạch truyện</div>
-      </div>
-      <label class="vn-switch"><input type="checkbox" id="vn-toggle-dynamic-context-set" /><span class="vn-slider"></span></label>
-    </div>
+    
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:trash.svg?color=%23cbd5e1" class="vn-icon">Dọn dẹp Cache</button>
@@ -4855,8 +4943,7 @@ function buildImgPickerModal() {
         const togI = PD.getElementById('vn-toggle-inject');
         const togAuto = PD.getElementById('vn-toggle-autoreg');
         const togAutoAssign = PD.getElementById('vn-toggle-auto-assign');
-        const togAutoAssignSet = PD.getElementById('vn-toggle-auto-assign-set');
-        const togAutoAssignPrompt = PD.getElementById('vn-toggle-auto-assign-prompt');
+                const togAutoAssignPrompt = PD.getElementById('vn-toggle-auto-assign-prompt');
         if (tog) tog.checked = CFG.enabled;
         if (togR) togR.checked = CFG.renderMode;
         if (togI) togI.checked = CFG.promptInjection;
@@ -4872,16 +4959,40 @@ function buildImgPickerModal() {
         if (depthWrap) depthWrap.style.display = (CFG.injectTarget || 'in_chat') === 'in_chat' ? 'block' : 'none';
         PD.querySelectorAll('.vn-auto-reg-toggle, #vn-toggle-autoreg, #vn-toggle-autoreg-char').forEach(el => { el.checked = CFG.autoRegisterChars !== false; });
         if (togAutoAssign) togAutoAssign.checked = !!CFG.autoAssignAvatar;
-        if (togAutoAssignSet) togAutoAssignSet.checked = !!CFG.autoAssignAvatar;
+                PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = CFG.autoAssignByCharName; });
+
+        const sourcesWrap = PD.getElementById('vn-char-name-sources-wrap');
+        if (sourcesWrap) sourcesWrap.style.display = CFG.autoAssignByCharName ? 'block' : 'none';
+        
+        const cbList = PD.querySelectorAll('.vn-char-name-source-cb');
+        cbList.forEach(cb => {
+            cb.checked = (CFG.charNameSources || []).includes(cb.value);
+        });
+        const cnfc = PD.getElementById('vn-char-name-fetch-count');
+        if (cnfc) cnfc.value = CFG.charNameFetchCount || DEFAULT_CONFIG.charNameFetchCount || 20;
+
+        const cnpt = PD.getElementById('vn-char-name-prompt-text');
+        if (cnpt) cnpt.value = CFG.charNamePrompt || DEFAULT_CONFIG.charNamePrompt || '';
+        const cnStatus = PD.getElementById('vn-char-name-prompt-status');
+        if (cnStatus) {
+            if (CFG.autoAssignByCharName) {
+                cnStatus.textContent = '⚡ ĐANG KÍCH HOẠT (TIÊM KÈM)';
+                cnStatus.style.background = 'rgba(129,140,248,0.2)';
+                cnStatus.style.color = '#818cf8';
+            } else {
+                cnStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)';
+                cnStatus.style.background = 'rgba(148,163,184,0.2)';
+                cnStatus.style.color = '#94a3b8';
+            }
+        }
+
         if (togAutoAssignPrompt) togAutoAssignPrompt.checked = !!CFG.autoAssignAvatar;
 
         const togDyn = PD.getElementById('vn-toggle-dynamic-context');
         const togDynPrompt = PD.getElementById('vn-toggle-dynamic-context-prompt');
-        const togDynSet = PD.getElementById('vn-toggle-dynamic-context-set');
-        if (togDyn) togDyn.checked = !!CFG.dynamicContextImages;
+                if (togDyn) togDyn.checked = !!CFG.dynamicContextImages;
         if (togDynPrompt) togDynPrompt.checked = !!CFG.dynamicContextImages;
-        if (togDynSet) togDynSet.checked = !!CFG.dynamicContextImages;
-
+        
         PD.querySelectorAll('#vn-tab-style .vn-style-opt').forEach(b => b.classList.toggle('selected', b.dataset.style === CFG.displayStyle));
         
         const regexMode = CFG.regexMode || 'at';
@@ -5326,11 +5437,21 @@ function buildImgPickerModal() {
         });
         const handleAutoAssignChange = (checked) => {
             CFG.autoAssignAvatar = checked;
+            if (checked && CFG.autoAssignByCharName) {
+                CFG.autoAssignByCharName = false;
+                PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = false; });
+                if ($('vn-char-name-sources-wrap')) $('vn-char-name-sources-wrap').style.display = 'none';
+                const cnStatus = $('vn-char-name-prompt-status');
+                if (cnStatus) {
+                    cnStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)';
+                    cnStatus.style.background = 'rgba(148,163,184,0.2)';
+                    cnStatus.style.color = '#94a3b8';
+                }
+            }
             saveConfig(CFG);
             doInjectSystemPrompt();
             if ($('vn-toggle-auto-assign')) $('vn-toggle-auto-assign').checked = checked;
-            if ($('vn-toggle-auto-assign-set')) $('vn-toggle-auto-assign-set').checked = checked;
-            if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').checked = checked;
+                        if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').checked = checked;
             const gStatus = $('vn-gender-prompt-status');
             if (gStatus) {
                 if (checked) {
@@ -5346,8 +5467,64 @@ function buildImgPickerModal() {
             showToast(checked ? '🌸 Đã bật tự động nhận diện giới tính & gán ảnh Waifu/Husbando!' : 'Đã tắt tự động gán ảnh theo giới tính', 'info');
         };
         if ($('vn-toggle-auto-assign')) $('vn-toggle-auto-assign').addEventListener('change', e => handleAutoAssignChange(e.target.checked));
-        if ($('vn-toggle-auto-assign-set')) $('vn-toggle-auto-assign-set').addEventListener('change', e => handleAutoAssignChange(e.target.checked));
-        if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').addEventListener('change', e => handleAutoAssignChange(e.target.checked));
+                if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').addEventListener('change', e => handleAutoAssignChange(e.target.checked));
+
+        const handleAutoAssignNameChange = (checked) => {
+            CFG.autoAssignByCharName = checked;
+            if (checked && CFG.autoAssignAvatar) {
+                CFG.autoAssignAvatar = false;
+                if ($('vn-toggle-auto-assign-prompt')) $('vn-toggle-auto-assign-prompt').checked = false;
+                                if ($('vn-toggle-auto-assign')) $('vn-toggle-auto-assign').checked = false;
+                const gStatus = $('vn-gender-prompt-status');
+                if (gStatus) { gStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)'; gStatus.style.background = 'rgba(148,163,184,0.2)'; gStatus.style.color = '#94a3b8'; }
+            }
+            saveConfig(CFG);
+            doInjectSystemPrompt();
+            PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => { el.checked = checked; });
+            if ($('vn-char-name-sources-wrap')) $('vn-char-name-sources-wrap').style.display = checked ? 'block' : 'none';
+            
+            const cnStatus = $('vn-char-name-prompt-status');
+            if (cnStatus) {
+                if (checked) {
+                    cnStatus.textContent = '⚡ ĐANG KÍCH HOẠT (TIÊM KÈM)';
+                    cnStatus.style.background = 'rgba(129,140,248,0.2)';
+                    cnStatus.style.color = '#818cf8';
+                } else {
+                    cnStatus.textContent = '⏸️ ĐANG TẮT (KHÔNG TIÊM)';
+                    cnStatus.style.background = 'rgba(148,163,184,0.2)';
+                    cnStatus.style.color = '#94a3b8';
+                }
+            }
+            showToast(checked ? '🌸 Đã bật tự động gán ảnh theo Tên nhân vật!' : 'Đã tắt tự động gán ảnh theo Tên', 'info');
+        };
+        PD.querySelectorAll('.vn-auto-assign-name-toggle, #vn-toggle-auto-assign-name, #vn-toggle-auto-assign-name-quick').forEach(el => {
+            el.addEventListener('change', e => handleAutoAssignNameChange(e.target.checked));
+        });
+        PD.querySelectorAll('.vn-char-name-source-cb').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                if (!CFG.charNameSources) CFG.charNameSources = [];
+                const val = e.target.value;
+                if (e.target.checked) {
+                    if (!CFG.charNameSources.includes(val)) CFG.charNameSources.push(val);
+                } else {
+                    CFG.charNameSources = CFG.charNameSources.filter(x => x !== val);
+                }
+                saveConfig(CFG);
+            });
+        });
+        const cnfcInput = PD.getElementById('vn-char-name-fetch-count');
+        if (cnfcInput) {
+            cnfcInput.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val) || val < 1) val = 1;
+                if (val > 100) val = 100;
+                CFG.charNameFetchCount = val;
+                e.target.value = val;
+                saveConfig(CFG);
+            });
+        }
+
+
 
         const handleDynamicContextChange = (checked) => {
             CFG.dynamicContextImages = checked;
@@ -5593,6 +5770,7 @@ function buildImgPickerModal() {
         $('vn-prompt-save').addEventListener('click', () => {
             if ($('vn-prompt-text')) CFG.customPrompt = $('vn-prompt-text').value;
             if ($('vn-gender-prompt-text')) CFG.genderPrompt = $('vn-gender-prompt-text').value;
+            if ($('vn-char-name-prompt-text')) CFG.charNamePrompt = $('vn-char-name-prompt-text').value;
             if ($('vn-dynamic-prompt-text')) CFG.dynamicPrompt = $('vn-dynamic-prompt-text').value;
             saveConfig(CFG);
             doInjectSystemPrompt();
@@ -5602,6 +5780,7 @@ function buildImgPickerModal() {
             if (!confirm('Khôi phục prompt hướng dẫn & cấu hình bơm về mặc định?')) return;
             CFG.customPrompt = DEFAULT_CONFIG.customPrompt;
             CFG.genderPrompt = DEFAULT_CONFIG.genderPrompt;
+            CFG.charNamePrompt = DEFAULT_CONFIG.charNamePrompt;
             CFG.dynamicPrompt = DEFAULT_CONFIG.dynamicPrompt;
             CFG.wrapRuleBlock = DEFAULT_CONFIG.wrapRuleBlock;
             CFG.injectTarget = DEFAULT_CONFIG.injectTarget;
@@ -5609,6 +5788,7 @@ function buildImgPickerModal() {
             CFG.injectDepth = DEFAULT_CONFIG.injectDepth;
             if ($('vn-prompt-text')) $('vn-prompt-text').value = CFG.customPrompt;
             if ($('vn-gender-prompt-text')) $('vn-gender-prompt-text').value = CFG.genderPrompt;
+            if ($('vn-char-name-prompt-text')) $('vn-char-name-prompt-text').value = CFG.charNamePrompt;
             if ($('vn-dynamic-prompt-text')) $('vn-dynamic-prompt-text').value = CFG.dynamicPrompt;
             if ($('vn-toggle-wrap-rule')) $('vn-toggle-wrap-rule').checked = CFG.wrapRuleBlock;
             if ($('vn-inject-target')) $('vn-inject-target').value = CFG.injectTarget;
@@ -5660,6 +5840,8 @@ function buildImgPickerModal() {
                     added++;
                     if (CFG.autoAssignAvatar) {
                         autoAssignAvatarForChar(name, gender || 'waifu');
+                    } else if (CFG.autoAssignByCharName) {
+                        autoAssignAvatarByName(name);
                     }
                 }
             });
@@ -5986,7 +6168,7 @@ function buildImgPickerModal() {
                 mockContainer.style.visibility = 'hidden';
                 PD.body.appendChild(mockContainer);
 
-                const sampleNames = ['Kazumi', 'Itsuki', 'Sakura', 'Akira', 'Yuki', 'Hana', 'Ren', 'Sora', 'Mei', 'Hiro'];
+                const sampleNames = ['Hoshino Yue', 'Itsuki Natsume', 'Sakura', 'Akira', 'Yuki', 'Hana', 'Ren', 'Sora', 'Mei', 'Hiro'];
                 for (let i = 0; i < 200; i++) {
                     const mes = PD.createElement('div');
                     mes.className = 'mes';
