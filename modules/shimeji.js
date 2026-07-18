@@ -42,7 +42,7 @@
         if (!isEngineRunning) {
             isEngineRunning = true;
             lastTime = performance.now();
-    
+            parentDocument.shmMainLoop = requestAnimationFrame(engineLoop);
         }
     }
     let isDebug = false;
@@ -909,6 +909,7 @@
 
     async function wipeMemory() {
         if (parentDocument.shmMainLoop) cancelAnimationFrame(parentDocument.shmMainLoop);
+        isEngineRunning = false;
         activeShimejis.forEach(s => s.destroy()); activeShimejis = [];
         activeToys.forEach(item => item.destroy()); activeToys = [];
         if(activeTrampoline){ activeTrampoline.destroy(); activeTrampoline = null; }
