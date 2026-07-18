@@ -1,5 +1,5 @@
 /**
- * Visual Novel Dialogue Beautifier v0.7.0.0
+ * Visual Novel Dialogue Beautifier v1.0.0.0
  * - Tiêm system prompt cấu trúc lời thoại @Tên@ vào SillyTavern (In-chat Depth 0)
  * - Tự động nhận diện giới tính @Tên(Nữ/Nam)@ và gán ảnh Waifu/Husbando từ neko.best
  * - Quản lý ảnh nhân vật từ 9 free Anime API + Local Upload + Kho Link + Crop Avatar + kho Local/URL lưu lại
@@ -12,7 +12,7 @@
     const PW = window.parent || window;
     const PD = PW.document;
     const SCRIPT_ID = 'vn-dialogue';
-    const SCRIPT_VERSION = 'v0.7.0.0';
+    const SCRIPT_VERSION = 'v1.0.0.0';
     const STORE_KEY = 'VNDialogue_Config_v2';
 
     // ========== DỌN DẸP TRƯỚC KHI KHỞI TẠO ==========

@@ -256,7 +256,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.6.5.0';
+const KAIZ_CURRENT_VERSION = '2.7.0.0';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -1136,7 +1136,7 @@ waitForEnvironment(async (targetWin, jq) => {
     
     // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.5.0.0)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.6.5.0') {
+        if (KAIZ_CURRENT_VERSION === '2.7.0.0') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);
