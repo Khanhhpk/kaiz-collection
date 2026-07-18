@@ -648,13 +648,12 @@ function showKaizPatchNotes(targetWin) {
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
             Chào mừng bạn đến với bản đại cập nhật <b>v${KAIZ_CURRENT_VERSION}</b> của <b>KAIZ Collection</b>!<br><br>
-            Bản cập nhật v2.6.5.0 mang tới <b>12 kho ảnh</b> khổng lồ cho hệ sinh thái <b>Visual Novel</b>, nổi bật với hệ thống xác thực trực tiếp và cải tiến UI linh hoạt, giúp bạn tha hồ "lấy ảnh anime/NSFW" ngay trong ứng dụng!<br><br>
+            Bản cập nhật v2.7.0.0 mang tới tính năng <b>Gán ảnh tự động bằng Tên nhân vật</b> thông minh, đồng thời sửa lỗi hệ thống lưu trữ ảnh tĩnh nội bộ giúp <b>Visual Novel</b> mượt mà hơn!<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
                 <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new in v${KAIZ_CURRENT_VERSION}?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square; display: flex; flex-direction: column; gap: 10px;">
-                    <li><b style="color: #38bdf8;">🌟 Mở Rộng 3 Nguồn Ảnh Mới:</b> Tích hợp thêm nguồn ảnh <b style="color:#fff;">Yande.re</b> (Kho ảnh HQ với bộ lọc NSFW) và <b style="color:#fff;">Rule34.xxx</b> (Kho NSFW với Form xác thực API Key riêng biệt cực kỳ bảo mật).</li>
-                    <li><b style="color: #34d399;">⚙️ Hệ Thống UI Auth (Rule34):</b> Tự động hóa quá trình xác thực Rule34. Form nhập User ID và API Key hiện ra trực quan, lưu an toàn vào LocalStorage, có thể đóng mở gọn gàng giúp thoáng màn hình.</li>
-                    <li><b style="color: #a855f7;">🎨 Trải Nghiệm & UI Visual Novel:</b> Các dòng ghi chú/mẹo sử dụng tự động biến đổi động mượt mà khi đổi qua lại giữa 12 nguồn ảnh, không cần bấm tải ảnh!</li>
+                    <li><b style="color: #38bdf8;">🌟 Tự động gán ảnh theo Tên (Full Name):</b> Hệ thống giờ đây có thể tự động phân tích bối cảnh truyện (đặc biệt là fanfic, đồng nhân) để tra cứu chính xác tên đầy đủ của nhân vật, từ đó tìm kiếm và gán ảnh đại diện ngẫu nhiên từ 4 nguồn cơ sở dữ liệu lớn (Safebooru, Rule34, Yande.re, AniList) mỗi khi có nhân vật mới xuất hiện trong khung chat.</li>
+                    <li><b style="color: #34d399;">⚙️ Sửa lỗi lưu trữ ảnh Local (IndexedDB):</b> Khắc phục triệt để các vấn đề liên quan đến việc render và đồng bộ cache ảnh local/upload khi tải lại trang, đảm bảo trải nghiệm hiển thị liền mạch.</li>
                 </ul>
             </div>
         </div>
@@ -1450,4 +1449,4 @@ function initKaizExplorer(doc, targetWin) {
     // Init
     doc.getElementById('kaiz_explorer_tab_ctx').style.borderBottom = '2px solid #00d2b4';
     loadData();
-}
+}
