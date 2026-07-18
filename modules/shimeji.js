@@ -36,6 +36,15 @@
     let activeShimejis = [];
     let activeToys = []; 
     let activeTrampoline = null;
+    let isEngineRunning = false;
+
+    function ensureEngineRunning() {
+        if (!isEngineRunning) {
+            isEngineRunning = true;
+            lastTime = performance.now();
+    
+        }
+    }
     let isDebug = false;
 
     let pgMode = 'idle'; 
@@ -747,7 +756,7 @@
                 if (chosenAction === 'SplitIntoTwo' || chosenAction === 'PullUpShimeji') {
                     setTimeout(() => {
                         let newShi = new Shimeji(this.x + (this.faceRight ? -30 : 30), this.y, 'Falling');
-                        activeShimejis.push(newShi);
+                        activeShimejis.push(newShi); ensureEngineRunning();
                     }, 2000); 
                 }
                 this.switchAction(chosenAction);
@@ -871,13 +880,18 @@
         if (!uiControlsElement) return;
         const debugContent = uiControlsElement.querySelector('#shimeji-debug-content');
         if (!debugContent || !isDebug) return;
-        if (activeShimejis.length === 0) { debugContent.innerHTML = '<span style="color: #94a3b8;">Không có nhân vật.</span>'; return; }
+        if (activeShimejis.length === 0) { 
+            const emptyHtml = '<span style="color: #94a3b8;">Không có nhân vật.</span>';
+            if (debugContent.innerHTML !== emptyHtml) debugContent.innerHTML = emptyHtml;
+            return; 
+        }
         const target = activeShimejis[0];
-        debugContent.innerHTML = `
+        const newHtml = `
             <div style="display:flex; justify-content:space-between;"><span>Action:</span> <span style="color:#38bdf8">${target.action}</span></div>
             <div style="display:flex; justify-content:space-between;"><span>State:</span> <span style="color:#a78bfa">${target.state}</span></div>
             <div style="display:flex; justify-content:space-between;"><span>Tọa độ:</span> <span style="color:#fcd34d">X:${Math.round(target.x)} Y:${Math.round(target.y)}</span></div>
         `;
+        if (debugContent.innerHTML !== newHtml) debugContent.innerHTML = newHtml;
     }
 
     function updateActionSelect() {
@@ -1428,7 +1442,7 @@
             let startY = Math.max(20, Math.min(pgMouseY + jitterY, cachedWinHeight - 40));
 
             let toy = new Toy(startX, startY, vx, vy, type);
-            activeToys.push(toy);
+            activeToys.push(toy); ensureEngineRunning();
             if (activeToys.length > 15) { let old = activeToys.shift(); old.destroy(); }
 
             activeShimejis.forEach(s => {
@@ -1442,7 +1456,7 @@
                 pgMode = 'idle'; pgStatus.innerText = 'Trạng thái: Tự do ngẫu nhiên';
             } else {
                 pgMode = 'trampoline'; pgStatus.innerText = 'Trạng thái: Đang hứng bạt nhún!';
-                activeTrampoline = new Trampoline();
+                activeTrampoline = new Trampoline(); ensureEngineRunning();
                 
                 activeShimejis.forEach(s => {
                     s.y = -150; s.x = 50 + Math.random() * (cachedWinWidth - 150);
@@ -1689,7 +1703,7 @@
 
             if (newState) {
                 if (activeShimejis.length === 0 && Object.keys(parsedActions).length > 0 && Object.keys(frameUrls).length > 0) {
-                    activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling'));
+                    activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling')); ensureEngineRunning();
                     statusEl.innerText = 'Đã bật Shimeji!'; statusEl.style.color = '#34d399';
                     updateActionSelect();
                 }
@@ -1740,7 +1754,7 @@
         uiControlsElement.querySelector('#shimeji-refresh-btn').onclick = () => {
             activeShimejis.forEach(s => s.destroy()); activeShimejis = [];
             if (Object.keys(parsedActions).length > 0) {
-                activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling'));
+                activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling')); ensureEngineRunning();
                 statusEl.innerText = 'Đã reset nhân vật!'; statusEl.style.color = '#4ade80';
             }
         };
@@ -1761,7 +1775,7 @@
                 if (activeShimejis.length === 0 && aiConfig.enabled === false) {
                     toggleShimejiState(true);
                 } else if (activeShimejis.length === 0) {
-                    activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling'));
+                    activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling')); ensureEngineRunning();
                 }
             } catch (err) {
                 statusEl.innerText = 'Lỗi nạp dữ liệu!'; statusEl.style.color = '#fb7185'; console.error(err);
@@ -1773,7 +1787,7 @@
                 let newShi = new Shimeji(Math.random() * cachedWinWidth, -100, 'Falling');
                 let locked = activeShimejis.length > 0 ? activeShimejis[0].lockedAction : null; 
                 if (locked) newShi.lockedAction = locked;
-                activeShimejis.push(newShi);
+                activeShimejis.push(newShi); ensureEngineRunning();
             }
         };
 
@@ -1837,7 +1851,7 @@
         if (aiConfig.autoEnabled) toggleAutoChat();
 
         if (aiConfig.enabled !== false && Object.keys(parsedActions).length > 0 && Object.keys(frameUrls).length > 0) {
-            activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling'));
+            activeShimejis.push(new Shimeji(cachedWinWidth / 2, -150, 'Falling')); ensureEngineRunning();
             const statusEl = uiControlsElement.querySelector('#shimeji-status');
             if (statusEl) { statusEl.innerText = 'Khôi phục Data thành công.'; statusEl.style.color = '#4ade80'; }
             updateActionSelect();
@@ -1849,5 +1863,5 @@
         parentDocument.shmMainLoop = requestAnimationFrame(engineLoop);
     }
 
-    startEngine();
+    ensureEngineRunning();
 })();
