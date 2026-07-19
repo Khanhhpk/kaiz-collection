@@ -628,8 +628,8 @@ function openDiffModal(title, type, oldData, newData) {
       oldHtml = diff.oldHtml;
       newHtml = diff.newHtml;
     } else if (type === 'reorder') {
-      const oldLines = oldData.map((id, i) => `${i + 1}. ${id}`).join('\\n');
-      const newLines = newData.map((id, i) => `${i + 1}. ${id}`).join('\\n');
+      const oldLines = oldData.map((id, i) => `${i + 1}. ${id}`).join('\n');
+      const newLines = newData.map((id, i) => `${i + 1}. ${id}`).join('\n');
       const diff = thoroughLineDiff(oldLines, newLines);
       oldHtml = diff.oldHtml;
       newHtml = diff.newHtml;
@@ -828,17 +828,14 @@ function renderToolPreview() {
   }
 
   // 6. Reorder
-  if (summary.reorder && summary.reorder.length > 0) {
+  if (summary.reorder && summary.reorder.newData && summary.reorder.newData.length > 0) {
     const dataKey = 'reorder___ORDER__';
     
-    // We need old order for comparison. For this we can query getPromptOrder().
-    const oldOrder = typeof getPromptOrder === 'function' ? getPromptOrder() : [];
-    
     window._aiAgencyStagedDiffs[dataKey] = {
-      title: `<i data-lucide="arrow-up-down" style="width:18px;height:18px;color:#38bdf8;"></i> Sắp xếp lại thứ tự <b style="color:#38bdf8;">${summary.reorder.length} prompt blocks</b>`,
+      title: `<i data-lucide="arrow-up-down" style="width:18px;height:18px;color:#38bdf8;"></i> Sắp xếp lại thứ tự <b style="color:#38bdf8;">${summary.reorder.newData.length} prompt blocks</b>`,
       type: 'reorder',
-      oldData: oldOrder,
-      newData: summary.reorder
+      oldData: summary.reorder.oldData,
+      newData: summary.reorder.newData
     };
 
     diffHtml += `
@@ -846,7 +843,7 @@ function renderToolPreview() {
         <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
           <div class="ai-staged-toggle-diff" onclick="window.openAiStagedDiffModal('${dataKey}')" style="cursor:pointer;display:flex;align-items:center;gap:4px;flex:1;min-width:180px;">
             <i data-lucide="arrow-up-down" style="width:14px;height:14px;color:#38bdf8;"></i>
-            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Sắp xếp lại thứ tự <b style="color:#38bdf8;">${summary.reorder.length} prompt blocks</b></span>
+            <span style="color:#e2e8f0;font-weight:600;font-size:12px;">Sắp xếp lại thứ tự <b style="color:#38bdf8;">${summary.reorder.newData.length} prompt blocks</b></span>
             <span style="font-size:11px;color:#38bdf8;text-decoration:underline;margin-left:4px;">👁️ Xem thứ tự mới</span>
           </div>
           <div style="display:flex;gap:4px;">

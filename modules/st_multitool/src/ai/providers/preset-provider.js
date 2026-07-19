@@ -120,7 +120,10 @@ export function getStagingSummary() {
     } else if (id === '__VAR_RENAMES__') {
       varRenames = Object.entries(fields).map(([oldName, newName]) => ({ oldName, newName }));
     } else if (id === '__ORDER__') {
-      reorder = fields.order;
+      reorder = {
+        oldData: fields.oldOrder || [],
+        newData: fields.order || []
+      };
     } else {
       const baseBlock = findBasePrompt(id) || {};
       const block = findPrompt(id);
@@ -718,7 +721,7 @@ async function executeTool(name, args) {
       // Validate tất cả identifier tồn tại
       const missing = newOrder.filter(id => !findPrompt(id));
       if (missing.length) return { error: `Không tìm thấy: ${missing.join(', ')}` };
-      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', {});
+      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', { oldOrder: getPromptOrder().slice() });
       _stagingMap.get('__ORDER__').order = newOrder;
       return { ok: true, staged: true, summary: `Staged sắp xếp lại ${newOrder.length} prompts` };
     }
@@ -771,7 +774,7 @@ async function executeTool(name, args) {
         }
       }
 
-      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', {});
+      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', { oldOrder: getPromptOrder().slice() });
       _stagingMap.get('__ORDER__').order = currentOrder;
       return {
         ok: true,
