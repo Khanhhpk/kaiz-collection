@@ -651,7 +651,7 @@ async function executeTool(name, args) {
       if (!name) return { error: 'Thiếu trường name' };
       const blockData = { name, content, role, injection_position, injection_depth, injection_order, addToLinked, insertTop, position };
       _stagingCreates.push(blockData);
-      return { ok: true, staged: true, summary: `Staged tạo block "${name}" (${addToLinked ? 'Linked' : 'Unlinked'})` };
+      return { ok: true, staged: true, summary: `Staged tạo block "${name}" (${addToLinked ? 'Linked' : 'Unlinked'})${position !== undefined ? ' tại vị trí index ' + position : ''}` };
     }
 
     case 'delete_prompt_block': {
