@@ -175,13 +175,10 @@ export function scanPromptContent(content, promptName, promptId) {
       const fullMatch = content.slice(startIndex, endIndex);
       const inner = fullMatch.slice(match[0].length, fullMatch.length - 2); // Strip prefix and closing '}}'
       const scope = typeStr.includes('global') ? 'global' : 'local';
-      let type = 'set';
-      if (typeStr.includes('get')) type = 'get';
-      else if (typeStr.includes('add')) type = 'addvar';
-      else type = 'set';
+      let type = typeStr;
 
-      if (type === 'get') {
-        add(inner.trim(), 'get', undefined, scope, fullMatch);
+      if (type.includes('get')) {
+        add(inner.trim(), type, undefined, scope, fullMatch);
       } else {
         const firstColon = inner.indexOf('::');
         if (firstColon !== -1) {
@@ -203,13 +200,10 @@ export function scanPromptContent(content, promptName, promptId) {
     const varName = match[2];
     const varVal = match[3] || '';
     const scope = cmd.includes('global') ? 'global' : 'local';
-    let type = 'set';
-    if (cmd.includes('get')) type = 'get';
-    else if (cmd.includes('add')) type = 'addvar';
-    else type = 'set';
+    let type = cmd;
 
-    if (type === 'get') {
-      add(varName, 'get', undefined, scope, fullMatch);
+    if (type.includes('get')) {
+      add(varName, type, undefined, scope, fullMatch);
     } else {
       add(varName, type, varVal, scope, fullMatch);
     }
