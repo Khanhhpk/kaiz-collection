@@ -55,7 +55,7 @@ function restoreOriginalSnapshot() {
  * Tạo block mới (pending) — chưa ghi vào ST context.
  * Cấu trúc khớp với preset JSON thực của SillyTavern.
  */
-export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = false) {
+export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = false, position = undefined) {
   const identifier = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   const newBlock = {
     identifier,
@@ -72,7 +72,7 @@ export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = 
     injection_order: blockData.injection_order ?? 100,
   };
 
-  _pendingAdds.push({ block: newBlock, addToLinked, insertTop });
+  _pendingAdds.push({ block: newBlock, addToLinked, insertTop, position });
   renderPromptBlocks();
   refreshIcons($promptListContainer[0]);
   return newBlock;
@@ -707,7 +707,8 @@ export function getCurrentEditorSnapshot() {
     newPromptOrder.push(...promptOrder.filter(id => !_pendingDeletes.has(id)));
     _pendingAdds.forEach(p => {
       if (p.addToLinked && !_pendingDeletes.has(p.block.identifier)) {
-        if (p.insertTop) newPromptOrder.unshift(p.block.identifier);
+        if (typeof p.position === 'number' && p.position >= 0 && p.position <= newPromptOrder.length) newPromptOrder.splice(p.position, 0, p.block.identifier);
+        else if (p.insertTop) newPromptOrder.unshift(p.block.identifier);
         else newPromptOrder.push(p.block.identifier);
       }
     });

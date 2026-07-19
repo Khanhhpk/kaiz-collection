@@ -367,8 +367,8 @@ export async function applyStagedSingle(type, key) {
     const index = parseInt(key, 10);
     const blockData = _stagingCreates[index];
     if (!blockData) return false;
-    const { addToLinked, insertTop, ...data } = blockData;
-    addPromptBlock(data, addToLinked ?? true, insertTop ?? false);
+    const { addToLinked, insertTop, position, ...data } = blockData;
+    addPromptBlock(data, addToLinked ?? true, insertTop ?? false, position);
     _stagingCreates.splice(index, 1);
   } else if (type === 'delete') {
     if (!_stagingDeletes.has(key)) return false;
@@ -647,9 +647,9 @@ async function executeTool(name, args) {
     case 'create_prompt_block': {
       const { name, content = '', role = 'system', injection_position = 0,
               injection_depth = 4, injection_order = 100,
-              addToLinked = true, insertTop = false } = args;
+              addToLinked = true, insertTop = false, position } = args;
       if (!name) return { error: 'Thiếu trường name' };
-      const blockData = { name, content, role, injection_position, injection_depth, injection_order, addToLinked, insertTop };
+      const blockData = { name, content, role, injection_position, injection_depth, injection_order, addToLinked, insertTop, position };
       _stagingCreates.push(blockData);
       return { ok: true, staged: true, summary: `Staged tạo block "${name}" (${addToLinked ? 'Linked' : 'Unlinked'})` };
     }
@@ -1149,7 +1149,7 @@ Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong v
       { name: 'search_in_prompts',     description: 'Tìm kiếm trong prompts', args: ['query'] },
       { name: 'list_vars',             description: 'Liệt kê tất cả biến' },
       { name: 'validate_preset_syntax', description: 'Kiểm thử lỗi cú pháp ngoặc nhọn {{...}} và macro trên toàn preset' },
-      { name: 'create_prompt_block',   description: 'Tạo block mới (staged)', args: ['name', 'content', 'role', 'addToLinked'] },
+      { name: 'create_prompt_block',   description: 'Tạo block mới (staged)', args: ['name', 'content', 'role', 'addToLinked', 'position?'] },
       { name: 'delete_prompt_block',   description: 'Xóa block (staged)', args: ['identifier'] },
       { name: 'set_prompt_linked',     description: 'Chuyển đổi trạng thái HOẶC di chuyển nhanh vị trí 1 block riêng lẻ (staged)', args: ['identifier', 'linked', 'position?'] },
       { name: 'duplicate_prompt_block', description: 'Nhân bản 1 block với 100% nội dung và meta cũ (staged)', args: ['identifier', 'newName?'] },
