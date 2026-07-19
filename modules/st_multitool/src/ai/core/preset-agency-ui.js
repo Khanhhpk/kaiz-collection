@@ -531,8 +531,8 @@ function simpleLineDiff(oldStr, newStr) {
   return { oldHtml, newHtml };
 }
 
-function openDiffModal(title, type, oldData, newData) {
-  window._currentDiffData = { title, type, oldData, newData }; // Save for re-render toggle
+function openDiffModal(title, type, oldData, newData, metaData) {
+  window._currentDiffData = { title, type, oldData, newData, metaData }; // Save for re-render toggle
 
   let $modal = $('#ai-diff-preview-modal');
   if (!$modal.length) {
@@ -628,8 +628,9 @@ function openDiffModal(title, type, oldData, newData) {
       oldHtml = diff.oldHtml;
       newHtml = diff.newHtml;
     } else if (type === 'reorder') {
-      const oldLines = oldData.map((id, i) => `${i + 1}. ${id}`).join('\n');
-      const newLines = newData.map((id, i) => `${i + 1}. ${id}`).join('\n');
+      const names = metaData || {};
+      const oldLines = oldData.map((id, i) => `${i + 1}. ${names[id] || id}`).join('\n');
+      const newLines = newData.map((id, i) => `${i + 1}. ${names[id] || id}`).join('\n');
       const diff = thoroughLineDiff(oldLines, newLines);
       oldHtml = diff.oldHtml;
       newHtml = diff.newHtml;
@@ -835,7 +836,8 @@ function renderToolPreview() {
       title: `<i data-lucide="arrow-up-down" style="width:18px;height:18px;color:#38bdf8;"></i> Sắp xếp lại thứ tự <b style="color:#38bdf8;">${summary.reorder.newData.length} prompt blocks</b>`,
       type: 'reorder',
       oldData: summary.reorder.oldData,
-      newData: summary.reorder.newData
+      newData: summary.reorder.newData,
+      metaData: summary.promptNames
     };
 
     diffHtml += `
@@ -856,7 +858,7 @@ function renderToolPreview() {
 
   window.openAiStagedDiffModal = function(dataKey) {
     const d = window._aiAgencyStagedDiffs[dataKey];
-    if (d) openDiffModal(d.title, d.type, d.oldData, d.newData);
+    if (d) openDiffModal(d.title, d.type, d.oldData, d.newData, d.metaData);
   };
 
   _$sidebar.find('.ai-preview-stats').html(`<i data-lucide="clipboard-list" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> ${summary.totalChanges} thay đổi đang chờ xác nhận (Bấm vào từng mục để xem Diff chi tiết)`);

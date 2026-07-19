@@ -159,6 +159,15 @@ export function getStagingSummary() {
 
   const totalChanges = updates.length + creates.length + deletes.length + varUpdates.length + varRenames.length + (reorder ? 1 : 0);
 
+  const promptNames = {};
+  if (reorder) {
+    const ids = new Set([...reorder.oldData, ...reorder.newData]);
+    for (const id of ids) {
+      const p = findPrompt(id);
+      promptNames[id] = p?.name || id;
+    }
+  }
+
   return {
     updates,
     creates,
@@ -166,6 +175,7 @@ export function getStagingSummary() {
     varUpdates,
     varRenames,
     reorder,
+    promptNames,
     totalChanges,
   };
 }
