@@ -323,8 +323,8 @@ export async function flushStaging() {
 
   // 5. Apply creates
   for (const blockData of _stagingCreates) {
-    const { addToLinked, insertTop, ...data } = blockData;
-    addPromptBlock(data, addToLinked ?? false, insertTop ?? false);
+    const { addToLinked, insertTop, position, ...data } = blockData;
+    addPromptBlock(data, addToLinked ?? false, insertTop ?? false, position);
   }
 
   // 6. Apply deletes
