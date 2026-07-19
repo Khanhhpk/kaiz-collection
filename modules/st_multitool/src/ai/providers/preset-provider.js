@@ -130,7 +130,8 @@ export function getStagingSummary() {
         fields: Object.keys(fields),
         oldContent: baseBlock.content || '',
         newContent: fields.content !== undefined ? fields.content : (baseBlock.content || ''),
-        changes: fields
+        changes: fields,
+        oldBlock: baseBlock
       });
     }
   }

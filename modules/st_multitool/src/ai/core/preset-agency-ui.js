@@ -514,16 +514,37 @@ function renderToolPreview() {
   for (const upd of summary.updates) {
     if (upd.identifier === '__ORDER__' || upd.identifier === '__VARS__' || upd.identifier === '__VAR_RENAMES__') continue;
     
-    let isContentUpdate = upd.changes?.content !== undefined;
-    let diffType = isContentUpdate ? 'update' : 'meta';
-    
     // Store data globally for the modal
     const dataKey = 'update_' + upd.identifier;
+    
+    let oldStr = '';
+    let newStr = '';
+
+    const metaFields = upd.fields.filter(f => f !== 'content');
+    if (metaFields.length > 0) {
+      for (const f of metaFields) {
+        let oldVal = upd.oldBlock && upd.oldBlock[f] !== undefined ? upd.oldBlock[f] : 'N/A';
+        if (typeof oldVal === 'object') oldVal = JSON.stringify(oldVal);
+        let newVal = upd.changes[f];
+        if (typeof newVal === 'object') newVal = JSON.stringify(newVal);
+        
+        oldStr += `[${f}]: ${oldVal}\n`;
+        newStr += `[${f}]: ${newVal}\n`;
+      }
+      oldStr += '\n';
+      newStr += '\n';
+    }
+
+    if (upd.oldContent !== undefined) {
+      oldStr += `=== NỘI DUNG ===\n${upd.oldContent}`;
+      newStr += `=== NỘI DUNG ===\n${upd.newContent}`;
+    }
+
     window._aiAgencyStagedDiffs[dataKey] = {
       title: `<i data-lucide="file-edit" style="width:18px;height:18px;color:#38bdf8;"></i> Cập nhật: <b style="color:#38bdf8;">${escapeHtml(upd.name)}</b>`,
-      type: diffType,
-      oldData: isContentUpdate ? upd.oldContent : { fields: Object.keys(upd.changes) }, // In real app, you'd need the base block metadata too. For now simple representation.
-      newData: isContentUpdate ? upd.newContent : upd.changes
+      type: 'update',
+      oldData: oldStr.trimEnd(),
+      newData: newStr.trimEnd()
     };
 
     diffHtml += `
