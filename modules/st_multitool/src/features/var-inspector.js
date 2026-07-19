@@ -258,12 +258,12 @@ function analyse() {
 
   // Linting & Value Extraction
   const result = [...varMap.values()].map(v => {
-    const hasSet = v.sources.some(s => s.type === 'set' || s.type === 'addvar');
-    const hasGet = v.sources.some(s => s.type === 'get');
+    const hasSet = v.sources.some(s => s.type.startsWith('set') || s.type.startsWith('add'));
+    const hasGet = v.sources.some(s => s.type.startsWith('get'));
     v.isUnused = hasSet && !hasGet && v.scope === 'local';
     
     // Find the first preset value definition for edit mode (no longer used for top-level input, but good for reference)
-    const firstSet = v.sources.find(s => s.type === 'set' || s.type === 'addvar');
+    const firstSet = v.sources.find(s => s.type.startsWith('set') || s.type.startsWith('add'));
     v.presetValue = firstSet && firstSet.value !== undefined ? firstSet.value : '';
     
     return v;
@@ -308,7 +308,7 @@ function renderVarList(vars) {
     const sourcesHtml = v.sources.length === 0
       ? '<div class="st-multitool-vi-no-src">Không tìm thấy trong prompt nào (biến runtime)</div>'
       : v.sources.map(s => {
-          const isSetOrAdd = s.type === 'set' || s.type === 'addvar';
+          const isSetOrAdd = s.type.startsWith('set') || s.type.startsWith('add');
           let valDisplay = s.value !== undefined ? `<span class="st-multitool-vi-src-val"> = ${escapeHtml(truncate(s.value, 40))}</span>` : '';
           
           if (_isEditMode && isSetOrAdd && v.scope === 'local') {
