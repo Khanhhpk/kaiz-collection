@@ -585,14 +585,6 @@ function openDiffModal(title, type, oldData, newData) {
       $modal.fadeOut(200);
     });
     
-    $('#ai-diff-toggle-mode').on('click', () => {
-      window._aiDiffMode = window._aiDiffMode === 'line' ? 'inline' : 'line';
-      $('#ai-diff-toggle-text').text(window._aiDiffMode === 'line' ? 'Chế độ: Theo dòng (Line)' : 'Chế độ: Kỹ lưỡng (Inline)');
-      if (window._currentDiffData) {
-        renderDiffContent();
-      }
-    });
-
     // Sync scrolling
     $('#ai-diff-modal-old').on('scroll', function() {
       $('#ai-diff-modal-new').scrollTop($(this).scrollTop());
@@ -604,6 +596,14 @@ function openDiffModal(title, type, oldData, newData) {
 
   // Update Toggle button UI to match current mode
   $('#ai-diff-toggle-text').text(window._aiDiffMode === 'line' ? 'Chế độ: Theo dòng (Line)' : 'Chế độ: Kỹ lưỡng (Inline)');
+
+  $('#ai-diff-toggle-mode').off('click').on('click', () => {
+    window._aiDiffMode = window._aiDiffMode === 'line' ? 'inline' : 'line';
+    $('#ai-diff-toggle-text').text(window._aiDiffMode === 'line' ? 'Chế độ: Theo dòng (Line)' : 'Chế độ: Kỹ lưỡng (Inline)');
+    if (window._currentDiffData) {
+      renderDiffContent();
+    }
+  });
 
   $('#ai-diff-modal-title').html(title);
   
