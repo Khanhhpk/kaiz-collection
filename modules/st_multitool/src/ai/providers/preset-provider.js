@@ -75,6 +75,14 @@ function findPrompt(identifier) {
   return getPrompts().find(p => p.identifier === identifier) || null;
 }
 
+function findBasePrompt(identifier) {
+  const snapshot = typeof getCurrentEditorSnapshot === 'function'
+    ? getCurrentEditorSnapshot()
+    : { prompts: getContainer()?.prompts || [] };
+  const basePrompts = snapshot?.prompts || getContainer()?.prompts || [];
+  return basePrompts.find(p => p.identifier === identifier) || null;
+}
+
 // ─── Staging Map ──────────────────────────────────────────────────────────────
 // Các thay đổi write tool được staging ở đây, không ghi vào ST context ngay.
 // Khi user bấm "Áp dụng" → _flushStaging() mới ghi thật.
@@ -107,21 +115,27 @@ export function getStagingSummary() {
         promptId: info?.promptId || '',
         newValue: info?.newValue || '',
         newValueExcerpt: info?.newValue || '',
-        oldValueMatch: info?.oldValueMatch || ''
+        oldValueMatch: info?.oldValueMatch || '',
+        matchType: info?.matchType || 'setvar'
       }));
     } else if (id === '__VAR_RENAMES__') {
       varRenames = Object.entries(fields).map(([oldName, newName]) => ({ oldName, newName }));
     } else if (id === '__ORDER__') {
-      reorder = fields.order;
+      reorder = {
+        oldData: fields.oldOrder || [],
+        newData: fields.order || []
+      };
     } else {
+      const baseBlock = findBasePrompt(id) || {};
       const block = findPrompt(id);
       updates.push({
         identifier: id,
         name: block?.name || id,
         fields: Object.keys(fields),
-        oldContent: block?.content || '',
-        newContent: fields.content !== undefined ? fields.content : (block?.content || ''),
-        changes: fields
+        oldContent: baseBlock.content || '',
+        newContent: fields.content !== undefined ? fields.content : (baseBlock.content || ''),
+        changes: fields,
+        oldBlock: baseBlock
       });
     }
   }
@@ -135,7 +149,7 @@ export function getStagingSummary() {
   }));
 
   const deletes = [..._stagingDeletes].map(id => {
-    const b = findPrompt(id);
+    const b = findBasePrompt(id);
     return {
       identifier: id,
       name: b?.name || id,
@@ -146,6 +160,15 @@ export function getStagingSummary() {
 
   const totalChanges = updates.length + creates.length + deletes.length + varUpdates.length + varRenames.length + (reorder ? 1 : 0);
 
+  const promptNames = {};
+  if (reorder) {
+    const ids = new Set([...reorder.oldData, ...reorder.newData]);
+    for (const id of ids) {
+      const p = findPrompt(id);
+      promptNames[id] = p?.name || id;
+    }
+  }
+
   return {
     updates,
     creates,
@@ -153,6 +176,7 @@ export function getStagingSummary() {
     varUpdates,
     varRenames,
     reorder,
+    promptNames,
     totalChanges,
   };
 }
@@ -300,8 +324,8 @@ export async function flushStaging() {
 
   // 5. Apply creates
   for (const blockData of _stagingCreates) {
-    const { addToLinked, insertTop, ...data } = blockData;
-    addPromptBlock(data, addToLinked ?? false, insertTop ?? false);
+    const { addToLinked, insertTop, position, ...data } = blockData;
+    addPromptBlock(data, addToLinked ?? false, insertTop ?? false, position);
   }
 
   // 6. Apply deletes
@@ -344,8 +368,8 @@ export async function applyStagedSingle(type, key) {
     const index = parseInt(key, 10);
     const blockData = _stagingCreates[index];
     if (!blockData) return false;
-    const { addToLinked, insertTop, ...data } = blockData;
-    addPromptBlock(data, addToLinked ?? true, insertTop ?? false);
+    const { addToLinked, insertTop, position, ...data } = blockData;
+    addPromptBlock(data, addToLinked ?? true, insertTop ?? false, position);
     _stagingCreates.splice(index, 1);
   } else if (type === 'delete') {
     if (!_stagingDeletes.has(key)) return false;
@@ -369,7 +393,7 @@ export async function applyStagedSingle(type, key) {
     const promptsToUpdate = info.promptId ? container.prompts.filter(p => p.identifier === info.promptId) : container.prompts;
     for (const p of promptsToUpdate) {
       if (info.oldValueMatch && p.content && p.content.includes(info.oldValueMatch)) {
-        const replaced = `{{${info.matchType || 'set'}::${info.varName}::${info.newValue}}}`;
+        const replaced = `{{${info.matchType || 'setvar'}::${info.varName}::${info.newValue}}}`;
         p.content = p.content.replace(info.oldValueMatch, replaced);
       }
     }
@@ -624,11 +648,11 @@ async function executeTool(name, args) {
     case 'create_prompt_block': {
       const { name, content = '', role = 'system', injection_position = 0,
               injection_depth = 4, injection_order = 100,
-              addToLinked = true, insertTop = false } = args;
+              addToLinked = true, insertTop = false, position } = args;
       if (!name) return { error: 'Thiếu trường name' };
-      const blockData = { name, content, role, injection_position, injection_depth, injection_order, addToLinked, insertTop };
+      const blockData = { name, content, role, injection_position, injection_depth, injection_order, addToLinked, insertTop, position };
       _stagingCreates.push(blockData);
-      return { ok: true, staged: true, summary: `Staged tạo block "${name}" (${addToLinked ? 'Linked' : 'Unlinked'})` };
+      return { ok: true, staged: true, summary: `Staged tạo block "${name}" (${addToLinked ? 'Linked' : 'Unlinked'})${position !== undefined ? ' tại vị trí index ' + position : ''}` };
     }
 
     case 'delete_prompt_block': {
@@ -708,7 +732,7 @@ async function executeTool(name, args) {
       // Validate tất cả identifier tồn tại
       const missing = newOrder.filter(id => !findPrompt(id));
       if (missing.length) return { error: `Không tìm thấy: ${missing.join(', ')}` };
-      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', {});
+      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', { oldOrder: getPromptOrder().slice() });
       _stagingMap.get('__ORDER__').order = newOrder;
       return { ok: true, staged: true, summary: `Staged sắp xếp lại ${newOrder.length} prompts` };
     }
@@ -761,7 +785,7 @@ async function executeTool(name, args) {
         }
       }
 
-      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', {});
+      if (!_stagingMap.has('__ORDER__')) _stagingMap.set('__ORDER__', { oldOrder: getPromptOrder().slice() });
       _stagingMap.get('__ORDER__').order = currentOrder;
       return {
         ok: true,
@@ -906,7 +930,7 @@ async function executeTool(name, args) {
 
       let foundPrompt = null;
       let fullMatch = '';
-      let matchType = targetType || 'set';
+      let matchType = targetType || 'setvar';
 
       for (const p of prompts) {
         if (targetPromptId && p.identifier !== targetPromptId && p.name !== targetPromptId) continue;
@@ -917,7 +941,7 @@ async function executeTool(name, args) {
           foundPrompt = p; fullMatch = oldValueMatch;
           if (fullMatch.startsWith('{{addvar::')) matchType = 'addvar';
           else if (fullMatch.startsWith('{{setglobalvar::')) matchType = 'setglobalvar';
-          else matchType = 'set';
+          else matchType = 'setvar';
           break;
         }
 
@@ -926,13 +950,14 @@ async function executeTool(name, args) {
           const exactSet = `{{setvar::${targetVarName}::${oldValue}}}`;
           const exactAdd = `{{addvar::${targetVarName}::${oldValue}}}`;
           const exactGlob = `{{setglobalvar::${targetVarName}::${oldValue}}}`;
-          if (content.includes(exactSet)) { foundPrompt = p; fullMatch = exactSet; matchType = 'set'; break; }
+          if (content.includes(exactSet)) { foundPrompt = p; fullMatch = exactSet; matchType = 'setvar'; break; }
           if (content.includes(exactAdd)) { foundPrompt = p; fullMatch = exactAdd; matchType = 'addvar'; break; }
           if (content.includes(exactGlob)) { foundPrompt = p; fullMatch = exactGlob; matchType = 'setglobalvar'; break; }
         }
 
         // Tìm theo index hoặc regex
-        const typesToTry = targetType ? [targetType] : ['set', 'addvar', 'setglobalvar'];
+        let typesToTry = targetType ? [targetType] : ['setvar', 'addvar', 'setglobalvar', 'addglobalvar'];
+        
         for (const t of typesToTry) {
           const re = new RegExp(`\\{\\{${t}::${escapeRegex(targetVarName)}::([\\s\\S]*?)\\}\\}`, 'gi');
           const allMatches = [...content.matchAll(re)];
@@ -1076,7 +1101,7 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 - validate_preset_syntax — Quét toàn bộ preset để tự động kiểm tra lỗi ngoặc nhọn {{...}} chưa đóng, nghi vấn sai cú pháp biến setvar/getvar hoặc lỗi độ sâu chèn (args: {}).
 
 [NHÓM GHI – BLOCKS (Staged, lưu tạm thời vào bộ nhớ chờ duyệt)]
-- create_prompt_block — Tạo block mới (args: {"name": "...", "content": "...", "role": "system|user|assistant", "addToLinked": true|false, ...}).
+- create_prompt_block — Tạo block mới (args: {"name": "...", "content": "...", "role": "system|user|assistant", "addToLinked": true|false, "position": 2}). -> CHIẾN LƯỢC CHÈN VỊ TRÍ: Thêm "position" để chèn block vào đúng index mong muốn thay vì tự động đẩy xuống cuối.
 - delete_prompt_block — Đánh dấu xóa block (args: {"identifier": "..."}).
 - set_prompt_linked — Chuyển đổi trạng thái Liên kết / Chưa liên kết HOẶC DI CHUYỂN vị trí của 1 block riêng lẻ (args: {"identifier": "...", "linked": true|false, "position": 2}). -> CHIẾN LƯỢC SẮP XẾP NHANH: Khi bạn chỉ muốn di chuyển/chèn vị trí của 1 block riêng lẻ, hãy dùng 'set_prompt_linked'.
 - duplicate_prompt_block — Nhân bản ngay 1 block với 100% nội dung và metadata giữ nguyên (args: {"identifier": "...", "newName": "..."}).
@@ -1125,7 +1150,7 @@ Bạn là một AI Agent tự động, có quyền tự chủ cao nhất trong v
       { name: 'search_in_prompts',     description: 'Tìm kiếm trong prompts', args: ['query'] },
       { name: 'list_vars',             description: 'Liệt kê tất cả biến' },
       { name: 'validate_preset_syntax', description: 'Kiểm thử lỗi cú pháp ngoặc nhọn {{...}} và macro trên toàn preset' },
-      { name: 'create_prompt_block',   description: 'Tạo block mới (staged)', args: ['name', 'content', 'role', 'addToLinked'] },
+      { name: 'create_prompt_block',   description: 'Tạo block mới (staged)', args: ['name', 'content', 'role', 'addToLinked', 'position?'] },
       { name: 'delete_prompt_block',   description: 'Xóa block (staged)', args: ['identifier'] },
       { name: 'set_prompt_linked',     description: 'Chuyển đổi trạng thái HOẶC di chuyển nhanh vị trí 1 block riêng lẻ (staged)', args: ['identifier', 'linked', 'position?'] },
       { name: 'duplicate_prompt_block', description: 'Nhân bản 1 block với 100% nội dung và meta cũ (staged)', args: ['identifier', 'newName?'] },

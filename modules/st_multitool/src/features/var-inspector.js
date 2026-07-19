@@ -146,8 +146,9 @@ export function scanPromptContent(content, promptName, promptId) {
     refs.push({ id, name: cleanName, type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: matchStr });
   };
 
-  // 1. Balanced macro scanning for {{setvar::...}}, {{addvar::...}}, {{setglobalvar::...}}, {{getvar::...}}, {{getglobalvar::...}}
-  const macroRegex = /\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/gi;
+  // 1. Balanced macro scanning for all variable types
+  const varCmds = ['setvar', 'addvar', 'setglobalvar', 'addglobalvar', 'getvar', 'getglobalvar', 'decvar', 'decglobalvar', 'incvar', 'incglobalvar', 'flushvar', 'flushglobalvar', 'deletevar', 'deleteglobalvar', 'varexists', 'globalvarexists', 'hasvar', 'hasglobalvar'];
+  const macroRegex = new RegExp(`\\{\\{(${varCmds.join('|')})::`, 'gi');
   let match;
   while ((match = macroRegex.exec(content)) !== null) {
     const startIndex = match.index;
@@ -175,13 +176,12 @@ export function scanPromptContent(content, promptName, promptId) {
       const fullMatch = content.slice(startIndex, endIndex);
       const inner = fullMatch.slice(match[0].length, fullMatch.length - 2); // Strip prefix and closing '}}'
       const scope = typeStr.includes('global') ? 'global' : 'local';
-      let type = 'set';
-      if (typeStr.includes('get')) type = 'get';
-      else if (typeStr.includes('add')) type = 'addvar';
-      else type = 'set';
+      let type = typeStr;
 
-      if (type === 'get') {
-        add(inner.trim(), 'get', undefined, scope, fullMatch);
+      const cmdsWithoutValue = ['getvar', 'getglobalvar', 'decvar', 'decglobalvar', 'incvar', 'incglobalvar', 'flushvar', 'flushglobalvar', 'deletevar', 'deleteglobalvar', 'varexists', 'globalvarexists', 'hasvar', 'hasglobalvar'];
+
+      if (cmdsWithoutValue.includes(type)) {
+        add(inner.trim(), type, undefined, scope, fullMatch);
       } else {
         const firstColon = inner.indexOf('::');
         if (firstColon !== -1) {
@@ -192,26 +192,6 @@ export function scanPromptContent(content, promptName, promptId) {
           add(inner.trim(), type, '', scope, fullMatch);
         }
       }
-    }
-  }
-
-  // 2. Slash commands (/setvar, /getvar, /setglobalvar, /getglobalvar, /addvar, /addglobalvar)
-  const slashRegex = /\/(setvar|getvar|setglobalvar|getglobalvar|addvar|addglobalvar)\s+(?:key=)?([^\s|]+)(?:\s+([^\r\n|]*))?/gi;
-  while ((match = slashRegex.exec(content)) !== null) {
-    const fullMatch = match[0];
-    const cmd = match[1].toLowerCase();
-    const varName = match[2];
-    const varVal = match[3] || '';
-    const scope = cmd.includes('global') ? 'global' : 'local';
-    let type = 'set';
-    if (cmd.includes('get')) type = 'get';
-    else if (cmd.includes('add')) type = 'addvar';
-    else type = 'set';
-
-    if (type === 'get') {
-      add(varName, 'get', undefined, scope, fullMatch);
-    } else {
-      add(varName, type, varVal, scope, fullMatch);
     }
   }
 
@@ -278,12 +258,12 @@ function analyse() {
 
   // Linting & Value Extraction
   const result = [...varMap.values()].map(v => {
-    const hasSet = v.sources.some(s => s.type === 'set' || s.type === 'addvar');
-    const hasGet = v.sources.some(s => s.type === 'get');
+    const hasSet = v.sources.some(s => s.type.startsWith('set') || s.type.startsWith('add'));
+    const hasGet = v.sources.some(s => s.type.startsWith('get'));
     v.isUnused = hasSet && !hasGet && v.scope === 'local';
     
     // Find the first preset value definition for edit mode (no longer used for top-level input, but good for reference)
-    const firstSet = v.sources.find(s => s.type === 'set' || s.type === 'addvar');
+    const firstSet = v.sources.find(s => s.type.startsWith('set') || s.type.startsWith('add'));
     v.presetValue = firstSet && firstSet.value !== undefined ? firstSet.value : '';
     
     return v;
@@ -328,7 +308,7 @@ function renderVarList(vars) {
     const sourcesHtml = v.sources.length === 0
       ? '<div class="st-multitool-vi-no-src">Không tìm thấy trong prompt nào (biến runtime)</div>'
       : v.sources.map(s => {
-          const isSetOrAdd = s.type === 'set' || s.type === 'addvar';
+          const isSetOrAdd = s.type.startsWith('set') || s.type.startsWith('add');
           let valDisplay = s.value !== undefined ? `<span class="st-multitool-vi-src-val"> = ${escapeHtml(truncate(s.value, 40))}</span>` : '';
           
           if (_isEditMode && isSetOrAdd && v.scope === 'local') {

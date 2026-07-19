@@ -55,7 +55,7 @@ function restoreOriginalSnapshot() {
  * Tạo block mới (pending) — chưa ghi vào ST context.
  * Cấu trúc khớp với preset JSON thực của SillyTavern.
  */
-export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = false) {
+export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = false, position = undefined) {
   const identifier = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
   const newBlock = {
     identifier,
@@ -72,7 +72,7 @@ export function addPromptBlock(blockData = {}, addToLinked = false, insertTop = 
     injection_order: blockData.injection_order ?? 100,
   };
 
-  _pendingAdds.push({ block: newBlock, addToLinked, insertTop });
+  _pendingAdds.push({ block: newBlock, addToLinked, insertTop, position });
   renderPromptBlocks();
   refreshIcons($promptListContainer[0]);
   return newBlock;
@@ -502,26 +502,26 @@ export function renderPromptBlocks() {
     `;
   };
 
-  // Pending adds (linked) — đầu danh sách
-  _pendingAdds.filter(p => p.addToLinked && p.insertTop).forEach(p => {
-    activeHtml += renderBlock(p.block, -1, false, true);
-  });
-
-  // Linked prompts theo thứ tự prompt_order
-  promptOrder.forEach(id => {
-    if (_pendingDeletes.has(id)) {
-      // Hiển thị với dấu xóa
-      const idx = prompts.findIndex(p => p.identifier === id);
-      if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx, true);
-      return;
+  let activeRenderArray = promptOrder.slice();
+  _pendingAdds.forEach(p => {
+    if (p.addToLinked) {
+      if (typeof p.position === 'number' && p.position >= 0 && p.position <= activeRenderArray.length) {
+        activeRenderArray.splice(p.position, 0, p);
+      } else if (p.insertTop) {
+        activeRenderArray.unshift(p);
+      } else {
+        activeRenderArray.push(p);
+      }
     }
-    const idx = prompts.findIndex(p => p.identifier === id);
-    if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx);
   });
 
-  // Pending adds (linked) — cuối danh sách
-  _pendingAdds.filter(p => p.addToLinked && !p.insertTop).forEach(p => {
-    activeHtml += renderBlock(p.block, -1, false, true);
+  activeRenderArray.forEach(item => {
+    if (typeof item === 'string') {
+      const idx = prompts.findIndex(pr => pr.identifier === item);
+      if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx, _pendingDeletes.has(item));
+    } else {
+      activeHtml += renderBlock(item.block, -1, false, true);
+    }
   });
 
   // Pending adds (unlinked) — đầu
@@ -707,7 +707,8 @@ export function getCurrentEditorSnapshot() {
     newPromptOrder.push(...promptOrder.filter(id => !_pendingDeletes.has(id)));
     _pendingAdds.forEach(p => {
       if (p.addToLinked && !_pendingDeletes.has(p.block.identifier)) {
-        if (p.insertTop) newPromptOrder.unshift(p.block.identifier);
+        if (typeof p.position === 'number' && p.position >= 0 && p.position <= newPromptOrder.length) newPromptOrder.splice(p.position, 0, p.block.identifier);
+        else if (p.insertTop) newPromptOrder.unshift(p.block.identifier);
         else newPromptOrder.push(p.block.identifier);
       }
     });
