@@ -1100,7 +1100,7 @@ Cú pháp: <tool_call>{"name": "tên_tool", "args": {...}}</tool_call>
 - validate_preset_syntax — Quét toàn bộ preset để tự động kiểm tra lỗi ngoặc nhọn {{...}} chưa đóng, nghi vấn sai cú pháp biến setvar/getvar hoặc lỗi độ sâu chèn (args: {}).
 
 [NHÓM GHI – BLOCKS (Staged, lưu tạm thời vào bộ nhớ chờ duyệt)]
-- create_prompt_block — Tạo block mới (args: {"name": "...", "content": "...", "role": "system|user|assistant", "addToLinked": true|false, ...}).
+- create_prompt_block — Tạo block mới (args: {"name": "...", "content": "...", "role": "system|user|assistant", "addToLinked": true|false, "position": 2}). -> CHIẾN LƯỢC CHÈN VỊ TRÍ: Thêm "position" để chèn block vào đúng index mong muốn thay vì tự động đẩy xuống cuối.
 - delete_prompt_block — Đánh dấu xóa block (args: {"identifier": "..."}).
 - set_prompt_linked — Chuyển đổi trạng thái Liên kết / Chưa liên kết HOẶC DI CHUYỂN vị trí của 1 block riêng lẻ (args: {"identifier": "...", "linked": true|false, "position": 2}). -> CHIẾN LƯỢC SẮP XẾP NHANH: Khi bạn chỉ muốn di chuyển/chèn vị trí của 1 block riêng lẻ, hãy dùng 'set_prompt_linked'.
 - duplicate_prompt_block — Nhân bản ngay 1 block với 100% nội dung và metadata giữ nguyên (args: {"identifier": "...", "newName": "..."}).
