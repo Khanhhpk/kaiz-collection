@@ -779,7 +779,7 @@ function renderToolPreview() {
         title: `<i data-lucide="edit-3" style="width:18px;height:18px;color:#fde68a;"></i> Cập nhật biến: <b style="color:#fde68a;">{{setvar::${escapeHtml(v.varName)}::...}}</b>`,
         type: 'var',
         oldData: v.oldValueMatch || 'N/A',
-        newData: v.newValue
+        newData: `{{${v.matchType}::${v.varName}::${v.newValue}}}`
       };
 
       diffHtml += `
