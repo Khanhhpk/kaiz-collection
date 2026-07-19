@@ -115,7 +115,8 @@ export function getStagingSummary() {
         promptId: info?.promptId || '',
         newValue: info?.newValue || '',
         newValueExcerpt: info?.newValue || '',
-        oldValueMatch: info?.oldValueMatch || ''
+        oldValueMatch: info?.oldValueMatch || '',
+        matchType: info?.matchType || 'setvar'
       }));
     } else if (id === '__VAR_RENAMES__') {
       varRenames = Object.entries(fields).map(([oldName, newName]) => ({ oldName, newName }));
