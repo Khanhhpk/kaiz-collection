@@ -942,7 +942,9 @@ async function executeTool(name, args) {
         }
 
         // Tìm theo index hoặc regex
-        const typesToTry = targetType ? [targetType] : ['set', 'addvar', 'setglobalvar'];
+        let typesToTry = targetType ? [targetType] : ['setvar', 'set', 'addvar', 'setglobalvar'];
+        if (targetType === 'set' || targetType === 'setvar') typesToTry = ['setvar', 'set'];
+        
         for (const t of typesToTry) {
           const re = new RegExp(`\\{\\{${t}::${escapeRegex(targetVarName)}::([\\s\\S]*?)\\}\\}`, 'gi');
           const allMatches = [...content.matchAll(re)];
