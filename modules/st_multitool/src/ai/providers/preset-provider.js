@@ -393,7 +393,7 @@ export async function applyStagedSingle(type, key) {
     const promptsToUpdate = info.promptId ? container.prompts.filter(p => p.identifier === info.promptId) : container.prompts;
     for (const p of promptsToUpdate) {
       if (info.oldValueMatch && p.content && p.content.includes(info.oldValueMatch)) {
-        const replaced = `{{${info.matchType || 'set'}::${info.varName}::${info.newValue}}}`;
+        const replaced = `{{${info.matchType || 'setvar'}::${info.varName}::${info.newValue}}}`;
         p.content = p.content.replace(info.oldValueMatch, replaced);
       }
     }
@@ -930,7 +930,7 @@ async function executeTool(name, args) {
 
       let foundPrompt = null;
       let fullMatch = '';
-      let matchType = targetType || 'set';
+      let matchType = targetType || 'setvar';
 
       for (const p of prompts) {
         if (targetPromptId && p.identifier !== targetPromptId && p.name !== targetPromptId) continue;
@@ -941,7 +941,7 @@ async function executeTool(name, args) {
           foundPrompt = p; fullMatch = oldValueMatch;
           if (fullMatch.startsWith('{{addvar::')) matchType = 'addvar';
           else if (fullMatch.startsWith('{{setglobalvar::')) matchType = 'setglobalvar';
-          else matchType = 'set';
+          else matchType = 'setvar';
           break;
         }
 
@@ -950,7 +950,7 @@ async function executeTool(name, args) {
           const exactSet = `{{setvar::${targetVarName}::${oldValue}}}`;
           const exactAdd = `{{addvar::${targetVarName}::${oldValue}}}`;
           const exactGlob = `{{setglobalvar::${targetVarName}::${oldValue}}}`;
-          if (content.includes(exactSet)) { foundPrompt = p; fullMatch = exactSet; matchType = 'set'; break; }
+          if (content.includes(exactSet)) { foundPrompt = p; fullMatch = exactSet; matchType = 'setvar'; break; }
           if (content.includes(exactAdd)) { foundPrompt = p; fullMatch = exactAdd; matchType = 'addvar'; break; }
           if (content.includes(exactGlob)) { foundPrompt = p; fullMatch = exactGlob; matchType = 'setglobalvar'; break; }
         }
