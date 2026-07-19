@@ -146,8 +146,9 @@ export function scanPromptContent(content, promptName, promptId) {
     refs.push({ id, name: cleanName, type, value: value?.trim(), scope, promptName, promptId, fullMatch: matchStr, excerpt: matchStr });
   };
 
-  // 1. Balanced macro scanning for {{setvar::...}}, {{addvar::...}}, {{setglobalvar::...}}, {{getvar::...}}, {{getglobalvar::...}}
-  const macroRegex = /\{\{(setvar|addvar|setglobalvar|getvar|getglobalvar)::/gi;
+  // 1. Balanced macro scanning for all variable types
+  const varCmds = ['setvar', 'addvar', 'setglobalvar', 'addglobalvar', 'getvar', 'getglobalvar', 'decvar', 'decglobalvar', 'incvar', 'incglobalvar', 'flushvar', 'flushglobalvar', 'deletevar', 'deleteglobalvar', 'varexists', 'globalvarexists', 'hasvar', 'hasglobalvar'];
+  const macroRegex = new RegExp(`\\{\\{(${varCmds.join('|')})::`, 'gi');
   let match;
   while ((match = macroRegex.exec(content)) !== null) {
     const startIndex = match.index;
@@ -177,7 +178,9 @@ export function scanPromptContent(content, promptName, promptId) {
       const scope = typeStr.includes('global') ? 'global' : 'local';
       let type = typeStr;
 
-      if (type.includes('get')) {
+      const cmdsWithoutValue = ['getvar', 'getglobalvar', 'decvar', 'decglobalvar', 'incvar', 'incglobalvar', 'flushvar', 'flushglobalvar', 'deletevar', 'deleteglobalvar', 'varexists', 'globalvarexists', 'hasvar', 'hasglobalvar'];
+
+      if (cmdsWithoutValue.includes(type)) {
         add(inner.trim(), type, undefined, scope, fullMatch);
       } else {
         const firstColon = inner.indexOf('::');
@@ -192,8 +195,8 @@ export function scanPromptContent(content, promptName, promptId) {
     }
   }
 
-  // 2. Slash commands (/setvar, /getvar, /setglobalvar, /getglobalvar, /addvar, /addglobalvar)
-  const slashRegex = /\/(setvar|getvar|setglobalvar|getglobalvar|addvar|addglobalvar)\s+(?:key=)?([^\s|]+)(?:\s+([^\r\n|]*))?/gi;
+  // 2. Slash commands
+  const slashRegex = new RegExp(`\\/(${varCmds.join('|')})\\s+(?:key=)?([^\\s|]+)(?:\\s+([^\\r\\n|]*))?`, 'gi');
   while ((match = slashRegex.exec(content)) !== null) {
     const fullMatch = match[0];
     const cmd = match[1].toLowerCase();
@@ -202,7 +205,9 @@ export function scanPromptContent(content, promptName, promptId) {
     const scope = cmd.includes('global') ? 'global' : 'local';
     let type = cmd;
 
-    if (type.includes('get')) {
+    const cmdsWithoutValue = ['getvar', 'getglobalvar', 'decvar', 'decglobalvar', 'incvar', 'incglobalvar', 'flushvar', 'flushglobalvar', 'deletevar', 'deleteglobalvar', 'varexists', 'globalvarexists', 'hasvar', 'hasglobalvar'];
+
+    if (cmdsWithoutValue.includes(type)) {
       add(varName, type, undefined, scope, fullMatch);
     } else {
       add(varName, type, varVal, scope, fullMatch);
