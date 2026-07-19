@@ -425,7 +425,7 @@ function thoroughLineDiff(oldStr, newStr) {
   const oldBlocks = [];
   const newBlocks = [];
   
-  const tokenize = str => str.match(/[\w]+|[^\w]+/g) || [];
+  const tokenize = str => str.match(/\w+|\s+|[^\w\s]/g) || [];
 
   for (const op of alignedOps) {
     if (op.type === 'eq') {
@@ -442,12 +442,28 @@ function thoroughLineDiff(oldStr, newStr) {
         oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.2); color: #fca5a5;">${escapeHtml(op.oldL) || ' '}</div>`);
         newBlocks.push(`<div style="background-color: rgba(52,211,153,0.2); color: #86efac;">${escapeHtml(op.newL) || ' '}</div>`);
       } else {
-        const oldT = tokenize(op.oldL);
-        const newT = tokenize(op.newL);
+        const fullOldT = tokenize(op.oldL);
+        const fullNewT = tokenize(op.newL);
+        
+        // Trim matching prefix
+        let prefixLen = 0;
+        while (prefixLen < fullOldT.length && prefixLen < fullNewT.length && fullOldT[prefixLen] === fullNewT[prefixLen]) {
+          prefixLen++;
+        }
+        
+        // Trim matching suffix
+        let suffixLen = 0;
+        while (suffixLen < fullOldT.length - prefixLen && suffixLen < fullNewT.length - prefixLen && fullOldT[fullOldT.length - 1 - suffixLen] === fullNewT[fullNewT.length - 1 - suffixLen]) {
+          suffixLen++;
+        }
+        
+        const oldT = fullOldT.slice(prefixLen, fullOldT.length - suffixLen);
+        const newT = fullNewT.slice(prefixLen, fullNewT.length - suffixLen);
+        
         const mT = oldT.length;
         const nT = newT.length;
         
-        if (mT * nT > 100000) {
+        if (mT * nT > 4000000) {
           oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.2); color: #fca5a5;">${escapeHtml(op.oldL) || ' '}</div>`);
           newBlocks.push(`<div style="background-color: rgba(52,211,153,0.2); color: #86efac;">${escapeHtml(op.newL) || ' '}</div>`);
           continue;
@@ -462,22 +478,26 @@ function thoroughLineDiff(oldStr, newStr) {
         }
         
         let i = mT, j = nT;
-        const oldR = [], newR = [];
+        const oldRMid = [], newRMid = [];
         while (i > 0 || j > 0) {
           if (i > 0 && j > 0 && oldT[i - 1] === newT[j - 1]) {
-            oldR.unshift(escapeHtml(oldT[i - 1]));
-            newR.unshift(escapeHtml(newT[j - 1]));
+            oldRMid.unshift(escapeHtml(oldT[i - 1]));
+            newRMid.unshift(escapeHtml(newT[j - 1]));
             i--; j--;
           } else if (i > 0 && (j === 0 || dpT[i - 1][j] >= dpT[i][j - 1])) {
-            oldR.unshift(`<span style="background-color:rgba(248,113,113,0.5);color:#fee2e2;">${escapeHtml(oldT[i - 1])}</span>`);
+            oldRMid.unshift(`<span style="background-color:rgba(248,113,113,0.5);color:#fee2e2;">${escapeHtml(oldT[i - 1])}</span>`);
             i--;
           } else {
-            newR.unshift(`<span style="background-color:rgba(52,211,153,0.5);color:#d1fae5;">${escapeHtml(newT[j - 1])}</span>`);
+            newRMid.unshift(`<span style="background-color:rgba(52,211,153,0.5);color:#d1fae5;">${escapeHtml(newT[j - 1])}</span>`);
             j--;
           }
         }
-        oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.1); color:#cbd5e1;">${oldR.join('') || ' '}</div>`);
-        newBlocks.push(`<div style="background-color: rgba(52,211,153,0.1); color:#cbd5e1;">${newR.join('') || ' '}</div>`);
+        
+        const prefixStr = escapeHtml(fullOldT.slice(0, prefixLen).join(''));
+        const suffixStr = escapeHtml(fullOldT.slice(fullOldT.length - suffixLen).join(''));
+        
+        oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.1); color:#cbd5e1;">${prefixStr}${oldRMid.join('')}${suffixStr}</div>`);
+        newBlocks.push(`<div style="background-color: rgba(52,211,153,0.1); color:#cbd5e1;">${prefixStr}${newRMid.join('')}${suffixStr}</div>`);
       }
     }
   }
