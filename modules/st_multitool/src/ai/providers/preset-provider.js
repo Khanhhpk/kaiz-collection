@@ -75,6 +75,14 @@ function findPrompt(identifier) {
   return getPrompts().find(p => p.identifier === identifier) || null;
 }
 
+function findBasePrompt(identifier) {
+  const snapshot = typeof getCurrentEditorSnapshot === 'function'
+    ? getCurrentEditorSnapshot()
+    : { prompts: getContainer()?.prompts || [] };
+  const basePrompts = snapshot?.prompts || getContainer()?.prompts || [];
+  return basePrompts.find(p => p.identifier === identifier) || null;
+}
+
 // ─── Staging Map ──────────────────────────────────────────────────────────────
 // Các thay đổi write tool được staging ở đây, không ghi vào ST context ngay.
 // Khi user bấm "Áp dụng" → _flushStaging() mới ghi thật.
@@ -114,13 +122,14 @@ export function getStagingSummary() {
     } else if (id === '__ORDER__') {
       reorder = fields.order;
     } else {
+      const baseBlock = findBasePrompt(id) || {};
       const block = findPrompt(id);
       updates.push({
         identifier: id,
         name: block?.name || id,
         fields: Object.keys(fields),
-        oldContent: block?.content || '',
-        newContent: fields.content !== undefined ? fields.content : (block?.content || ''),
+        oldContent: baseBlock.content || '',
+        newContent: fields.content !== undefined ? fields.content : (baseBlock.content || ''),
         changes: fields
       });
     }
@@ -135,7 +144,7 @@ export function getStagingSummary() {
   }));
 
   const deletes = [..._stagingDeletes].map(id => {
-    const b = findPrompt(id);
+    const b = findBasePrompt(id);
     return {
       identifier: id,
       name: b?.name || id,
