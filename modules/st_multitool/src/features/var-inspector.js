@@ -195,25 +195,6 @@ export function scanPromptContent(content, promptName, promptId) {
     }
   }
 
-  // 2. Slash commands
-  const slashRegex = new RegExp(`\\/(${varCmds.join('|')})\\s+(?:key=)?([^\\s|]+)(?:\\s+([^\\r\\n|]*))?`, 'gi');
-  while ((match = slashRegex.exec(content)) !== null) {
-    const fullMatch = match[0];
-    const cmd = match[1].toLowerCase();
-    const varName = match[2];
-    const varVal = match[3] || '';
-    const scope = cmd.includes('global') ? 'global' : 'local';
-    let type = cmd;
-
-    const cmdsWithoutValue = ['getvar', 'getglobalvar', 'decvar', 'decglobalvar', 'incvar', 'incglobalvar', 'flushvar', 'flushglobalvar', 'deletevar', 'deleteglobalvar', 'varexists', 'globalvarexists', 'hasvar', 'hasglobalvar'];
-
-    if (cmdsWithoutValue.includes(type)) {
-      add(varName, type, undefined, scope, fullMatch);
-    } else {
-      add(varName, type, varVal, scope, fullMatch);
-    }
-  }
-
   return refs;
 }
 
