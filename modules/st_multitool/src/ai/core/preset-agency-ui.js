@@ -375,13 +375,121 @@ function finalizeStreamingBubble(fullText) {
 }
 
 // --- Diff Modal Logic ---
+window._aiDiffMode = window._aiDiffMode || 'line'; // 'line' or 'inline'
+
+function thoroughLineDiff(oldStr, newStr) {
+  const oldLines = (oldStr || '').split('\n');
+  const newLines = (newStr || '').split('\n');
+  const m = oldLines.length;
+  const n = newLines.length;
+  
+  // Fallback to simple if too large
+  if (m * n > 4000000) return simpleLineDiff(oldStr, newStr);
+
+  const dp = Array(m + 1).fill(null).map(() => new Int16Array(n + 1));
+  for (let x = 1; x <= m; x++) {
+    for (let y = 1; y <= n; y++) {
+      if (oldLines[x - 1] === newLines[y - 1]) dp[x][y] = dp[x - 1][y - 1] + 1;
+      else dp[x][y] = Math.max(dp[x - 1][y], dp[x][y - 1]);
+    }
+  }
+  
+  let x = m, y = n;
+  const ops = [];
+  while (x > 0 || y > 0) {
+    if (x > 0 && y > 0 && oldLines[x - 1] === newLines[y - 1]) {
+      ops.unshift({ type: 'eq', oldL: oldLines[x-1], newL: newLines[y-1] });
+      x--; y--;
+    } else if (x > 0 && (y === 0 || dp[x - 1][y] >= dp[x][y - 1])) {
+      ops.unshift({ type: 'del', oldL: oldLines[x-1] });
+      x--;
+    } else {
+      ops.unshift({ type: 'ins', newL: newLines[y-1] });
+      y--;
+    }
+  }
+
+  const alignedOps = [];
+  for (let i = 0; i < ops.length; i++) {
+    if (ops[i].type === 'del' && ops[i+1]?.type === 'ins') {
+      alignedOps.push({ type: 'mod', oldL: ops[i].oldL, newL: ops[i+1].newL });
+      i++;
+    } else if (ops[i].type === 'ins' && ops[i+1]?.type === 'del') {
+      alignedOps.push({ type: 'mod', oldL: ops[i+1].oldL, newL: ops[i].newL });
+      i++;
+    } else {
+      alignedOps.push(ops[i]);
+    }
+  }
+
+  const oldBlocks = [];
+  const newBlocks = [];
+  
+  const tokenize = str => str.match(/[\w]+|[^\w]+/g) || [];
+
+  for (const op of alignedOps) {
+    if (op.type === 'eq') {
+      oldBlocks.push(`<div>${escapeHtml(op.oldL) || ' '}</div>`);
+      newBlocks.push(`<div>${escapeHtml(op.newL) || ' '}</div>`);
+    } else if (op.type === 'del') {
+      oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.2); color: #fca5a5;">${escapeHtml(op.oldL) || ' '}</div>`);
+      newBlocks.push(`<div style="background-color: transparent;">&nbsp;</div>`);
+    } else if (op.type === 'ins') {
+      oldBlocks.push(`<div style="background-color: transparent;">&nbsp;</div>`);
+      newBlocks.push(`<div style="background-color: rgba(52,211,153,0.2); color: #86efac;">${escapeHtml(op.newL) || ' '}</div>`);
+    } else if (op.type === 'mod') {
+      if (window._aiDiffMode === 'line') {
+        oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.2); color: #fca5a5;">${escapeHtml(op.oldL) || ' '}</div>`);
+        newBlocks.push(`<div style="background-color: rgba(52,211,153,0.2); color: #86efac;">${escapeHtml(op.newL) || ' '}</div>`);
+      } else {
+        const oldT = tokenize(op.oldL);
+        const newT = tokenize(op.newL);
+        const mT = oldT.length;
+        const nT = newT.length;
+        
+        if (mT * nT > 100000) {
+          oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.2); color: #fca5a5;">${escapeHtml(op.oldL) || ' '}</div>`);
+          newBlocks.push(`<div style="background-color: rgba(52,211,153,0.2); color: #86efac;">${escapeHtml(op.newL) || ' '}</div>`);
+          continue;
+        }
+
+        const dpT = Array(mT + 1).fill(null).map(() => new Int16Array(nT + 1));
+        for (let i = 1; i <= mT; i++) {
+          for (let j = 1; j <= nT; j++) {
+            if (oldT[i - 1] === newT[j - 1]) dpT[i][j] = dpT[i - 1][j - 1] + 1;
+            else dpT[i][j] = Math.max(dpT[i - 1][j], dpT[i][j - 1]);
+          }
+        }
+        
+        let i = mT, j = nT;
+        const oldR = [], newR = [];
+        while (i > 0 || j > 0) {
+          if (i > 0 && j > 0 && oldT[i - 1] === newT[j - 1]) {
+            oldR.unshift(escapeHtml(oldT[i - 1]));
+            newR.unshift(escapeHtml(newT[j - 1]));
+            i--; j--;
+          } else if (i > 0 && (j === 0 || dpT[i - 1][j] >= dpT[i][j - 1])) {
+            oldR.unshift(`<span style="background-color:rgba(248,113,113,0.5);color:#fee2e2;">${escapeHtml(oldT[i - 1])}</span>`);
+            i--;
+          } else {
+            newR.unshift(`<span style="background-color:rgba(52,211,153,0.5);color:#d1fae5;">${escapeHtml(newT[j - 1])}</span>`);
+            j--;
+          }
+        }
+        oldBlocks.push(`<div style="background-color: rgba(248,113,113,0.1); color:#cbd5e1;">${oldR.join('') || ' '}</div>`);
+        newBlocks.push(`<div style="background-color: rgba(52,211,153,0.1); color:#cbd5e1;">${newR.join('') || ' '}</div>`);
+      }
+    }
+  }
+
+  return { oldHtml: oldBlocks.join(''), newHtml: newBlocks.join('') };
+}
+
 function simpleLineDiff(oldStr, newStr) {
   const oldLines = (oldStr || '').split('\n');
   const newLines = (newStr || '').split('\n');
   let oldHtml = '';
   let newHtml = '';
-  
-  // A very simple heuristic for line-by-line diff
   const maxLines = Math.max(oldLines.length, newLines.length);
   for (let i = 0; i < maxLines; i++) {
     const oLine = i < oldLines.length ? oldLines[i] : null;
@@ -400,11 +508,12 @@ function simpleLineDiff(oldStr, newStr) {
       else newHtml += `<div style="background-color: transparent;">&nbsp;</div>`;
     }
   }
-
   return { oldHtml, newHtml };
 }
 
 function openDiffModal(title, type, oldData, newData) {
+  window._currentDiffData = { title, type, oldData, newData }; // Save for re-render toggle
+
   let $modal = $('#ai-diff-preview-modal');
   if (!$modal.length) {
     const modalHtml = `
@@ -413,7 +522,14 @@ function openDiffModal(title, type, oldData, newData) {
           <!-- Header -->
           <div style="padding:16px 24px; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center; background:#1e293b; border-radius:12px 12px 0 0; flex-shrink:0;">
             <h3 id="ai-diff-modal-title" style="margin:0; color:#f8fafc; font-size:18px; display:flex; align-items:center; gap:8px;">Chi tiết Diff</h3>
-            <button id="ai-diff-modal-close" style="background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer; line-height:1;">&times;</button>
+            
+            <div style="display:flex; align-items:center; gap:16px;">
+              <button id="ai-diff-toggle-mode" style="background:#334155; color:#cbd5e1; border:1px solid #475569; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px;">
+                <i data-lucide="split-square-horizontal" style="width:14px;height:14px;"></i>
+                <span id="ai-diff-toggle-text">Chế độ: Theo dòng (Line)</span>
+              </button>
+              <button id="ai-diff-modal-close" style="background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer; line-height:1;">&times;</button>
+            </div>
           </div>
           
           <!-- Content Split View -->
@@ -441,10 +557,22 @@ function openDiffModal(title, type, oldData, newData) {
     $('body').append(modalHtml);
     $modal = $('#ai-diff-preview-modal');
     
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons({ root: $modal[0] });
+    }
+
     $('#ai-diff-modal-close, #ai-diff-modal-btn-close').on('click', () => {
       $modal.fadeOut(200);
     });
     
+    $('#ai-diff-toggle-mode').on('click', () => {
+      window._aiDiffMode = window._aiDiffMode === 'line' ? 'inline' : 'line';
+      $('#ai-diff-toggle-text').text(window._aiDiffMode === 'line' ? 'Chế độ: Theo dòng (Line)' : 'Chế độ: Kỹ lưỡng (Inline)');
+      if (window._currentDiffData) {
+        renderDiffContent();
+      }
+    });
+
     // Sync scrolling
     $('#ai-diff-modal-old').on('scroll', function() {
       $('#ai-diff-modal-new').scrollTop($(this).scrollTop());
@@ -454,44 +582,50 @@ function openDiffModal(title, type, oldData, newData) {
     });
   }
 
+  // Update Toggle button UI to match current mode
+  $('#ai-diff-toggle-text').text(window._aiDiffMode === 'line' ? 'Chế độ: Theo dòng (Line)' : 'Chế độ: Kỹ lưỡng (Inline)');
+
   $('#ai-diff-modal-title').html(title);
   
-  let oldHtml = '';
-  let newHtml = '';
+  function renderDiffContent() {
+    let oldHtml = '';
+    let newHtml = '';
 
-  if (type === 'create') {
-    oldHtml = '<div style="color:#64748b; font-style:italic;">(Không có bản cũ - Tạo mới)</div>';
-    newHtml = `<div style="background-color: rgba(52,211,153,0.1); color: #86efac; padding:4px;">${escapeHtml(newData) || '(Trống)'}</div>`;
-  } else if (type === 'delete') {
-    oldHtml = `<div style="background-color: rgba(248,113,113,0.1); color: #fca5a5; padding:4px;">${escapeHtml(oldData) || '(Trống)'}</div>`;
-    newHtml = '<div style="color:#64748b; font-style:italic;">(Block này sẽ bị xóa hoàn toàn)</div>';
-  } else if (type === 'update') {
-    const diff = simpleLineDiff(oldData, newData);
-    oldHtml = diff.oldHtml;
-    newHtml = diff.newHtml;
-  } else if (type === 'meta') {
-    const oldStr = typeof oldData === 'object' ? JSON.stringify(oldData, null, 2) : String(oldData);
-    const newStr = typeof newData === 'object' ? JSON.stringify(newData, null, 2) : String(newData);
-    const diff = simpleLineDiff(oldStr, newStr);
-    oldHtml = diff.oldHtml;
-    newHtml = diff.newHtml;
-  } else if (type === 'reorder') {
-    const oldLines = oldData.map((id, i) => `${i + 1}. ${id}`).join('\\n');
-    const newLines = newData.map((id, i) => `${i + 1}. ${id}`).join('\\n');
-    const diff = simpleLineDiff(oldLines, newLines);
-    oldHtml = diff.oldHtml;
-    newHtml = diff.newHtml;
-  } else if (type === 'var') {
-    oldHtml = `<div style="background-color: rgba(248,113,113,0.1); color: #fca5a5; padding:4px;">${escapeHtml(oldData)}</div>`;
-    newHtml = `<div style="background-color: rgba(52,211,153,0.1); color: #86efac; padding:4px;">${escapeHtml(newData)}</div>`;
-  } else if (type === 'varRename') {
-    oldHtml = `<div style="background-color: rgba(248,113,113,0.1); color: #fca5a5; padding:4px;">${escapeHtml(oldData)}</div>`;
-    newHtml = `<div style="background-color: rgba(52,211,153,0.1); color: #86efac; padding:4px;">${escapeHtml(newData)}</div>`;
+    if (type === 'create') {
+      oldHtml = '<div style="color:#64748b; font-style:italic;">(Không có bản cũ - Tạo mới)</div>';
+      newHtml = `<div style="background-color: rgba(52,211,153,0.1); color: #86efac; padding:4px;">${escapeHtml(newData) || '(Trống)'}</div>`;
+    } else if (type === 'delete') {
+      oldHtml = `<div style="background-color: rgba(248,113,113,0.1); color: #fca5a5; padding:4px;">${escapeHtml(oldData) || '(Trống)'}</div>`;
+      newHtml = '<div style="color:#64748b; font-style:italic;">(Block này sẽ bị xóa hoàn toàn)</div>';
+    } else if (type === 'update') {
+      const diff = thoroughLineDiff(oldData, newData);
+      oldHtml = diff.oldHtml;
+      newHtml = diff.newHtml;
+    } else if (type === 'meta') {
+      const oldStr = typeof oldData === 'object' ? JSON.stringify(oldData, null, 2) : String(oldData);
+      const newStr = typeof newData === 'object' ? JSON.stringify(newData, null, 2) : String(newData);
+      const diff = thoroughLineDiff(oldStr, newStr);
+      oldHtml = diff.oldHtml;
+      newHtml = diff.newHtml;
+    } else if (type === 'reorder') {
+      const oldLines = oldData.map((id, i) => `${i + 1}. ${id}`).join('\\n');
+      const newLines = newData.map((id, i) => `${i + 1}. ${id}`).join('\\n');
+      const diff = thoroughLineDiff(oldLines, newLines);
+      oldHtml = diff.oldHtml;
+      newHtml = diff.newHtml;
+    } else if (type === 'var') {
+      oldHtml = `<div style="background-color: rgba(248,113,113,0.1); color: #fca5a5; padding:4px;">${escapeHtml(oldData)}</div>`;
+      newHtml = `<div style="background-color: rgba(52,211,153,0.1); color: #86efac; padding:4px;">${escapeHtml(newData)}</div>`;
+    } else if (type === 'varRename') {
+      oldHtml = `<div style="background-color: rgba(248,113,113,0.1); color: #fca5a5; padding:4px;">${escapeHtml(oldData)}</div>`;
+      newHtml = `<div style="background-color: rgba(52,211,153,0.1); color: #86efac; padding:4px;">${escapeHtml(newData)}</div>`;
+    }
+
+    $('#ai-diff-modal-old').html(oldHtml);
+    $('#ai-diff-modal-new').html(newHtml);
   }
 
-  $('#ai-diff-modal-old').html(oldHtml);
-  $('#ai-diff-modal-new').html(newHtml);
-  
+  renderDiffContent();
   $modal.css('display', 'flex').hide().fadeIn(200);
 }
 
