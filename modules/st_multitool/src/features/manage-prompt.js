@@ -502,26 +502,26 @@ export function renderPromptBlocks() {
     `;
   };
 
-  // Pending adds (linked) — đầu danh sách
-  _pendingAdds.filter(p => p.addToLinked && p.insertTop).forEach(p => {
-    activeHtml += renderBlock(p.block, -1, false, true);
-  });
-
-  // Linked prompts theo thứ tự prompt_order
-  promptOrder.forEach(id => {
-    if (_pendingDeletes.has(id)) {
-      // Hiển thị với dấu xóa
-      const idx = prompts.findIndex(p => p.identifier === id);
-      if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx, true);
-      return;
+  let activeRenderArray = promptOrder.slice();
+  _pendingAdds.forEach(p => {
+    if (p.addToLinked) {
+      if (typeof p.position === 'number' && p.position >= 0 && p.position <= activeRenderArray.length) {
+        activeRenderArray.splice(p.position, 0, p);
+      } else if (p.insertTop) {
+        activeRenderArray.unshift(p);
+      } else {
+        activeRenderArray.push(p);
+      }
     }
-    const idx = prompts.findIndex(p => p.identifier === id);
-    if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx);
   });
 
-  // Pending adds (linked) — cuối danh sách
-  _pendingAdds.filter(p => p.addToLinked && !p.insertTop).forEach(p => {
-    activeHtml += renderBlock(p.block, -1, false, true);
+  activeRenderArray.forEach(item => {
+    if (typeof item === 'string') {
+      const idx = prompts.findIndex(pr => pr.identifier === item);
+      if (idx !== -1) activeHtml += renderBlock(prompts[idx], idx, _pendingDeletes.has(item));
+    } else {
+      activeHtml += renderBlock(item.block, -1, false, true);
+    }
   });
 
   // Pending adds (unlinked) — đầu
