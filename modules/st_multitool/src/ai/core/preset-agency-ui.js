@@ -16,6 +16,7 @@ let _state = 'idle'; // idle | streaming | tool_calling | pending_confirm | erro
 let _$sidebar = null;
 let _devView = localStorage.getItem('st-multitool-ai-devview') === 'true';
 let _isUserFollowingScroll = true;
+let _currentAttachments = [];
 
 function scrollToBottomIfFollowing($history, force = false) {
   if (!$history || !$history.length || !$history[0]) return;
@@ -41,9 +42,11 @@ function setState(s) {
   const $sendBtn = _$sidebar.find('.ai-send-btn');
   const $stopBtn = _$sidebar.find('.ai-stop-btn');
   const $spinner = _$sidebar.find('.ai-spinner');
+  const $attachBtn = _$sidebar.find('.ai-attach-btn');
 
   $input.prop('disabled', s !== 'idle');
   $sendBtn.toggle(s === 'idle');
+  $attachBtn.toggle(s === 'idle');
   $stopBtn.toggle(s === 'streaming' || s === 'tool_calling');
   $spinner.toggle(s === 'streaming' || s === 'tool_calling');
 }
@@ -55,10 +58,25 @@ function appendBubble(role, content, opts = {}) {
 
   let bubbleHtml;
   if (role === 'user') {
+    let attachmentsHtml = '';
+    let textContent = content;
+    if (Array.isArray(content)) {
+      textContent = content.find(p => p.type === 'text')?.text || '';
+      const imgParts = content.filter(p => p.type === 'image_url');
+      if (imgParts.length > 0) {
+        attachmentsHtml = '<div style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;">';
+        imgParts.forEach(img => {
+           attachmentsHtml += `<img src="${img.image_url.url}" style="max-height: 120px; border-radius: 6px; max-width: 100%; object-fit: contain;">`;
+        });
+        attachmentsHtml += '</div>';
+      }
+    }
+    
     bubbleHtml = `
       <div class="ai-bubble ai-bubble-user">
-        <div class="ai-bubble-content">${escapeHtml(content)}</div>
-      </div>`;
+        <div class="ai-bubble-content">${escapeHtml(textContent)}${attachmentsHtml}</div>
+      </div>
+    `;
   } else if (role === 'tool') {
     const icon = opts.ok
       ? '<i data-lucide="check-circle" style="width:13px;height:13px;color:#34d399;vertical-align:-2px;margin-right:4px;"></i>'
@@ -1044,13 +1062,18 @@ function buildSidebarHTML() {
       </div>
 
       <!-- Input Area -->
-      <div class="ai-input-area">
-        <textarea class="ai-input-textarea" placeholder="Nhập yêu cầu... (Shift+Enter để xuống dòng)" rows="2"></textarea>
-        <div class="ai-input-controls">
-          <button class="ai-send-btn" title="Gửi (Enter)">
+      <div class="ai-input-area" style="position: relative;">
+        <div class="ai-attachments-preview" style="display: flex; gap: 6px; flex-wrap: wrap; padding: 0 8px; margin-bottom: 4px;"></div>
+        <textarea class="ai-input-textarea" placeholder="Nhập yêu cầu... (Hỗ trợ kéo thả ảnh/Ctrl+V)" rows="2"></textarea>
+        <div class="ai-input-controls" style="display: flex; gap: 6px; align-items: flex-end;">
+          <input type="file" class="ai-file-input hidden" accept="image/*" multiple style="display:none;">
+          <button class="ai-attach-btn" title="Đính kèm ảnh" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 32px;">
+            <i data-lucide="image" style="width:15px;height:15px;color:#94a3b8;"></i>
+          </button>
+          <button class="ai-send-btn" title="Gửi (Enter)" style="height: 32px;">
             <i data-lucide="send" style="width:15px;height:15px;"></i> Gửi
           </button>
-          <button class="ai-stop-btn" style="display:none;" title="Dừng">
+          <button class="ai-stop-btn" style="display:none; height: 32px;" title="Dừng">
             <i data-lucide="square" style="width:15px;height:15px;"></i> Dừng
           </button>
         </div>
@@ -1225,22 +1248,129 @@ function _bindEvents() {
     appendBubble('assistant', '<i data-lucide="trash-2" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Đã xóa lịch sử. Bắt đầu cuộc trò chuyện mới.');
   });
 
+  // --- Attachments Logic ---
+  const renderAttachmentsPreview = () => {
+    const $container = _$sidebar.find('.ai-attachments-preview');
+    $container.empty();
+    if (_currentAttachments.length === 0) {
+      $container.hide();
+      return;
+    }
+    $container.show();
+    _currentAttachments.forEach((att, index) => {
+      const $item = $(`<div style="position: relative; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); width: 60px; height: 60px;"></div>`);
+      if (att.type === 'image') {
+        $item.append(`<img src="${att.data}" style="width: 100%; height: 100%; object-fit: cover;">`);
+      }
+      const $delBtn = $(`<button style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); border: none; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white;"><i data-lucide="x" style="width: 12px; height: 12px;"></i></button>`);
+      $delBtn.on('click', () => {
+        _currentAttachments.splice(index, 1);
+        renderAttachmentsPreview();
+      });
+      $item.append($delBtn);
+      $container.append($item);
+    });
+    refreshIcons($container[0]);
+  };
+
+  const processFile = (file) => {
+    if (!file.type.startsWith('image/')) {
+      toastr.warning('Chỉ hỗ trợ đính kèm file ảnh.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      _currentAttachments.push({
+        name: file.name,
+        type: 'image',
+        data: e.target.result
+      });
+      renderAttachmentsPreview();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  _$sidebar.find('.ai-attach-btn').on('click', () => {
+    _$sidebar.find('.ai-file-input').click();
+  });
+
+  _$sidebar.find('.ai-file-input').on('change', function() {
+    const files = this.files;
+    for (let i = 0; i < files.length; i++) {
+      processFile(files[i]);
+    }
+    $(this).val('');
+  });
+
+  // Drag & drop on ai-input-area
+  const $dropZone = _$sidebar.find('.ai-input-area');
+  $dropZone.on('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    $dropZone.css('border-color', '#38bdf8');
+  });
+  $dropZone.on('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    $dropZone.css('border-color', '');
+  });
+  $dropZone.on('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    $dropZone.css('border-color', '');
+    const files = e.originalEvent?.dataTransfer?.files;
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        processFile(files[i]);
+      }
+    }
+  });
+
+  // Paste on textarea
+  _$sidebar.find('.ai-input-textarea').on('paste', (e) => {
+    const items = e.originalEvent?.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          if (blob) processFile(blob);
+        }
+      }
+    }
+  });
+
   // Send message
   const sendMessage = async () => {
     if (_state !== 'idle') return;
     const text = _$sidebar.find('.ai-input-textarea').val().trim();
-    if (!text) return;
+    if (!text && _currentAttachments.length === 0) return;
 
     _isUserFollowingScroll = true;
     _$sidebar.find('.ai-input-textarea').val('');
-    appendBubble('user', text, { forceScroll: true });
+    
+    let payload = text;
+    if (_currentAttachments.length > 0) {
+      payload = [];
+      if (text) {
+        payload.push({ type: 'text', text: text });
+      }
+      _currentAttachments.forEach(att => {
+        if (att.type === 'image') {
+          payload.push({ type: 'image_url', image_url: { url: att.data } });
+        }
+      });
+      _currentAttachments = [];
+      renderAttachmentsPreview();
+    }
+
+    appendBubble('user', payload, { forceScroll: true });
 
     let currentAssistantBubble = null;
     let streamBuffer = '';
 
     setState('streaming');
 
-    await _engine.runTask(text, {
+    await _engine.runTask(payload, {
       onChunk: (token) => {
         if (!currentAssistantBubble) {
           currentAssistantBubble = appendBubble('assistant', '');
