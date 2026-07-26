@@ -322,6 +322,9 @@ export class AgencyEngine {
         const cleaned = stripCotAndPrefill(entry.content);
         return { role: 'assistant', content: cleaned || entry.content };
       }
+      if (Array.isArray(entry.content)) {
+        return { ...entry, content: entry.content.map(p => ({ ...p })) };
+      }
       return { ...entry };
     });
 
