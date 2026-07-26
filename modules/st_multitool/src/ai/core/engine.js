@@ -388,7 +388,8 @@ export class AgencyEngine {
       if (typeof entry.content === 'string') {
         len = entry.content.length;
       } else if (Array.isArray(entry.content)) {
-        len = entry.content.reduce((acc, p) => acc + (p.text?.length || 0) + (p.image_url?.url?.length || 0), 0);
+        // Chỉ đếm độ dài chữ (text), bỏ qua chuỗi Base64 của ảnh để tránh làm lố context limit ảo
+        len = entry.content.reduce((acc, p) => acc + (p.text?.length || 0), 0);
       }
       return sum + len;
     }, 0);
