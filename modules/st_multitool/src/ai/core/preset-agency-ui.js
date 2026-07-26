@@ -16,6 +16,7 @@ let _state = 'idle'; // idle | streaming | tool_calling | pending_confirm | erro
 let _$sidebar = null;
 let _devView = localStorage.getItem('st-multitool-ai-devview') === 'true';
 let _isUserFollowingScroll = true;
+let _currentAttachments = [];
 
 function scrollToBottomIfFollowing($history, force = false) {
   if (!$history || !$history.length || !$history[0]) return;
@@ -41,9 +42,11 @@ function setState(s) {
   const $sendBtn = _$sidebar.find('.ai-send-btn');
   const $stopBtn = _$sidebar.find('.ai-stop-btn');
   const $spinner = _$sidebar.find('.ai-spinner');
+  const $attachBtn = _$sidebar.find('.ai-attach-btn');
 
   $input.prop('disabled', s !== 'idle');
   $sendBtn.toggle(s === 'idle');
+  $attachBtn.toggle(s === 'idle');
   $stopBtn.toggle(s === 'streaming' || s === 'tool_calling');
   $spinner.toggle(s === 'streaming' || s === 'tool_calling');
 }
@@ -55,10 +58,25 @@ function appendBubble(role, content, opts = {}) {
 
   let bubbleHtml;
   if (role === 'user') {
+    let attachmentsHtml = '';
+    let textContent = content;
+    if (Array.isArray(content)) {
+      textContent = content.find(p => p.type === 'text')?.text || '';
+      const imgParts = content.filter(p => p.type === 'image_url');
+      if (imgParts.length > 0) {
+        attachmentsHtml = '<div style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;">';
+        imgParts.forEach(img => {
+           attachmentsHtml += `<img src="${img.image_url.url}" style="max-height: 120px; border-radius: 6px; max-width: 100%; object-fit: contain;">`;
+        });
+        attachmentsHtml += '</div>';
+      }
+    }
+    
     bubbleHtml = `
       <div class="ai-bubble ai-bubble-user">
-        <div class="ai-bubble-content">${escapeHtml(content)}</div>
-      </div>`;
+        <div class="ai-bubble-content">${escapeHtml(textContent)}${attachmentsHtml}</div>
+      </div>
+    `;
   } else if (role === 'tool') {
     const icon = opts.ok
       ? '<i data-lucide="check-circle" style="width:13px;height:13px;color:#34d399;vertical-align:-2px;margin-right:4px;"></i>'
@@ -871,39 +889,76 @@ function renderToolPreview() {
 
 // ─── Config Panel & Debug Panel ─────────────────────────────────────────────
 
-function renderDebugPanel() {
+function renderDebugModal() {
+  let $modal = $('#ai-debug-modal');
+  if ($modal.length === 0) {
+    const modalHtml = `
+      <dialog id="ai-debug-modal" style="width: 80vw; max-width: 900px; max-height: 90vh; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15,23,42,0.95); color: #e2e8f0; padding: 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px; border-bottom:1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);">
+          <span style="font-weight:bold; color:#34d399; font-size:15px;"><i data-lucide="file-text" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;"></i> LLM Debug Logs & Tải Trọng Gửi Đi</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="ai-clear-debug-btn-modal" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; padding:4px 10px; border-radius:4px; font-size:12px; cursor:pointer;"><i data-lucide="trash-2" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;"></i> Xóa log</button>
+            <button class="ai-close-debug-modal-btn" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; padding:4px;"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+          </div>
+        </div>
+        <div class="ai-debug-modal-content" style="padding: 16px; overflow-y: auto; max-height: calc(90vh - 55px);"></div>
+      </dialog>
+    `;
+    $('body').append(modalHtml);
+    $modal = $('#ai-debug-modal');
+    if (typeof refreshIcons === 'function') refreshIcons($modal[0]);
+    
+    $modal.find('.ai-close-debug-modal-btn').on('click', () => {
+      $modal[0].close();
+    });
+    
+    $modal.find('.ai-clear-debug-btn-modal').on('click', () => {
+      clearDebugLogs();
+      renderDebugModal();
+    });
+  }
+
   const logs = getDebugLogs();
-  const $content = _$sidebar.find('.ai-debug-content');
+  const $content = $modal.find('.ai-debug-modal-content');
+  
   if (logs.length === 0) {
-    $content.html('<div style="color:#888;font-style:italic;padding:8px 0;">Chưa có log API nào. Hãy gửi yêu cầu để xem chi tiết tải trọng (payload) gửi cho AI.</div>');
+    $content.html('<div style="color:#888;font-style:italic;text-align:center;padding:20px;">Chưa có log API nào. Hãy gửi yêu cầu để xem chi tiết tải trọng (payload) gửi cho AI.</div>');
     return;
   }
+
+  // Bộ lọc thông minh để cắt ngắn chuỗi Base64 dài
+  const base64Replacer = (key, value) => {
+    if (key === 'url' && typeof value === 'string' && value.startsWith('data:image/')) {
+      return '[BASE64_IMAGE_DATA_TRUNCATED_FOR_PERFORMANCE]';
+    }
+    return value;
+  };
 
   let html = '';
   logs.forEach(l => {
     const statusColor = l.status === 'DONE' ? '#34d399' : (l.status === 'ERROR' ? '#f87171' : '#60a5fa');
-    const messagesSummary = (l.messages || []).map(m => `[${m.role.toUpperCase()}]: ${String(m.content).slice(0, 100)}...`).join('\n');
-    const fullPayload = JSON.stringify({ model: l.model, options: l.options, messages: l.messages }, null, 2);
+    // Dùng replacer để mã hóa JSON mà không bị giật
+    const fullPayload = JSON.stringify({ model: l.model, options: l.options, messages: l.messages }, base64Replacer, 2);
 
     html += `
-      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px;margin-bottom:8px;background:rgba(0,0,0,0.3);font-size:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <span style="color:#e2e8f0;font-weight:bold;">🕒 ${l.time} (${l.mode.toUpperCase()})</span>
-          <span style="color:${statusColor};font-weight:bold;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.05);">${l.status} ${l.duration ? `(${l.duration}ms)` : ''}</span>
+      <div style="border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:12px; margin-bottom:12px; background:rgba(0,0,0,0.3); font-size:13px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="color:#e2e8f0; font-weight:bold; font-size:14px;">🕒 ${l.time} (${l.mode.toUpperCase()})</span>
+          <span style="color:${statusColor}; font-weight:bold; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05);">${l.status} ${l.duration ? `(${l.duration}ms)` : ''}</span>
         </div>
-        <div style="color:#94a3b8;font-size:11px;margin-bottom:4px;">📌 Endpoint: ${escapeHtml(l.endpoint)} | Model: ${escapeHtml(l.model)}</div>
-        <details style="margin-top:6px;cursor:pointer;">
-          <summary style="color:#38bdf8;font-weight:500;">📤 Tải trọng gửi đi (${(l.messages || []).length} blocks/layers)</summary>
-          <pre style="background:#0f172a;padding:8px;border-radius:4px;overflow-x:auto;max-height:220px;color:#a5f3fc;font-family:monospace;font-size:11px;margin-top:4px;white-space:pre-wrap;">${escapeHtml(fullPayload)}</pre>
+        <div style="color:#94a3b8; margin-bottom:8px;">📌 Endpoint: ${escapeHtml(l.endpoint)} | Model: ${escapeHtml(l.model)}</div>
+        <details style="margin-top:8px; cursor:pointer;" open>
+          <summary style="color:#38bdf8; font-weight:bold;">📤 Tải trọng gửi đi (${(l.messages || []).length} blocks/layers)</summary>
+          <pre style="background:#0f172a; padding:12px; border-radius:4px; overflow-x:auto; max-height:400px; color:#a5f3fc; font-family:monospace; font-size:12px; margin-top:8px; white-space:pre-wrap;">${escapeHtml(fullPayload)}</pre>
         </details>
         ${l.error ? `
-        <div style="margin-top:6px;padding:6px;background:rgba(239,68,68,0.15);border-left:3px solid #ef4444;color:#fca5a5;font-family:monospace;font-size:11px;">
+        <div style="margin-top:8px; padding:10px; background:rgba(239,68,68,0.15); border-left:4px solid #ef4444; color:#fca5a5; font-family:monospace; font-size:12px;">
           <b>⚠️ Lỗi API:</b> ${escapeHtml(l.error)}
         </div>` : ''}
         ${l.response && !l.error ? `
-        <details style="margin-top:4px;cursor:pointer;">
-          <summary style="color:#a7f3d0;font-weight:500;">📥 Phản hồi nhận về (${l.response.length} chars)</summary>
-          <pre style="background:#0f172a;padding:8px;border-radius:4px;overflow-x:auto;max-height:180px;color:#d1fae5;font-family:monospace;font-size:11px;margin-top:4px;white-space:pre-wrap;">${escapeHtml(l.response)}</pre>
+        <details style="margin-top:8px; cursor:pointer;">
+          <summary style="color:#a7f3d0; font-weight:bold;">📥 Phản hồi nhận về (${l.response.length} chars)</summary>
+          <pre style="background:#0f172a; padding:12px; border-radius:4px; overflow-x:auto; max-height:300px; color:#d1fae5; font-family:monospace; font-size:12px; margin-top:8px; white-space:pre-wrap;">${escapeHtml(l.response)}</pre>
         </details>` : ''}
       </div>
     `;
@@ -1016,14 +1071,7 @@ function buildSidebarHTML() {
         <button class="ai-save-cfg-btn"><i data-lucide="save" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Lưu cài đặt</button>
       </div>
 
-      <!-- Debug Log Panel (hidden by default) -->
-      <div class="ai-debug-panel" style="display:none;padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);max-height:340px;overflow-y:auto;background:rgba(15,23,42,0.95);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);">
-          <span style="font-weight:bold;color:#34d399;font-size:13px;"><i data-lucide="file-text" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> LLM Debug Logs & Tải Trọng Gửi Đi</span>
-          <button class="ai-clear-debug-btn" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;"><i data-lucide="trash-2" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"></i> Xóa log</button>
-        </div>
-        <div class="ai-debug-content"></div>
-      </div>
+
 
       <!-- Chat History -->
       <div class="ai-chat-history"></div>
@@ -1044,13 +1092,18 @@ function buildSidebarHTML() {
       </div>
 
       <!-- Input Area -->
-      <div class="ai-input-area">
-        <textarea class="ai-input-textarea" placeholder="Nhập yêu cầu... (Shift+Enter để xuống dòng)" rows="2"></textarea>
-        <div class="ai-input-controls">
-          <button class="ai-send-btn" title="Gửi (Enter)">
+      <div class="ai-input-area" style="position: relative;">
+        <div class="ai-attachments-preview" style="display: flex; gap: 6px; flex-wrap: wrap; padding: 0 8px; margin-bottom: 4px;"></div>
+        <textarea class="ai-input-textarea" placeholder="Nhập yêu cầu... (Hỗ trợ kéo thả ảnh/Ctrl+V)" rows="2"></textarea>
+        <div class="ai-input-controls" style="display: flex; gap: 6px; align-items: flex-end;">
+          <input type="file" class="ai-file-input hidden" accept="image/*" multiple style="display:none;">
+          <button class="ai-attach-btn" title="Đính kèm ảnh" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 32px;">
+            <i data-lucide="image" style="width:15px;height:15px;color:#94a3b8;"></i>
+          </button>
+          <button class="ai-send-btn" title="Gửi (Enter)" style="height: 32px;">
             <i data-lucide="send" style="width:15px;height:15px;"></i> Gửi
           </button>
-          <button class="ai-stop-btn" style="display:none;" title="Dừng">
+          <button class="ai-stop-btn" style="display:none; height: 32px;" title="Dừng">
             <i data-lucide="square" style="width:15px;height:15px;"></i> Dừng
           </button>
         </div>
@@ -1161,29 +1214,21 @@ function _bindEvents() {
   // Toggle config panel
   _$sidebar.find('.ai-cfg-btn').on('click', () => {
     _$sidebar.find('.ai-config-panel').slideToggle(200);
-    _$sidebar.find('.ai-debug-panel').slideUp(200);
   });
 
-  // Toggle debug panel
+  // Open debug modal
   _$sidebar.find('.ai-debug-btn').on('click', () => {
-    const $panel = _$sidebar.find('.ai-debug-panel');
-    if ($panel.is(':hidden')) {
-      renderDebugPanel();
-      $panel.slideDown(200);
-      _$sidebar.find('.ai-config-panel').slideUp(200);
-    } else {
-      $panel.slideUp(200);
+    renderDebugModal();
+    const $modal = $('#ai-debug-modal');
+    if ($modal.length > 0) {
+      $modal[0].showModal();
     }
   });
 
-  _$sidebar.find('.ai-clear-debug-btn').on('click', () => {
-    clearDebugLogs();
-    renderDebugPanel();
-  });
-
   window.addEventListener('st-multitool-ai-debug-update', () => {
-    if (_$sidebar && _$sidebar.find('.ai-debug-panel').is(':visible')) {
-      renderDebugPanel();
+    const $modal = $('#ai-debug-modal');
+    if ($modal.length > 0 && $modal[0].open) {
+      renderDebugModal();
     }
   });
 
@@ -1225,22 +1270,129 @@ function _bindEvents() {
     appendBubble('assistant', '<i data-lucide="trash-2" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Đã xóa lịch sử. Bắt đầu cuộc trò chuyện mới.');
   });
 
+  // --- Attachments Logic ---
+  const renderAttachmentsPreview = () => {
+    const $container = _$sidebar.find('.ai-attachments-preview');
+    $container.empty();
+    if (_currentAttachments.length === 0) {
+      $container.hide();
+      return;
+    }
+    $container.show();
+    _currentAttachments.forEach((att, index) => {
+      const $item = $(`<div style="position: relative; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); width: 60px; height: 60px;"></div>`);
+      if (att.type === 'image') {
+        $item.append(`<img src="${att.data}" style="width: 100%; height: 100%; object-fit: cover;">`);
+      }
+      const $delBtn = $(`<button style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); border: none; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white;"><i data-lucide="x" style="width: 12px; height: 12px;"></i></button>`);
+      $delBtn.on('click', () => {
+        _currentAttachments.splice(index, 1);
+        renderAttachmentsPreview();
+      });
+      $item.append($delBtn);
+      $container.append($item);
+    });
+    refreshIcons($container[0]);
+  };
+
+  const processFile = (file) => {
+    if (!file.type.startsWith('image/')) {
+      toastr.warning('Chỉ hỗ trợ đính kèm file ảnh.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      _currentAttachments.push({
+        name: file.name,
+        type: 'image',
+        data: e.target.result
+      });
+      renderAttachmentsPreview();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  _$sidebar.find('.ai-attach-btn').on('click', () => {
+    _$sidebar.find('.ai-file-input').click();
+  });
+
+  _$sidebar.find('.ai-file-input').on('change', function() {
+    const files = this.files;
+    for (let i = 0; i < files.length; i++) {
+      processFile(files[i]);
+    }
+    $(this).val('');
+  });
+
+  // Drag & drop on ai-input-area
+  const $dropZone = _$sidebar.find('.ai-input-area');
+  $dropZone.on('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    $dropZone.css('border-color', '#38bdf8');
+  });
+  $dropZone.on('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    $dropZone.css('border-color', '');
+  });
+  $dropZone.on('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    $dropZone.css('border-color', '');
+    const files = e.originalEvent?.dataTransfer?.files;
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        processFile(files[i]);
+      }
+    }
+  });
+
+  // Paste on textarea
+  _$sidebar.find('.ai-input-textarea').on('paste', (e) => {
+    const items = e.originalEvent?.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          if (blob) processFile(blob);
+        }
+      }
+    }
+  });
+
   // Send message
   const sendMessage = async () => {
     if (_state !== 'idle') return;
     const text = _$sidebar.find('.ai-input-textarea').val().trim();
-    if (!text) return;
+    if (!text && _currentAttachments.length === 0) return;
 
     _isUserFollowingScroll = true;
     _$sidebar.find('.ai-input-textarea').val('');
-    appendBubble('user', text, { forceScroll: true });
+    
+    let payload = text;
+    if (_currentAttachments.length > 0) {
+      payload = [];
+      if (text) {
+        payload.push({ type: 'text', text: text });
+      }
+      _currentAttachments.forEach(att => {
+        if (att.type === 'image') {
+          payload.push({ type: 'image_url', image_url: { url: att.data } });
+        }
+      });
+      _currentAttachments = [];
+      renderAttachmentsPreview();
+    }
+
+    appendBubble('user', payload, { forceScroll: true });
 
     let currentAssistantBubble = null;
     let streamBuffer = '';
 
     setState('streaming');
 
-    await _engine.runTask(text, {
+    await _engine.runTask(payload, {
       onChunk: (token) => {
         if (!currentAssistantBubble) {
           currentAssistantBubble = appendBubble('assistant', '');
