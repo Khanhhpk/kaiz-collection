@@ -889,39 +889,76 @@ function renderToolPreview() {
 
 // ─── Config Panel & Debug Panel ─────────────────────────────────────────────
 
-function renderDebugPanel() {
+function renderDebugModal() {
+  let $modal = $('#ai-debug-modal');
+  if ($modal.length === 0) {
+    const modalHtml = `
+      <dialog id="ai-debug-modal" style="width: 80vw; max-width: 900px; max-height: 90vh; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15,23,42,0.95); color: #e2e8f0; padding: 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px; border-bottom:1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3);">
+          <span style="font-weight:bold; color:#34d399; font-size:15px;"><i data-lucide="file-text" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;"></i> LLM Debug Logs & Tải Trọng Gửi Đi</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="ai-clear-debug-btn-modal" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.5); color:#fca5a5; padding:4px 10px; border-radius:4px; font-size:12px; cursor:pointer;"><i data-lucide="trash-2" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;"></i> Xóa log</button>
+            <button class="ai-close-debug-modal-btn" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; padding:4px;"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+          </div>
+        </div>
+        <div class="ai-debug-modal-content" style="padding: 16px; overflow-y: auto; max-height: calc(90vh - 55px);"></div>
+      </dialog>
+    `;
+    $('body').append(modalHtml);
+    $modal = $('#ai-debug-modal');
+    if (typeof refreshIcons === 'function') refreshIcons($modal[0]);
+    
+    $modal.find('.ai-close-debug-modal-btn').on('click', () => {
+      $modal[0].close();
+    });
+    
+    $modal.find('.ai-clear-debug-btn-modal').on('click', () => {
+      clearDebugLogs();
+      renderDebugModal();
+    });
+  }
+
   const logs = getDebugLogs();
-  const $content = _$sidebar.find('.ai-debug-content');
+  const $content = $modal.find('.ai-debug-modal-content');
+  
   if (logs.length === 0) {
-    $content.html('<div style="color:#888;font-style:italic;padding:8px 0;">Chưa có log API nào. Hãy gửi yêu cầu để xem chi tiết tải trọng (payload) gửi cho AI.</div>');
+    $content.html('<div style="color:#888;font-style:italic;text-align:center;padding:20px;">Chưa có log API nào. Hãy gửi yêu cầu để xem chi tiết tải trọng (payload) gửi cho AI.</div>');
     return;
   }
+
+  // Bộ lọc thông minh để cắt ngắn chuỗi Base64 dài
+  const base64Replacer = (key, value) => {
+    if (key === 'url' && typeof value === 'string' && value.startsWith('data:image/')) {
+      return '[BASE64_IMAGE_DATA_TRUNCATED_FOR_PERFORMANCE]';
+    }
+    return value;
+  };
 
   let html = '';
   logs.forEach(l => {
     const statusColor = l.status === 'DONE' ? '#34d399' : (l.status === 'ERROR' ? '#f87171' : '#60a5fa');
-    const messagesSummary = (l.messages || []).map(m => `[${m.role.toUpperCase()}]: ${String(m.content).slice(0, 100)}...`).join('\n');
-    const fullPayload = JSON.stringify({ model: l.model, options: l.options, messages: l.messages }, null, 2);
+    // Dùng replacer để mã hóa JSON mà không bị giật
+    const fullPayload = JSON.stringify({ model: l.model, options: l.options, messages: l.messages }, base64Replacer, 2);
 
     html += `
-      <div style="border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px;margin-bottom:8px;background:rgba(0,0,0,0.3);font-size:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <span style="color:#e2e8f0;font-weight:bold;">🕒 ${l.time} (${l.mode.toUpperCase()})</span>
-          <span style="color:${statusColor};font-weight:bold;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.05);">${l.status} ${l.duration ? `(${l.duration}ms)` : ''}</span>
+      <div style="border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:12px; margin-bottom:12px; background:rgba(0,0,0,0.3); font-size:13px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="color:#e2e8f0; font-weight:bold; font-size:14px;">🕒 ${l.time} (${l.mode.toUpperCase()})</span>
+          <span style="color:${statusColor}; font-weight:bold; padding:4px 8px; border-radius:4px; background:rgba(255,255,255,0.05);">${l.status} ${l.duration ? `(${l.duration}ms)` : ''}</span>
         </div>
-        <div style="color:#94a3b8;font-size:11px;margin-bottom:4px;">📌 Endpoint: ${escapeHtml(l.endpoint)} | Model: ${escapeHtml(l.model)}</div>
-        <details style="margin-top:6px;cursor:pointer;">
-          <summary style="color:#38bdf8;font-weight:500;">📤 Tải trọng gửi đi (${(l.messages || []).length} blocks/layers)</summary>
-          <pre style="background:#0f172a;padding:8px;border-radius:4px;overflow-x:auto;max-height:220px;color:#a5f3fc;font-family:monospace;font-size:11px;margin-top:4px;white-space:pre-wrap;">${escapeHtml(fullPayload)}</pre>
+        <div style="color:#94a3b8; margin-bottom:8px;">📌 Endpoint: ${escapeHtml(l.endpoint)} | Model: ${escapeHtml(l.model)}</div>
+        <details style="margin-top:8px; cursor:pointer;" open>
+          <summary style="color:#38bdf8; font-weight:bold;">📤 Tải trọng gửi đi (${(l.messages || []).length} blocks/layers)</summary>
+          <pre style="background:#0f172a; padding:12px; border-radius:4px; overflow-x:auto; max-height:400px; color:#a5f3fc; font-family:monospace; font-size:12px; margin-top:8px; white-space:pre-wrap;">${escapeHtml(fullPayload)}</pre>
         </details>
         ${l.error ? `
-        <div style="margin-top:6px;padding:6px;background:rgba(239,68,68,0.15);border-left:3px solid #ef4444;color:#fca5a5;font-family:monospace;font-size:11px;">
+        <div style="margin-top:8px; padding:10px; background:rgba(239,68,68,0.15); border-left:4px solid #ef4444; color:#fca5a5; font-family:monospace; font-size:12px;">
           <b>⚠️ Lỗi API:</b> ${escapeHtml(l.error)}
         </div>` : ''}
         ${l.response && !l.error ? `
-        <details style="margin-top:4px;cursor:pointer;">
-          <summary style="color:#a7f3d0;font-weight:500;">📥 Phản hồi nhận về (${l.response.length} chars)</summary>
-          <pre style="background:#0f172a;padding:8px;border-radius:4px;overflow-x:auto;max-height:180px;color:#d1fae5;font-family:monospace;font-size:11px;margin-top:4px;white-space:pre-wrap;">${escapeHtml(l.response)}</pre>
+        <details style="margin-top:8px; cursor:pointer;">
+          <summary style="color:#a7f3d0; font-weight:bold;">📥 Phản hồi nhận về (${l.response.length} chars)</summary>
+          <pre style="background:#0f172a; padding:12px; border-radius:4px; overflow-x:auto; max-height:300px; color:#d1fae5; font-family:monospace; font-size:12px; margin-top:8px; white-space:pre-wrap;">${escapeHtml(l.response)}</pre>
         </details>` : ''}
       </div>
     `;
@@ -1034,14 +1071,7 @@ function buildSidebarHTML() {
         <button class="ai-save-cfg-btn"><i data-lucide="save" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> Lưu cài đặt</button>
       </div>
 
-      <!-- Debug Log Panel (hidden by default) -->
-      <div class="ai-debug-panel" style="display:none;padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);max-height:340px;overflow-y:auto;background:rgba(15,23,42,0.95);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);">
-          <span style="font-weight:bold;color:#34d399;font-size:13px;"><i data-lucide="file-text" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;"></i> LLM Debug Logs & Tải Trọng Gửi Đi</span>
-          <button class="ai-clear-debug-btn" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5);color:#fca5a5;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;"><i data-lucide="trash-2" style="width:12px;height:12px;vertical-align:-1px;margin-right:3px;"></i> Xóa log</button>
-        </div>
-        <div class="ai-debug-content"></div>
-      </div>
+
 
       <!-- Chat History -->
       <div class="ai-chat-history"></div>
@@ -1184,29 +1214,21 @@ function _bindEvents() {
   // Toggle config panel
   _$sidebar.find('.ai-cfg-btn').on('click', () => {
     _$sidebar.find('.ai-config-panel').slideToggle(200);
-    _$sidebar.find('.ai-debug-panel').slideUp(200);
   });
 
-  // Toggle debug panel
+  // Open debug modal
   _$sidebar.find('.ai-debug-btn').on('click', () => {
-    const $panel = _$sidebar.find('.ai-debug-panel');
-    if ($panel.is(':hidden')) {
-      renderDebugPanel();
-      $panel.slideDown(200);
-      _$sidebar.find('.ai-config-panel').slideUp(200);
-    } else {
-      $panel.slideUp(200);
+    renderDebugModal();
+    const $modal = $('#ai-debug-modal');
+    if ($modal.length > 0) {
+      $modal[0].showModal();
     }
   });
 
-  _$sidebar.find('.ai-clear-debug-btn').on('click', () => {
-    clearDebugLogs();
-    renderDebugPanel();
-  });
-
   window.addEventListener('st-multitool-ai-debug-update', () => {
-    if (_$sidebar && _$sidebar.find('.ai-debug-panel').is(':visible')) {
-      renderDebugPanel();
+    const $modal = $('#ai-debug-modal');
+    if ($modal.length > 0 && $modal[0].open) {
+      renderDebugModal();
     }
   });
 
