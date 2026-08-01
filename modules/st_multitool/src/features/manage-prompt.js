@@ -189,6 +189,32 @@ export function initManagePrompt() {
     }, 50);
   });
 
+  // ── Sync from ST (Đồng bộ lại từ ST Native UI vào Sandbox) ─────────────────────────────
+  $('#st-multitool-sync-from-st-btn').on('click', () => {
+    if (!confirm('CẢNH BÁO: Hành động này sẽ TẢI LẠI toàn bộ dữ liệu gốc mới nhất từ SillyTavern và GHI ĐÈ lên Sandbox hiện tại.\n\nTất cả các thay đổi bạn chưa lưu trong Preset Editor này sẽ bị MẤT SẠCH.\n\nBạn có chắc chắn muốn đồng bộ không?')) {
+      return;
+    }
+    showLoader();
+    setTimeout(() => {
+      try {
+        captureOriginalSnapshot();
+        clearPendingBlockChanges();
+        clearPendingVarChanges();
+        clearStaging();
+        if ($saveBtn && $saveBtn.length) {
+          $saveBtn.html('<i data-lucide="save"></i> Lưu Preset');
+          refreshIcons();
+        }
+        renderPromptBlocks();
+        if (typeof refreshVarInspector === 'function') refreshVarInspector();
+        $('#st-multitool-prompt-search').val('').trigger('input');
+        toastr.success('Đã đồng bộ lại dữ liệu mới nhất từ SillyTavern gốc vào Sandbox.');
+      } finally {
+        hideLoader();
+      }
+    }, 50);
+  });
+
   // ── Auto-save preset toggle ──────────────────────────────────────────
   const autoSaveToggle = $('#st-multitool-auto-save-preset-toggle');
   if (autoSaveToggle.length) {
