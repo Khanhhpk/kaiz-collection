@@ -43,10 +43,10 @@ export function restoreOriginalSnapshot() {
       if (Array.isArray(container.prompt_order) && container.prompt_order.length > 0 && typeof container.prompt_order[0] === 'object' && Array.isArray(container.prompt_order[0]?.order)) {
         const ctx = window.SillyTavern?.getContext?.() || {};
         const charId = ctx.characterId;
-        let targetObj = container.prompt_order.find(o => o.character_id === charId) || container.prompt_order[0];
+        let targetObj = container.prompt_order.find(o => String(o.character_id) === String(charId)) || container.prompt_order[0];
         if (targetObj && Array.isArray(_originalSnapshot.prompt_order)) {
           if (typeof _originalSnapshot.prompt_order[0] === 'object' && Array.isArray(_originalSnapshot.prompt_order[0]?.order)) {
-            let snapTarget = _originalSnapshot.prompt_order.find(o => o.character_id === charId) || _originalSnapshot.prompt_order[0];
+            let snapTarget = _originalSnapshot.prompt_order.find(o => String(o.character_id) === String(charId)) || _originalSnapshot.prompt_order[0];
             if (snapTarget) targetObj.order = JSON.parse(JSON.stringify(snapTarget.order));
           } else {
             targetObj.order = JSON.parse(JSON.stringify(_originalSnapshot.prompt_order));
@@ -272,7 +272,7 @@ export function savePromptBlocks() {
       // ST 1.18+ nested format
       const ctx = window.SillyTavern?.getContext?.() || {};
       const charId = ctx.characterId;
-      let targetObj = container.prompt_order.find(o => o.character_id === charId) || container.prompt_order[0];
+      let targetObj = container.prompt_order.find(o => String(o.character_id) === String(charId)) || container.prompt_order[0];
       if (targetObj) targetObj.order = newPromptOrder;
     } else {
       container.prompt_order = newPromptOrder;
