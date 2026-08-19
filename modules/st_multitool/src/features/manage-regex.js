@@ -158,7 +158,8 @@ export function initManageRegex() {
     }
   });
 
-  $('#st-multitool-manage-regex-view').on('click', '.st-multitool-manage-script-card-header', function() {
+  $('#st-multitool-manage-regex-view').on('click', '.st-multitool-manage-script-card-header', function(e) {
+    if ($(e.target).closest('button, input, .st-multitool-card-header-actions').length) return;
     const targetId = $(this).data('target');
     if (targetId && targetId.startsWith('st-multitool-manage-regex')) {
       const $card = $(this).closest('.st-multitool-manage-script-card');
