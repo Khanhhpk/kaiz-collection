@@ -71,6 +71,38 @@ export function initEntries() {
     $modDepthContainer.css('display', val.startsWith('at_depth') ? 'flex' : 'none');
   });
 
+  let lastCheckedTransEntry = null;
+  $transEntriesContainer.on('click', 'input[type="checkbox"]', function(e) {
+    if (e.shiftKey || e.ctrlKey) {
+      if (lastCheckedTransEntry) {
+        const $checkboxes = $transEntriesContainer.find('input[type="checkbox"]');
+        const start = $checkboxes.index(this);
+        const end = $checkboxes.index(lastCheckedTransEntry);
+        if (start > -1 && end > -1) {
+          const isChecked = lastCheckedTransEntry.checked;
+          $checkboxes.slice(Math.min(start, end), Math.max(start, end) + 1).prop('checked', isChecked);
+        }
+      }
+    }
+    lastCheckedTransEntry = this;
+  });
+
+  let lastCheckedCopyEntry = null;
+  $copyEntriesContainer.on('click', 'input[type="checkbox"]', function(e) {
+    if (e.shiftKey || e.ctrlKey) {
+      if (lastCheckedCopyEntry) {
+        const $checkboxes = $copyEntriesContainer.find('input[type="checkbox"]');
+        const start = $checkboxes.index(this);
+        const end = $checkboxes.index(lastCheckedCopyEntry);
+        if (start > -1 && end > -1) {
+          const isChecked = lastCheckedCopyEntry.checked;
+          $checkboxes.slice(Math.min(start, end), Math.max(start, end) + 1).prop('checked', isChecked);
+        }
+      }
+    }
+    lastCheckedCopyEntry = this;
+  });
+
   $transSourceSelect.on('change', renderSourceEntries);
   $transBtn.on('click', handleTransferEntries);
   $transSelectAllBtn.on('click', () => {

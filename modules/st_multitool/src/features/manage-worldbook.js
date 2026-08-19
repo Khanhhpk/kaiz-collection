@@ -26,7 +26,8 @@ export function initManageWorldbook() {
   $('#st-multitool-manage-wb-save-entry-btn').on('click', handleSaveEntry);
   $('#st-multitool-manage-wb-cancel-entry-btn').on('click', hideEntryEditPanel);
 
-  $('#st-multitool-manage-wb-view').on('click', '.st-multitool-manage-script-card-header', function() {
+  $('#st-multitool-manage-wb-view').on('click', '.st-multitool-manage-script-card-header', function(e) {
+    if ($(e.target).closest('button, input, .st-multitool-card-header-actions').length) return;
     const targetId = $(this).data('target');
     if (targetId && targetId.startsWith('st-multitool-manage-wb')) {
       const $card = $(this).closest('.st-multitool-manage-script-card');
@@ -37,6 +38,40 @@ export function initManageWorldbook() {
   });
 
   restoreWbCardStates();
+
+  let lastCheckedManageWbEntry = null;
+  $('#st-multitool-manage-wb-view').on('click', '.st-multitool-manage-entry-checkbox', function(e) {
+    if (e.shiftKey || e.ctrlKey) {
+      if (lastCheckedManageWbEntry) {
+        const $checkboxes = $manageWbEntriesList.find('.st-multitool-manage-entry-checkbox');
+        const start = $checkboxes.index(this);
+        const end = $checkboxes.index(lastCheckedManageWbEntry);
+        if (start > -1 && end > -1) {
+          const isChecked = lastCheckedManageWbEntry.checked;
+          $checkboxes.slice(Math.min(start, end), Math.max(start, end) + 1).prop('checked', isChecked);
+        }
+      }
+    }
+    lastCheckedManageWbEntry = this;
+  });
+
+  let lastCheckedManageWb = null;
+  $('#st-multitool-manage-wb-view').on('click', '.st-multitool-manage-wb-checkbox', function(e) {
+    if (e.shiftKey || e.ctrlKey) {
+      if (lastCheckedManageWb) {
+        const $checkboxes = $manageWbList.find('.st-multitool-manage-wb-checkbox');
+        const start = $checkboxes.index(this);
+        const end = $checkboxes.index(lastCheckedManageWb);
+        if (start > -1 && end > -1) {
+          const isChecked = lastCheckedManageWb.checked;
+          const $slice = $checkboxes.slice(Math.min(start, end), Math.max(start, end) + 1);
+          $slice.prop('checked', isChecked);
+          $slice.trigger('change');
+        }
+      }
+    }
+    lastCheckedManageWb = this;
+  });
 
   $('#st-multitool-manage-wb-view').on('click', '.st-multitool-manage-wb-item', function(e) {
     if ($(e.target).hasClass('st-multitool-manage-wb-checkbox') || 

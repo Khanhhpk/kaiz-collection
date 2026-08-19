@@ -22,7 +22,8 @@ export function initManageScripts() {
   $('#st-multitool-manage-script-cancel-btn').on('click', hideScriptEditPanel);
 
 
-  $('#st-multitool-manage-script-view').on('click', '.st-multitool-manage-script-card-header', function() {
+  $('#st-multitool-manage-script-view').on('click', '.st-multitool-manage-script-card-header', function(e) {
+    if ($(e.target).closest('button, input, .st-multitool-card-header-actions').length) return;
     const targetId = $(this).data('target');
     if (targetId && targetId.startsWith('st-multitool-manage-script')) {
       const $card = $(this).closest('.st-multitool-manage-script-card');
