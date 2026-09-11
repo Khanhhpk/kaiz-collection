@@ -182,6 +182,7 @@ function waitForEnvironment(callback) {
 const CONFIG_KEY = 'st_phone_ecosystem_config';
 
 const CORE_MODULES = [
+    { file: 'kaiz_icons.js', path: './modules/kaiz_icons.js', name: 'Thư viện Icon Offline (Kaiz Icons)', desc: 'Cung cấp toàn bộ SVG icon cục bộ cho hệ sinh thái' },
     { file: 'floating_ball_manager.js', path: './modules/floating_ball_manager.js', name: 'Bong bóng mẹ (UI Master)', desc: 'Quản lý nút nổi, menu chính và điều hướng' },
     { file: 'phone_core.js', path: './modules/phone_core.js', name: 'Hệ điều hành Phone Core', desc: 'Lõi xử lý nền và bộ điều khiển ứng dụng' }
 ];

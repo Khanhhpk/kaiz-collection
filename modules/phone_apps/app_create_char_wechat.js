@@ -203,15 +203,15 @@ Bây giờ hãy trả lời:`;
         <div style="display:flex; flex-direction:column; height:100%; background:#f5f7fa; font-family:-apple-system, sans-serif; color:#333; padding-top:44px; box-sizing:border-box;">
             <div style="height:48px; background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); padding:10px 16px; display:flex; align-items:center; border-bottom:1px solid rgba(0,0,0,0.1); box-sizing:border-box; flex-shrink:0;">
                 <div id="btn-back-home" style="font-size:24px; cursor:pointer; display:flex; align-items:center; width:40px;">
-                    <img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;">
                 </div>
                 <div style="flex:1; font-size:17px; font-weight:600; text-align:center;">Quản lý OC</div>
                 <div style="display:flex; gap:12px; align-items:center;">
                     <div id="btn-ai-oc" style="width:24px; text-align:right; font-size:24px; color:#1890ff; cursor:pointer;" title="Quét lịch sử tự động tạo OC">
-                        <img src="https://api.iconify.design/ri:magic-line.svg?color=%231890ff" style="width:24px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMxODkwZmYiIGQ9Ik0xNS4xOTkgOS45NDRhMi42IDIuNiAwIDAgMS0uNzktMS41NWwtLjQwMy0zLjA4M2wtMi43MzEgMS40ODZhMi42IDIuNiAwIDAgMS0xLjcxOS4yNzJMNi41IDYuNWwuNTcgMy4wNTZhMi42IDIuNiAwIDAgMS0uMjczIDEuNzJsLTEuNDg2IDIuNzNsMy4wODMuNDAzYTIuNiAyLjYgMCAwIDEgMS41NS43OWwyLjEzOCAyLjI1N2wxLjMzNi0yLjgwN2EyLjYgMi42IDAgMCAxIDEuMjMtMS4yMzFsMi44MDgtMS4zMzZ6bS4wMjUgNS41NjRsLTIuMjEzIDQuNjVhLjYuNiAwIDAgMS0uOTc3LjE1NWwtMy41NDItMy43MzlhLjYuNiAwIDAgMC0uMzU4LS4xODJsLTUuMTA2LS42NjhhLjYuNiAwIDAgMS0uNDUtLjg4MWwyLjQ2Mi00LjUyNGEuNi42IDAgMCAwIC4wNjMtLjM5Nkw0LjE2IDQuODZhLjYuNiAwIDAgMSAuNy0uN2w1LjA2Mi45NDNhLjYuNiAwIDAgMCAuMzk3LS4wNjNsNC41MjMtMi40NmEuNi42IDAgMCAxIC44ODIuNDQ4bC42NjggNS4xMDdhLjYuNiAwIDAgMCAuMTgyLjM1N2wzLjczOSAzLjU0MmEuNi42IDAgMCAxLS4xNTUuOTc3bC00LjY1IDIuMjEzYS42LjYgMCAwIDAtLjI4NC4yODRtLjc5NyAxLjkyN2wxLjQxNC0xLjQxNGw0LjI0MyA0LjI0MmwtMS40MTUgMS40MTV6Ii8+PC9zdmc+" style="width:24px;">
                     </div>
                     <div id="btn-add-oc" style="width:24px; text-align:right; font-size:24px; color:#07c160; cursor:pointer;" title="Tạo thủ công">
-                        <img src="https://api.iconify.design/ri:user-add-line.svg?color=%2307c160" style="width:24px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMwN2MxNjAiIGQ9Ik0xNCAxNC4yNTJ2Mi4wOUE2IDYgMCAwIDAgNiAyMkg0YTggOCAwIDAgMSAxMC03Ljc0OU0xMiAxM2MtMy4zMTUgMC02LTIuNjg1LTYtNnMyLjY4NS02IDYtNnM2IDIuNjg1IDYgNnMtMi42ODUgNi02IDZtMC0yYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00cy00IDEuNzktNCA0czEuNzkgNCA0IDRtNiA2di0zaDJ2M2gzdjJoLTN2M2gtMnYtM2gtM3YtMnoiLz48L3N2Zz4=" style="width:24px;">
                     </div>
                 </div>
             </div>
@@ -225,17 +225,17 @@ Bây giờ hãy trả lời:`;
             ocs.forEach(oc => {
                 html += `
                 <div style="background:#fff; border-radius:12px; padding:16px; margin-bottom:12px; display:flex; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                    <img src="${oc.avatar}" onerror="this.src='https://api.iconify.design/ri:user-smile-fill.svg?color=%23ccc'" style="width:50px; height:50px; border-radius:8px; object-fit:cover; margin-right:16px;">
+                    <img src="${oc.avatar}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNjY2MiIGQ9Ik0xMiAyMkM2LjQ3NyAyMiAyIDE3LjUyMyAyIDEyUzYuNDc3IDIgMTIgMnMxMCA0LjQ3NyAxMCAxMHMtNC40NzcgMTAtMTAgMTBNNyAxMmE1IDUgMCAwIDAgMTAgMGgtMmEzIDMgMCAxIDEtNiAweiIvPjwvc3ZnPg=='" style="width:50px; height:50px; border-radius:8px; object-fit:cover; margin-right:16px;">
                     <div style="flex:1; overflow:hidden;">
                         <div style="font-weight:600; font-size:16px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(oc.name)}</div>
                         <div style="font-size:13px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(oc.description)}</div>
                     </div>
                     <div style="display:flex; gap:4px;">
                         <div class="btn-edit-oc" data-id="${oc.id}" style="padding:8px; color:#1890ff; cursor:pointer;" title="Sửa thông tin">
-                            <img src="https://api.iconify.design/ri:edit-box-line.svg?color=%231890ff" style="width:22px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMxODkwZmYiIGQ9Im0xNi43NTcgMi45OTdsLTIgMkg1djE0aDE0VjkuMjM5bDItMnYxMi43NThhMSAxIDAgMCAxLTEgMUg0YTEgMSAwIDAgMS0xLTF2LTE2YTEgMSAwIDAgMSAxLTF6bTMuNzI4LS45TDIxLjkgMy41MTFsLTkuMTkzIDkuMTkzbC0xLjQxMi4wMDJsLS4wMDItMS40MTZ6Ii8+PC9zdmc+" style="width:22px;">
                         </div>
                         <div class="btn-delete-oc" data-id="${oc.id}" style="padding:8px; color:#ff4d4f; cursor:pointer;" title="Xóa nhân vật">
-                            <img src="https://api.iconify.design/ri:delete-bin-line.svg?color=%23ff4d4f" style="width:22px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNmZjRkNGYiIGQ9Ik0xNyA2aDV2MmgtMnYxM2ExIDEgMCAwIDEtMSAxSDVhMSAxIDAgMCAxLTEtMVY4SDJWNmg1VjNhMSAxIDAgMCAxIDEtMWg4YTEgMSAwIDAgMSAxIDF6bTEgMkg2djEyaDEyem0tOSAzaDJ2Nkg5em00IDBoMnY2aC0yek05IDR2Mmg2VjR6Ii8+PC9zdmc+" style="width:22px;">
                         </div>
                     </div>
                 </div>`;
@@ -427,7 +427,7 @@ Yêu cầu trả về ĐÚNG định dạng JSON chuẩn (Không chứa văn b�
         
         doc.getElementById('btn-save-oc').onclick = () => {
             const name = doc.getElementById('oc-name').value.trim();
-            const avatar = doc.getElementById('oc-avatar').value.trim() || 'https://api.iconify.design/ri:user-smile-fill.svg?color=%23ccc';
+            const avatar = doc.getElementById('oc-avatar').value.trim() || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNjY2MiIGQ9Ik0xMiAyMkM2LjQ3NyAyMiAyIDE3LjUyMyAyIDEyUzYuNDc3IDIgMTIgMnMxMCA0LjQ3NyAxMCAxMHMtNC40NzcgMTAtMTAgMTBNNyAxMmE1IDUgMCAwIDAgMTAgMGgtMmEzIDMgMCAxIDEtNiAweiIvPjwvc3ZnPg==';
             const desc = doc.getElementById('oc-desc').value.trim();
             const persona = doc.getElementById('oc-persona').value.trim();
 
@@ -485,7 +485,7 @@ Yêu cầu trả về ĐÚNG định dạng JSON chuẩn (Không chứa văn b�
         return `
             <div class="chat-list-item custom-oc-chat-item" data-oc-id="${oc.id}">
                 <div class="chat-item-avatar" style="background:#07c160;overflow:hidden;">
-                    <img src="${oc.avatar}" onerror="this.src='https://api.iconify.design/ri:user-smile-fill.svg?color=white'" style="width:100%;height:100%;object-fit:cover;" />
+                    <img src="${oc.avatar}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTIgMjJDNi40NzcgMjIgMiAxNy41MjMgMiAxMlM2LjQ3NyAyIDEyIDJzMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwTTcgMTJhNSA1IDAgMCAwIDEwIDBoLTJhMyAzIDAgMSAxLTYgMHoiLz48L3N2Zz4='" style="width:100%;height:100%;object-fit:cover;" />
                 </div>
                 <div class="chat-item-content">
                     <div class="chat-item-top">
@@ -582,7 +582,7 @@ Yêu cầu trả về ĐÚNG định dạng JSON chuẩn (Không chứa văn b�
             }
         } catch (e) { }
         
-        return 'https://api.iconify.design/ri:user-3-fill.svg?color=%23999';
+        return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM5OTkiIGQ9Ik0yMCAyMkg0di0yYTUgNSAwIDAgMSA1LTVoNmE1IDUgMCAwIDEgNSA1em0tOC05YTYgNiAwIDEgMSAwLTEyYTYgNiAwIDAgMSAwIDEyIi8+PC9zdmc+';
     }
 
     function openOCChatRoom(doc, oc) {
@@ -598,15 +598,15 @@ Yêu cầu trả về ĐÚNG định dạng JSON chuẩn (Không chứa văn b�
             <div class="chat-app" id="oc-chat-app-container">
                 <div class="chat-room-header">
                     <button class="chat-room-back" id="oc-btn-back">
-                        <img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;height:28px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;height:28px;">
                     </button>
                     <div class="chat-room-title">${escapeHtml(oc.name)}</div>
                     <div class="chat-room-actions">
                         <button class="chat-room-btn" id="oc-btn-settings" title="Cài đặt AI">
-                            <img src="https://api.iconify.design/ri:settings-3-line.svg?color=%23666" style="width:20px;height:20px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM2NjYiIGQ9Ik0zLjM0IDE3YTEwIDEwIDAgMCAxLS45NzktMi4zMjZhMyAzIDAgMCAwIC4wMDMtNS4zNDdhMTAgMTAgMCAwIDEgMi41LTQuMzM3YTMgMyAwIDAgMCA0LjYzMi0yLjY3NGExMCAxMCAwIDAgMSA1LjAwNy4wMDNhMyAzIDAgMCAwIDQuNjMyIDIuNjcxYTEwLjA2IDEwLjA2IDAgMCAxIDIuNTAzIDQuMzM2YTMgMyAwIDAgMC0uMDAyIDUuMzQ3YTEwIDEwIDAgMCAxLTIuNTAxIDQuMzM3YTMgMyAwIDAgMC00LjYzMiAyLjY3NGExMCAxMCAwIDAgMS01LjAwNy0uMDAyYTMgMyAwIDAgMC00LjYzMS0yLjY3MkExMCAxMCAwIDAgMSAzLjMzOSAxN201LjY2LjE5NmE1IDUgMCAwIDEgMi4yNSAyLjc3cS43NS4wNyAxLjQ5OS4wMDJhNSA1IDAgMCAxIDIuMjUtMi43NzJhNSA1IDAgMCAxIDMuNTI2LS41NjRxLjQzNS0uNjE0Ljc0OC0xLjI5OEE1IDUgMCAwIDEgMTggMTJjMC0xLjI2LjQ3LTIuNDM3IDEuMjczLTMuMzM0YTggOCAwIDAgMC0uNzUtMS4yOThBNSA1IDAgMCAxIDE1IDYuODA0YTUgNSAwIDAgMS0yLjI1LTIuNzdxLS43NS0uMDcxLTEuNS0uMDAxQTUgNSAwIDAgMSA5IDYuODA0YTUgNSAwIDAgMS0zLjUyNi41NjRxLS40MzYuNjE0LS43NDcgMS4yOThBNSA1IDAgMCAxIDYgMTJjMCAxLjI2LS40NzEgMi40MzctMS4yNzMgMy4zMzRhOCA4IDAgMCAwIC43NSAxLjI5OEE1IDUgMCAwIDEgOSAxNy4xOTZNMTIgMTVhMyAzIDAgMSAxIDAtNmEzIDMgMCAwIDEgMCA2bTAtMmExIDEgMCAxIDAgMC0yYTEgMSAwIDAgMCAwIDIiLz48L3N2Zz4=" style="width:20px;height:20px;">
                         </button>
                         <button class="chat-room-btn" id="oc-btn-clear" title="Xóa lịch sử">
-                            <img src="https://api.iconify.design/ri:delete-bin-line.svg?color=%23666" style="width:20px;height:20px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM2NjYiIGQ9Ik0xNyA2aDV2MmgtMnYxM2ExIDEgMCAwIDEtMSAxSDVhMSAxIDAgMCAxLTEtMVY4SDJWNmg1VjNhMSAxIDAgMCAxIDEtMWg4YTEgMSAwIDAgMSAxIDF6bTEgMkg2djEyaDEyem0tOSAzaDJ2Nkg5em00IDBoMnY2aC0yek05IDR2Mmg2VjR6Ii8+PC9zdmc+" style="width:20px;height:20px;">
                         </button>
                     </div>
                 </div>
@@ -658,7 +658,7 @@ Yêu cầu trả về ĐÚNG định dạng JSON chuẩn (Không chứa văn b�
         if (messages.length === 0) {
             container.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center; padding:60px 20px; color:#b2b2b2;">
-                    <img src="${oc.avatar}" onerror="this.src='https://api.iconify.design/ri:user-smile-fill.svg?color=%23ccc'" style="width:60px; height:60px; border-radius:50%; margin-bottom:10px; object-fit:cover;">
+                    <img src="${oc.avatar}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNjY2MiIGQ9Ik0xMiAyMkM2LjQ3NyAyMiAyIDE3LjUyMyAyIDEyUzYuNDc3IDIgMTIgMnMxMCA0LjQ3NyAxMCAxMHMtNC40NzcgMTAtMTAgMTBNNyAxMmE1IDUgMCAwIDAgMTAgMGgtMmEzIDMgMCAxIDEtNiAweiIvPjwvc3ZnPg=='" style="width:60px; height:60px; border-radius:50%; margin-bottom:10px; object-fit:cover;">
                     <div style="font-size:14px; text-align:center;">Hãy bắt đầu trò chuyện với ${escapeHtml(oc.name)}!</div>
                 </div>
             `;
@@ -672,7 +672,7 @@ Yêu cầu trả về ĐÚNG định dạng JSON chuẩn (Không chứa văn b�
                         <div class="msg-content-wrap">
                             <div class="msg-bubble">${escapeHtml(msg.content)}</div>
                             <div class="msg-retract-btn" data-msg-id="${msg.id}" style="cursor:pointer; position:absolute; top:4px; ${isUser ? 'left:-18px;' : 'right:-18px;'} opacity:0.4;">
-                                <img src="https://api.iconify.design/ri:delete-back-2-line.svg" style="width:12px;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTYuNTM1IDNoMTQuNDY0YTEgMSAwIDAgMSAxIDF2MTZhMSAxIDAgMCAxLTEgMUg2LjUzNWExIDEgMCAwIDEtLjgzMy0uNDQ1bC01LjMzMy04YTEgMSAwIDAgMSAwLTEuMTFsNS4zMzMtOEExIDEgMCAwIDEgNi41MzUgM20uNTM1IDJsLTQuNjY3IDdsNC42NjcgN0gyMFY1ek0xMyAxMC41ODZsMi44MjgtMi44MjlsMS40MTQgMS40MTVMMTQuNDE0IDEybDIuODI4IDIuODI4bC0xLjQxNCAxLjQxNWwtMi44MjktMi44MjlsLTIuODI4IDIuODI5bC0xLjQxNC0xLjQxNUwxMS41ODUgMTJMOC43NTcgOS4xNzJsMS40MTQtMS40MTV6Ii8+PC9zdmc+" style="width:12px;">
                             </div>
                         </div>
                     </div>
@@ -888,7 +888,7 @@ Yêu cầu trả về ĐÚNG định dạng JSON chuẩn (Không chứa văn b�
         PhoneSystem.registerApp({
             id: 'oc_manager',
             name: 'Quản lý OC',
-            icon: '<img src="https://api.iconify.design/ri:user-add-fill.svg?color=white" style="width:65%;height:65%;">',
+            icon: '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTQgMTQuMjUyVjIySDRhOCA4IDAgMCAxIDEwLTcuNzQ4TTEyIDEzYy0zLjMxNSAwLTYtMi42ODUtNi02czIuNjg1LTYgNi02czYgMi42ODUgNiA2cy0yLjY4NSA2LTYgNm02IDR2LTNoMnYzaDN2MmgtM3YzaC0ydi0zaC0zdi0yeiIvPjwvc3ZnPg==" style="width:65%;height:65%;">',
             color: 'linear-gradient(135deg, #07c160, #06ae56)',
             order: 4
         });

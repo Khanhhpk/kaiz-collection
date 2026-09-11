@@ -24,7 +24,7 @@
         // ============ Cấu hình APP ============
         const APP_ID = 'world-map';
         const APP_NAME = 'Bản đồ thế giới';
-        const APP_ICON = '<img src="https://api.iconify.design/ri:earth-fill.svg?color=white" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTIgMmM1LjUyMyAwIDEwIDQuNDc3IDEwIDEwcy00LjQ3NyAxMC0xMCAxMFMyIDE3LjUyMyAyIDEyUzYuNDc3IDIgMTIgMm00LjAwNCAxMC44NzhjLS4zNDUtLjUyNS0uNTk0LS45MDMtMS41NDItLjc1M2MtMS43OS4yODQtMS45ODkuNTk3LTIuMDc0IDEuMTEzbC0uMDI0LjE1NmwtLjAyNS4xNjZjLS4wOTcuNjgzLS4wOTQuOTQxLjIyIDEuMjdjMS4yNjUgMS4zMjggMi4wMjMgMi4yODUgMi4yNTMgMi44NDVjLjExMi4yNzMuNCAxLjEuMjAyIDEuOTE4YTguMiA4LjIgMCAwIDAgMy4xNTEtMi4yMzdjLjExLS4zNzQuMTktLjg0LjE5LTEuNDA0di0uMTA1YzAtLjkyMiAwLTEuMzQzLS42NTItMS43MTZhNyA3IDAgMCAwLS42NDUtLjMyNWMtLjM2Ny0uMTY3LS42MS0uMjc2LS45MzgtLjc1NnEtLjA2LS4wODUtLjExNi0uMTcyTTEyIDMuODMzYy0yLjMxNyAwLTQuNDEuOTY2LTUuODk2IDIuNTE2Yy4xNzcuMTIzLjMzMS4yOTYuNDM3LjUzNGMuMjA0LjQ1Ny4yMDQuOTI4LjIwNCAxLjM0NWMwIC4zMjggMCAuNjQuMTA1Ljg2NWMuMTQ0LjMwOC43NjYuNDQgMS4zMTUuNTU0Yy4xOTcuMDQyLjM5OS4wODQuNTgzLjEzNWMuNTA2LjE0Ljg5OC41OTUgMS4yMTEuOTZjLjEzLjE1MS4zMjMuMzc0LjQyLjQzYy4wNS0uMDM2LjIxMS0uMjExLjI5LS40OThjLjA2Mi0uMjIuMDQ0LS40MTQtLjA0NS0uNTJjLS41Ni0uNjYtLjUyOS0xLjkzLS4zNTYtMi4zOTljLjI3Mi0uNzM5IDEuMTIyLS42ODQgMS43NDQtLjY0NGMuMjMyLjAxNS40NS4wMy42MTQuMDA5Yy42MjItLjA3OC44MTQtMS4wMjUuOTQ5LTEuMjFjLjI5Mi0uNCAxLjE4Ni0xLjAwMyAxLjc0LTEuMzc1QTguMSA4LjEgMCAwIDAgMTIgMy44MzMiLz48L3N2Zz4=" style="width:70%;height:70%">';
         const APP_COLOR = 'linear-gradient(135deg, #1e88e5, #43a047)';
 
         // ============ Biến Trạng_thái ============
@@ -97,13 +97,21 @@
             const css = iframeDoc.createElement('link');
             css.id = 'leaflet-css';
             css.rel = 'stylesheet';
-            css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            css.href = '/scripts/extensions/third-party/kaiz-collection/assets/libs/leaflet/leaflet.css';
+            css.onerror = () => { css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; };
             iframeDoc.head.appendChild(css);
 
             // Tải JS
             const script = iframeDoc.createElement('script');
             script.id = 'leaflet-js';
-            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.src = '/scripts/extensions/third-party/kaiz-collection/assets/libs/leaflet/leaflet.js';
+            script.onerror = () => {
+                console.warn('[WorldMap] Không tải được local leaflet.js, dùng CDN dự phòng');
+                const cdnS = iframeDoc.createElement('script');
+                cdnS.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                cdnS.onload = callback;
+                iframeDoc.head.appendChild(cdnS);
+            };
             script.onload = callback;
             iframeDoc.head.appendChild(script);
         }

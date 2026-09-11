@@ -16,7 +16,7 @@
     const OC_CONFIG = {
         id: 'oc_special_chat',
         name: 'Trần Âu Âu',  // Tên OC
-        avatar: 'https://files.catbox.moe/uyz060.png',  // Hình đại diện OC
+        avatar: '/scripts/extensions/third-party/kaiz-collection/assets/oc_avatar.png',  // Hình đại diện OC (Local asset)
         description: 'Bạn qua mạng của bạn',  // Giới thiệu ngắn
         
         // Mặc định Cài đặt Ngữ cảnh
@@ -273,15 +273,15 @@ Bây giờ hãy trả lời với thân phận Trần Âu Âu:`;
         return `
             <div class="chat-room-header">
                 <button class="chat-room-back" id="oc-btn-back">
-                    <img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;height:28px;">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;height:28px;">
                 </button>
                 <div class="chat-room-title">${OC_CONFIG.name}</div>
                 <div class="chat-room-actions">
                     <button class="chat-room-btn" id="oc-btn-settings" title="Cài đặt AI">
-                        <img src="https://api.iconify.design/ri:settings-3-line.svg?color=%23666" style="width:20px;height:20px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM2NjYiIGQ9Ik0zLjM0IDE3YTEwIDEwIDAgMCAxLS45NzktMi4zMjZhMyAzIDAgMCAwIC4wMDMtNS4zNDdhMTAgMTAgMCAwIDEgMi41LTQuMzM3YTMgMyAwIDAgMCA0LjYzMi0yLjY3NGExMCAxMCAwIDAgMSA1LjAwNy4wMDNhMyAzIDAgMCAwIDQuNjMyIDIuNjcxYTEwLjA2IDEwLjA2IDAgMCAxIDIuNTAzIDQuMzM2YTMgMyAwIDAgMC0uMDAyIDUuMzQ3YTEwIDEwIDAgMCAxLTIuNTAxIDQuMzM3YTMgMyAwIDAgMC00LjYzMiAyLjY3NGExMCAxMCAwIDAgMS01LjAwNy0uMDAyYTMgMyAwIDAgMC00LjYzMS0yLjY3MkExMCAxMCAwIDAgMSAzLjMzOSAxN201LjY2LjE5NmE1IDUgMCAwIDEgMi4yNSAyLjc3cS43NS4wNyAxLjQ5OS4wMDJhNSA1IDAgMCAxIDIuMjUtMi43NzJhNSA1IDAgMCAxIDMuNTI2LS41NjRxLjQzNS0uNjE0Ljc0OC0xLjI5OEE1IDUgMCAwIDEgMTggMTJjMC0xLjI2LjQ3LTIuNDM3IDEuMjczLTMuMzM0YTggOCAwIDAgMC0uNzUtMS4yOThBNSA1IDAgMCAxIDE1IDYuODA0YTUgNSAwIDAgMS0yLjI1LTIuNzdxLS43NS0uMDcxLTEuNS0uMDAxQTUgNSAwIDAgMSA5IDYuODA0YTUgNSAwIDAgMS0zLjUyNi41NjRxLS40MzYuNjE0LS43NDcgMS4yOThBNSA1IDAgMCAxIDYgMTJjMCAxLjI2LS40NzEgMi40MzctMS4yNzMgMy4zMzRhOCA4IDAgMCAwIC43NSAxLjI5OEE1IDUgMCAwIDEgOSAxNy4xOTZNMTIgMTVhMyAzIDAgMSAxIDAtNmEzIDMgMCAwIDEgMCA2bTAtMmExIDEgMCAxIDAgMC0yYTEgMSAwIDAgMCAwIDIiLz48L3N2Zz4=" style="width:20px;height:20px;">
                     </button>
                     <button class="chat-room-btn" id="oc-btn-clear" title="Xóa sạch lịch sử trò chuyện">
-                        <img src="https://api.iconify.design/ri:delete-bin-line.svg?color=%23666" style="width:20px;height:20px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM2NjYiIGQ9Ik0xNyA2aDV2MmgtMnYxM2ExIDEgMCAwIDEtMSAxSDVhMSAxIDAgMCAxLTEtMVY4SDJWNmg1VjNhMSAxIDAgMCAxIDEtMWg4YTEgMSAwIDAgMSAxIDF6bTEgMkg2djEyaDEyem0tOSAzaDJ2Nkg5em00IDBoMnY2aC0yek05IDR2Mmg2VjR6Ii8+PC9zdmc+" style="width:20px;height:20px;">
                     </button>
                 </div>
             </div>
@@ -329,7 +329,7 @@ Bây giờ hãy trả lời với thân phận Trần Âu Âu:`;
         const isUser = msg.sender === 'user';
         const avatarUrl = isUser ? getUserAvatarPath() : OC_CONFIG.avatar;
         const defaultAvatar = isUser 
-            ? 'https://api.iconify.design/ri:user-3-fill.svg?color=%23999'
+            ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM5OTkiIGQ9Ik0yMCAyMkg0di0yYTUgNSAwIDAgMSA1LTVoNmE1IDUgMCAwIDEgNSA1em0tOC05YTYgNiAwIDEgMSAwLTEyYTYgNiAwIDAgMSAwIDEyIi8+PC9zdmc+'
             : OC_CONFIG.avatar;
         
         return `
@@ -339,7 +339,7 @@ Bây giờ hãy trả lời với thân phận Trần Âu Âu:`;
                     <!-- Áp dụng parseMarkdownMessage để render URL thành thẻ Img -->
                     <div class="msg-bubble">${parseMarkdownMessage(msg.content)}</div>
                     <div class="msg-retract-btn" data-msg-id="${msg.id}" title="Xóa tin nhắn">
-                        <img src="https://api.iconify.design/ri:delete-back-2-line.svg?color=%23666666" style="width:10px;height:10px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM2NjY2NjYiIGQ9Ik02LjUzNSAzaDE0LjQ2NGExIDEgMCAwIDEgMSAxdjE2YTEgMSAwIDAgMS0xIDFINi41MzVhMSAxIDAgMCAxLS44MzMtLjQ0NWwtNS4zMzMtOGExIDEgMCAwIDEgMC0xLjExbDUuMzMzLThBMSAxIDAgMCAxIDYuNTM1IDNtLjUzNSAybC00LjY2NyA3bDQuNjY3IDdIMjBWNXpNMTMgMTAuNTg2bDIuODI4LTIuODI5bDEuNDE0IDEuNDE1TDE0LjQxNCAxMmwyLjgyOCAyLjgyOGwtMS40MTQgMS40MTVsLTIuODI5LTIuODI5bC0yLjgyOCAyLjgyOWwtMS40MTQtMS40MTVMMTEuNTg1IDEyTDguNzU3IDkuMTcybDEuNDE0LTEuNDE1eiIvPjwvc3ZnPg==" style="width:10px;height:10px;">
                     </div>
                 </div>
             </div>

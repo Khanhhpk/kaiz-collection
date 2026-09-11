@@ -33,7 +33,12 @@ async function init() {
     const html = await $.get(new URL("panel.html", extensionBaseUrl).href);
     $("body").append(html);
     $("head").append(`<link rel="stylesheet" href="${new URL("style.css?v=" + Date.now(), extensionBaseUrl).href}">`);
-    $("head").append('<script src="https://unpkg.com/lucide@latest"></script>');
+    try {
+      const localLucideUrl = new URL("../../../assets/libs/lucide.min.js", import.meta.url).href;
+      $("head").append(`<script src="${localLucideUrl}"></script>`);
+    } catch (e) {
+      $("head").append('<script src="https://unpkg.com/lucide@latest"></script>');
+    }
 
     initUIElements();
 

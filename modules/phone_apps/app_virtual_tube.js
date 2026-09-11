@@ -19,8 +19,9 @@
 
         const APP_ID = 'youtube';
         const APP_NAME = 'YouTube';
-        const APP_ICON = '<img src="https://api.iconify.design/logos:youtube-icon.svg" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjU2IDE4MCI+PHBhdGggZmlsbD0icmVkIiBkPSJNMjUwLjM0NiAyOC4wNzVBMzIuMTggMzIuMTggMCAwIDAgMjI3LjY5IDUuNDE4QzIwNy44MjQgMCAxMjcuODcgMCAxMjcuODcgMFM0Ny45MTIuMTY0IDI4LjA0NiA1LjU4MkEzMi4xOCAzMi4xOCAwIDAgMCA1LjM5IDI4LjI0Yy02LjAwOSAzNS4yOTgtOC4zNCA4OS4wODQuMTY1IDEyMi45N2EzMi4xOCAzMi4xOCAwIDAgMCAyMi42NTYgMjIuNjU3YzE5Ljg2NiA1LjQxOCA5OS44MjIgNS40MTggOTkuODIyIDUuNDE4czc5Ljk1NSAwIDk5LjgyLTUuNDE4YTMyLjE4IDMyLjE4IDAgMCAwIDIyLjY1Ny0yMi42NTdjNi4zMzgtMzUuMzQ4IDguMjkxLTg5LjEtLjE2NC0xMjMuMTM0Ii8+PHBhdGggZmlsbD0iI2ZmZiIgZD0ibTEwMi40MjEgMTI4LjA2bDY2LjMyOC0zOC40MThsLTY2LjMyOC0zOC40MTh6Ii8+PC9zdmc+" style="width:70%;height:70%">';
         const APP_COLOR = '#282828';
+        const DEFAULT_THUMB = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNmVtIiBoZWlnaHQ9IjllbSIgdmlld0JveD0iMCAwIDMyMCAxODAiPjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMTgwIiBmaWxsPSIjMjIyIi8+PHBhdGggZmlsbD0iIzU1NSIgZD0ibTEzMCA2NWw3MCAyNWwtNzAgMjV6Ii8+PC9zdmc+";
 
         let generatedVideos = [];
         let currentVideoIndex = -1;
@@ -199,7 +200,7 @@ Trả về ĐÚNG JSON:
                 return `
                 <div class="yt-card" data-idx="${idx}">
                     <div class="yt-thumb" style="background-color:#222;">
-                        <img src="${thumbUrl}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                        <img src="${thumbUrl}" onerror="this.onerror=null;this.src='${DEFAULT_THUMB}';" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
                         <span class="yt-duration">${Math.floor(Math.random()*15)+1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}</span>
                     </div>
                     <div class="yt-info">
@@ -237,7 +238,7 @@ Trả về ĐÚNG JSON:
 
             contentEl.innerHTML = `
                 <div style="width:100%;aspect-ratio:16/9;background:#111;position:relative;display:flex;align-items:center;justify-content:center;border-bottom:2px solid #cc0000;overflow:hidden;">
-                    <img src="${thumbUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.6;">
+                    <img src="${thumbUrl}" onerror="this.onerror=null;this.src='${DEFAULT_THUMB}';" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.6;">
                     <div style="z-index:2;font-size:40px;color:rgba(255,255,255,0.8);">▶️</div>
                     <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);padding:4px 8px;font-size:10px;border-radius:4px;color:#fff;">Simulated Video</div>
                 </div>
@@ -327,7 +328,7 @@ Trả về ĐÚNG JSON:
                 
                 <div style="height:88px;display:flex;align-items:flex-end;padding:0 16px 12px;background:#0f0f0f;border-bottom:1px solid #272727;z-index:10;flex-shrink:0;justify-content:space-between">
                     <div style="display:flex;align-items:center;gap:6px">
-                        <img src="https://api.iconify.design/logos:youtube-icon.svg" style="width:28px;height:20px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjU2IDE4MCI+PHBhdGggZmlsbD0icmVkIiBkPSJNMjUwLjM0NiAyOC4wNzVBMzIuMTggMzIuMTggMCAwIDAgMjI3LjY5IDUuNDE4QzIwNy44MjQgMCAxMjcuODcgMCAxMjcuODcgMFM0Ny45MTIuMTY0IDI4LjA0NiA1LjU4MkEzMi4xOCAzMi4xOCAwIDAgMCA1LjM5IDI4LjI0Yy02LjAwOSAzNS4yOTgtOC4zNCA4OS4wODQuMTY1IDEyMi45N2EzMi4xOCAzMi4xOCAwIDAgMCAyMi42NTYgMjIuNjU3YzE5Ljg2NiA1LjQxOCA5OS44MjIgNS40MTggOTkuODIyIDUuNDE4czc5Ljk1NSAwIDk5LjgyLTUuNDE4YTMyLjE4IDMyLjE4IDAgMCAwIDIyLjY1Ny0yMi42NTdjNi4zMzgtMzUuMzQ4IDguMjkxLTg5LjEtLjE2NC0xMjMuMTM0Ii8+PHBhdGggZmlsbD0iI2ZmZiIgZD0ibTEwMi40MjEgMTI4LjA2bDY2LjMyOC0zOC40MThsLTY2LjMyOC0zOC40MTh6Ii8+PC9zdmc+" style="width:28px;height:20px;">
                         <span style="font-size:19px;font-weight:bold;letter-spacing:-1px;">Virtual Tube</span>
                     </div>
                     <div id="yt-close-btn" style="color:#fff;font-size:24px;cursor:pointer;padding:4px;line-height:1;">&times;</div>

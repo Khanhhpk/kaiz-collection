@@ -1320,31 +1320,31 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div class="lore-header-actions">
                         <button id="lore_btn_ai_scan" class="lore-btn lore-btn-primary" title="AI quét lịch sử chat dựng bản đồ chính xác theo bối cảnh">
-                            <img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Quét Map
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0yMS42NCAzLjY0bC0xLjI4LTEuMjhhMS4yMSAxLjIxIDAgMCAwLTEuNzIgMEwyLjM2IDE4LjY0YTEuMjEgMS4yMSAwIDAgMCAwIDEuNzJsMS4yOCAxLjI4YTEuMiAxLjIgMCAwIDAgMS43MiAwTDIxLjY0IDUuMzZhMS4yIDEuMiAwIDAgMCAwLTEuNzJNMTQgN2wzIDNNNSA2djRtMTQgNHY0TTEwIDJ2Mk03IDhIM20xOCA4aC00TTExIDNIOSIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Quét Map
                         </button>
 
                         <button id="lore_btn_add_location" class="lore-btn lore-btn-secondary" title="Bật/Tắt chế độ thêm địa điểm">
-                            <img src="https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <span id="lore_btn_add_text">Thêm Địa Điểm</span>
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <span id="lore_btn_add_text">Thêm Địa Điểm</span>
                         </button>\n
                         <button id="lore_btn_drag_mode" class="lore-btn lore-btn-secondary" title="Sắp xếp kéo thả vị trí">
-                            <img src="https://api.iconify.design/lucide:move.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <span id="lore_btn_drag_text">Sắp Xếp</span>
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAydjIwbTMtM2wtMyAzbC0zLTNNMTkgOWwzIDNsLTMgM00yIDEyaDIwTTUgOWwtMyAzbDMgM005IDVsMy0zbDMgMyIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <span id="lore_btn_drag_text">Sắp Xếp</span>
                         </button>
 
 
                         <button id="lore_btn_saved_maps" class="lore-btn lore-btn-secondary" title="Kiểm tra & Xóa nhanh các bản đồ / chat đang lưu">
-                            <img src="https://api.iconify.design/lucide:folder-tree.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Map Lưu
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMCAxMGExIDEgMCAwIDAgMS0xVjZhMSAxIDAgMCAwLTEtMWgtMi41YTEgMSAwIDAgMS0uOC0uNGwtLjktMS4yQTEgMSAwIDAgMCAxNSAzaC0yYTEgMSAwIDAgMC0xIDF2NWExIDEgMCAwIDAgMSAxWm0wIDExYTEgMSAwIDAgMCAxLTF2LTNhMSAxIDAgMCAwLTEtMWgtMi45YTEgMSAwIDAgMS0uODgtLjU1bC0uNDItLjg1YTEgMSAwIDAgMC0uOTItLjZIMTNhMSAxIDAgMCAwLTEgMXY1YTEgMSAwIDAgMCAxIDFaTTMgNWEyIDIgMCAwIDAgMiAyaDMiLz48cGF0aCBkPSJNMyAzdjEzYTIgMiAwIDAgMCAyIDJoMyIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Map Lưu
                         </button>
 
                         <button id="lore_btn_ai_settings" class="lore-btn lore-btn-secondary" title="Cấu hình AI & Chỉnh sửa Prompt tùy biến">
-                            <img src="https://api.iconify.design/lucide:settings.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cấu hình AI
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik05LjY3MSA0LjEzNmEyLjM0IDIuMzQgMCAwIDEgNC42NTkgMGEyLjM0IDIuMzQgMCAwIDAgMy4zMTkgMS45MTVhMi4zNCAyLjM0IDAgMCAxIDIuMzMgNC4wMzNhMi4zNCAyLjM0IDAgMCAwIDAgMy44MzFhMi4zNCAyLjM0IDAgMCAxLTIuMzMgNC4wMzNhMi4zNCAyLjM0IDAgMCAwLTMuMzE5IDEuOTE1YTIuMzQgMi4zNCAwIDAgMS00LjY1OSAwYTIuMzQgMi4zNCAwIDAgMC0zLjMyLTEuOTE1YTIuMzQgMi4zNCAwIDAgMS0yLjMzLTQuMDMzYTIuMzQgMi4zNCAwIDAgMCAwLTMuODMxQTIuMzQgMi4zNCAwIDAgMSA2LjM1IDYuMDUxYTIuMzQgMi4zNCAwIDAgMCAzLjMxOS0xLjkxNSIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cấu hình AI
                         </button>
 
                         <button id="lore_btn_ai_debug" class="lore-btn" style="background: rgba(168,85,247,0.18); border: 1px solid rgba(192,132,252,0.4); color: #e9d5ff; padding: 6px 10px;" title="Kiểm tra chính xác những gì gửi cho AI và lý do bị lẹm history">
-                            <img src="https://api.iconify.design/lucide:bug.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Debug
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAyMHYtOW0yLTRhNCA0IDAgMCAxIDQgNHYzYTYgNiAwIDAgMS0xMiAwdi0zYTQgNCAwIDAgMSA0LTR6bS4xMi0zLjEyTDE2IDIiLz48cGF0aCBkPSJNMjEgMjFhNCA0IDAgMCAwLTMuODEtNE0yMSA1YTQgNCAwIDAgMS0zLjU1IDMuOTdNMjIgMTNoLTRNMyAyMWE0IDQgMCAwIDEgMy44MS00TTMgNWE0IDQgMCAwIDAgMy41NSAzLjk3TTYgMTNIMk04IDJsMS44OCAxLjg4TTkgNy4xM1Y2YTMgMyAwIDEgMSA2IDB2MS4xMyIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Debug
                         </button>
 
                         <button id="lore_btn_close_app" class="lore-btn" style="background: rgba(239,68,68,0.22); border: 1px solid rgba(239,68,68,0.45); color: #f87171; padding: 6px 12px; font-size: 1.05em;" title="Đóng bản đồ">
-                            <img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" />
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" />
                         </button>
                     </div>
                 </div>
@@ -1355,8 +1355,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div id="lore_instruction_banner" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56,189,248,0.2); border-radius: 8px; padding: 3px 10px; font-size: 0.78em; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
                         <div>💡 <b style="color:#e2e8f0;">Điều khiển:</b> <span style="color:#38bdf8; font-weight:600;">Chuột Trái</span> vào địa điểm để đi sâu bên trong <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Chuột Phải</span> để xem chi tiết & chỉnh sửa <span style="color:#475569;">|</span> <span style="color:#38bdf8; font-weight:600;">Kéo thẻ</span> hoặc dùng con trỏ để di chuyển bản đồ 2D.</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="color: #34d399; font-weight: 600;"><img src="https://api.iconify.design/lucide:cloud-upload.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu tự động</span>
-                            <span style="cursor: pointer; color: #64748b; font-weight: bold; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); transition: all 0.15s;" onclick="this.parentElement.parentElement.style.display='none'" title="Ẩn thanh hướng dẫn để mở rộng không gian"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Ẩn</span>
+                            <span style="color: #34d399; font-weight: 600;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAxM3Y4bS04LTYuMTAxQTcgNyAwIDEgMSAxNS43MSA4aDEuNzlhNC41IDQuNSAwIDAgMSAyLjUgOC4yNDIiLz48cGF0aCBkPSJtOCAxN2w0LTRsNCA0Ii8+PC9nPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu tự động</span>
+                            <span style="cursor: pointer; color: #64748b; font-weight: bold; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); transition: all 0.15s;" onclick="this.parentElement.parentElement.style.display='none'" title="Ẩn thanh hướng dẫn để mở rộng không gian"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Ẩn</span>
                         </div>
                     </div>
 
@@ -1365,7 +1365,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px;">
                             <!-- Dynamic Infinite Breadcrumb Bar -->
                             <div id="lore_breadcrumb_container" class="lore-breadcrumb" style="display: none; margin: 0;">
-                                <button id="btn_back_parent" class="lore-breadcrumb-btn"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lùi 1 lớp</button>
+                                <button id="btn_back_parent" class="lore-breadcrumb-btn"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0xMiAxOWwtNy03bDctN203IDdINSIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lùi 1 lớp</button>
                                 <div id="breadcrumb_path_list" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-left: 6px;"></div>
                             </div>
                             </div>
@@ -1377,7 +1377,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 
                 <!-- Thanh Danh Sách Địa Điểm (Sidebar) -->
                 <div id="lore_sidebar" class="lore-sidebar" style="display: none;">
-                    <span class="lore-sidebar-title"><img src="https://api.iconify.design/lucide:list.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Danh sách khu vực</span>
+                    <span class="lore-sidebar-title"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0zIDVoLjAxTTMgMTJoLjAxTTMgMTloLjAxTTggNWgxM004IDEyaDEzTTggMTloMTMiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Danh sách khu vực</span>
                     <div id="lore_sidebar_content" class="lore-sidebar-content">
                         <!-- Nạp động -->
                     </div>
@@ -1395,17 +1395,17 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <!-- Thanh riêng: Điều khiển Zoom & Pan 2D (Floating 2D Navigation Bar) - Ghim ở góc phải dưới modal -->
                 <div id="lore_zoom_pan_bar" class="lore-zoom-pan-bar">
                     <div style="display: flex; align-items: center; gap: 8px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.18); margin-right: 4px;">
-                        <span style="font-size: 0.8em; color: #cbd5e1; font-weight: bold;"><img src="https://api.iconify.design/lucide:maximize.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cỡ ô</span>
-                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(-0.1)" title="Thu nhỏ cỡ ô (-10%)"><img src="https://api.iconify.design/lucide:minus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
+                        <span style="font-size: 0.8em; color: #cbd5e1; font-weight: bold;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik04IDNINWEyIDIgMCAwIDAtMiAydjNtMTggMFY1YTIgMiAwIDAgMC0yLTJoLTNNMyAxNnYzYTIgMiAwIDAgMCAyIDJoM204IDBoM2EyIDIgMCAwIDAgMi0ydi0zIi8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cỡ ô</span>
+                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(-0.1)" title="Thu nhỏ cỡ ô (-10%)"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0Ii8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                         <button class="lore-graph-btn" onclick="window._loreResetNodeSize()" title="Đặt lại cỡ ô (100%)"><span id="lore_node_size_label">${Math.round(((aiConfig.nodeSize||340)/340)*100)}%</span></button>
-                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(0.1)" title="Phóng to cỡ ô (+10%)"><img src="https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
+                        <button class="lore-graph-btn" onclick="window._loreChangeNodeSizeStep(0.1)" title="Phóng to cỡ ô (+10%)"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                     </div>
-                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><img src="https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(0.1)" title="Phóng to bản đồ 2D (Zoom In)"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                     <button class="lore-graph-btn" onclick="window._loreGraphReset()" title="Đặt lại kích thước 100% (Reset Zoom)"><span id="lore_graph_zoom_label">100%</span></button>
-                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><img src="https://api.iconify.design/lucide:minus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
+                    <button class="lore-graph-btn" onclick="window._loreGraphZoom(-0.1)" title="Thu nhỏ bản đồ 2D (Zoom Out)"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0Ii8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
                     <div style="width: 1px; height: 18px; background: rgba(255,255,255,0.18); margin: 0 3px;"></div>
-                    <button class="lore-graph-btn active" id="lore_btn_sidebar_toggle" onclick="window._loreToggleSidebar()" title="Bật/Tắt Danh Sách Khu Vực"><img src="https://api.iconify.design/lucide:list.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
-                    <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><img src="https://api.iconify.design/lucide:hand.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Kéo 2D</button>
+                    <button class="lore-graph-btn active" id="lore_btn_sidebar_toggle" onclick="window._loreToggleSidebar()" title="Bật/Tắt Danh Sách Khu Vực"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0zIDVoLjAxTTMgMTJoLjAxTTMgMTloLjAxTTggNWgxM004IDEyaDEzTTggMTloMTMiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /></button>
+                    <button class="lore-graph-btn active" id="lore_btn_graph_drag" onclick="window._loreToggleGraphDrag()" title="Bật/Tắt chế độ con trỏ kéo bản đồ 2D (Drag to Pan)"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xOCAxMVY2YTIgMiAwIDAgMC0yLTJhMiAyIDAgMCAwLTIgMm0wIDRWNGEyIDIgMCAwIDAtMi0yYTIgMiAwIDAgMC0yIDJ2Mm0wIDQuNVY2YTIgMiAwIDAgMC0yLTJhMiAyIDAgMCAwLTIgMnY4Ii8+PHBhdGggZD0iTTE4IDhhMiAyIDAgMSAxIDQgMHY2YTggOCAwIDAgMS04IDhoLTJjLTIuOCAwLTQuNS0uODYtNS45OS0yLjM0bC0zLjYtMy42YTIgMiAwIDAgMSAyLjgzLTIuODJMNyAxNSIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Kéo 2D</button>
                 </div>
             </div>
 
@@ -1419,7 +1419,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <span id="det_name" style="font-size: 1.35em; font-weight: 800; color: #f8fafc;">Tên địa điểm</span>
                             <input id="edit_det_name" class="lore-input" style="display: none; font-size: 1.2em; font-weight: 800; width: 80%; max-width: 450px;" placeholder="Tên địa điểm..." />
                         </div>
-                        <span id="det_close" style="cursor: pointer; color: #f87171; font-size: 1.3em; padding: 4px 8px;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
+                        <span id="det_close" style="cursor: pointer; color: #f87171; font-size: 1.3em; padding: 4px 8px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <!-- Badges (View Mode) -->
@@ -1451,37 +1451,37 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <!-- DEEP INFO SECTIONS & CONNECTIONS -->
                     <div class="deep-info-card" style="background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.3);">
-                        <div class="deep-info-title" style="color: #38bdf8;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật hiện diện (Đang có mặt tại đây)</div>
+                        <div class="deep-info-title" style="color: #38bdf8;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Im0xNiAxMWwyIDJsNC00bS02IDEydi0yYTQgNCAwIDAgMC00LTRINmE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSI5IiBjeT0iNyIgcj0iNCIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật hiện diện (Đang có mặt tại đây)</div>
                         <div id="det_characters" class="deep-info-text" style="color: #7dd3fc; font-weight: bold;">Chưa có nhân vật nào ở đây</div>
                         <input id="edit_det_characters" class="lore-input" style="display: none; width: 100%; margin-top: 6px; font-weight: bold; color: #38bdf8;" placeholder="Nhập tên nhân vật đang có mặt lúc này (cách nhau dấu phẩy ,)..." />
                     </div>
 
                     <div class="deep-info-card" style="background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3);">
-                        <div class="deep-info-title" style="color: #c084fc;"><img src="https://api.iconify.design/lucide:shield-half.svg?color=%23c084fc" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật kiểm soát / Thế lực chủ quản</div>
+                        <div class="deep-info-title" style="color: #c084fc;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2MwODRmYyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMCAxM2MwIDUtMy41IDcuNS03LjY2IDguOTVhMSAxIDAgMCAxLS42Ny0uMDFDNy41IDIwLjUgNCAxOCA0IDEzVjZhMSAxIDAgMCAxIDEtMWMyIDAgNC41LTEuMiA2LjI0LTIuNzJhMS4xNyAxLjE3IDAgMCAxIDEuNTIgMEMxNC41MSAzLjgxIDE3IDUgMTkgNWExIDEgMCAwIDEgMSAxem0tOCA5VjIiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật kiểm soát / Thế lực chủ quản</div>
                         <div id="det_controlled_by" class="deep-info-text" style="color: #e9d5ff; font-weight: bold;">Chung / Tự do</div>
                         <input id="edit_det_controlled_by" class="lore-input" style="display: none; width: 100%; margin-top: 6px; font-weight: bold; color: #c084fc;" placeholder="Nhập tên nhân vật/thế lực sở hữu, quản lý khu vực này..." />
                     </div>
 
                     <div class="deep-info-card">
-                        <div class="deep-info-title"><img src="https://api.iconify.design/lucide:scroll.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Mô tả chi tiết vai trò & Cảnh quan</div>
+                        <div class="deep-info-title"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThmMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xOSAxN1Y1YTIgMiAwIDAgMC0yLTJINCIvPjxwYXRoIGQ9Ik04IDIxaDEyYTIgMiAwIDAgMCAyLTJ2LTFhMSAxIDAgMCAwLTEtMUgxMWExIDEgMCAwIDAtMSAxdjFhMiAyIDAgMSAxLTQgMFY1YTIgMiAwIDEgMC00IDB2MmExIDEgMCAwIDAgMSAxaDMiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Mô tả chi tiết vai trò & Cảnh quan</div>
                         <div id="det_description" class="deep-info-text" style="white-space: pre-wrap;">Không có mô tả.</div>
                         <textarea id="edit_det_description" class="lore-input" style="display: none; width: 100%; height: 95px; box-sizing: border-box; margin-top: 6px; line-height: 1.4;" placeholder="Mô tả công năng, kiến trúc và vai trò..."></textarea>
                     </div>
 
                     <div class="deep-info-card" style="background: rgba(56,189,248,0.06); border-color: rgba(56,189,248,0.25);">
-                        <div class="deep-info-title" style="color: #38bdf8;"><img src="https://api.iconify.design/lucide:route.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cổng Kết Nối & Lối Đi Giao Thông Liên Vùng (Connections)</div>
+                        <div class="deep-info-title" style="color: #38bdf8;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjYiIGN5PSIxOSIgcj0iMyIvPjxwYXRoIGQ9Ik05IDE5aDguNWEzLjUgMy41IDAgMCAwIDAtN2gtMTFhMy41IDMuNSAwIDAgMSAwLTdIMTUiLz48Y2lyY2xlIGN4PSIxOCIgY3k9IjUiIHI9IjMiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cổng Kết Nối & Lối Đi Giao Thông Liên Vùng (Connections)</div>
                         <div id="det_connections" class="deep-info-text" style="color: #7dd3fc; font-weight: 600;">Đường nối nội bộ, chưa rõ lối ra tiếp theo.</div>
                         <textarea id="edit_det_connections" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #7dd3fc; line-height: 1.4;" placeholder="Mô tả cổng kết nối, thang máy, hành lang dẫn tới khu vực nào..."></textarea>
                     </div>
 
                     <div class="deep-info-card">
-                        <div class="deep-info-title"><img src="https://api.iconify.design/lucide:cloud-sun.svg?color=%23a7f3d0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Môi trường & Bầu không khí (Atmosphere)</div>
+                        <div class="deep-info-title"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3ZjNkMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAydjJtLTcuMDcuOTNsMS40MSAxLjQxTTIwIDEyaDJtLTIuOTMtNy4wN2wtMS40MSAxLjQxbS0xLjcxMyA2LjMxYTQgNCAwIDAgMC01LjkyNS00LjEyOE0xMyAyMkg3YTUgNSAwIDEgMSA0LjktNkgxM2EzIDMgMCAwIDEgMCA2Ii8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Môi trường & Bầu không khí (Atmosphere)</div>
                         <div id="det_atmosphere" class="deep-info-text" style="color: #a7f3d0;">Bình thường, yên tĩnh.</div>
                         <textarea id="edit_det_atmosphere" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #a7f3d0; line-height: 1.4;" placeholder="Môi trường, thời tiết, âm thanh, mùi hương..."></textarea>
                     </div>
 
                     <div class="deep-info-card">
-                        <div class="deep-info-title"><img src="https://api.iconify.design/lucide:gem.svg?color=%23fde047" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Bí mật / Vật phẩm / Tài nguyên ẩn (Secrets & Loot)</div>
+                        <div class="deep-info-title"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZkZTA0NyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMC41IDNMOCA5bDQgMTNsNC0xM2wtMi41LTYiLz48cGF0aCBkPSJNMTcgM2EyIDIgMCAwIDEgMS42LjhsMyA0YTIgMiAwIDAgMSAuMDEzIDIuMzgybC03Ljk5IDEwLjk4NmEyIDIgMCAwIDEtMy4yNDcgMGwtNy45OS0xMC45ODZBMiAyIDAgMCAxIDIuNCA3LjhsMi45OTgtMy45OTdBMiAyIDAgMCAxIDcgM3pNMiA5aDIwIi8+PC9nPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Bí mật / Vật phẩm / Tài nguyên ẩn (Secrets & Loot)</div>
                         <div id="det_secrets" class="deep-info-text" style="color: #fde047;">Chưa phát hiện bí mật hay vật phẩm đặc biệt.</div>
                         <textarea id="edit_det_secrets" class="lore-input" style="display: none; width: 100%; height: 70px; box-sizing: border-box; margin-top: 6px; color: #fde047; line-height: 1.4;" placeholder="Bí mật, mật thư hoặc vật phẩm quan trọng giấu tại đây..."></textarea>
                     </div>
@@ -1492,19 +1492,19 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <div id="det_view_actions" style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center;">
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                             <button id="det_btn_enter_sub" class="lore-btn lore-btn-success" style="padding: 10px 18px; font-size: 0.95em;" title="Đi vào tập con / phân khu bên trong của địa điểm này">
-                                <img src="https://api.iconify.design/lucide:door-open.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con / Phân Khu
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMCAyMUgybTgtMThIN2EyIDIgMCAwIDAtMiAydjE2bTktOWguMDEiLz48cGF0aCBkPSJNMTkgMjFWNWEyIDIgMCAwIDAtMS42NzUtMS45NzRsLTYuMTYzLTEuMDEzQTEgMSAwIDAgMCAxMCAzdjE4YTEgMSAwIDAgMCAxLjEyNC45OTJ6bTMgMGgtMyIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con / Phân Khu
                             </button>
                             <button id="det_btn_ai_drill" class="lore-btn lore-btn-primary" style="padding: 10px 16px; font-size: 0.9em; background: linear-gradient(135deg, #0284c7, #9333ea);" title="Dùng AI khám phá & tạo tự động các phân khu nhỏ/hầm ngầm bên trong địa điểm này">
-                                <img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Khám Phá Sâu
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0yMS42NCAzLjY0bC0xLjI4LTEuMjhhMS4yMSAxLjIxIDAgMCAwLTEuNzIgMEwyLjM2IDE4LjY0YTEuMjEgMS4yMSAwIDAgMCAwIDEuNzJsMS4yOCAxLjI4YTEuMiAxLjIgMCAwIDAgMS43MiAwTDIxLjY0IDUuMzZhMS4yIDEuMiAwIDAgMCAwLTEuNzJNMTQgN2wzIDNNNSA2djRtMTQgNHY0TTEwIDJ2Mk03IDhIM20xOCA4aC00TTExIDNIOSIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Khám Phá Sâu
                             </button>
                         </div>
 
                         <div style="display: flex; gap: 8px;">
                             <button id="det_btn_edit" class="lore-btn lore-btn-secondary" style="padding: 8px 16px;">
-                                <img src="https://api.iconify.design/lucide:pen.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sửa Deep Info
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMS4xNzQgNi44MTJhMSAxIDAgMCAwLTMuOTg2LTMuOTg3TDMuODQyIDE2LjE3NGEyIDIgMCAwIDAtLjUuODNsLTEuMzIxIDQuMzUyYS41LjUgMCAwIDAgLjYyMy42MjJsNC4zNTMtMS4zMmEyIDIgMCAwIDAgLjgzLS40OTd6Ii8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sửa Deep Info
                             </button>
                             <button id="det_btn_delete" class="lore-btn lore-btn-danger" style="padding: 8px 16px;">
-                                <img src="https://api.iconify.design/lucide:trash-2.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMCAxMXY2bTQtNnY2bTUtMTF2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNk0zIDZoMThNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa
                             </button>
                         </div>
                     </div>
@@ -1512,10 +1512,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     <!-- ACTIONS BAR (Edit Mode) -->
                     <div id="det_edit_actions" style="display: none; gap: 12px; margin-top: 8px; justify-content: flex-end; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px;">
                         <button id="det_btn_cancel_edit" class="lore-btn lore-btn-secondary" style="padding: 10px 20px; font-size: 0.95em;">
-                            <img src="https://api.iconify.design/lucide:x.svg?color=%2394a3b8" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Hủy Bỏ
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /> Hủy Bỏ
                         </button>
                         <button id="det_btn_save_edit" class="lore-btn lore-btn-success" style="padding: 10px 24px; font-size: 0.98em; font-weight: 800; box-shadow: 0 0 15px rgba(34,197,94,0.4);">
-                            <img src="https://api.iconify.design/lucide:save.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu Thay Đổi
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xNS4yIDNhMiAyIDAgMCAxIDEuNC42bDMuOCAzLjhhMiAyIDAgMCAxIC42IDEuNFYxOWEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMlY1YTIgMiAwIDAgMSAyLTJ6Ii8+PHBhdGggZD0iTTE3IDIxdi03YTEgMSAwIDAgMC0xLTFIOGExIDEgMCAwIDAtMSAxdjdNNyAzdjRhMSAxIDAgMCAwIDEgMWg3Ii8+PC9nPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu Thay Đổi
                         </button>
                     </div>
                 </div>
@@ -1525,12 +1525,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             <div id="lore_saved_maps_modal">
                 <div id="lore_saved_maps_box">
                     <div style="font-weight: 800; font-size: 1.18em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
-                        <span><img src="https://api.iconify.design/lucide:folder-open.svg?color=%23facc15" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> QUẢN LÝ BẢN ĐỒ LƯU THEO CHAT</span>
-                        <span id="saved_maps_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
+                        <span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZhY2MxNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im02IDE0bDEuNS0yLjlBMiAyIDAgMCAxIDkuMjQgMTBIMjBhMiAyIDAgMCAxIDEuOTQgMi41bC0xLjU0IDZhMiAyIDAgMCAxLTEuOTUgMS41SDRhMiAyIDAgMCAxLTItMlY1YTIgMiAwIDAgMSAyLTJoMy45YTIgMiAwIDAgMSAxLjY5LjlsLjgxIDEuMmEyIDIgMCAwIDAgMS42Ny45SDE4YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> QUẢN LÝ BẢN ĐỒ LƯU THEO CHAT</span>
+                        <span id="saved_maps_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <div style="font-size: 0.88em; color: #cbd5e1; line-height: 1.5; background: rgba(56,189,248,0.1); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(56,189,248,0.25);">
-                        <img src="https://api.iconify.design/lucide:info.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tất cả bản đồ thế giới đều được **tự động lưu riêng biệt theo từng Chat ID** của bạn. Dưới đây là danh sách các bản đồ hiện có trong hệ thống:
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDE2di00bTAtNGguMDEiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tất cả bản đồ thế giới đều được **tự động lưu riêng biệt theo từng Chat ID** của bạn. Dưới đây là danh sách các bản đồ hiện có trong hệ thống:
                     </div>
 
                     <div id="saved_maps_list" style="display: flex; flex-direction: column; gap: 10px; max-height: 52vh; overflow-y: auto; padding-right: 4px;">
@@ -1539,10 +1539,10 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 14px; margin-top: 6px; flex-wrap: wrap; gap: 10px;">
                         <button id="btn_delete_all_inactive" class="lore-btn lore-btn-danger" style="padding: 10px 16px;">
-                            <img src="https://api.iconify.design/lucide:eraser.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa Tất Cả Map Cũ (Giữ lại Chat hiện tại)
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMSAyMUg4YTIgMiAwIDAgMS0xLjQyLS41ODdsLTMuOTk0LTMuOTk5YTIgMiAwIDAgMSAwLTIuODI4bDEwLTEwYTIgMiAwIDAgMSAyLjgyOSAwbDUuOTk5IDZhMiAyIDAgMCAxIDAgMi44MjhMMTIuODM0IDIxbS03Ljc1Mi05LjkxbDguODI4IDguODI4Ii8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa Tất Cả Map Cũ (Giữ lại Chat hiện tại)
                         </button>
                         <button id="btn_refresh_saved_list" class="lore-btn lore-btn-secondary" style="padding: 10px 18px;">
-                            <img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Làm Mới Danh Sách
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThmMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDEyYTkgOSAwIDAgMSA5LTlhOS43NSA5Ljc1IDAgMCAxIDYuNzQgMi43NEwyMSA4Ii8+PHBhdGggZD0iTTIxIDN2NWgtNW01IDRhOSA5IDAgMCAxLTkgOWE5Ljc1IDkuNzUgMCAwIDEtNi43NC0yLjc0TDMgMTYiLz48cGF0aCBkPSJNOCAxNkgzdjUiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Làm Mới Danh Sách
                         </button>
                     </div>
                 </div>
@@ -1552,8 +1552,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             <div id="lore_ai_debug_modal">
                 <div id="lore_ai_debug_box">
                     <div style="font-weight: 800; font-size: 1.18em; color: #c084fc; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 12px;">
-                        <span><img src="https://api.iconify.design/lucide:bug.svg?color=%23f87171" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> TRÌNH DEBUG & KIỂM TRA REQUEST GỬI CHO AI</span>
-                        <span id="ai_debug_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
+                        <span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAyMHYtOW0yLTRhNCA0IDAgMCAxIDQgNHYzYTYgNiAwIDAgMS0xMiAwdi0zYTQgNCAwIDAgMSA0LTR6bS4xMi0zLjEyTDE2IDIiLz48cGF0aCBkPSJNMjEgMjFhNCA0IDAgMCAwLTMuODEtNE0yMSA1YTQgNCAwIDAgMS0zLjU1IDMuOTdNMjIgMTNoLTRNMyAyMWE0IDQgMCAwIDEgMy44MS00TTMgNWE0IDQgMCAwIDAgMy41NSAzLjk3TTYgMTNIMk04IDJsMS44OCAxLjg4TTkgNy4xM1Y2YTMgMyAwIDEgMSA2IDB2MS4xMyIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> TRÌNH DEBUG & KIỂM TRA REQUEST GỬI CHO AI</span>
+                        <span id="ai_debug_close" style="cursor: pointer; color: #f87171; font-size: 1.15em;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
@@ -1584,13 +1584,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px;">
                         <button id="dbg_btn_copy" class="lore-btn lore-btn-primary" style="padding: 10px 18px;">
-                            <img src="https://api.iconify.design/lucide:copy.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sao Chép Request
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgeD0iOCIgeT0iOCIgcng9IjIiIHJ5PSIyIi8+PHBhdGggZD0iTTQgMTZjLTEuMSAwLTItLjktMi0yVjRjMC0xLjEuOS0yIDItMmgxMGMxLjEgMCAyIC45IDIgMiIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sao Chép Request
                         </button>
                         <button id="dbg_btn_copy_res" class="lore-btn" style="padding: 10px 18px; background: rgba(74,222,128,0.2); border: 1px solid #4ade80; color: #4ade80;">
-                            <img src="https://api.iconify.design/lucide:copy.svg?color=%234ade80" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sao Chép Response
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhZGU4MCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgeD0iOCIgeT0iOCIgcng9IjIiIHJ5PSIyIi8+PHBhdGggZD0iTTQgMTZjLTEuMSAwLTItLjktMi0yVjRjMC0xLjEuOS0yIDItMmgxMGMxLjEgMCAyIC45IDIgMiIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Sao Chép Response
                         </button>
                         <button id="dbg_btn_refresh" class="lore-btn lore-btn-secondary" style="padding: 10px 18px; margin-left: auto;">
-                            <img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Làm Mới Preview
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThmMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDEyYTkgOSAwIDAgMSA5LTlhOS43NSA5Ljc1IDAgMCAxIDYuNzQgMi43NEwyMSA4Ii8+PHBhdGggZD0iTTIxIDN2NWgtNW01IDRhOSA5IDAgMCAxLTkgOWE5Ljc1IDkuNzUgMCAwIDEtNi43NC0yLjc0TDMgMTYiLz48cGF0aCBkPSJNOCAxNkgzdjUiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Làm Mới Preview
                         </button>
                     </div>
                 </div>
@@ -1600,15 +1600,15 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             <div id="lore_ai_config_modal">
                 <div id="lore_ai_config_box">
                     <div style="font-weight: 800; font-size: 1.15em; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
-                        <span><img src="https://api.iconify.design/lucide:bot.svg?color=%23c084fc" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> CẤU HÌNH AI & KHUNG TÙY CHỈNH PROMPT (v8.3)</span>
-                        <span id="ai_cfg_close" style="cursor: pointer; color: #f87171; font-size: 1.1em;"><img src="https://api.iconify.design/lucide:x.svg?color=%23f87171" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
+                        <span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2MwODRmYyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiA4VjRIOCIvPjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxMiIgeD0iNCIgeT0iOCIgcng9IjIiLz48cGF0aCBkPSJNMiAxNGgybTE2IDBoMm0tNy0xdjJtLTYtMnYyIi8+PC9nPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> CẤU HÌNH AI & KHUNG TÙY CHỈNH PROMPT (v8.3)</span>
+                        <span id="ai_cfg_close" style="cursor: pointer; color: #f87171; font-size: 1.1em;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></span>
                     </div>
 
                     <div style="display: flex; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px;">
-                        <button id="tab_btn_conn" class="lore-breadcrumb-btn active" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:plug.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Kết Nối & Model</button>
-                        <button id="tab_btn_prompt_scan" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:file-pen-line.svg?color=%23a78bfa" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Prompt Quét Toàn Bộ Map</button>
-                        <button id="tab_btn_prompt_drill" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:file-pen-line.svg?color=%23f472b6" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Prompt Khám Phá Sâu</button>
-                        <button id="tab_btn_prompt_inject" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="https://api.iconify.design/lucide:syringe.svg?color=%2334d399" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tiêm Prompt & Auto</button>
+                        <button id="tab_btn_conn" class="lore-breadcrumb-btn active" style="font-size: 0.9em; padding: 8px 16px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAyMnYtNW0zLTlWMm0yIDZhMSAxIDAgMCAxIDEgMXY0YTQgNCAwIDAgMS00IDRoLTRhNCA0IDAgMCAxLTQtNFY5YTEgMSAwIDAgMSAxLTF6TTkgOFYyIi8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Kết Nối & Model</button>
+                        <button id="tab_btn_prompt_scan" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xNC4zNjQgMTMuNjM0YTIgMiAwIDAgMC0uNTA2Ljg1NGwtLjgzNyAyLjg3YS41LjUgMCAwIDAgLjYyLjYybDIuODctLjgzN2EyIDIgMCAwIDAgLjg1NC0uNTA2bDQuMDEzLTQuMDA5YTEgMSAwIDAgMC0zLjAwNC0zLjAwNHptLjEyMy01Ljc3NkExIDEgMCAwIDEgMTQgN1YyIi8+PHBhdGggZD0iTTIwIDE5LjY0NVYyMGEyIDIgMCAwIDEtMiAySDZhMiAyIDAgMCAxLTItMlY0YTIgMiAwIDAgMSAyLTJoOGEyLjQgMi40IDAgMCAxIDEuNzA0LjcwNmwyLjUxNiAyLjUxNk04IDE4aDEiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Prompt Quét Toàn Bộ Map</button>
+                        <button id="tab_btn_prompt_drill" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0NzJiNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xNC4zNjQgMTMuNjM0YTIgMiAwIDAgMC0uNTA2Ljg1NGwtLjgzNyAyLjg3YS41LjUgMCAwIDAgLjYyLjYybDIuODctLjgzN2EyIDIgMCAwIDAgLjg1NC0uNTA2bDQuMDEzLTQuMDA5YTEgMSAwIDAgMC0zLjAwNC0zLjAwNHptLjEyMy01Ljc3NkExIDEgMCAwIDEgMTQgN1YyIi8+PHBhdGggZD0iTTIwIDE5LjY0NVYyMGEyIDIgMCAwIDEtMiAySDZhMiAyIDAgMCAxLTItMlY0YTIgMiAwIDAgMSAyLTJoOGEyLjQgMi40IDAgMCAxIDEuNzA0LjcwNmwyLjUxNiAyLjUxNk04IDE4aDEiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Prompt Khám Phá Sâu</button>
+                        <button id="tab_btn_prompt_inject" class="lore-breadcrumb-btn" style="font-size: 0.9em; padding: 8px 16px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM0ZDM5OSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0xOCAybDQgNG0tNSAxbDMtM20tMSA1TDguNyAxOS4zYy0xIDEtMi41IDEtMy40IDBsLS42LS42Yy0xLTEtMS0yLjUgMC0zLjRMMTUgNW0tNiA2bDQgNG0tOCA0bC0zIDNNMTQgNGw2IDYiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tiêm Prompt & Auto</button>
                     </div>
 
                     <!-- TAB 1: CONNECTION SETTINGS -->
@@ -1634,7 +1634,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                                     <label style="font-size: 0.78em; color: #94a3b8; font-weight: bold;">Tên Model (Model Name)</label>
                                     <button id="cfg_btn_fetch_models" class="lore-btn" style="background: rgba(56,189,248,0.2); border: 1px solid #38bdf8; color: #38bdf8; padding: 4px 10px; font-size: 0.78em;">
-                                        <img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tải danh sách Model
+                                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDEyYTkgOSAwIDAgMSA5LTlhOS43NSA5Ljc1IDAgMCAxIDYuNzQgMi43NEwyMSA4Ii8+PHBhdGggZD0iTTIxIDN2NWgtNW01IDRhOSA5IDAgMCAxLTkgOWE5Ljc1IDkuNzUgMCAwIDEtNi43NC0yLjc0TDMgMTYiLz48cGF0aCBkPSJNOCAxNkgzdjUiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tải danh sách Model
                                     </button>
                                 </div>
                                 <div style="display: flex; gap: 6px; margin-top: 6px;">
@@ -1684,7 +1684,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <textarea id="cfg_prompt_world_scan" class="lore-input" style="width: 100%; height: 320px; box-sizing: border-box; font-family: monospace; font-size: 0.82em; line-height: 1.45;"></textarea>
                         <div style="display: flex; justify-content: flex-start;">
                             <button id="btn_reset_prompt_scan" class="lore-btn lore-btn-secondary" style="font-size: 0.8em;">
-                                <img src="https://api.iconify.design/lucide:undo-2.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Khôi Phục Prompt Quét Mặc Định
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThmMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik05IDE0TDQgOWw1LTUiLz48cGF0aCBkPSJNNCA5aDEwLjVhNS41IDUuNSAwIDAgMSA1LjUgNS41YTUuNSA1LjUgMCAwIDEtNS41IDUuNUgxMSIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Khôi Phục Prompt Quét Mặc Định
                             </button>
                         </div>
                     </div>
@@ -1697,7 +1697,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                         <textarea id="cfg_prompt_deep_drill" class="lore-input" style="width: 100%; height: 320px; box-sizing: border-box; font-family: monospace; font-size: 0.82em; line-height: 1.45;"></textarea>
                         <div style="display: flex; justify-content: flex-start;">
                             <button id="btn_reset_prompt_drill" class="lore-btn lore-btn-secondary" style="font-size: 0.8em;">
-                                <img src="https://api.iconify.design/lucide:undo-2.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Khôi Phục Prompt Khám Phá Mặc Định
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThmMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik05IDE0TDQgOWw1LTUiLz48cGF0aCBkPSJNNCA5aDEwLjVhNS41IDUuNSAwIDAgMSA1LjUgNS41YTUuNSA1LjUgMCAwIDEtNS41IDUuNUgxMSIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Khôi Phục Prompt Khám Phá Mặc Định
                             </button>
                         </div>
                     </div>
@@ -1750,7 +1750,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                         <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
                             <div style="font-size: 0.9em; font-weight: bold; color: #fde047; margin-bottom: 6px;">
-                                <img src="https://api.iconify.design/lucide:bot.svg?color=%23fde047" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tự Động Quét Cập Nhật (Auto Update)
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZkZTA0NyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiA4VjRIOCIvPjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxMiIgeD0iNCIgeT0iOCIgcng9IjIiLz48cGF0aCBkPSJNMiAxNGgybTE2IDBoMm0tNy0xdjJtLTYtMnYyIi8+PC9nPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tự Động Quét Cập Nhật (Auto Update)
                             </div>
                             <div style="font-size: 0.75em; color: #94a3b8; margin-bottom: 10px;">Khi bật, AI tự động quét lịch sử chat để cập nhật Map sau mỗi N lượt tin nhắn. (0 = Tắt)</div>
                             <div>
@@ -1762,7 +1762,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
                         <button id="ai_cfg_save" class="lore-btn lore-btn-success" style="padding: 10px 20px;">
-                            <img src="https://api.iconify.design/lucide:check.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu Toàn Bộ Cấu Hình & Prompt
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMCA2TDkgMTdsLTUtNSIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Lưu Toàn Bộ Cấu Hình & Prompt
                         </button>
                     </div>
                 </div>
@@ -1792,7 +1792,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             window._loreDragMode = false;
             const dragBtnReset = overlay.querySelector('#lore_btn_drag_mode'); if(dragBtnReset) { dragBtnReset.style.background = ''; dragBtnReset.style.color = ''; dragBtnReset.style.borderColor = ''; }
             const dragBtnTextReset = overlay.querySelector('#lore_btn_drag_text'); if(dragBtnTextReset) dragBtnTextReset.innerText = 'Sắp Xếp';
-            const dragBtnIconReset = overlay.querySelector('#lore_btn_drag_mode img'); if(dragBtnIconReset) dragBtnIconReset.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1';
+            const dragBtnIconReset = overlay.querySelector('#lore_btn_drag_mode img'); if(dragBtnIconReset) dragBtnIconReset.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAydjIwbTMtM2wtMyAzbC0zLTNNMTkgOWwzIDNsLTMgM00yIDEyaDIwTTUgOWwtMyAzbDMgM005IDVsMy0zbDMgMyIvPjwvc3ZnPg==';
                 const addBtn = overlay.querySelector('#lore_btn_add_location');
                 if (addBtn) {
                     addBtn.style.background = '';
@@ -1802,20 +1802,20 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 const addBtnText = overlay.querySelector('#lore_btn_add_text');
                 if(addBtnText) addBtnText.innerText = 'Thêm Địa Điểm';
                 const addBtnIcon = overlay.querySelector('#lore_btn_add_location img');
-                if(addBtnIcon) addBtnIcon.src = 'https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1';
+                if(addBtnIcon) addBtnIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=';
             }
             const btnText = overlay.querySelector('#lore_btn_drag_text');
             const btnIcon = overlay.querySelector('#lore_btn_drag_mode img');
             const btn = overlay.querySelector('#lore_btn_drag_mode');
             if (window._loreDragMode) {
                 btnText.innerText = 'Đang Sắp Xếp';
-                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:check.svg?color=%23fca5a5';
+                if(btnIcon) btnIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZjYTVhNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMCA2TDkgMTdsLTUtNSIvPjwvc3ZnPg==';
                 btn.style.background = 'rgba(239, 68, 68, 0.15)';
                 btn.style.color = '#fca5a5';
                 btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
             } else {
                 btnText.innerText = 'Sắp Xếp';
-                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1';
+                if(btnIcon) btnIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAydjIwbTMtM2wtMyAzbC0zLTNNMTkgOWwzIDNsLTMgM00yIDEyaDIwTTUgOWwtMyAzbDMgM005IDVsMy0zbDMgMyIvPjwvc3ZnPg==';
                 btn.style.background = '';
                 btn.style.color = '';
                 btn.style.borderColor = '';
@@ -1838,7 +1838,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 const dragBtnText = overlay.querySelector('#lore_btn_drag_text');
                 if(dragBtnText) dragBtnText.innerText = 'Sắp Xếp';
                 const dragBtnIcon = overlay.querySelector('#lore_btn_drag_mode img');
-                if(dragBtnIcon) dragBtnIcon.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1';
+                if(dragBtnIcon) dragBtnIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAydjIwbTMtM2wtMyAzbC0zLTNNMTkgOWwzIDNsLTMgM00yIDEyaDIwTTUgOWwtMyAzbDMgM005IDVsMy0zbDMgMyIvPjwvc3ZnPg==';
             }
 
             const btnText = overlay.querySelector('#lore_btn_add_text');
@@ -1846,13 +1846,13 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             const btn = overlay.querySelector('#lore_btn_add_location');
             if (window._loreAddMode) {
                 btnText.innerText = 'Hủy Thêm';
-                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:x.svg?color=%23fca5a5';
+                if(btnIcon) btnIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZjYTVhNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+';
                 btn.style.background = 'rgba(239, 68, 68, 0.2)';
                 btn.style.color = '#fca5a5';
                 btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
             } else {
                 btnText.innerText = 'Thêm Địa Điểm';
-                if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1';
+                if(btnIcon) btnIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=';
                 btn.style.background = '';
                 btn.style.color = '';
                 btn.style.borderColor = '';
@@ -1865,14 +1865,14 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             window._loreDragMode = false;
             const dragBtnReset = overlay.querySelector('#lore_btn_drag_mode'); if(dragBtnReset) { dragBtnReset.style.background = ''; dragBtnReset.style.color = ''; dragBtnReset.style.borderColor = ''; }
             const dragBtnTextReset = overlay.querySelector('#lore_btn_drag_text'); if(dragBtnTextReset) dragBtnTextReset.innerText = 'Sắp Xếp';
-            const dragBtnIconReset = overlay.querySelector('#lore_btn_drag_mode img'); if(dragBtnIconReset) dragBtnIconReset.src = 'https://api.iconify.design/lucide:move.svg?color=%23cbd5e1'; // Turn off add mode
+            const dragBtnIconReset = overlay.querySelector('#lore_btn_drag_mode img'); if(dragBtnIconReset) dragBtnIconReset.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAydjIwbTMtM2wtMyAzbC0zLTNNMTkgOWwzIDNsLTMgM00yIDEyaDIwTTUgOWwtMyAzbDMgM005IDVsMy0zbDMgMyIvPjwvc3ZnPg=='; // Turn off add mode
             
             // Reset button ui
             const btnText = overlay.querySelector('#lore_btn_add_text');
             const btnIcon = overlay.querySelector('#lore_btn_add_location img');
             const btn = overlay.querySelector('#lore_btn_add_location');
             if(btnText) btnText.innerText = 'Thêm Địa Điểm';
-            if(btnIcon) if(btnIcon) btnIcon.src = 'https://api.iconify.design/lucide:plus.svg?color=%23cbd5e1';
+            if(btnIcon) if(btnIcon) btnIcon.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=';
             if(btn) {
                 btn.style.background = '';
                 btn.style.color = '';
@@ -1894,8 +1894,8 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <div id="lore_create_modal" style="position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); z-index: 100000000; display:flex; align-items: flex-start; justify-content: center; overflow-y:auto; padding: 40px 0; box-sizing: border-box; backdrop-filter: blur(8px);">
                     <div style="background: #0f172a; width: 500px; max-width: 90%; margin: 0 auto; flex-shrink: 0; border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); display: flex; flex-direction: column; box-shadow: 0 25px 65px rgba(0,0,0,0.95);">
                         <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
-                            <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><img src="https://api.iconify.design/lucide:plus-square.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />Tạo Địa Điểm Mới</div>
-                            <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><img src="https://api.iconify.design/lucide:x.svg?color=%2394a3b8" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></button>
+                            <div style="font-weight: 800; color: #f8fafc; font-size: 1.1em;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgeD0iMyIgeT0iMyIgcng9IjIiLz48cGF0aCBkPSJNOCAxMmg4bS00LTR2OCIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />Tạo Địa Điểm Mới</div>
+                            <button onclick="document.getElementById('lore_create_modal').remove()" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size: 1.2em;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xOCA2TDYgMThNNiA2bDEyIDEyIi8+PC9zdmc+" style="width:20px;height:20px;vertical-align:-3px;display:inline-block;" /></button>
                         </div>
                         <div style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
                             
@@ -1953,7 +1953,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
 
                             <div style="padding-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
                                 <button class="lore-btn lore-btn-secondary" onclick="document.getElementById('lore_create_modal').remove()">Hủy Bỏ</button>
-                                <button class="lore-btn lore-btn-primary" id="cmod_save"><img src="https://api.iconify.design/lucide:check.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tạo Địa Điểm</button>
+                                <button class="lore-btn lore-btn-primary" id="cmod_save"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMCA2TDkgMTdsLTUtNSIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tạo Địa Điểm</button>
                             </div>
                         </div>
                     </div>
@@ -2188,7 +2188,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (!url) { alert('Vui lòng nhập API Endpoint URL trước!'); return; }
 
             btnFetchModels.disabled = true;
-            btnFetchModels.innerHTML = `<img src="https://api.iconify.design/lucide:loader-2.svg?color=%23cbd5e1" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang tải...`;
+            btnFetchModels.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMSAxMmE5IDkgMCAxIDEtNi4yMTktOC41NiIvPjwvc3ZnPg==" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang tải...`;
 
             try {
                 let modelsUrl = url;
@@ -2220,7 +2220,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 alert('⚠️ Lỗi tải model: ' + err.message);
             } finally {
                 btnFetchModels.disabled = false;
-                btnFetchModels.innerHTML = `<img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tải danh sách Model`;
+                btnFetchModels.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDEyYTkgOSAwIDAgMSA5LTlhOS43NSA5Ljc1IDAgMCAxIDYuNzQgMi43NEwyMSA4Ii8+PHBhdGggZD0iTTIxIDN2NWgtNW01IDRhOSA5IDAgMCAxLTkgOWE5Ljc1IDkuNzUgMCAwIDEtNi43NC0yLjc0TDMgMTYiLz48cGF0aCBkPSJNOCAxNkgzdjUiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Tải danh sách Model`;
             }
         });
 
@@ -2364,23 +2364,23 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 <div class="saved-map-item" style="${isCurrent ? 'border-color: #38bdf8; background: rgba(56,189,248,0.12);' : ''}">
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <div style="font-weight: 800; color: #f8fafc; font-size: 0.98em;">
-                            <img src="https://api.iconify.design/lucide:message-square.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Chat ID: <span style="color: #c084fc;">${item.chatId}</span>
-                            ${isCurrent ? `<span style="background: #38bdf8; color: #000; font-size: 0.72em; padding: 2px 6px; border-radius: 6px; margin-left: 6px;"><img src="https://api.iconify.design/lucide:star.svg?color=%23facc15" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang mở</span>` : ''}
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThmMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMiAxN2EyIDIgMCAwIDEtMiAySDYuODI4YTIgMiAwIDAgMC0xLjQxNC41ODZsLTIuMjAyIDIuMjAyQS43MS43MSAwIDAgMSAyIDIxLjI4NlY1YTIgMiAwIDAgMSAyLTJoMTZhMiAyIDAgMCAxIDIgMnoiLz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Chat ID: <span style="color: #c084fc;">${item.chatId}</span>
+                            ${isCurrent ? `<span style="background: #38bdf8; color: #000; font-size: 0.72em; padding: 2px 6px; border-radius: 6px; margin-left: 6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZhY2MxNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMS41MjUgMi4yOTVhLjUzLjUzIDAgMCAxIC45NSAwbDIuMzEgNC42NzlhMi4xMiAyLjEyIDAgMCAwIDEuNTk1IDEuMTZsNS4xNjYuNzU2YS41My41MyAwIDAgMSAuMjk0LjkwNGwtMy43MzYgMy42MzhhMi4xMiAyLjEyIDAgMCAwLS42MTEgMS44NzhsLjg4MiA1LjE0YS41My41MyAwIDAgMS0uNzcxLjU2bC00LjYxOC0yLjQyOGEyLjEyIDIuMTIgMCAwIDAtMS45NzMgMEw2LjM5NiAyMS4wMWEuNTMuNTMgMCAwIDEtLjc3LS41NmwuODgxLTUuMTM5YTIuMTIgMi4xMiAwIDAgMC0uNjExLTEuODc5TDIuMTYgOS43OTVhLjUzLjUzIDAgMCAxIC4yOTQtLjkwNmw1LjE2NS0uNzU1YTIuMTIgMi4xMiAwIDAgMCAxLjU5Ny0xLjE2eiIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang mở</span>` : ''}
                         </div>
                         <div style="font-size: 0.82em; color: #94a3b8;">
-                            <img src="https://api.iconify.design/lucide:map-pin.svg?color=%23f43f5e" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${item.count}</b> khu vực / phân khu | <img src="https://api.iconify.design/lucide:archive.svg?color=%23d97706" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${item.sizeKB} KB</b>
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMCAxMGMwIDQuOTkzLTUuNTM5IDEwLjE5My03LjM5OSAxMS43OTlhMSAxIDAgMCAxLTEuMjAyIDBDOS41MzkgMjAuMTkzIDQgMTQuOTkzIDQgMTBhOCA4IDAgMCAxIDE2IDAiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEwIiByPSIzIi8+PC9nPjwvc3ZnPg==" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${item.count}</b> khu vực / phân khu | <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5NzcwNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSI1IiB4PSIyIiB5PSIzIiByeD0iMSIvPjxwYXRoIGQ9Ik00IDh2MTFhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0yVjhtLTEwIDRoNCIvPjwvZz48L3N2Zz4=" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${item.sizeKB} KB</b>
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
                         ${!isCurrent ? `
                             <button class="lore-btn lore-btn-secondary" style="padding: 6px 12px; font-size: 0.82em;" onclick="window._loreLoadSavedMap('${item.chatId}')" title="Chuyển sang xem/sửa bản đồ này">
-                                <img src="https://api.iconify.design/lucide:folder-open.svg?color=%23e2e8f0" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xem Thử
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThmMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im02IDE0bDEuNS0yLjlBMiAyIDAgMCAxIDkuMjQgMTBIMjBhMiAyIDAgMCAxIDEuOTQgMi41bC0xLjU0IDZhMiAyIDAgMCAxLTEuOTUgMS41SDRhMiAyIDAgMCAxLTItMlY1YTIgMiAwIDAgMSAyLTJoMy45YTIgMiAwIDAgMSAxLjY5LjlsLjgxIDEuMmEyIDIgMCAwIDAgMS42Ny45SDE4YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xem Thử
                             </button>
                         ` : `
                             <span style="font-size: 0.82em; color: #38bdf8; font-weight: bold; padding: 6px 10px;">(Bản đồ hiện tại)</span>
                         `}
                         <button class="lore-btn lore-btn-danger" style="padding: 6px 10px; font-size: 0.82em;" onclick="window._loreDeleteSavedMap('${item.key}', '${item.chatId}')" title="Xóa bản đồ chat này">
-                            <img src="https://api.iconify.design/lucide:trash-2.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMCAxMXY2bTQtNnY2bTUtMTF2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNk0zIDZoMThNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Xóa
                         </button>
                     </div>
                 </div>
@@ -2463,7 +2463,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         navStack.forEach((item, idx) => {
             html += `<span style="color: #64748b; font-weight: bold;">/</span>`;
             if (idx === navStack.length - 1) {
-                html += `<span class="lore-breadcrumb-item active"><img src="https://api.iconify.design/lucide:map-pin.svg?color=%23f43f5e" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> ${item.name}</span>`;
+                html += `<span class="lore-breadcrumb-item active"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMCAxMGMwIDQuOTkzLTUuNTM5IDEwLjE5My03LjM5OSAxMS43OTlhMSAxIDAgMCAxLTEuMjAyIDBDOS41MzkgMjAuMTkzIDQgMTQuOTkzIDQgMTBhOCA4IDAgMCAxIDE2IDAiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEwIiByPSIzIi8+PC9nPjwvc3ZnPg==" style="width:14px;height:14px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> ${item.name}</span>`;
             } else {
                 html += `<span class="lore-breadcrumb-item" onclick="window._loreNavJump(${idx})">${item.name}</span>`;
             }
@@ -2609,7 +2609,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 const placeholder = `__LORE_LINK_${linkReplacements.length}__`;
                 linkReplacements.push({
                     placeholder,
-                    html: `<span class="smart-transit-link" title="Chuyển nhanh tới ${cleanName}" onclick="window._loreQuickJumpToLocation(event, '${otherLoc.id}')"><img src="https://api.iconify.design/lucide:link.svg?color=%23cbd5e1" style="width:14px;height:14px;vertical-align:-3px;display:inline-block;" /> ${cleanName}</span>`
+                    html: `<span class="smart-transit-link" title="Chuyển nhanh tới ${cleanName}" onclick="window._loreQuickJumpToLocation(event, '${otherLoc.id}')"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMCAxM2E1IDUgMCAwIDAgNy41NC41NGwzLTNhNSA1IDAgMCAwLTcuMDctNy4wN2wtMS43MiAxLjcxIi8+PHBhdGggZD0iTTE0IDExYTUgNSAwIDAgMC03LjU0LS41NGwtMyAzYTUgNSAwIDAgMCA3LjA3IDcuMDdsMS43MS0xLjcxIi8+PC9nPjwvc3ZnPg==" style="width:14px;height:14px;vertical-align:-3px;display:inline-block;" /> ${cleanName}</span>`
                 });
                 formatted = formatted.replace(reg, placeholder);
             }
@@ -2650,7 +2650,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (currentList.length === 0) {
             gridContainer.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px; color: #64748b; background: rgba(255,255,255,0.02); border-radius: 18px; border: 1px dashed rgba(255,255,255,0.12);">
-                    <img src="https://api.iconify.design/lucide:map.svg?color=%2338bdf8" style="width:64px;height:64px;opacity:0.5;margin-bottom:12px;display:inline-block;" />
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xNC4xMDYgNS41NTNhMiAyIDAgMCAwIDEuNzg4IDBsMy42NTktMS44M0ExIDEgMCAwIDEgMjEgNC42MTl2MTIuNzY0YTEgMSAwIDAgMS0uNTUzLjg5NGwtNC41NTMgMi4yNzdhMiAyIDAgMCAxLTEuNzg4IDBsLTQuMjEyLTIuMTA2YTIgMiAwIDAgMC0xLjc4OCAwbC0zLjY1OSAxLjgzQTEgMSAwIDAgMSAzIDE5LjM4MVY2LjYxOGExIDEgMCAwIDEgLjU1My0uODk0bDQuNTUzLTIuMjc3YTIgMiAwIDAgMSAxLjc4OCAwem0uODk0LjIxMXYxNU05IDMuMjM2djE1Ii8+PC9zdmc+" style="width:64px;height:64px;opacity:0.5;margin-bottom:12px;display:inline-block;" />
                     <div style="font-size: 1.1em; font-weight: bold; color: #cbd5e1;">Lớp phân khu này hiện chưa có địa điểm nào</div>
                     <div style="font-size: 0.88em; margin-top: 6px;">Nhấp <b>Chuột Phải</b> vào lớp cha để dùng <b>[ ⚡ AI Khám Phá Sâu ]</b> hoặc bấm nút <b>[ Thêm Địa Điểm ]</b> ở trên!</div>
                 </div>
@@ -2785,7 +2785,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                                 <div class="loc-desc-snippet">${loc.description || loc.atmosphere || 'Chưa có ghi chép chi tiết về bối cảnh hay không khí tại đây...'}</div>
                                 ${charPillsHTML ? `
                                     <div style="font-size: 0.77em; color: #7dd3fc; font-weight: 700; margin: 6px 0 2px 0; display: flex; align-items: center; gap: 5px;">
-                                        <img src="https://api.iconify.design/lucide:user-check.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật hiện diện:
+                                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Im0xNiAxMWwyIDJsNC00bS02IDEydi0yYTQgNCAwIDAgMC00LTRINmE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSI5IiBjeT0iNyIgcj0iNCIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Nhân vật hiện diện:
                                     </div>
                                     <div class="loc-char-pills">${charPillsHTML}</div>
                                 ` : ''}
@@ -2795,12 +2795,12 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                             <div class="loc-card-footer">
                                 ${subCount > 0 ? `
                                     <div class="loc-sub-folder-pill">
-                                        <span><img src="https://api.iconify.design/lucide:folder-tree.svg?color=%2360a5fa" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${subCount}</b> tập con bên trong</span>
-                                        <img src="https://api.iconify.design/lucide:chevron-right.svg?color=%2394a3b8" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;" />
+                                        <span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzYwYTVmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMCAxMGExIDEgMCAwIDAgMS0xVjZhMSAxIDAgMCAwLTEtMWgtMi41YTEgMSAwIDAgMS0uOC0uNGwtLjktMS4yQTEgMSAwIDAgMCAxNSAzaC0yYTEgMSAwIDAgMC0xIDF2NWExIDEgMCAwIDAgMSAxWm0wIDExYTEgMSAwIDAgMCAxLTF2LTNhMSAxIDAgMCAwLTEtMWgtMi45YTEgMSAwIDAgMS0uODgtLjU1bC0uNDItLjg1YTEgMSAwIDAgMC0uOTItLjZIMTNhMSAxIDAgMCAwLTEgMXY1YTEgMSAwIDAgMCAxIDFaTTMgNWEyIDIgMCAwIDAgMiAyaDMiLz48cGF0aCBkPSJNMyAzdjEzYTIgMiAwIDAgMCAyIDJoMyIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> <b>${subCount}</b> tập con bên trong</span>
+                                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im05IDE4bDYtNmwtNi02Ii8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;display:inline-block;" />
                                     </div>
                                 ` : ''}
                                 <div class="loc-transit-box">
-                                    <div class="loc-transit-header"><img src="https://api.iconify.design/lucide:route.svg?color=%2338bdf8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cổng & Lối Nối:</div>
+                                    <div class="loc-transit-header"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjYiIGN5PSIxOSIgcj0iMyIvPjxwYXRoIGQ9Ik05IDE5aDguNWEzLjUgMy41IDAgMCAwIDAtN2gtMTFhMy41IDMuNSAwIDAgMSAwLTdIMTUiLz48Y2lyY2xlIGN4PSIxOCIgY3k9IjUiIHI9IjMiLz48L2c+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Cổng & Lối Nối:</div>
                                     <div>${formatSmartTransit(loc.connections, currentList, loc.id)}</div>
                                 </div>
                             </div>
@@ -2810,7 +2810,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     if (window._loreAddMode) {
                         html += `
                             <div class="location-button empty-location add-mode-cell" onclick="window._loreOpenCreateModal(${r}, ${c})" title="Click để tạo địa điểm tại tọa độ (${r}, ${c})">
-                                <img src="https://api.iconify.design/lucide:plus.svg?color=%2338bdf8" style="width:28px;height:28px;margin-bottom:8px;display:inline-block;" />
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=" style="width:28px;height:28px;margin-bottom:8px;display:inline-block;" />
                                 <span style="font-size: 1em; font-weight: bold; color: #38bdf8;">Tạo tại đây</span>
                                 <span style="font-size: 0.8em; color: #7dd3fc; margin-top: 4px; opacity: 0.8;">Tọa độ (${r}, ${c})</span>
                             </div>
@@ -2818,7 +2818,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                     } else if (window._loreDragMode) {
                         html += `
                             <div class="location-button empty-location lore-drag-mode-cell" data-row="${r}" data-col="${c}">
-                                <img src="https://api.iconify.design/lucide:move.svg?color=%2394a3b8" style="width:28px;height:28px;margin-bottom:8px;display:inline-block; opacity: 0.5;" />
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAydjIwbTMtM2wtMyAzbC0zLTNNMTkgOWwzIDNsLTMgM00yIDEyaDIwTTUgOWwtMyAzbDMgM005IDVsMy0zbDMgMyIvPjwvc3ZnPg==" style="width:28px;height:28px;margin-bottom:8px;display:inline-block; opacity: 0.5;" />
                                 <span style="font-size: 0.9em; font-weight: bold; color: #94a3b8; opacity: 0.5;">Thả vào đây</span>
                             </div>
                         `;
@@ -2843,7 +2843,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (currentList && currentList.length > 0) {
                 sidebarContent.innerHTML = currentList.map(loc => `
                     <div class="lore-sidebar-item" onclick="window._loreFocusNode('${loc.id}')" title="Nhấp để đi đến ${loc.name}">
-                        <img src="https://api.iconify.design/lucide:map-pin.svg?color=%2394a3b8" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMCAxMGMwIDQuOTkzLTUuNTM5IDEwLjE5My03LjM5OSAxMS43OTlhMSAxIDAgMCAxLTEuMjAyIDBDOS41MzkgMjAuMTkzIDQgMTQuOTkzIDQgMTBhOCA4IDAgMCAxIDE2IDAiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEwIiByPSIzIi8+PC9nPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" />
                         ${loc.name}
                     </div>
                 `).join('');
@@ -3189,9 +3189,9 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const btnEnterSub = doc.getElementById('det_btn_enter_sub');
         btnEnterSub.style.display = 'inline-flex';
         if (Array.isArray(found.subLocations) && found.subLocations.length > 0) {
-            btnEnterSub.innerHTML = `<img src="https://api.iconify.design/lucide:door-open.svg?color=%23ffffff" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con (${found.subLocations.length})`;
+            btnEnterSub.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMCAyMUgybTgtMThIN2EyIDIgMCAwIDAtMiAydjE2bTktOWguMDEiLz48cGF0aCBkPSJNMTkgMjFWNWEyIDIgMCAwIDAtMS42NzUtMS45NzRsLTYuMTYzLTEuMDEzQTEgMSAwIDAgMCAxMCAzdjE4YTEgMSAwIDAgMCAxLjEyNC45OTJ6bTMgMGgtMyIvPjwvZz48L3N2Zz4=" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con (${found.subLocations.length})`;
         } else {
-            btnEnterSub.innerHTML = `<img src="https://api.iconify.design/lucide:folder-plus.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con (Tạo mới)`;
+            btnEnterSub.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAxMHY2bS0zLTNoNm01IDdhMiAyIDAgMCAwIDItMlY4YTIgMiAwIDAgMC0yLTJoLTcuOWEyIDIgMCAwIDEtMS42OS0uOUw5LjYgMy45QTIgMiAwIDAgMCA3LjkzIDNINGEyIDIgMCAwIDAtMiAydjEzYTIgMiAwIDAgMCAyIDJaIi8+PC9zdmc+" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Vào Tập Con (Tạo mới)`;
         }
 
         detModal.style.display = 'flex';
@@ -3291,7 +3291,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
                 opacity: 0;
                 animation: lore-globe-pulse 1.5s infinite;
             `;
-            globalLoadingIcon.innerHTML = '<img src="https://api.iconify.design/lucide:globe.svg?color=%2338bdf8" class="fa-spin" style="width:24px;height:24px;display:inline-block;" />';
+            globalLoadingIcon.innerHTML = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDJhMTQuNSAxNC41IDAgMCAwIDAgMjBhMTQuNSAxNC41IDAgMCAwIDAtMjBNMiAxMmgyMCIvPjwvZz48L3N2Zz4=" class="fa-spin" style="width:24px;height:24px;display:inline-block;" />';
             if (!doc.getElementById('lore_globe_pulse_style')) {
                 const style = doc.createElement('style');
                 style.id = 'lore_globe_pulse_style';
@@ -3324,7 +3324,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         const btnDrill = doc.getElementById('det_btn_ai_drill');
         if (btnDrill) {
             btnDrill.disabled = true;
-            btnDrill.innerHTML = `<img src="https://api.iconify.design/lucide:loader-2.svg?color=%23cbd5e1" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI đang suy luận & tạo tầng sâu bên trong "${targetLoc.name}"...`;
+            btnDrill.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMSAxMmE5IDkgMCAxIDEtNi4yMTktOC41NiIvPjwvc3ZnPg==" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI đang suy luận & tạo tầng sâu bên trong "${targetLoc.name}"...`;
         }
 
         try {
@@ -3419,7 +3419,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             hideGlobalLoadingIcon();
             if (btnDrill) {
                 btnDrill.disabled = false;
-                btnDrill.innerHTML = `<img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Khám Phá Sâu`;
+                btnDrill.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0yMS42NCAzLjY0bC0xLjI4LTEuMjhhMS4yMSAxLjIxIDAgMCAwLTEuNzIgMEwyLjM2IDE4LjY0YTEuMjEgMS4yMSAwIDAgMCAwIDEuNzJsMS4yOCAxLjI4YTEuMiAxLjIgMCAwIDAgMS43MiAwTDIxLjY0IDUuMzZhMS4yIDEuMiAwIDAgMCAwLTEuNzJNMTQgN2wzIDNNNSA2djRtMTQgNHY0TTEwIDJ2Mk03IDhIM20xOCA4aC00TTExIDNIOSIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Khám Phá Sâu`;
             }
         }
     }
@@ -3435,7 +3435,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
         if (btnScan) {
             btnScan.disabled = true;
             btnScan.classList.add('lore-ai-loading');
-            btnScan.innerHTML = `<img src="https://api.iconify.design/lucide:loader-2.svg?color=%23cbd5e1" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang đọc chat & dựng lưới bản đồ...`;
+            btnScan.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMSAxMmE5IDkgMCAxIDEtNi4yMTktOC41NiIvPjwvc3ZnPg==" class="fa-spin" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> Đang đọc chat & dựng lưới bản đồ...`;
         }
 
         try {
@@ -3529,7 +3529,7 @@ TRẢ VỀ DUY NHẤT 1 OBJECT JSON HỢP LỆ theo định dạng:
             if (btnScan) {
                 btnScan.disabled = false;
                 btnScan.classList.remove('lore-ai-loading');
-                btnScan.innerHTML = `<img src="https://api.iconify.design/lucide:wand-2.svg?color=%23cbd5e1" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Quét & Xây Map`;
+                btnScan.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0yMS42NCAzLjY0bC0xLjI4LTEuMjhhMS4yMSAxLjIxIDAgMCAwLTEuNzIgMEwyLjM2IDE4LjY0YTEuMjEgMS4yMSAwIDAgMCAwIDEuNzJsMS4yOCAxLjI4YTEuMiAxLjIgMCAwIDAgMS43MiAwTDIxLjY0IDUuMzZhMS4yIDEuMiAwIDAgMCAwLTEuNzJNMTQgN2wzIDNNNSA2djRtMTQgNHY0TTEwIDJ2Mk03IDhIM20xOCA4aC00TTExIDNIOSIvPjwvc3ZnPg==" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px;display:inline-block;" /> AI Quét & Xây Map`;
             }
         }
     }

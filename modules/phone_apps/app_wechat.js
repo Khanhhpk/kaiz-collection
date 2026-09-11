@@ -12,7 +12,7 @@
 
     const APP_ID = 'tenant_chat';
     const APP_NAME = 'WeChat';
-    const APP_ICON = '<img src="https://api.iconify.design/ri:wechat-fill.svg?color=white" style="width:70%;height:70%">';
+    const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTguNTc1IDEzLjcxMWEuOTEuOTEgMCAwIDAgLjg5OC0uODk4YS44OTUuODk1IDAgMCAwLS44OTgtLjg5OGEuODk0Ljg5NCAwIDAgMC0uODk4Ljg5OGMwIC41LjQuODk4Ljg5OC44OThtLTQuNDI1IDBhLjkxLjkxIDAgMCAwIC44OTgtLjg5OGMwLS40OTgtLjQtLjg5OC0uODk4LS44OThhLjg5NC44OTQgMCAwIDAtLjg5OC44OThjMCAuNS4zOTkuODk4Ljg5OC44OThtNi41NjcgNS4wNGEuMzUuMzUgMCAwIDAtLjE3Mi4zN2MwIC4wNDggMCAuMDk4LjAyNS4xNDdjLjA5OC40MTcuMjk0IDEuMDgxLjI5NCAxLjEwNmMwIC4wNzMuMDI1LjEyMi4wMjUuMTcyYS4yMi4yMiAwIDAgMS0uMjIxLjIyYy0uMDUgMC0uMDc0LS4wMjQtLjEyMy0uMDQ4bC0xLjQ0OS0uODM2YS44LjggMCAwIDAtLjM0NC0uMDk4Yy0uMDczIDAtLjE0NyAwLS4xOTYuMDI0Yy0uNjg4LjE5Ny0xLjQuMjk1LTIuMTYxLjI5NWMtMy42NiAwLTYuNjA3LTIuNDU3LTYuNjA3LTUuNTA1czIuOTQ3LTUuNTA1IDYuNjA3LTUuNTA1YzMuNjU5IDAgNi42MDYgMi40NTggNi42MDYgNS41MDVjMCAxLjY0Ny0uODg0IDMuMTQ2LTIuMjg0IDQuMTU0TTE2LjY3NCA4LjA5OWE5IDkgMCAwIDAtLjI4LS4wMDVjLTQuMTc0IDAtNy42MDYgMi44Ni03LjYwNiA2LjUwNWMwIC41NTQuMDggMS4wOS4yMjggMS42aC0uMDg5YTEwIDEwIDAgMCAxLTIuNTg0LS4zNjhjLS4wNzQtLjAyNS0uMTQ4LS4wMjUtLjIyMi0uMDI1YS44My44MyAwIDAgMC0uNDE5LjEyM2wtMS43NDcgMS4wMDVhLjM1LjM1IDAgMCAxLS4xNDguMDVhLjI3My4yNzMgMCAwIDEtLjI3LS4yN2MwLS4wNzQuMDI0LS4xMjMuMDQ5LS4xOTdjLjAyNC0uMDI0LjI0Ni0uODM0LjM2OS0xLjMyNGMwLS4wNS4wMjQtLjEyMy4wMjQtLjE3MmEuNTYuNTYgMCAwIDAtLjIyMS0uNDQxQzIuMDU5IDEzLjM3NiAxIDExLjU4NiAxIDkuNTk5QzEuMDAxIDUuOTQ0IDQuNTcxIDMgOC45NTEgM2MzLjc2NSAwIDYuOTMgMi4xNjkgNy43MjMgNS4wOThtLTUuMTU0LjQxOGMuNTczIDAgMS4wMjYtLjQ3NyAxLjAyNi0xLjAyNmMwLS41NzMtLjQ1My0xLjAyNi0xLjAyNi0xLjAyNnMtMS4wMjYuNDUzLTEuMDI2IDEuMDI2cy40NTMgMS4wMjYgMS4wMjYgMS4wMjZtLTUuMjYgMGMuNTczIDAgMS4wMjctLjQ3NyAxLjAyNy0xLjAyNmMwLS41NzMtLjQ1NC0xLjAyNi0xLjAyNy0xLjAyNmMtLjU3MiAwLTEuMDI2LjQ1My0xLjAyNiAxLjAyNnMuNDU0IDEuMDI2IDEuMDI2IDEuMDI2Ii8+PC9zdmc+" style="width:70%;height:70%">';
 
     // ==================== CSS (Đã thêm CSS Ghi đè Avatar) ====================
     const APP_STYLES = `
@@ -104,12 +104,12 @@
                 <div class="chat-list-view" id="chat-list-view">
                     <div class="chat-list-header">
                         <button class="chat-list-back-btn" id="btn-go-home" title="Trở về" onclick="window.parent.PhoneSystem.goHome()">
-                            <img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;">
                         </button>
                         <span class="chat-list-title">WeChat</span>
                         <div class="chat-list-actions">
                             <button class="chat-list-btn" id="btn-chat-settings" title="Cài đặt">
-                                <img src="https://api.iconify.design/ri:settings-3-line.svg" style="width:22px; color: #333;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTMuMzQgMTdhMTAgMTAgMCAwIDEtLjk3OS0yLjMyNmEzIDMgMCAwIDAgLjAwMy01LjM0N2ExMCAxMCAwIDAgMSAyLjUtNC4zMzdhMyAzIDAgMCAwIDQuNjMyLTIuNjc0YTEwIDEwIDAgMCAxIDUuMDA3LjAwM2EzIDMgMCAwIDAgNC42MzIgMi42NzFhMTAuMDYgMTAuMDYgMCAwIDEgMi41MDMgNC4zMzZhMyAzIDAgMCAwLS4wMDIgNS4zNDdhMTAgMTAgMCAwIDEtMi41MDEgNC4zMzdhMyAzIDAgMCAwLTQuNjMyIDIuNjc0YTEwIDEwIDAgMCAxLTUuMDA3LS4wMDJhMyAzIDAgMCAwLTQuNjMxLTIuNjcyQTEwIDEwIDAgMCAxIDMuMzM5IDE3bTUuNjYuMTk2YTUgNSAwIDAgMSAyLjI1IDIuNzdxLjc1LjA3IDEuNDk5LjAwMmE1IDUgMCAwIDEgMi4yNS0yLjc3MmE1IDUgMCAwIDEgMy41MjYtLjU2NHEuNDM1LS42MTQuNzQ4LTEuMjk4QTUgNSAwIDAgMSAxOCAxMmMwLTEuMjYuNDctMi40MzcgMS4yNzMtMy4zMzRhOCA4IDAgMCAwLS43NS0xLjI5OEE1IDUgMCAwIDEgMTUgNi44MDRhNSA1IDAgMCAxLTIuMjUtMi43N3EtLjc1LS4wNzEtMS41LS4wMDFBNSA1IDAgMCAxIDkgNi44MDRhNSA1IDAgMCAxLTMuNTI2LjU2NHEtLjQzNi42MTQtLjc0NyAxLjI5OEE1IDUgMCAwIDEgNiAxMmMwIDEuMjYtLjQ3MSAyLjQzNy0xLjI3MyAzLjMzNGE4IDggMCAwIDAgLjc1IDEuMjk4QTUgNSAwIDAgMSA5IDE3LjE5Nk0xMiAxNWEzIDMgMCAxIDEgMC02YTMgMyAwIDAgMSAwIDZtMC0yYTEgMSAwIDEgMCAwLTJhMSAxIDAgMCAwIDAgMiIvPjwvc3ZnPg==" style="width:22px; color: #333;">
                             </button>
                         </div>
                     </div>
@@ -128,7 +128,7 @@
             <div class="chat-settings-panel" id="chat-settings-panel">
                 <div class="settings-header">
                     <button class="chat-list-back-btn" id="btn-settings-back">
-                        <img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;">
                     </button>
                     <span class="settings-title">Cài đặt Giao diện</span>
                 </div>
@@ -143,7 +143,7 @@
                         
                         <div style="display: flex; gap: 12px; margin-bottom: 12px;">
                             <div id="settings-avatar-preview" style="width: 56px; height: 56px; border-radius: 6px; background-color: #f5f5f5; background-size: cover; background-position: center; border: 1px solid #eee; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                <img src="https://api.iconify.design/ri:user-3-fill.svg?color=%23ccc" style="width: 30px; height: 30px;" id="settings-avatar-icon-fallback">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNjY2MiIGQ9Ik0yMCAyMkg0di0yYTUgNSAwIDAgMSA1LTVoNmE1IDUgMCAwIDEgNSA1em0tOC05YTYgNiAwIDEgMSAwLTEyYTYgNiAwIDAgMSAwIDEyIi8+PC9zdmc+" style="width: 30px; height: 30px;" id="settings-avatar-icon-fallback">
                             </div>
                             
                             <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
@@ -162,7 +162,7 @@
                     </div>
 
                     <div style="margin-top: 30px; text-align: center; color: #aaa;">
-                        <img src="https://api.iconify.design/ri:wechat-fill.svg" style="width:40px;height:40px;color:#ddd;margin-bottom:10px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTE4LjU3NSAxMy43MTFhLjkxLjkxIDAgMCAwIC44OTgtLjg5OGEuODk1Ljg5NSAwIDAgMC0uODk4LS44OThhLjg5NC44OTQgMCAwIDAtLjg5OC44OThjMCAuNS40Ljg5OC44OTguODk4bS00LjQyNSAwYS45MS45MSAwIDAgMCAuODk4LS44OThjMC0uNDk4LS40LS44OTgtLjg5OC0uODk4YS44OTQuODk0IDAgMCAwLS44OTguODk4YzAgLjUuMzk5Ljg5OC44OTguODk4bTYuNTY3IDUuMDRhLjM1LjM1IDAgMCAwLS4xNzIuMzdjMCAuMDQ4IDAgLjA5OC4wMjUuMTQ3Yy4wOTguNDE3LjI5NCAxLjA4MS4yOTQgMS4xMDZjMCAuMDczLjAyNS4xMjIuMDI1LjE3MmEuMjIuMjIgMCAwIDEtLjIyMS4yMmMtLjA1IDAtLjA3NC0uMDI0LS4xMjMtLjA0OGwtMS40NDktLjgzNmEuOC44IDAgMCAwLS4zNDQtLjA5OGMtLjA3MyAwLS4xNDcgMC0uMTk2LjAyNGMtLjY4OC4xOTctMS40LjI5NS0yLjE2MS4yOTVjLTMuNjYgMC02LjYwNy0yLjQ1Ny02LjYwNy01LjUwNXMyLjk0Ny01LjUwNSA2LjYwNy01LjUwNWMzLjY1OSAwIDYuNjA2IDIuNDU4IDYuNjA2IDUuNTA1YzAgMS42NDctLjg4NCAzLjE0Ni0yLjI4NCA0LjE1NE0xNi42NzQgOC4wOTlhOSA5IDAgMCAwLS4yOC0uMDA1Yy00LjE3NCAwLTcuNjA2IDIuODYtNy42MDYgNi41MDVjMCAuNTU0LjA4IDEuMDkuMjI4IDEuNmgtLjA4OWExMCAxMCAwIDAgMS0yLjU4NC0uMzY4Yy0uMDc0LS4wMjUtLjE0OC0uMDI1LS4yMjItLjAyNWEuODMuODMgMCAwIDAtLjQxOS4xMjNsLTEuNzQ3IDEuMDA1YS4zNS4zNSAwIDAgMS0uMTQ4LjA1YS4yNzMuMjczIDAgMCAxLS4yNy0uMjdjMC0uMDc0LjAyNC0uMTIzLjA0OS0uMTk3Yy4wMjQtLjAyNC4yNDYtLjgzNC4zNjktMS4zMjRjMC0uMDUuMDI0LS4xMjMuMDI0LS4xNzJhLjU2LjU2IDAgMCAwLS4yMjEtLjQ0MUMyLjA1OSAxMy4zNzYgMSAxMS41ODYgMSA5LjU5OUMxLjAwMSA1Ljk0NCA0LjU3MSAzIDguOTUxIDNjMy43NjUgMCA2LjkzIDIuMTY5IDcuNzIzIDUuMDk4bS01LjE1NC40MThjLjU3MyAwIDEuMDI2LS40NzcgMS4wMjYtMS4wMjZjMC0uNTczLS40NTMtMS4wMjYtMS4wMjYtMS4wMjZzLTEuMDI2LjQ1My0xLjAyNiAxLjAyNnMuNDUzIDEuMDI2IDEuMDI2IDEuMDI2bS01LjI2IDBjLjU3MyAwIDEuMDI3LS40NzcgMS4wMjctMS4wMjZjMC0uNTczLS40NTQtMS4wMjYtMS4wMjctMS4wMjZjLS41NzIgMC0xLjAyNi40NTMtMS4wMjYgMS4wMjZzLjQ1NCAxLjAyNiAxLjAyNiAxLjAyNiIvPjwvc3ZnPg==" style="width:40px;height:40px;color:#ddd;margin-bottom:10px;">
                         <p style="font-size: 12px; margin: 0;">WeChat Base UI - Chỉ hỗ trợ khung giao diện</p>
                     </div>
                 </div>

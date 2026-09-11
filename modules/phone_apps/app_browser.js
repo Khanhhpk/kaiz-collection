@@ -25,7 +25,7 @@
 
         const APP_ID = 'browser';
         const APP_NAME = 'Trình duyệt';
-        const APP_ICON = '<img src="https://api.iconify.design/mdi:web.svg?color=white" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTYuMzYgMTRjLjA4LS42Ni4xNC0xLjMyLjE0LTJzLS4wNi0xLjM0LS4xNC0yaDMuMzhjLjE2LjY0LjI2IDEuMzEuMjYgMnMtLjEgMS4zNi0uMjYgMm0tNS4xNSA1LjU2Yy42LTEuMTEgMS4wNi0yLjMxIDEuMzgtMy41NmgyLjk1YTguMDMgOC4wMyAwIDAgMS00LjMzIDMuNTZNMTQuMzQgMTRIOS42NmMtLjEtLjY2LS4xNi0xLjMyLS4xNi0ycy4wNi0xLjM1LjE2LTJoNC42OGMuMDkuNjUuMTYgMS4zMi4xNiAycy0uMDcgMS4zNC0uMTYgMk0xMiAxOS45NmMtLjgzLTEuMi0xLjUtMi41My0xLjkxLTMuOTZoMy44MmMtLjQxIDEuNDMtMS4wOCAyLjc2LTEuOTEgMy45Nk04IDhINS4wOEE3LjkyIDcuOTIgMCAwIDEgOS40IDQuNDRDOC44IDUuNTUgOC4zNSA2Ljc1IDggOG0tMi45MiA4SDhjLjM1IDEuMjUuOCAyLjQ1IDEuNCAzLjU2QTggOCAwIDAgMSA1LjA4IDE2bS0uODItMkM0LjEgMTMuMzYgNCAxMi42OSA0IDEycy4xLTEuMzYuMjYtMmgzLjM4Yy0uMDguNjYtLjE0IDEuMzItLjE0IDJzLjA2IDEuMzQuMTQgMk0xMiA0LjAzYy44MyAxLjIgMS41IDIuNTQgMS45MSAzLjk3aC0zLjgyYy40MS0xLjQzIDEuMDgtMi43NyAxLjkxLTMuOTdNMTguOTIgOGgtMi45NWExNS43IDE1LjcgMCAwIDAtMS4zOC0zLjU2YzEuODQuNjMgMy4zNyAxLjkgNC4zMyAzLjU2TTEyIDJDNi40NyAyIDIgNi41IDIgMTJhMTAgMTAgMCAwIDAgMTAgMTBhMTAgMTAgMCAwIDAgMTAtMTBBMTAgMTAgMCAwIDAgMTIgMiIvPjwvc3ZnPg==" style="width:70%;height:70%">';
         const APP_COLOR = 'linear-gradient(135deg, #007aff, #005bb5)'; 
 
         // Sử dụng mã ASCII để tạo 3 dấu backtick, tránh lỗi hiển thị của Canvas
@@ -296,20 +296,20 @@ Mã nguồn HTML chi tiết:`
             <div id="browser-app" style="position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;font-family:-apple-system,sans-serif;color:#333;overflow:hidden;z-index:400">
                 <div class="browser-header">
                     <div class="browser-btn" id="browser-back" title="Quay lại">
-                        <img src="https://api.iconify.design/ri:arrow-left-s-line.svg?color=%23007aff" style="width:28px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMwMDdhZmYiIGQ9Im0xMC44MjggMTJsNC45NSA0Ljk1bC0xLjQxNCAxLjQxNUw4IDEybDYuMzY0LTYuMzY0bDEuNDE0IDEuNDE0eiIvPjwvc3ZnPg==" style="width:28px;">
                     </div>
                     <div class="browser-address-bar">
-                        <img src="https://api.iconify.design/ri:search-line.svg?color=%23888" style="width:16px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM4ODgiIGQ9Im0xOC4wMzEgMTYuNjE3bDQuMjgzIDQuMjgybC0xLjQxNSAxLjQxNWwtNC4yODItNC4yODNBOC45NiA4Ljk2IDAgMCAxIDExIDIwYy00Ljk2OCAwLTktNC4wMzItOS05czQuMDMyLTkgOS05czkgNC4wMzIgOSA5YTguOTYgOC45NiAwIDAgMS0xLjk2OSA1LjYxN20tMi4wMDYtLjc0MkE2Ljk4IDYuOTggMCAwIDAgMTggMTFjMC0zLjg2Ny0zLjEzMy03LTctN3MtNyAzLjEzMy03IDdzMy4xMzMgNyA3IDdhNi45OCA2Ljk4IDAgMCAwIDQuODc1LTEuOTc1eiIvPjwvc3ZnPg==" style="width:16px;">
                         <input type="text" id="browser-input" placeholder="Nhập từ khóa tra cứu..." autocomplete="off">
                         <div id="browser-clear" style="cursor:pointer; display:none; opacity:0.5;">
-                            <img src="https://api.iconify.design/ri:close-circle-fill.svg" style="width:16px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTEyIDIyQzYuNDc3IDIyIDIgMTcuNTIzIDIgMTJTNi40NzcgMiAxMiAyczEwIDQuNDc3IDEwIDEwcy00LjQ3NyAxMC0xMCAxMG0wLTExLjQxNEw5LjE3MiA3Ljc1N0w3Ljc1NyA5LjE3MkwxMC41ODYgMTJsLTIuODI5IDIuODI4bDEuNDE1IDEuNDE1TDEyIDEzLjQxNGwyLjgyOCAyLjgyOWwxLjQxNS0xLjQxNUwxMy40MTQgMTJsMi44MjktMi44MjhsLTEuNDE1LTEuNDE1eiIvPjwvc3ZnPg==" style="width:16px;">
                         </div>
                     </div>
                     <div class="browser-btn" id="browser-settings-btn" title="Cài đặt Prompt">
-                        <img src="https://api.iconify.design/ri:settings-4-fill.svg?color=%23888" style="width:22px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM4ODgiIGQ9Ik01LjMzNCA0LjU0NWExMCAxMCAwIDAgMSAzLjU0Mi0yLjA0OEE0IDQgMCAwIDAgMTIgNGE0IDQgMCAwIDAgMy4xMjQtMS41MDJhMTAgMTAgMCAwIDEgMy41NDIgMi4wNDhBNCA0IDAgMCAwIDE4LjkyOCA4YTQgNCAwIDAgMCAyLjg2MyAxLjk1NWExMCAxMCAwIDAgMSAwIDQuMDljLTEuMTYuMTc4LTIuMjMuODYtMi44NjMgMS45NTVhNCA0IDAgMCAwLS4yNjIgMy40NTVhMTAgMTAgMCAwIDEtMy41NDIgMi4wNDdBNCA0IDAgMCAwIDEyIDIwYTQgNCAwIDAgMC0zLjEyNCAxLjUwM2ExMCAxMCAwIDAgMS0zLjU0Mi0yLjA0OEE0IDQgMCAwIDAgNS4wNzIgMTZhNCA0IDAgMCAwLTIuODYzLTEuOTU0YTEwIDEwIDAgMCAxIDAtNC4wOTFBNCA0IDAgMCAwIDUuMDcyIDhhNCA0IDAgMCAwIC4yNjItMy40NTRNMTMuNSAxNC41OTdhMyAzIDAgMSAwLTMtNS4xOTZhMyAzIDAgMCAwIDMgNS4xOTYiLz48L3N2Zz4=" style="width:22px;">
                     </div>
                     <div class="browser-btn" id="browser-go" title="Đi">
-                        <img src="https://api.iconify.design/ri:global-line.svg?color=%23007aff" style="width:24px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMwMDdhZmYiIGQ9Ik0xMiAyMkM2LjQ3NyAyMiAyIDE3LjUyMyAyIDEyUzYuNDc3IDIgMTIgMnMxMCA0LjQ3NyAxMCAxMHMtNC40NzcgMTAtMTAgMTBtLTIuMjktMi4zMzNBMTcuOSAxNy45IDAgMCAxIDguMDI3IDEzSDQuMDYyYTguMDEgOC4wMSAwIDAgMCA1LjY0OCA2LjY2N00xMC4wMyAxM2MuMTUxIDIuNDM5Ljg0OCA0LjczIDEuOTcgNi43NTJBMTUuOSAxNS45IDAgMCAwIDEzLjk3IDEzem05LjkwOCAwaC0zLjk2NWExNy45IDE3LjkgMCAwIDEtMS42ODMgNi42NjdBOC4wMSA4LjAxIDAgMCAwIDE5LjkzOCAxM000LjA2MiAxMWgzLjk2NUExNy45IDE3LjkgMCAwIDEgOS43MSA0LjMzM0E4LjAxIDguMDEgMCAwIDAgNC4wNjIgMTFtNS45NjkgMGgzLjkzOEExNS45IDE1LjkgMCAwIDAgMTIgNC4yNDhBMTUuOSAxNS45IDAgMCAwIDEwLjAzIDExbTQuMjU5LTYuNjY3QTE3LjkgMTcuOSAwIDAgMSAxNS45NzMgMTFoMy45NjVhOC4wMSA4LjAxIDAgMCAwLTUuNjQ4LTYuNjY3Ii8+PC9zdmc+" style="width:24px;">
                     </div>
                 </div>
                 <div class="browser-content-area" id="browser-content"></div>
@@ -385,7 +385,7 @@ Mã nguồn HTML chi tiết:`
                 contentEl.innerHTML = `
                     <div class="settings-container">
                         <div class="settings-title">
-                            <img src="https://api.iconify.design/ri:settings-4-fill.svg" style="width:24px;"> Cấu hình AI Prompt
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTUuMzM0IDQuNTQ1YTEwIDEwIDAgMCAxIDMuNTQyLTIuMDQ4QTQgNCAwIDAgMCAxMiA0YTQgNCAwIDAgMCAzLjEyNC0xLjUwMmExMCAxMCAwIDAgMSAzLjU0MiAyLjA0OEE0IDQgMCAwIDAgMTguOTI4IDhhNCA0IDAgMCAwIDIuODYzIDEuOTU1YTEwIDEwIDAgMCAxIDAgNC4wOWMtMS4xNi4xNzgtMi4yMy44Ni0yLjg2MyAxLjk1NWE0IDQgMCAwIDAtLjI2MiAzLjQ1NWExMCAxMCAwIDAgMS0zLjU0MiAyLjA0N0E0IDQgMCAwIDAgMTIgMjBhNCA0IDAgMCAwLTMuMTI0IDEuNTAzYTEwIDEwIDAgMCAxLTMuNTQyLTIuMDQ4QTQgNCAwIDAgMCA1LjA3MiAxNmE0IDQgMCAwIDAtMi44NjMtMS45NTRhMTAgMTAgMCAwIDEgMC00LjA5MUE0IDQgMCAwIDAgNS4wNzIgOGE0IDQgMCAwIDAgLjI2Mi0zLjQ1NE0xMy41IDE0LjU5N2EzIDMgMCAxIDAtMy01LjE5NmEzIDMgMCAwIDAgMyA1LjE5NiIvPjwvc3ZnPg==" style="width:24px;"> Cấu hình AI Prompt
                         </div>
                         
                         <div class="setting-group">

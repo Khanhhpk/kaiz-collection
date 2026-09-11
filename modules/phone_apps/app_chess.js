@@ -97,7 +97,14 @@ Bắt đầu tạo phản hồi trò chuyện và nước đi:`
             return;
         }
         const script = iframeDoc.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js';
+        script.src = '/scripts/extensions/third-party/kaiz-collection/assets/libs/chess.min.js';
+        script.onerror = () => {
+            console.warn('[Chess] Không tải được local chess.min.js, dùng CDN dự phòng');
+            const cdnScript = iframeDoc.createElement('script');
+            cdnScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js';
+            cdnScript.onload = () => callback();
+            iframeDoc.head.appendChild(cdnScript);
+        };
         script.onload = () => callback();
         iframeDoc.head.appendChild(script);
     }
@@ -196,18 +203,18 @@ Bắt đầu tạo phản hồi trò chuyện và nước đi:`
         let html = `
         <div style="display:flex; flex-direction:column; height:100%; background:#f0f2f5; font-family:-apple-system, sans-serif; padding-top:44px; box-sizing:border-box;">
             <div style="height:48px; background:#fff; padding:10px 16px; display:flex; align-items:center; border-bottom:1px solid #e0e0e0; flex-shrink:0;">
-                <div id="btn-back-home" style="font-size:24px; cursor:pointer; width:40px;"><img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;"></div>
+                <div id="btn-back-home" style="font-size:24px; cursor:pointer; width:40px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;"></div>
                 <div style="flex:1; font-size:17px; font-weight:600; text-align:center;">Chọn thể loại cờ</div>
                 <div style="width:40px;"></div>
             </div>
             <div style="flex:1; padding:20px; display:flex; flex-direction:column; gap:16px; justify-content:center;">
                 <div class="game-select-btn" data-type="chess" style="background:linear-gradient(135deg, #4b3832, #1b120f); color:white; padding:24px; border-radius:16px; text-align:center; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
-                    <img src="https://api.iconify.design/ri:vip-crown-fill.svg?color=white" style="width:48px; margin-bottom:8px;">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMi4wMDUgMTloMjB2MmgtMjB6bTAtMTRsNSAzbDUtNmw1IDZsNS0zdjEyaC0yMHoiLz48L3N2Zz4=" style="width:48px; margin-bottom:8px;">
                     <div style="font-size:20px; font-weight:bold;">CỜ VUA</div>
                     <div style="font-size:13px; opacity:0.8;">Luật chuẩn quốc tế</div>
                 </div>
                 <div class="game-select-btn" data-type="caro" style="background:linear-gradient(135deg, #0f9b0f, #005a00); color:white; padding:24px; border-radius:16px; text-align:center; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
-                    <img src="https://api.iconify.design/ri:grid-fill.svg?color=white" style="width:48px; margin-bottom:8px;">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTQgMTB2NGgtNHYtNHptMiAwaDV2NGgtNXptLTIgMTFoLTR2LTVoNHptMiAwdi01aDV2NGExIDEgMCAwIDEtMSAxek0xNCAzdjVoLTRWM3ptMiAwaDRhMSAxIDAgMCAxIDEgMXY0aC01em0tOCA3djRIM3YtNHptMCAxMUg0YTEgMSAwIDAgMS0xLTF2LTRoNXpNOCAzdjVIM1Y0YTEgMSAwIDAgMSAxLTF6Ii8+PC9zdmc+" style="width:48px; margin-bottom:8px;">
                     <div style="font-size:20px; font-weight:bold;">CỜ CARO</div>
                     <div style="font-size:13px; opacity:0.8;">Bàn Caro 15x15</div>
                 </div>
@@ -230,7 +237,7 @@ Bắt đầu tạo phản hồi trò chuyện và nước đi:`
         let html = `
         <div style="display:flex; flex-direction:column; height:100%; background:#f0f2f5; font-family:-apple-system, sans-serif; padding-top:44px; box-sizing:border-box;">
             <div style="height:48px; background:#fff; padding:10px 16px; display:flex; align-items:center; border-bottom:1px solid #e0e0e0; flex-shrink:0;">
-                <div id="btn-back-mode" style="font-size:24px; cursor:pointer; width:40px;"><img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;"></div>
+                <div id="btn-back-mode" style="font-size:24px; cursor:pointer; width:40px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;"></div>
                 <div style="flex:1; font-size:17px; font-weight:600; text-align:center;">${title}</div>
                 <div style="width:40px;"></div>
             </div>
@@ -315,12 +322,12 @@ Bắt đầu tạo phản hồi trò chuyện và nước đi:`
         let html = `
         <div style="display:flex; flex-direction:column; height:100%; background:#ececec; font-family:-apple-system, sans-serif; padding-top:44px; box-sizing:border-box;">
             <div style="height:48px; background:#fff; padding:10px 16px; display:flex; align-items:center; border-bottom:1px solid #e0e0e0; flex-shrink:0;">
-                <div id="btn-back-select" style="font-size:24px; cursor:pointer; width:40px;"><img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;"></div>
+                <div id="btn-back-select" style="font-size:24px; cursor:pointer; width:40px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;"></div>
                 <div style="flex:1; display:flex; align-items:center; justify-content:center;">
                     <img src="${currentOC.avatar}" style="width:28px; height:28px; border-radius:50%; margin-right:8px; object-fit:cover;">
                     <span style="font-weight:600; font-size:16px;">${escapeHtml(currentOC.name)}</span>
                 </div>
-                <div id="btn-restart" style="width:40px; text-align:right; cursor:pointer;" title="Chơi lại"><img src="https://api.iconify.design/ri:refresh-line.svg" style="width:20px;"></div>
+                <div id="btn-restart" style="width:40px; text-align:right; cursor:pointer;" title="Chơi lại"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTUuNDYzIDQuNDMzQTkuOTYgOS45NiAwIDAgMSAxMiAyYzUuNTIzIDAgMTAgNC40NzcgMTAgMTBjMCAyLjEzNi0uNjcgNC4xMTYtMS44MSA1Ljc0TDE3IDEyaDNBOCA4IDAgMCAwIDYuNDYgNi4yMjh6bTEzLjA3NCAxNS4xMzRBOS45NiA5Ljk2IDAgMCAxIDEyIDIyQzYuNDc3IDIyIDIgMTcuNTIzIDIgMTJjMC0yLjEzNi42Ny00LjExNiAxLjgxLTUuNzRMNyAxMkg0YTggOCAwIDAgMCAxMy41NCA1Ljc3MnoiLz48L3N2Zz4=" style="width:20px;"></div>
             </div>
 
             <div style="padding:10px; display:flex; justify-content:center; align-items:center; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
@@ -335,7 +342,7 @@ Bắt đầu tạo phản hồi trò chuyện và nước đi:`
                 <div style="display:flex; padding:8px 12px; background:#f5f5f5; border-top:1px solid #ddd; align-items:center;">
                     <input type="text" id="chess-chat-input" placeholder="Nói gì đó..." style="flex:1; border:1px solid #ccc; border-radius:20px; padding:8px 16px; font-size:14px; outline:none;">
                     <div id="btn-send-chat" style="background:#07c160; color:#fff; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; margin-left:8px; cursor:pointer; transition: 0.3s;">
-                        <img src="https://api.iconify.design/ri:send-plane-fill.svg?color=white" style="width:18px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMS45NDYgOS4zMTVjLS41MjItLjE3NC0uNTI3LS40NTUuMDEtLjYzNEwyMS4wNDQgMi4zMmMuNTI5LS4xNzYuODMyLjEyLjY4NC42MzhsLTUuNDU0IDE5LjA4NmMtLjE1LjUyOS0uNDU1LjU0Ny0uNjc5LjA0NUwxMiAxNGw2LThsLTggNnoiLz48L3N2Zz4=" style="width:18px;">
                     </div>
                 </div>
             </div>
@@ -725,7 +732,7 @@ Bắt đầu tạo phản hồi trò chuyện và nước đi:`
             PhoneSystem.registerApp({
                 id: APP_ID,
                 name: 'Chơi Cờ',
-                icon: '<img src="https://api.iconify.design/ri:gamepad-fill.svg?color=white" style="width:65%;height:65%;">',
+                icon: '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTcgNGE2IDYgMCAwIDEgNiA2djRhNiA2IDAgMCAxLTYgNkg3YTYgNiAwIDAgMS02LTZ2LTRhNiA2IDAgMCAxIDYtNnptLTcgNUg4djJINnYyaDEuOTk5TDggMTVoMmwtLjAwMS0ySDEydi0yaC0yem04IDRoLTJ2Mmgyem0tMi00aC0ydjJoMnoiLz48L3N2Zz4=" style="width:65%;height:65%;">',
                 color: 'linear-gradient(135deg, #2E7D32, #1B5E20)', 
                 order: 13
             });
