@@ -4524,10 +4524,10 @@ function buildImgPickerModal() {
   <div class="vn-modal-header">
     <div class="vn-modal-title">🎭 Visual Novel Dialogue Beautifier <span style="font-size:12px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:12px;margin-left:6px;border:1px solid rgba(56,189,248,0.3);vertical-align:middle;">${SCRIPT_VERSION}</span></div>
     <div class="vn-tabs">
-      <button class="vn-tab active" data-tab="chars"><img src="https://api.iconify.design/lucide:users.svg?color=%23818cf8" class="vn-icon">Nhân vật & Avatar</button>
-      <button class="vn-tab" data-tab="style"><img src="https://api.iconify.design/lucide:palette.svg?color=%23818cf8" class="vn-icon">Giao diện & Style</button>
-      <button class="vn-tab" data-tab="prompt"><img src="https://api.iconify.design/lucide:pen-tool.svg?color=%23818cf8" class="vn-icon">Prompt Cấu trúc</button>
-      <button class="vn-tab" data-tab="settings"><img src="https://api.iconify.design/lucide:settings.svg?color=%23818cf8" class="vn-icon">Cài đặt & Dữ liệu</button>
+      <button class="vn-tab active" data-tab="chars"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xNiAyMXYtMmE0IDQgMCAwIDAtNC00SDZhNCA0IDAgMCAwLTQgNHYyTTE2IDMuMTI4YTQgNCAwIDAgMSAwIDcuNzQ0TTIyIDIxdi0yYTQgNCAwIDAgMC0zLTMuODciLz48Y2lyY2xlIGN4PSI5IiBjeT0iNyIgcj0iNCIvPjwvZz48L3N2Zz4=" class="vn-icon">Nhân vật & Avatar</button>
+      <button class="vn-tab" data-tab="style"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAyMmExIDEgMCAwIDEgMC0yMGExMCA5IDAgMCAxIDEwIDlhNSA1IDAgMCAxLTUgNWgtMi4yNWExLjc1IDEuNzUgMCAwIDAtMS40IDIuOGwuMy40YTEuNzUgMS43NSAwIDAgMS0xLjQgMi44eiIvPjxjaXJjbGUgY3g9IjEzLjUiIGN5PSI2LjUiIHI9Ii41IiBmaWxsPSIjODE4Y2Y4Ii8+PGNpcmNsZSBjeD0iMTcuNSIgY3k9IjEwLjUiIHI9Ii41IiBmaWxsPSIjODE4Y2Y4Ii8+PGNpcmNsZSBjeD0iNi41IiBjeT0iMTIuNSIgcj0iLjUiIGZpbGw9IiM4MThjZjgiLz48Y2lyY2xlIGN4PSI4LjUiIGN5PSI3LjUiIHI9Ii41IiBmaWxsPSIjODE4Y2Y4Ii8+PC9nPjwvc3ZnPg==" class="vn-icon">Giao diện & Style</button>
+      <button class="vn-tab" data-tab="prompt"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xNS43MDcgMjEuMjkzYTEgMSAwIDAgMS0xLjQxNCAwbC0xLjU4Ni0xLjU4NmExIDEgMCAwIDEgMC0xLjQxNGw1LjU4Ni01LjU4NmExIDEgMCAwIDEgMS40MTQgMGwxLjU4NiAxLjU4NmExIDEgMCAwIDEgMCAxLjQxNHoiLz48cGF0aCBkPSJtMTggMTNsLTEuMzc1LTYuODc0YTEgMSAwIDAgMC0uNzQ2LS43NzZMMy4yMzUgMi4wMjhhMSAxIDAgMCAwLTEuMjA3IDEuMjA3TDUuMzUgMTUuODc5YTEgMSAwIDAgMCAuNzc2Ljc0NkwxMyAxOE0yLjMgMi4zbDcuMjg2IDcuMjg2Ii8+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iMiIvPjwvZz48L3N2Zz4=" class="vn-icon">Prompt Cấu trúc</button>
+      <button class="vn-tab" data-tab="settings"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik05LjY3MSA0LjEzNmEyLjM0IDIuMzQgMCAwIDEgNC42NTkgMGEyLjM0IDIuMzQgMCAwIDAgMy4zMTkgMS45MTVhMi4zNCAyLjM0IDAgMCAxIDIuMzMgNC4wMzNhMi4zNCAyLjM0IDAgMCAwIDAgMy44MzFhMi4zNCAyLjM0IDAgMCAxLTIuMzMgNC4wMzNhMi4zNCAyLjM0IDAgMCAwLTMuMzE5IDEuOTE1YTIuMzQgMi4zNCAwIDAgMS00LjY1OSAwYTIuMzQgMi4zNCAwIDAgMC0zLjMyLTEuOTE1YTIuMzQgMi4zNCAwIDAgMS0yLjMzLTQuMDMzYTIuMzQgMi4zNCAwIDAgMCAwLTMuODMxQTIuMzQgMi4zNCAwIDAgMSA2LjM1IDYuMDUxYTIuMzQgMi4zNCAwIDAgMCAzLjMxOS0xLjkxNSIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiLz48L2c+PC9zdmc+" class="vn-icon">Cài đặt & Dữ liệu</button>
     </div>
   </div>
   <!-- TAB 1: NHÂN VẬT -->
@@ -4535,18 +4535,18 @@ function buildImgPickerModal() {
     <!-- VIEW 1: DANH SÁCH NHÂN VẬT -->
     <div id="vn-char-list-view">
       <button class="vn-btn vn-btn-secondary" id="vn-scan-chars" style="margin-bottom:12px;width:100%;font-weight:700;border-color:rgba(99,102,241,0.5);color:#a78bfa;">
-        <img src="https://api.iconify.design/lucide:search.svg?color=%23a78bfa" class="vn-icon">Quét tự động tất cả thẻ [Tên] trong khung chat hiện tại
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Im0yMSAyMWwtNC4zNC00LjM0Ii8+PGNpcmNsZSBjeD0iMTEiIGN5PSIxMSIgcj0iOCIvPjwvZz48L3N2Zz4=" class="vn-icon">Quét tự động tất cả thẻ [Tên] trong khung chat hiện tại
       </button>
       <div class="vn-toggle-row" style="margin-bottom:10px;border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.1);">
         <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
+          <div class="vn-toggle-name" style="color:#818cf8;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiA4VjRIOCIvPjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxMiIgeD0iNCIgeT0iOCIgcng9IjIiLz48cGF0aCBkPSJNMiAxNGgybTE2IDBoMm0tNy0xdjJtLTYtMnYyIi8+PC9nPjwvc3ZnPg==" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
           <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại chat</div>
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg-char" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
       </div>
       <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(244,63,94,0.4);background:rgba(244,63,94,0.1);">
         <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
+          <div class="vn-toggle-name" style="color:#f43f5e;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yIDkuNWE1LjUgNS41IDAgMCAxIDkuNTkxLTMuNjc2YS41Ni41NiAwIDAgMCAuODE4IDBBNS40OSA1LjQ5IDAgMCAxIDIyIDkuNWMwIDIuMjktMS41IDQtMyA1LjVsLTUuNDkyIDUuMzEzYTIgMiAwIDAgMS0zIC4wMTlMNSAxNWMtMS41LTEuNS0zLTMuMi0zLTUuNSIvPjwvc3ZnPg==" class="vn-icon">Tự động gán ảnh Waifu/Husbando cho nhân vật mới</div>
           <div class="vn-toggle-desc">Tự động nhận diện @Tên(Nữ/Nam)@ và gán ngẫu nhiên ảnh từ neko.best</div>
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign" /><span class="vn-slider"></span></label>
@@ -4554,23 +4554,23 @@ function buildImgPickerModal() {
       
       <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(129,140,248,0.4);background:rgba(129,140,248,0.1);">
         <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tự động gán ảnh theo Tên nhân vật (Full name)</div>
+          <div class="vn-toggle-name" style="color:#818cf8;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Im0xNiAxMWwyIDJsNC00bS02IDEydi0yYTQgNCAwIDAgMC00LTRINmE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSI5IiBjeT0iNyIgcj0iNCIvPjwvZz48L3N2Zz4=" class="vn-icon">Tự động gán ảnh theo Tên nhân vật (Full name)</div>
           <div class="vn-toggle-desc">Tự động lấy ảnh từ Safebooru/Rule34/Yande.re/AniList (sẽ tắt gán theo giới tính)</div>
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-name-quick" class="vn-auto-assign-name-toggle" /><span class="vn-slider"></span></label>
       </div>
 <div class="vn-toggle-row" style="margin-bottom:14px;border-color:rgba(236,72,153,0.4);background:rgba(236,72,153,0.1);">
         <div class="vn-toggle-info">
-          <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Bật tính năng Ảnh ngữ cảnh động (Dynamic Context Images)</div>
+          <div class="vn-toggle-name" style="color:#ec4899;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2VjNDg5OSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTggMTRzMS41IDIgNCAyczQtMiA0LTJNOSA5aC4wMU0xNSA5aC4wMSIvPjwvZz48L3N2Zz4=" class="vn-icon">Bật tính năng Ảnh ngữ cảnh động (Dynamic Context Images)</div>
           <div class="vn-toggle-desc">Bơm danh sách nhãn ảnh vào prompt để AI tự động gắn thẻ và hiển thị ảnh theo cảm xúc/ngữ cảnh truyện (Ăn kem, buồn, vui...)</div>
         </div>
         <label class="vn-switch"><input type="checkbox" id="vn-toggle-dynamic-context" /><span class="vn-slider"></span></label>
       </div>
       <div id="vn-add-char-wrap" style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:14px;">
-        <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:user-plus.svg?color=%23818cf8" class="vn-icon">Thêm nhanh nhân vật mới</div>
+        <div class="vn-section-label" style="margin-top:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xNiAyMXYtMmE0IDQgMCAwIDAtNC00SDZhNCA0IDAgMCAwLTQgNHYyIi8+PGNpcmNsZSBjeD0iOSIgY3k9IjciIHI9IjQiLz48cGF0aCBkPSJNMTkgOHY2bTMtM2gtNiIvPjwvZz48L3N2Zz4=" class="vn-icon">Thêm nhanh nhân vật mới</div>
         <div style="display:flex;gap:8px;">
           <input class="vn-input" id="vn-new-char-name" placeholder="Tên nhân vật (Ví dụ: Hoshino Yue, Itsuki Natsume...)" style="flex:1;" />
-          <button class="vn-btn vn-btn-primary" id="vn-new-char-add"><img src="https://api.iconify.design/lucide:plus.svg?color=white" class="vn-icon">Thêm</button>
+          <button class="vn-btn vn-btn-primary" id="vn-new-char-add"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNNSAxMmgxNG0tNy03djE0Ii8+PC9zdmc+" class="vn-icon">Thêm</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap;">
@@ -4579,17 +4579,17 @@ function buildImgPickerModal() {
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="vn-btn vn-btn-secondary" id="vn-bulk-select-all" style="padding:4px 10px;font-size:12px;"><img src="https://api.iconify.design/lucide:check-square.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Chọn tất cả</button>
-          <button class="vn-btn vn-btn-secondary" id="vn-bulk-deselect-all" style="padding:4px 10px;font-size:12px;"><img src="https://api.iconify.design/lucide:square.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Hủy chọn</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-bulk-select-all" style="padding:4px 10px;font-size:12px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMSAxMC42NTZWMTlhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWNWEyIDIgMCAwIDEgMi0yaDEyLjM0NCIvPjxwYXRoIGQ9Im05IDExbDMgM0wyMiA0Ii8+PC9nPjwvc3ZnPg==" class="vn-icon" style="width:14px;height:14px;">Chọn tất cả</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-bulk-deselect-all" style="padding:4px 10px;font-size:12px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxyZWN0IHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgeD0iMyIgeT0iMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjOTRhM2I4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgcng9IjIiLz48L3N2Zz4=" class="vn-icon" style="width:14px;height:14px;">Hủy chọn</button>
         </div>
-        <button class="vn-btn" id="vn-bulk-delete" style="padding:4px 12px;font-size:12px;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);display:none;"><img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (0)</button>
+        <button class="vn-btn" id="vn-bulk-delete" style="padding:4px 12px;font-size:12px;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.4);display:none;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMCAxMXY2bTQtNnY2bTUtMTF2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNk0zIDZoMThNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (0)</button>
       </div>
       <div class="vn-char-grid" id="vn-char-grid"></div>
     </div>
     <!-- VIEW 2: CHI TIẾT NHÂN VẬT (Ẩn mặc định) -->
     <div id="vn-char-detail-wrap" style="display:none;">
-      <button class="vn-btn vn-btn-secondary" id="vn-char-det-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" class="vn-icon">Quay lại danh sách nhân vật</button>
-      <div class="vn-section-label"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tuỳ chỉnh chi tiết nhân vật</div>
+      <button class="vn-btn vn-btn-secondary" id="vn-char-det-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0xMiAxOWwtNy03bDctN203IDdINSIvPjwvc3ZnPg==" class="vn-icon">Quay lại danh sách nhân vật</button>
+      <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Im0xNiAxMWwyIDJsNC00bS02IDEydi0yYTQgNCAwIDAgMC00LTRINmE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSI5IiBjeT0iNyIgcj0iNCIvPjwvZz48L3N2Zz4=" class="vn-icon">Tuỳ chỉnh chi tiết nhân vật</div>
       <div class="vn-char-detail" id="vn-char-detail">
         <div id="vn-char-detail-main">
           <div class="vn-char-detail-header">
@@ -4601,47 +4601,47 @@ function buildImgPickerModal() {
             </div>
           </div>
           <div class="vn-group">
-            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:tag.svg?color=%23818cf8" class="vn-icon">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
+            <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMi41ODYgMi41ODZBMiAyIDAgMCAwIDExLjE3MiAySDRhMiAyIDAgMCAwLTIgMnY3LjE3MmEyIDIgMCAwIDAgLjU4NiAxLjQxNGw4LjcwNCA4LjcwNGEyLjQyNiAyLjQyNiAwIDAgMCAzLjQyIDBsNi41OC02LjU4YTIuNDI2IDIuNDI2IDAgMCAwIDAtMy40MnoiLz48Y2lyY2xlIGN4PSI3LjUiIGN5PSI3LjUiIHI9Ii41IiBmaWxsPSIjODE4Y2Y4Ii8+PC9nPjwvc3ZnPg==" class="vn-icon">Tên nhân vật (khớp với thẻ [Tên] trong truyện)</div>
             <input class="vn-input" id="vn-char-det-rename" placeholder="Tên nhân vật..." />
           </div>
           <div class="vn-group">
-            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:image.svg?color=%23818cf8" class="vn-icon">URL ảnh đại diện (Avatar)</div>
+            <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgeD0iMyIgeT0iMyIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOSIgY3k9IjkiIHI9IjIiLz48cGF0aCBkPSJtMjEgMTVsLTMuMDg2LTMuMDg2YTIgMiAwIDAgMC0yLjgyOCAwTDYgMjEiLz48L2c+PC9zdmc+" class="vn-icon">URL ảnh đại diện (Avatar)</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <input class="vn-input" id="vn-char-det-avatar-url" placeholder="https://... hoặc data:image/..." style="flex:1;min-width:180px;" />
-              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img"><img src="https://api.iconify.design/lucide:folder-open.svg?color=white" class="vn-icon">Chọn ảnh...</button>
-              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-open-edit-view"><img src="https://api.iconify.design/lucide:crop.svg?color=white" class="vn-icon">Cắt / Zoom ảnh</button>
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-pick-img"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJtNiAxNGwxLjUtMi45QTIgMiAwIDAgMSA5LjI0IDEwSDIwYTIgMiAwIDAgMSAxLjk0IDIuNWwtMS41NCA2YTIgMiAwIDAgMS0xLjk1IDEuNUg0YTIgMiAwIDAgMS0yLTJWNWEyIDIgMCAwIDEgMi0yaDMuOWEyIDIgMCAwIDEgMS42OS45bC44MSAxLjJhMiAyIDAgMCAwIDEuNjcuOUgxOGEyIDIgMCAwIDEgMiAydjIiLz48L3N2Zz4=" class="vn-icon">Chọn ảnh...</button>
+              <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-open-edit-view"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIj48cGF0aCBkPSJNNiAydjE0YTIgMiAwIDAgMCAyIDJoMTQiLz48cGF0aCBkPSJNMTggMjJWOGEyIDIgMCAwIDAtMi0ySDIiLz48L2c+PC9zdmc+" class="vn-icon">Cắt / Zoom ảnh</button>
             </div>
           </div>
           <div class="vn-group">
-            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:palette.svg?color=%23818cf8" class="vn-icon">Màu thẻ tên & khung thoại (Hex Color)</div>
+            <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAyMmExIDEgMCAwIDEgMC0yMGExMCA5IDAgMCAxIDEwIDlhNSA1IDAgMCAxLTUgNWgtMi4yNWExLjc1IDEuNzUgMCAwIDAtMS40IDIuOGwuMy40YTEuNzUgMS43NSAwIDAgMS0xLjQgMi44eiIvPjxjaXJjbGUgY3g9IjEzLjUiIGN5PSI2LjUiIHI9Ii41IiBmaWxsPSIjODE4Y2Y4Ii8+PGNpcmNsZSBjeD0iMTcuNSIgY3k9IjEwLjUiIHI9Ii41IiBmaWxsPSIjODE4Y2Y4Ii8+PGNpcmNsZSBjeD0iNi41IiBjeT0iMTIuNSIgcj0iLjUiIGZpbGw9IiM4MThjZjgiLz48Y2lyY2xlIGN4PSI4LjUiIGN5PSI3LjUiIHI9Ii41IiBmaWxsPSIjODE4Y2Y4Ii8+PC9nPjwvc3ZnPg==" class="vn-icon">Màu thẻ tên & khung thoại (Hex Color)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input class="vn-input" id="vn-char-det-color" placeholder="#6366f1 (để trống sẽ dùng màu gradient tự động)" style="flex:1;" />
               <input type="color" id="vn-char-det-colorpicker" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu" />
             </div>
           </div>
           <div class="vn-group" id="vn-char-det-textcolor-group">
-            <div class="vn-section-label"><img src="https://api.iconify.design/lucide:type.svg?color=%23a78bfa" class="vn-icon">Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
+            <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiA0djE2TTQgN1Y1YTEgMSAwIDAgMSAxLTFoMTRhMSAxIDAgMCAxIDEgMXYyTTkgMjBoNiIvPjwvc3ZnPg==" class="vn-icon">Màu chữ lời thoại riêng cho nhân vật này (Text Color)</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input class="vn-input" id="vn-char-det-textcolor" placeholder="#ffffff (để trống sẽ dùng theo theme/mặc định)" style="flex:1;" />
               <input type="color" id="vn-char-det-textcolorpicker" value="#ffffff" style="width:40px;height:40px;border:none;background:none;cursor:pointer;border-radius:8px;" title="Chọn màu chữ" />
             </div>
-            <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab Giao diện & Style thì màu này mới có hiệu lực!</div>
+            <div id="vn-char-det-textcolor-hint" style="font-size:11px;color:#94a3b8;margin-top:2px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDE2di00bTAtNGguMDEiLz48L2c+PC9zdmc+" class="vn-icon" style="width:14px;height:14px;">Lưu ý: Cần bật chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab Giao diện & Style thì màu này mới có hiệu lực!</div>
           </div>
           <div class="vn-group" id="vn-char-det-expressions-group" style="background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:12px;">
-            <div class="vn-section-label" style="color:#ec4899;margin-top:0;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Danh sách Ảnh ngữ cảnh động / Nhãn cảm xúc (Dynamic Context Images)</div>
+            <div class="vn-section-label" style="color:#ec4899;margin-top:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2VjNDg5OSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTggMTRzMS41IDIgNCAyczQtMiA0LTJNOSA5aC4wMU0xNSA5aC4wMSIvPjwvZz48L3N2Zz4=" class="vn-icon">Danh sách Ảnh ngữ cảnh động / Nhãn cảm xúc (Dynamic Context Images)</div>
             <div id="vn-char-det-expressions-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
-            <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-add-expression" type="button" style="border-color:rgba(236,72,153,0.4);color:#f472b6;"><img src="https://api.iconify.design/lucide:plus.svg?color=%23f472b6" class="vn-icon">Thêm nhãn ảnh ngữ cảnh mới...</button>
-            <div style="font-size:11px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Khi bật tính năng "Ảnh ngữ cảnh động" ở cài đặt, AI sẽ tự chọn nhãn phù hợp (ví dụ: Ăn kem, buồn, vui...) để hiển thị ảnh tương ứng cho nhân vật theo mạch truyện!</div>
+            <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-char-add-expression" type="button" style="border-color:rgba(236,72,153,0.4);color:#f472b6;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0NzJiNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik01IDEyaDE0bS03LTd2MTQiLz48L3N2Zz4=" class="vn-icon">Thêm nhãn ảnh ngữ cảnh mới...</button>
+            <div style="font-size:11px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDE2di00bTAtNGguMDEiLz48L2c+PC9zdmc+" class="vn-icon" style="width:14px;height:14px;">Khi bật tính năng "Ảnh ngữ cảnh động" ở cài đặt, AI sẽ tự chọn nhãn phù hợp (ví dụ: Ăn kem, buồn, vui...) để hiển thị ảnh tương ứng cho nhân vật theo mạch truyện!</div>
           </div>
           <div style="display:flex;gap:8px;margin-top:4px;">
-            <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;"><img src="https://api.iconify.design/lucide:save.svg?color=white" class="vn-icon">Lưu nhân vật này</button>
-            <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật"><img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon">Xoá</button>
+            <button class="vn-btn vn-btn-primary" id="vn-char-det-save" style="flex:1;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIj48cGF0aCBkPSJNMTUuMiAzYTIgMiAwIDAgMSAxLjQuNmwzLjggMy44YTIgMiAwIDAgMSAuNiAxLjRWMTlhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWNWEyIDIgMCAwIDEgMi0yeiIvPjxwYXRoIGQ9Ik0xNyAyMXYtN2ExIDEgMCAwIDAtMS0xSDhhMSAxIDAgMCAwLTEgMXY3TTcgM3Y0YTEgMSAwIDAgMCAxIDFoNyIvPjwvZz48L3N2Zz4=" class="vn-icon">Lưu nhân vật này</button>
+            <button class="vn-btn vn-btn-danger vn-btn-sm" id="vn-char-det-delete" title="Xoá nhân vật"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMCAxMXY2bTQtNnY2bTUtMTF2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNk0zIDZoMThNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" class="vn-icon">Xoá</button>
           </div>
         </div>
         <div id="vn-char-image-edit-view" style="display:none;">
-          <button class="vn-btn vn-btn-secondary" id="vn-img-edit-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="https://api.iconify.design/lucide:arrow-left.svg?color=%23cbd5e1" class="vn-icon">Xong / Quay lại cài đặt nhân vật</button>
+          <button class="vn-btn vn-btn-secondary" id="vn-img-edit-back" style="margin-bottom:12px;width:100%;justify-content:flex-start;font-weight:700;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0xMiAxOWwtNy03bDctN203IDdINSIvPjwvc3ZnPg==" class="vn-icon">Xong / Quay lại cài đặt nhân vật</button>
           <div class="vn-group vn-avatar-crop-editor" id="vn-char-avatar-adjust-group" style="margin-top:0;">
-            <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:crop.svg?color=%23818cf8" class="vn-icon">Cắt / căn khung Avatar</div>
+            <div class="vn-section-label" style="margin-top:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik02IDJ2MTRhMiAyIDAgMCAwIDIgMmgxNCIvPjxwYXRoIGQ9Ik0xOCAyMlY4YTIgMiAwIDAgMC0yLTJIMiIvPjwvZz48L3N2Zz4=" class="vn-icon">Cắt / căn khung Avatar</div>
             <input type="hidden" id="vn-char-avatar-x" value="50" />
             <input type="hidden" id="vn-char-avatar-y" value="50" />
             <input type="hidden" id="vn-char-avatar-zoom" value="100" />
@@ -4749,23 +4749,23 @@ function buildImgPickerModal() {
       </div>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-top:4px;">
-      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:maximize-2.svg?color=%23818cf8" class="vn-icon">Tuỳ chỉnh Kích thước & Khung hiển thị (Resolution & Sizing)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xNSAzaDZ2Nm0wLTZsLTcgN00zIDIxbDctN20tMSA3SDN2LTYiLz48L3N2Zz4=" class="vn-icon">Tuỳ chỉnh Kích thước & Khung hiển thị (Resolution & Sizing)</div>
       <div class="vn-group" style="margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span><img src="https://api.iconify.design/lucide:image.svg?color=%2394a3b8" class="vn-icon">Kích thước ảnh Avatar: <b id="vn-sz-avatar-val">52px</b></span>
+          <span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxyZWN0IHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgeD0iMyIgeT0iMyIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOSIgY3k9IjkiIHI9IjIiLz48cGF0aCBkPSJtMjEgMTVsLTMuMDg2LTMuMDg2YTIgMiAwIDAgMC0yLjgyOCAwTDYgMjEiLz48L2c+PC9zdmc+" class="vn-icon">Kích thước ảnh Avatar: <b id="vn-sz-avatar-val">52px</b></span>
           <span style="color:#94a3b8;font-size:11px;">(20px - 250px)</span>
         </div>
         <input type="range" id="vn-sz-avatar-slider" min="20" max="250" value="52" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span><img src="https://api.iconify.design/lucide:type.svg?color=%2394a3b8" class="vn-icon">Cỡ chữ lời thoại & suy nghĩ: <b id="vn-sz-font-val">14.5px</b></span>
+          <span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiA0djE2TTQgN1Y1YTEgMSAwIDAgMSAxLTFoMTRhMSAxIDAgMCAxIDEgMXYyTTkgMjBoNiIvPjwvc3ZnPg==" class="vn-icon">Cỡ chữ lời thoại & suy nghĩ: <b id="vn-sz-font-val">14.5px</b></span>
           <span style="color:#94a3b8;font-size:11px;">(10px - 36px)</span>
         </div>
         <input type="range" id="vn-sz-font-slider" min="10" max="36" step="0.5" value="14.5" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:baseline.svg?color=%2394a3b8" class="vn-icon">Phông chữ lời thoại & suy nghĩ (Font Family):</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik00IDIwaDE2TTYgMTZsNi0xMmw2IDEyTTggMTJoOCIvPjwvc3ZnPg==" class="vn-icon">Phông chữ lời thoại & suy nghĩ (Font Family):</div>
         <select id="vn-sz-fontfamily-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="default">🌟 Mặc định theo theme (Khuyên dùng)</option>
           <option value="serif">📖 Serif Hoàng Gia / Truyền thống (Palatino, Georgia, Cambria, Lora...)</option>
@@ -4778,7 +4778,7 @@ function buildImgPickerModal() {
         <input class="vn-input" id="vn-sz-fontfamily-custom" placeholder="Nhập tên font (VD: 'Times New Roman', 'Nunito', 'Verdana'...)" style="display:none;margin-top:8px;font-family:monospace;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:palette.svg?color=%23a78bfa" class="vn-icon">Chế độ chỉnh màu chữ lời thoại (Text Color Mode):</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAyMmExIDEgMCAwIDEgMC0yMGExMCA5IDAgMCAxIDEwIDlhNSA1IDAgMCAxLTUgNWgtMi4yNWExLjc1IDEuNzUgMCAwIDAtMS40IDIuOGwuMy40YTEuNzUgMS43NSAwIDAgMS0xLjQgMi44eiIvPjxjaXJjbGUgY3g9IjEzLjUiIGN5PSI2LjUiIHI9Ii41IiBmaWxsPSIjYTc4YmZhIi8+PGNpcmNsZSBjeD0iMTcuNSIgY3k9IjEwLjUiIHI9Ii41IiBmaWxsPSIjYTc4YmZhIi8+PGNpcmNsZSBjeD0iNi41IiBjeT0iMTIuNSIgcj0iLjUiIGZpbGw9IiNhNzhiZmEiLz48Y2lyY2xlIGN4PSI4LjUiIGN5PSI3LjUiIHI9Ii41IiBmaWxsPSIjYTc4YmZhIi8+PC9nPjwvc3ZnPg==" class="vn-icon">Chế độ chỉnh màu chữ lời thoại (Text Color Mode):</div>
         <select id="vn-sz-textcolormode-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;margin-bottom:8px;">
           <option value="global">🌐 Toàn cục (Tất cả nhân vật dùng chung 1 màu chữ dưới đây)</option>
           <option value="per_char">👤 Theo từng nhân vật (Chỉnh riêng màu chữ cho từng nhân vật ở Tab 1)</option>
@@ -4802,19 +4802,19 @@ function buildImgPickerModal() {
           </div>
         </div>
         <div id="vn-sz-textcolor-perchar-wrap" style="display:none;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);padding:10px 12px;border-radius:10px;font-size:12px;color:#c4b5fd;line-height:1.5;">
-          <img src="https://api.iconify.design/lucide:sparkles.svg?color=%23c4b5fd" class="vn-icon"><b>Chế độ chỉnh màu chữ theo từng nhân vật đang bật!</b><br>
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M0YjVmZCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMS4wMTcgMi44MTRhMSAxIDAgMCAxIDEuOTY2IDBsMS4wNTEgNS41NThhMiAyIDAgMCAwIDEuNTk0IDEuNTk0bDUuNTU4IDEuMDUxYTEgMSAwIDAgMSAwIDEuOTY2bC01LjU1OCAxLjA1MWEyIDIgMCAwIDAtMS41OTQgMS41OTRsLTEuMDUxIDUuNTU4YTEgMSAwIDAgMS0xLjk2NiAwbC0xLjA1MS01LjU1OGEyIDIgMCAwIDAtMS41OTQtMS41OTRsLTUuNTU4LTEuMDUxYTEgMSAwIDAgMSAwLTEuOTY2bDUuNTU4LTEuMDUxYTIgMiAwIDAgMCAxLjU5NC0xLjU5NHpNMjAgMnY0bTItMmgtNCIvPjxjaXJjbGUgY3g9IjQiIGN5PSIyMCIgcj0iMiIvPjwvZz48L3N2Zz4=" class="vn-icon"><b>Chế độ chỉnh màu chữ theo từng nhân vật đang bật!</b><br>
           👉 Hãy sang tab <b>👤 Nhân vật & Avatar</b>, nhấp chọn nhân vật muốn chỉnh, và đổi mục <b>"Màu chữ lời thoại riêng"</b> cho nhân vật đó nhé!
         </div>
       </div>
       <div class="vn-group" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#e2e8f0;font-weight:600;">
-          <span><img src="https://api.iconify.design/lucide:move-horizontal.svg?color=%2394a3b8" class="vn-icon">Độ rộng tối đa khung thoại: <b id="vn-sz-width-val">78%</b></span>
+          <span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0xOCA4bDQgNGwtNCA0TTIgMTJoMjBNNiA4bC00IDRsNCA0Ii8+PC9zdmc+" class="vn-icon">Độ rộng tối đa khung thoại: <b id="vn-sz-width-val">78%</b></span>
           <span style="color:#94a3b8;font-size:11px;">(30% - 100%)</span>
         </div>
         <input type="range" id="vn-sz-width-slider" min="30" max="100" value="78" style="width:100%;cursor:pointer;accent-color:#6366f1;" />
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%2338bdf8" class="vn-icon">Chế độ Hiển thị & Khử răng cưa ảnh Avatar:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMS4wMTcgMi44MTRhMSAxIDAgMCAxIDEuOTY2IDBsMS4wNTEgNS41NThhMiAyIDAgMCAwIDEuNTk0IDEuNTk0bDUuNTU4IDEuMDUxYTEgMSAwIDAgMSAwIDEuOTY2bC01LjU1OCAxLjA1MWEyIDIgMCAwIDAtMS41OTQgMS41OTRsLTEuMDUxIDUuNTU4YTEgMSAwIDAgMS0xLjk2NiAwbC0xLjA1MS01LjU1OGEyIDIgMCAwIDAtMS41OTQtMS41OTRsLTUuNTU4LTEuMDUxYTEgMSAwIDAgMSAwLTEuOTY2bDUuNTU4LTEuMDUxYTIgMiAwIDAgMCAxLjU5NC0xLjU5NHpNMjAgMnY0bTItMmgtNCIvPjxjaXJjbGUgY3g9IjQiIGN5PSIyMCIgcj0iMiIvPjwvZz48L3N2Zz4=" class="vn-icon">Chế độ Hiển thị & Khử răng cưa ảnh Avatar:</div>
         <select id="vn-sz-quality-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="smooth">🌟 Siêu mịn & Khử răng cưa GPU (Khuyên dùng cho Anime, Chân dung HD)</option>
           <option value="sharp">🔥 Tăng cường sắc nét & Tương phản (Làm viền sắc, tăng độ rực rỡ)</option>
@@ -4824,25 +4824,25 @@ function buildImgPickerModal() {
         <div style="font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5;">Chế độ <b>Siêu mịn</b> dùng thuật toán Bicubic/Lanczos của GPU làm mượt hoàn hảo. Chế độ <b>Tăng cường sắc nét</b> áp dụng bộ lọc tăng tương phản viền ảnh.</div>
       </div>
       <div class="vn-group" style="margin-bottom:14px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:arrow-up-down.svg?color=%23818cf8" class="vn-icon">Vị trí mở rộng ảnh khi xem trong truyện:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0yMSAxNmwtNCA0bC00LTRtNCA0VjRNMyA4bDQtNGw0IDRNNyA0djE2Ii8+PC9zdmc+" class="vn-icon">Vị trí mở rộng ảnh khi xem trong truyện:</div>
         <select id="vn-sz-imgpos-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="top">⬆️ Mở ảnh lên trên (Đẩy chữ xuống dưới - Mặc định)</option>
           <option value="bottom">⬇️ Mở ảnh xuống dưới (Chữ ở trên, ảnh bên dưới)</option>
         </select>
       </div>
       <div class="vn-group" style="margin-bottom:14px;">
-        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="https://api.iconify.design/lucide:expand.svg?color=%2338bdf8" class="vn-icon">Chế độ mở rộng ảnh tự động:</div>
+        <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0xNSAxNWw2IDZNMTUgOWw2LTZtMCAxM3Y1aC01bTUtMTNWM2gtNU0zIDE2djVoNW0tNSAwbDYtNk0zIDhWM2g1bTEgNkwzIDMiLz48L3N2Zz4=" class="vn-icon">Chế độ mở rộng ảnh tự động:</div>
         <select id="vn-sz-imgmode-select" class="vn-input" style="width:100%;cursor:pointer;background:#1e293b;color:#f8fafc;font-weight:500;padding:8px 12px;border-radius:10px;">
           <option value="normal">💡 Bình thường (Nhấn vào avatar 52px để mở rộng ảnh)</option>
           <option value="always_full">🌟 Luôn mở full ảnh tự động (Mặc định hiện ảnh chân dung lớn cho mọi thoại)</option>
         </select>
         <div style="font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5;">Khi chọn <b>Luôn mở full ảnh tự động</b>, mọi lời thoại sẽ lập tức hiển thị kèm ảnh khổ lớn rõ nét. Bạn có thể bấm vào ảnh để thu nhỏ lại nếu muốn.</div>
       </div>
-      <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-sz-reset" style="width:100%;"><img src="https://api.iconify.design/lucide:rotate-ccw.svg?color=%2394a3b8" class="vn-icon">Khôi phục kích thước & chất lượng mặc định</button>
+      <button class="vn-btn vn-btn-secondary vn-btn-sm" id="vn-sz-reset" style="width:100%;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDEyYTkgOSAwIDEgMCA5LTlhOS43NSA5Ljc1IDAgMCAwLTYuNzQgMi43NEwzIDgiLz48cGF0aCBkPSJNMyAzdjVoNSIvPjwvZz48L3N2Zz4=" class="vn-icon">Khôi phục kích thước & chất lượng mặc định</button>
     </div>
-    <button class="vn-btn vn-btn-secondary" id="vn-rerender-btn" style="width:100%;"><img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%2338bdf8" class="vn-icon">Làm mới & Re-render tất cả tin nhắn ngay lập tức</button>
+    <button class="vn-btn vn-btn-secondary" id="vn-rerender-btn" style="width:100%;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM4YmRmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDEyYTkgOSAwIDAgMSA5LTlhOS43NSA5Ljc1IDAgMCAxIDYuNzQgMi43NEwyMSA4Ii8+PHBhdGggZD0iTTIxIDN2NWgtNW01IDRhOSA5IDAgMCAxLTkgOWE5Ljc1IDkuNzUgMCAwIDEtNi43NC0yLjc0TDMgMTYiLz48cGF0aCBkPSJNOCAxNkgzdjUiLz48L2c+PC9zdmc+" class="vn-icon">Làm mới & Re-render tất cả tin nhắn ngay lập tức</button>
     <div style="font-size:12px;color:#94a3b8;line-height:1.7;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;">
-      <img src="https://api.iconify.design/lucide:lightbulb.svg?color=%23fbbf24" class="vn-icon"><b>Mẹo nhỏ:</b> Khi bạn thay đổi avatar hoặc màu sắc nhân vật ở tab Nhân vật, nhấn nút <b>Re-render</b> bên trên để áp dụng ngay thay đổi vào toàn bộ lịch sử chat!
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xNSAxNGMuMi0xIC43LTEuNyAxLjUtMi41YzEtLjkgMS41LTIuMiAxLjUtMy41QTYgNiAwIDAgMCA2IDhjMCAxIC4yIDIuMiAxLjUgMy41Yy43LjcgMS4zIDEuNSAxLjUgMi41bTAgNGg2bS01IDRoNCIvPjwvc3ZnPg==" class="vn-icon"><b>Mẹo nhỏ:</b> Khi bạn thay đổi avatar hoặc màu sắc nhân vật ở tab Nhân vật, nhấn nút <b>Re-render</b> bên trên để áp dụng ngay thay đổi vào toàn bộ lịch sử chat!
     </div>
   </div>
   <!-- TAB 3: PROMPT -->
@@ -4856,13 +4856,13 @@ function buildImgPickerModal() {
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:package.svg?color=%23818cf8" class="vn-icon">Bọc khối luật bằng marker <!-- vn_dialogue_format_marker --></div>
+        <div class="vn-toggle-name"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMSAyMS43M2EyIDIgMCAwIDAgMiAwbDctNEEyIDIgMCAwIDAgMjEgMTZWOGEyIDIgMCAwIDAtMS0xLjczbC03LTRhMiAyIDAgMCAwLTIgMGwtNyA0QTIgMiAwIDAgMCAzIDh2OGEyIDIgMCAwIDAgMSAxLjczem0xIC4yN1YxMiIvPjxwYXRoIGQ9Ik0zLjI5IDdMMTIgMTJsOC43MS01TTcuNSA0LjI3bDkgNS4xNSIvPjwvZz48L3N2Zz4=" class="vn-icon">Bọc khối luật bằng marker <!-- vn_dialogue_format_marker --></div>
         <div class="vn-toggle-desc">Giúp AI phân định rõ ràng đâu là chỉ lệnh hệ thống, đâu là ngữ cảnh truyện, chống rò rỉ prompt ra lời thoại</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-wrap-rule" /><span class="vn-slider"></span></label>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:14px;">
-      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:locate.svg?color=%23818cf8" class="vn-icon">Tùy chỉnh vị trí & vai trò bơm Prompt (Injection Position)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yIDEyaDNtMTQgMGgzTTEyIDJ2M20wIDE0djMiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI3Ii8+PC9nPjwvc3ZnPg==" class="vn-icon">Tùy chỉnh vị trí & vai trò bơm Prompt (Injection Position)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px;">
         <div>
           <label style="font-size:11.5px;color:#cbd5e1;display:block;margin-bottom:4px;">Vị trí bơm (Target):</label>
@@ -4885,18 +4885,18 @@ function buildImgPickerModal() {
           <input type="number" class="vn-input" id="vn-inject-depth" min="0" max="50" value="0" style="width:100%;padding:6px 10px;font-size:12.5px;" title="0 = Ngay trước tin nhắn cuối cùng" />
         </div>
       </div>
-      <div style="font-size:11.5px;color:#94a3b8;margin-top:8px;"><img src="https://api.iconify.design/lucide:lightbulb.svg?color=%23fbbf24" class="vn-icon" style="width:14px;height:14px;"><b>Khuyên dùng:</b> In-Chat + Role System + Depth 0 (Bơm ngay sát câu cuối cùng để AI nhớ cấu trúc thoại tốt nhất).</div>
+      <div style="font-size:11.5px;color:#94a3b8;margin-top:8px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xNSAxNGMuMi0xIC43LTEuNyAxLjUtMi41YzEtLjkgMS41LTIuMiAxLjUtMy41QTYgNiAwIDAgMCA2IDhjMCAxIC4yIDIuMiAxLjUgMy41Yy43LjcgMS4zIDEuNSAxLjUgMi41bTAgNGg2bS01IDRoNCIvPjwvc3ZnPg==" class="vn-icon" style="width:14px;height:14px;"><b>Khuyên dùng:</b> In-Chat + Role System + Depth 0 (Bơm ngay sát câu cuối cùng để AI nhớ cấu trúc thoại tốt nhất).</div>
     </div>
     
     <div class="vn-toggle-row" style="border-color:rgba(129,140,248,0.3);background:rgba(129,140,248,0.08);margin-bottom:8px;">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#818cf8;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Tự động gán ảnh theo Tên nhân vật (Full name)</div>
+        <div class="vn-toggle-name" style="color:#818cf8;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Im0xNiAxMWwyIDJsNC00bS02IDEydi0yYTQgNCAwIDAgMC00LTRINmE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSI5IiBjeT0iNyIgcj0iNCIvPjwvZz48L3N2Zz4=" class="vn-icon">Tự động gán ảnh theo Tên nhân vật (Full name)</div>
         <div class="vn-toggle-desc">Tìm ảnh qua Safebooru/Rule34/Yande.re/AniList khi có nhân vật mới. (Sẽ tự tắt Gán ảnh theo giới tính)</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-name" /><span class="vn-slider"></span></label>
     </div>
     <div id="vn-char-name-sources-wrap" style="display:none; margin-bottom:14px; padding:12px; background:rgba(129,140,248,0.06); border:1px solid rgba(129,140,248,0.3); border-radius:12px;">
-      <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:8px;"><img src="https://api.iconify.design/lucide:check-square.svg?color=%23818cf8" class="vn-icon">Chọn nguồn lấy ảnh ngẫu nhiên:</div>
+      <div style="font-size:12.5px;color:#e2e8f0;font-weight:600;margin-bottom:8px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMSAxMC42NTZWMTlhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWNWEyIDIgMCAwIDEgMi0yaDEyLjM0NCIvPjxwYXRoIGQ9Im05IDExbDMgM0wyMiA0Ii8+PC9nPjwvc3ZnPg==" class="vn-icon">Chọn nguồn lấy ảnh ngẫu nhiên:</div>
       <div style="display:flex; flex-direction:column; gap:6px;" id="vn-char-name-sources-list">
         <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="safebooru">Safebooru (SFW)</label>
         <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#cbd5e1;cursor:pointer;"><input type="checkbox" class="vn-char-name-source-cb" value="yande.re">Yande.re (NSFW)</label>
@@ -4910,53 +4910,53 @@ function buildImgPickerModal() {
     </div>
     <div class="vn-toggle-row" style="border-color:rgba(244,63,94,0.3);background:rgba(244,63,94,0.08);margin-bottom:8px;">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#f43f5e;"><img src="https://api.iconify.design/lucide:heart.svg?color=%23f43f5e" class="vn-icon">Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
+        <div class="vn-toggle-name" style="color:#f43f5e;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yIDkuNWE1LjUgNS41IDAgMCAxIDkuNTkxLTMuNjc2YS41Ni41NiAwIDAgMCAuODE4IDBBNS40OSA1LjQ5IDAgMCAxIDIyIDkuNWMwIDIuMjktMS41IDQtMyA1LjVsLTUuNDkyIDUuMzEzYTIgMiAwIDAgMS0zIC4wMTlMNSAxNWMtMS41LTEuNS0zLTMuMi0zLTUuNSIvPjwvc3ZnPg==" class="vn-icon">Tự động gán ảnh theo Giới tính (Waifu/Husbando)</div>
         <div class="vn-toggle-desc">Tự động bổ sung quy tắc trả về @Tên(Nữ/Nam)@ vào Prompt hướng dẫn bên dưới cho AI</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-auto-assign-prompt" /><span class="vn-slider"></span></label>
     </div>
     <div class="vn-toggle-row" style="border-color:rgba(236,72,153,0.3);background:rgba(236,72,153,0.08);margin-bottom:14px;">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name" style="color:#ec4899;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Tự động tiêm nhãn ảnh ngữ cảnh vào Prompt (Dynamic Context Images)</div>
+        <div class="vn-toggle-name" style="color:#ec4899;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2VjNDg5OSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTggMTRzMS41IDIgNCAyczQtMiA0LTJNOSA5aC4wMU0xNSA5aC4wMSIvPjwvZz48L3N2Zz4=" class="vn-icon">Tự động tiêm nhãn ảnh ngữ cảnh vào Prompt (Dynamic Context Images)</div>
         <div class="vn-toggle-desc">Tự động bổ sung danh sách nhãn ảnh cảm xúc của từng nhân vật vào Prompt hướng dẫn bên dưới cho AI</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-dynamic-context-prompt" /><span class="vn-slider"></span></label>
     </div>
     <div class="vn-group" id="vn-dynamic-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="vn-section-label" style="color:#ec4899;margin:0;"><img src="https://api.iconify.design/lucide:smile.svg?color=%23ec4899" class="vn-icon">Prompt Quy tắc Ảnh ngữ cảnh động (Dynamic Context Images)</div>
+        <div class="vn-section-label" style="color:#ec4899;margin:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2VjNDg5OSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTggMTRzMS41IDIgNCAyczQtMiA0LTJNOSA5aC4wMU0xNSA5aC4wMSIvPjwvZz48L3N2Zz4=" class="vn-icon">Prompt Quy tắc Ảnh ngữ cảnh động (Dynamic Context Images)</div>
         <span id="vn-dynamic-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
       </div>
       <textarea class="vn-input vn-textarea" id="vn-dynamic-prompt-text" rows="6" style="border-color:rgba(236,72,153,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
-      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Sử dụng macro <code style="background:rgba(236,72,153,0.2);color:#f472b6;padding:1px 5px;border-radius:4px;">{{charTagsList}}</code> để tự động chèn danh sách nhãn cảm xúc/ngữ cảnh hiện có của các nhân vật. Các phần còn lại là prompt bình thường hướng dẫn AI cách viết thẻ tên kèm nhãn.</div>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDE2di00bTAtNGguMDEiLz48L2c+PC9zdmc+" class="vn-icon" style="width:14px;height:14px;">Sử dụng macro <code style="background:rgba(236,72,153,0.2);color:#f472b6;padding:1px 5px;border-radius:4px;">{{charTagsList}}</code> để tự động chèn danh sách nhãn cảm xúc/ngữ cảnh hiện có của các nhân vật. Các phần còn lại là prompt bình thường hướng dẫn AI cách viết thẻ tên kèm nhãn.</div>
     </div>
     
     <div class="vn-group" id="vn-char-name-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="vn-section-label" style="color:#818cf8;margin:0;"><img src="https://api.iconify.design/lucide:user-check.svg?color=%23818cf8" class="vn-icon">Prompt Tự động gán ảnh theo Tên (Full name)</div>
+        <div class="vn-section-label" style="color:#818cf8;margin:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Im0xNiAxMWwyIDJsNC00bS02IDEydi0yYTQgNCAwIDAgMC00LTRINmE0IDQgMCAwIDAtNCA0djIiLz48Y2lyY2xlIGN4PSI5IiBjeT0iNyIgcj0iNCIvPjwvZz48L3N2Zz4=" class="vn-icon">Prompt Tự động gán ảnh theo Tên (Full name)</div>
         <span id="vn-char-name-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
       </div>
       <textarea class="vn-input vn-textarea" id="vn-char-name-prompt-text" rows="5" style="border-color:rgba(129,140,248,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
-      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Prompt này sẽ yêu cầu AI xuất Full Name của nhân vật, giúp tìm kiếm ảnh chính xác hơn.</div>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;line-height:1.5;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDE2di00bTAtNGguMDEiLz48L2c+PC9zdmc+" class="vn-icon" style="width:14px;height:14px;">Prompt này sẽ yêu cầu AI xuất Full Name của nhân vật, giúp tìm kiếm ảnh chính xác hơn.</div>
     </div>
 <div class="vn-group" id="vn-gender-prompt-wrap" style="margin-bottom:14px;padding:12px;background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.3);border-radius:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="vn-section-label" style="color:#f43f5e;margin:0;"><img src="https://api.iconify.design/lucide:sparkles.svg?color=%23f43f5e" class="vn-icon">Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
+        <div class="vn-section-label" style="color:#f43f5e;margin:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMS4wMTcgMi44MTRhMSAxIDAgMCAxIDEuOTY2IDBsMS4wNTEgNS41NThhMiAyIDAgMCAwIDEuNTk0IDEuNTk0bDUuNTU4IDEuMDUxYTEgMSAwIDAgMSAwIDEuOTY2bC01LjU1OCAxLjA1MWEyIDIgMCAwIDAtMS41OTQgMS41OTRsLTEuMDUxIDUuNTU4YTEgMSAwIDAgMS0xLjk2NiAwbC0xLjA1MS01LjU1OGEyIDIgMCAwIDAtMS41OTQtMS41OTRsLTUuNTU4LTEuMDUxYTEgMSAwIDAgMSAwLTEuOTY2bDUuNTU4LTEuMDUxYTIgMiAwIDAgMCAxLjU5NC0xLjU5NHpNMjAgMnY0bTItMmgtNCIvPjxjaXJjbGUgY3g9IjQiIGN5PSIyMCIgcj0iMiIvPjwvZz48L3N2Zz4=" class="vn-icon">Prompt Quy tắc Nhận diện Giới tính (Tự động gán ảnh)</div>
         <span id="vn-gender-prompt-status" style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;"></span>
       </div>
       <textarea class="vn-input vn-textarea" id="vn-gender-prompt-text" rows="4" style="border-color:rgba(244,63,94,0.3);font-size:13px;background:rgba(0,0,0,0.3);"></textarea>
-      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;"><img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon" style="width:14px;height:14px;">Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào luồng xử lý để dạy AI trả về @Tên(Nữ/Nam)@.</div>
+      <div style="font-size:11.5px;color:#cbd5e1;margin-top:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDE2di00bTAtNGguMDEiLz48L2c+PC9zdmc+" class="vn-icon" style="width:14px;height:14px;">Khi bật công tắc bên trên, đoạn quy tắc này sẽ được tự động nối vào dưới Prompt gốc khi tiêm vào luồng xử lý để dạy AI trả về @Tên(Nữ/Nam)@.</div>
     </div>
     <div class="vn-group">
-      <div class="vn-section-label"><img src="https://api.iconify.design/lucide:terminal.svg?color=%23818cf8" class="vn-icon">Nội dung Prompt hướng dẫn AI gốc (In-Chat @ Depth 0 via Event Hooks)</div>
+      <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAxOWg4TTQgMTdsNi02bC02LTYiLz48L3N2Zz4=" class="vn-icon">Nội dung Prompt hướng dẫn AI gốc (In-Chat @ Depth 0 via Event Hooks)</div>
       <textarea class="vn-input vn-textarea" id="vn-prompt-text" rows="8"></textarea>
     </div>
     <div style="display:flex;gap:10px;">
-      <button class="vn-btn vn-btn-primary" id="vn-prompt-save" style="flex:1;"><img src="https://api.iconify.design/lucide:save.svg?color=white" class="vn-icon">Lưu thay đổi Prompt (Tất cả các bảng)</button>
-      <button class="vn-btn vn-btn-secondary" id="vn-prompt-reset"><img src="https://api.iconify.design/lucide:rotate-ccw.svg?color=%2394a3b8" class="vn-icon">Khôi phục mặc định</button>
+      <button class="vn-btn vn-btn-primary" id="vn-prompt-save" style="flex:1;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIj48cGF0aCBkPSJNMTUuMiAzYTIgMiAwIDAgMSAxLjQuNmwzLjggMy44YTIgMiAwIDAgMSAuNiAxLjRWMTlhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWNWEyIDIgMCAwIDEgMi0yeiIvPjxwYXRoIGQ9Ik0xNyAyMXYtN2ExIDEgMCAwIDAtMS0xSDhhMSAxIDAgMCAwLTEgMXY3TTcgM3Y0YTEgMSAwIDAgMCAxIDFoNyIvPjwvZz48L3N2Zz4=" class="vn-icon">Lưu thay đổi Prompt (Tất cả các bảng)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-prompt-reset"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDEyYTkgOSAwIDEgMCA5LTlhOS43NSA5Ljc1IDAgMCAwLTYuNzQgMi43NEwzIDgiLz48cGF0aCBkPSJNMyAzdjVoNSIvPjwvZz48L3N2Zz4=" class="vn-icon">Khôi phục mặc định</button>
     </div>
     <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-top:14px;margin-bottom:14px;">
-      <div class="vn-section-label" style="margin-top:0;"><img src="https://api.iconify.design/lucide:code.svg?color=%23818cf8" class="vn-icon">Cú pháp nhận diện lời thoại & tên nhân vật (Regex Mode)</div>
+      <div class="vn-section-label" style="margin-top:0;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0xNiAxOGw2LTZsLTYtNk04IDZsLTYgNmw2IDYiLz48L3N2Zz4=" class="vn-icon">Cú pháp nhận diện lời thoại & tên nhân vật (Regex Mode)</div>
       <div style="font-size:12px;color:#cbd5e1;margin-bottom:10px;">Chọn định dạng thẻ tên phù hợp với cách AI viết lời thoại trong prompt của bạn:</div>
       <div class="vn-style-picker" id="vn-regex-picker">
         <button class="vn-style-opt" data-regex="at">
@@ -4980,16 +4980,16 @@ function buildImgPickerModal() {
           <div>Định dạng dấu hai chấm (Roleplay)</div>
         </button>
         <button class="vn-style-opt" data-regex="custom">
-          <div class="vn-style-name"><img src="https://api.iconify.design/lucide:settings.svg?color=%23818cf8" class="vn-icon">Tùy chỉnh Regex</div>
+          <div class="vn-style-name"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik05LjY3MSA0LjEzNmEyLjM0IDIuMzQgMCAwIDEgNC42NTkgMGEyLjM0IDIuMzQgMCAwIDAgMy4zMTkgMS45MTVhMi4zNCAyLjM0IDAgMCAxIDIuMzMgNC4wMzNhMi4zNCAyLjM0IDAgMCAwIDAgMy44MzFhMi4zNCAyLjM0IDAgMCAxLTIuMzMgNC4wMzNhMi4zNCAyLjM0IDAgMCAwLTMuMzE5IDEuOTE1YTIuMzQgMi4zNCAwIDAgMS00LjY1OSAwYTIuMzQgMi4zNCAwIDAgMC0zLjMyLTEuOTE1YTIuMzQgMi4zNCAwIDAgMS0yLjMzLTQuMDMzYTIuMzQgMi4zNCAwIDAgMCAwLTMuODMxQTIuMzQgMi4zNCAwIDAgMSA2LjM1IDYuMDUxYTIuMzQgMi4zNCAwIDAgMCAzLjMxOS0xLjkxNSIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiLz48L2c+PC9zdmc+" class="vn-icon">Tùy chỉnh Regex</div>
           <div>Tự viết biểu thức chính quy riêng</div>
         </button>
       </div>
       <div id="vn-custom-regex-wrap" style="display:none;margin-top:12px;">
-        <div class="vn-section-label"><img src="https://api.iconify.design/lucide:regex.svg?color=%23818cf8" class="vn-icon">Biểu thức chính quy (Custom Regex - Group 1: Tên, Group 2+: Thoại/Suy nghĩ)</div>
+        <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xNyAzdjEwbS00LjMzLTcuNWw4LjY2IDVtLTguNjYgMGw4LjY2LTVNOSAxN2EyIDIgMCAwIDAtMi0ySDVhMiAyIDAgMCAwLTIgMnYyYTIgMiAwIDAgMCAyIDJoMmEyIDIgMCAwIDAgMi0yeiIvPjwvc3ZnPg==" class="vn-icon">Biểu thức chính quy (Custom Regex - Group 1: Tên, Group 2+: Thoại/Suy nghĩ)</div>
         <input class="vn-input" id="vn-custom-regex-input" placeholder="Ví dụ: \\<([^>]+)\\>\\s*\"([^\"]+)\"" style="font-family:monospace;" />
       </div>
       <div style="margin-top:16px;padding-top:14px;border-top:1px dashed rgba(255,255,255,0.1);">
-        <div class="vn-section-label"><img src="https://api.iconify.design/lucide:eraser.svg?color=%23f43f5e" class="vn-icon">Dọn dẹp ký tự thừa ở đầu/cuối lời thoại & suy nghĩ (Clean Bubble Text)</div>
+        <div class="vn-section-label"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y0M2Y1ZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMSAyMUg4YTIgMiAwIDAgMS0xLjQyLS41ODdsLTMuOTk0LTMuOTk5YTIgMiAwIDAgMSAwLTIuODI4bDEwLTEwYTIgMiAwIDAgMSAyLjgyOSAwbDUuOTk5IDZhMiAyIDAgMCAxIDAgMi44MjhMMTIuODM0IDIxbS03Ljc1Mi05LjkxbDguODI4IDguODI4Ii8+PC9zdmc+" class="vn-icon">Dọn dẹp ký tự thừa ở đầu/cuối lời thoại & suy nghĩ (Clean Bubble Text)</div>
         <input class="vn-input" id="vn-clean-patterns-input" placeholder="Ví dụ: &quot;|“|”|* (Để trống = giữ nguyên 100% theo regex)" style="font-family:monospace;" />
         <div style="font-size:11.5px;color:#94a3b8;margin-top:4px;">Nhập các ký tự bạn muốn xóa khỏi 2 đầu bong bóng thoại (cách nhau bởi dấu <code>|</code> hoặc viết liền như <code>&quot;*“”</code>). Nếu <b>để trống</b>, script sẽ tuân thủ tuyệt đối theo regex của bạn và không tự ý xóa gì cả!</div>
       </div>
@@ -5006,7 +5006,7 @@ function buildImgPickerModal() {
     </div>
     <div class="vn-toggle-row">
       <div class="vn-toggle-info">
-        <div class="vn-toggle-name"><img src="https://api.iconify.design/lucide:bot.svg?color=%23818cf8" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
+        <div class="vn-toggle-name"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiA4VjRIOCIvPjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxMiIgeD0iNCIgeT0iOCIgcng9IjIiLz48cGF0aCBkPSJNMiAxNGgybTE2IDBoMm0tNy0xdjJtLTYtMnYyIi8+PC9nPjwvc3ZnPg==" class="vn-icon">Tự động bắt thẻ & tạo nhân vật mới (Auto Register)</div>
         <div class="vn-toggle-desc">Tự động tạo thẻ khi gặp tên mới trong lời thoại. Tắt đi để chỉ hiển thị lời thoại theo danh sách nhân vật tự điền ở Tab 1 (chống bắt nhầm rác/NPC).</div>
       </div>
       <label class="vn-switch"><input type="checkbox" id="vn-toggle-autoreg" class="vn-auto-reg-toggle" /><span class="vn-slider"></span></label>
@@ -5014,20 +5014,20 @@ function buildImgPickerModal() {
     
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:trash.svg?color=%23cbd5e1" class="vn-icon">Dọn dẹp Cache</button>
-        <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:zap.svg?color=%23fbbf24" class="vn-icon">Test hiệu năng (200)</button>
+        <button class="vn-btn vn-btn-secondary" id="vn-btn-clear-cache" style="background:#334155;color:#f8fafc;padding:10px;border-radius:8px;font-weight:600;border:1px solid #475569;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMCAxMXY2bTQtNnY2bTUtMTF2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNk0zIDZoMThNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" class="vn-icon">Dọn dẹp Cache</button>
+        <button class="vn-btn vn-btn-primary" id="vn-btn-test-perf" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:10px;border-radius:8px;font-weight:600;border:none;box-shadow:0 4px 12px rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;gap:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZiYmYyNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xNS45MTQgNGExLjUgMS41IDAgMCAwLTIuNDc0LTEuNTYxbC05IDlBMS41IDEuNSAwIDAgMCA1LjUgMTRoNC4wMDJhLjUuNSAwIDAgMSAuNDcxLjY2Nkw4LjA4NiAyMGExLjUgMS41IDAgMCAwIDIuNDc1IDEuNTZsOS05QTEuNSAxLjUgMCAwIDAgMTguNSAxMGgtMy45OTdhLjUuNSAwIDAgMS0uNDcyLS42Njd6Ii8+PC9zdmc+" class="vn-icon">Test hiệu năng (200)</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;">
-        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-local" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:folder-x.svg?color=%23f87171" class="vn-icon">Xoá sạch Kho Local</button>
-        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-link" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="https://api.iconify.design/lucide:link-2-off.svg?color=%23f87171" class="vn-icon">Xoá sạch Kho Link</button>
+        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-local" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMCAyMGEyIDIgMCAwIDAgMi0yVjhhMiAyIDAgMCAwLTItMmgtNy45YTIgMiAwIDAgMS0xLjY5LS45TDkuNiAzLjlBMiAyIDAgMCAwIDcuOTMgM0g0YTIgMiAwIDAgMC0yIDJ2MTNhMiAyIDAgMCAwIDIgMlpNOS41IDEwLjVsNSA1bTAtNWwtNSA1Ii8+PC9zdmc+" class="vn-icon">Xoá sạch Kho Local</button>
+        <button class="vn-btn vn-btn-danger" id="vn-btn-clear-link" style="padding:10px;border-radius:8px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik05IDE3SDdBNSA1IDAgMCAxIDcgN204IDBoMmE1IDUgMCAwIDEgNCA4TTggMTJoNE0yIDJsMjAgMjAiLz48L3N2Zz4=" class="vn-icon">Xoá sạch Kho Link</button>
       </div>
-      <button class="vn-btn vn-btn-secondary" id="vn-export-cfg"><img src="https://api.iconify.design/lucide:download.svg?color=%23cbd5e1" class="vn-icon">Sao lưu cấu hình ra file JSON (Export)</button>
-      <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn"><img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">Nhập cấu hình từ file JSON (Import)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-export-cfg"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xMiAxNVYzbTkgMTJ2NGEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnYtNCIvPjxwYXRoIGQ9Im03IDEwbDUgNWw1LTUiLz48L2c+PC9zdmc+" class="vn-icon">Sao lưu cấu hình ra file JSON (Export)</button>
+      <button class="vn-btn vn-btn-secondary" id="vn-import-cfg-btn"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAzdjEybTUtN2wtNS01bC01IDVtMTQgN3Y0YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0ydi00Ii8+PC9zdmc+" class="vn-icon">Nhập cấu hình từ file JSON (Import)</button>
       <input type="file" id="vn-import-cfg-file" accept=".json" style="display:none;" />
-      <button class="vn-btn vn-btn-danger" id="vn-reset-all" style="margin-top:6px;"><img src="https://api.iconify.design/lucide:alert-triangle.svg?color=%23f87171" class="vn-icon">Khôi phục toàn bộ về cài đặt gốc (Reset All)</button>
+      <button class="vn-btn vn-btn-danger" id="vn-reset-all" style="margin-top:6px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im0yMS43MyAxOGwtOC0xNGEyIDIgMCAwIDAtMy40OCAwbC04IDE0QTIgMiAwIDAgMCA0IDIxaDE2YTIgMiAwIDAgMCAxLjczLTNNMTIgOXY0bTAgNGguMDEiLz48L3N2Zz4=" class="vn-icon">Khôi phục toàn bộ về cài đặt gốc (Reset All)</button>
     </div>
     <div style="background:rgba(0,0,0,0.25);border-radius:12px;padding:14px;font-size:12.5px;color:#cbd5e1;line-height:1.8;margin-top:6px;">
-      <b><img src="https://api.iconify.design/lucide:book-open.svg?color=%23818cf8" class="vn-icon">Hướng dẫn sử dụng nhanh:</b><br>
+      <b><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgxOGNmOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiA1djE2bTguMDAxLTJBMiAyIDAgMCAwIDIyIDE3VjVhMiAyIDAgMCAwLTEuOTk5LTJMMTYgMy4wMDJBNSA1IDAgMCAwIDEyIDVhNSA1IDAgMCAwLTQtMkg0YTIgMiAwIDAgMC0yIDJ2MTJhMiAyIDAgMCAwIDEuOTk5IDJIOGE1IDUgMCAwIDEgNCAyYTUgNSAwIDAgMSA0LTJ6Ii8+PC9zdmc+" class="vn-icon">Hướng dẫn sử dụng nhanh:</b><br>
       1️⃣ Bật <b>Tiêm Prompt</b> ở tab Prompt để AI hiểu và trả về lời thoại kèm thẻ <code>[TênNhânVật]</code>.<br>
       2️⃣ Sang tab <b>Nhân vật</b> → Nhấn <b>Quét tự động</b> để nhận diện tên nhân vật từ chat.<br>
       3️⃣ Nhấn vào từng nhân vật → Chọn avatar từ kho ảnh anime miễn phí, Kho Local đã import hoặc Kho Link đã lưu.<br>
@@ -5151,7 +5151,7 @@ function buildImgPickerModal() {
         if (!btn) return;
         if (_selectedChars.size > 0) {
             btn.style.display = 'inline-block';
-            btn.innerHTML = `<img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (${_selectedChars.size})`;
+            btn.innerHTML = `<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMCAxMXY2bTQtNnY2bTUtMTF2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNk0zIDZoMThNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" class="vn-icon" style="width:14px;height:14px;">Xóa đã chọn (${_selectedChars.size})`;
         } else {
             btn.style.display = 'none';
         }
@@ -5273,7 +5273,7 @@ function buildImgPickerModal() {
         pickBtn.type = 'button';
         pickBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
         pickBtn.title = 'Chọn ảnh từ kho anime miễn phí, kho local hoặc link đã lưu';
-        pickBtn.innerHTML = '<img src="https://api.iconify.design/lucide:folder-open.svg?color=%23cbd5e1" class="vn-icon">Kho ảnh';
+        pickBtn.innerHTML = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im02IDE0bDEuNS0yLjlBMiAyIDAgMCAxIDkuMjQgMTBIMjBhMiAyIDAgMCAxIDEuOTQgMi41bC0xLjU0IDZhMiAyIDAgMCAxLTEuOTUgMS41SDRhMiAyIDAgMCAxLTItMlY1YTIgMiAwIDAgMSAyLTJoMy45YTIgMiAwIDAgMSAxLjY5LjlsLjgxIDEuMmEyIDIgMCAwIDAgMS42Ny45SDE4YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" class="vn-icon">Kho ảnh';
         pickBtn.style.cssText = 'padding:6px 10px;border-color:rgba(255,255,255,0.15);white-space:nowrap;';
         pickBtn.onclick = () => {
             if (typeof openImgPicker === 'function') {
@@ -5294,7 +5294,7 @@ function buildImgPickerModal() {
         uploadBtn.type = 'button';
         uploadBtn.className = 'vn-btn vn-btn-secondary vn-btn-sm';
         uploadBtn.title = 'Tải ảnh từ máy tính lên';
-        uploadBtn.innerHTML = '<img src="https://api.iconify.design/lucide:upload.svg?color=%23cbd5e1" class="vn-icon">Tải lên';
+        uploadBtn.innerHTML = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NiZDVlMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMiAzdjEybTUtN2wtNS01bC01IDVtMTQgN3Y0YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0ydi00Ii8+PC9zdmc+" class="vn-icon">Tải lên';
         uploadBtn.style.cssText = 'padding:6px 10px;border-color:rgba(255,255,255,0.15);white-space:nowrap;';
         uploadBtn.onclick = () => fileInput.click();
         
@@ -5335,7 +5335,7 @@ function buildImgPickerModal() {
         delBtn.type = 'button';
         delBtn.className = 'vn-btn vn-btn-danger vn-btn-sm';
         delBtn.title = 'Xóa nhãn này';
-        delBtn.innerHTML = '<img src="https://api.iconify.design/lucide:trash-2.svg?color=%23f87171" class="vn-icon">';
+        delBtn.innerHTML = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Y4NzE3MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0xMCAxMXY2bTQtNnY2bTUtMTF2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNk0zIDZoMThNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg==" class="vn-icon">';
         delBtn.style.cssText = 'padding:6px 10px;border-color:rgba(248,113,113,0.3);';
         delBtn.onclick = () => row.remove();
         
@@ -5392,10 +5392,10 @@ function buildImgPickerModal() {
         if (hintEl) {
             const isPerChar = CFG.customSizing && CFG.customSizing.textColorMode === 'per_char';
             if (isPerChar) {
-                hintEl.innerHTML = '<img src="https://api.iconify.design/lucide:check-circle.svg?color=%23a78bfa" class="vn-icon"><b style="color:#a78bfa;">Chế độ màu chữ theo từng nhân vật đang BẬT!</b> Màu bạn chọn dưới đây sẽ áp dụng riêng cho lời thoại của nhân vật này.';
+                hintEl.innerHTML = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMS44MDEgMTBBMTAgMTAgMCAxIDEgMTcgMy4zMzUiLz48cGF0aCBkPSJtOSAxMWwzIDNMMjIgNCIvPjwvZz48L3N2Zz4=" class="vn-icon"><b style="color:#a78bfa;">Chế độ màu chữ theo từng nhân vật đang BẬT!</b> Màu bạn chọn dưới đây sẽ áp dụng riêng cho lời thoại của nhân vật này.';
                 hintEl.style.color = '#c4b5fd';
             } else {
-                hintEl.innerHTML = '<img src="https://api.iconify.design/lucide:info.svg?color=%2394a3b8" class="vn-icon"><b>Lưu ý:</b> Bạn đang ở chế độ màu chữ Toàn Cục. Cần chọn chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab <b>Giao diện & Style</b> thì cài đặt màu riêng ở đây mới có hiệu lực!';
+                hintEl.innerHTML = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzk0YTNiOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDE2di00bTAtNGguMDEiLz48L2c+PC9zdmc+" class="vn-icon"><b>Lưu ý:</b> Bạn đang ở chế độ màu chữ Toàn Cục. Cần chọn chế độ "Chỉnh màu chữ theo từng nhân vật" ở tab <b>Giao diện & Style</b> thì cài đặt màu riêng ở đây mới có hiệu lực!';
                 hintEl.style.color = '#94a3b8';
             }
         }

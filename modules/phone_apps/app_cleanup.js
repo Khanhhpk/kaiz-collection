@@ -25,7 +25,7 @@
         const APP_ID = 'cleaner';
         const APP_NAME = 'Dọn rác';
         // Icon cây chổi quét dọn
-        const APP_ICON = '<img src="https://api.iconify.design/mdi:broom.svg?color=white" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtMTkuMzYgMi43MmwxLjQyIDEuNDJsLTUuNzIgNS43MWMxLjA3IDEuNTQgMS4yMiAzLjM5LjMyIDQuNTlMOS4wNiA4LjEyYzEuMi0uOSAzLjA1LS43NSA0LjU5LjMyek01LjkzIDE3LjU3Yy0yLjAxLTIuMDEtMy4yNC00LjQxLTMuNTgtNi42NWw0Ljg4LTIuMDlsNy40NCA3LjQ0bC0yLjA5IDQuODhjLTIuMjQtLjM0LTQuNjQtMS41Ny02LjY1LTMuNTgiLz48L3N2Zz4=" style="width:70%;height:70%">';
         const APP_COLOR = 'linear-gradient(135deg, #00b4db, #0083b0)';
 
         // ============ Logic Xử lý Dữ liệu ============
@@ -180,7 +180,7 @@
                 <div style="flex:1;overflow-y:auto;padding-bottom:30px;">
                     <div class="clean-btn-container">
                         <div id="main-clean-btn" class="big-clean-btn">
-                            <img class="broom-icon" src="https://api.iconify.design/mdi:broom.svg?color=white" style="width:50px;height:50px;margin-bottom:8px;">
+                            <img class="broom-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtMTkuMzYgMi43MmwxLjQyIDEuNDJsLTUuNzIgNS43MWMxLjA3IDEuNTQgMS4yMiAzLjM5LjMyIDQuNTlMOS4wNiA4LjEyYzEuMi0uOSAzLjA1LS43NSA0LjU5LjMyek01LjkzIDE3LjU3Yy0yLjAxLTIuMDEtMy4yNC00LjQxLTMuNTgtNi42NWw0Ljg4LTIuMDlsNy40NCA3LjQ0bC0yLjA5IDQuODhjLTIuMjQtLjM0LTQuNjQtMS41Ny02LjY1LTMuNTgiLz48L3N2Zz4=" style="width:50px;height:50px;margin-bottom:8px;">
                             <span id="clean-status-text" style="font-size:16px;font-weight:bold;">Tối ưu hóa</span>
                             <span id="clean-size-text" style="font-size:12px;opacity:0.8;margin-top:4px;">Phát hiện ${formatBytes(stats.byteSize)}</span>
                         </div>
@@ -196,7 +196,7 @@
                     <div class="cleaner-list">
                         <div class="cleaner-item">
                             <div class="cleaner-item-left">
-                                <img src="https://api.iconify.design/mdi:weather-partly-cloudy.svg?color=%234A90D9" style="width:24px;height:24px;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM0QTkwRDkiIGQ9Ik0xMi43NCA1LjQ3YzIuMzYgMS4wMyAzLjYxIDMuNTYgMy4xOCA1Ljk5QTYgNiAwIDAgMSAxOCAxNnYuMTdhMyAzIDAgMCAxIDEtLjE3YTMgMyAwIDAgMSAzIDNhMyAzIDAgMCAxLTMgM0g2YTQgNCAwIDAgMS00LTRhNCA0IDAgMCAxIDQtNGguMjdDNSAxMi40NSA0LjYgMTAuMjQgNS41IDguMjZhNS40OSA1LjQ5IDAgMCAxIDcuMjQtMi43OW0tLjgxIDEuODNjLTEuNzctLjgtMy44NC4wMS00LjYyIDEuNzdjLS40NiAxLjAyLS4zOCAyLjE1LjEgMy4wNkE1Ljk5IDUuOTkgMCAwIDEgMTIgMTBjLjcgMCAxLjM4LjEyIDIgLjM0YTMuNTEgMy41MSAwIDAgMC0yLjA3LTMuMDRtMS42Mi0zLjY2Yy0uNTUtLjI0LTEuMS0uNDEtMS42Ny0uNTJsMi40OS0xLjNsLjkgMi44OWE3LjcgNy43IDAgMCAwLTEuNzItMS4wN20tNy40Ni44Yy0uNDkuMzUtLjkyLjc1LTEuMjkgMS4xOWwuMTEtMi44MWwyLjk2LjY4Yy0uNjIuMjEtMS4yMi41My0xLjc4Ljk0TTE4IDkuNzFjLS4wOS0uNTktLjIyLTEuMTYtLjQxLTEuNzFsMi4zOCAxLjVsLTIuMDUgMi4yM2MuMTEtLjY1LjEzLTEuMzMuMDgtMi4wMk0zLjA0IDExLjNjLjA3LjYuMiAxLjE3LjM5IDEuN2wtMi4zNy0xLjVMMy4xIDkuMjhjLS4xLjY1LS4xMyAxLjMzLS4wNiAyLjAyTTE5IDE4aC0zdi0yYTQgNCAwIDAgMC00LTRhNCA0IDAgMCAwLTQgNEg2YTIgMiAwIDAgMC0yIDJhMiAyIDAgMCAwIDIgMmgxM2ExIDEgMCAwIDAgMS0xYTEgMSAwIDAgMC0xLTEiLz48L3N2Zz4=" style="width:24px;height:24px;">
                                 <div>
                                     <div style="font-weight:500;font-size:15px;">Thời tiết</div>
                                     <div style="font-size:12px;color:#888;">${stats.weather} tệp lưu trữ cache</div>
@@ -210,7 +210,7 @@
 
                         <div class="cleaner-item">
                             <div class="cleaner-item-left">
-                                <img src="https://api.iconify.design/ri:newspaper-line.svg?color=%23ef4444" style="width:24px;height:24px;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNlZjQ0NDQiIGQ9Ik0xNiAyMFY0SDR2MTVhMSAxIDAgMCAwIDEgMXptMyAySDVhMyAzIDAgMCAxLTMtM1YzYTEgMSAwIDAgMSAxLTFoMTRhMSAxIDAgMCAxIDEgMXY3aDR2OWEzIDMgMCAwIDEtMyAzbS0xLTEwdjdhMSAxIDAgMSAwIDIgMHYtN3pNNiA2aDZ2Nkg2em0yIDJ2MmgyVjh6bS0yIDVoOHYySDZ6bTAgM2g4djJINnoiLz48L3N2Zz4=" style="width:24px;height:24px;">
                                 <div>
                                     <div style="font-weight:500;font-size:15px;">Tin tức</div>
                                     <div style="font-size:12px;color:#888;">${stats.news} tệp dữ liệu cũ</div>
@@ -224,7 +224,7 @@
 
                         <div class="cleaner-item">
                             <div class="cleaner-item-left">
-                                <img src="https://api.iconify.design/ri:wechat-fill.svg?color=%2307c160" style="width:24px;height:24px;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMwN2MxNjAiIGQ9Ik0xOC41NzUgMTMuNzExYS45MS45MSAwIDAgMCAuODk4LS44OThhLjg5NS44OTUgMCAwIDAtLjg5OC0uODk4YS44OTQuODk0IDAgMCAwLS44OTguODk4YzAgLjUuNC44OTguODk4Ljg5OG0tNC40MjUgMGEuOTEuOTEgMCAwIDAgLjg5OC0uODk4YzAtLjQ5OC0uNC0uODk4LS44OTgtLjg5OGEuODk0Ljg5NCAwIDAgMC0uODk4Ljg5OGMwIC41LjM5OS44OTguODk4Ljg5OG02LjU2NyA1LjA0YS4zNS4zNSAwIDAgMC0uMTcyLjM3YzAgLjA0OCAwIC4wOTguMDI1LjE0N2MuMDk4LjQxNy4yOTQgMS4wODEuMjk0IDEuMTA2YzAgLjA3My4wMjUuMTIyLjAyNS4xNzJhLjIyLjIyIDAgMCAxLS4yMjEuMjJjLS4wNSAwLS4wNzQtLjAyNC0uMTIzLS4wNDhsLTEuNDQ5LS44MzZhLjguOCAwIDAgMC0uMzQ0LS4wOThjLS4wNzMgMC0uMTQ3IDAtLjE5Ni4wMjRjLS42ODguMTk3LTEuNC4yOTUtMi4xNjEuMjk1Yy0zLjY2IDAtNi42MDctMi40NTctNi42MDctNS41MDVzMi45NDctNS41MDUgNi42MDctNS41MDVjMy42NTkgMCA2LjYwNiAyLjQ1OCA2LjYwNiA1LjUwNWMwIDEuNjQ3LS44ODQgMy4xNDYtMi4yODQgNC4xNTRNMTYuNjc0IDguMDk5YTkgOSAwIDAgMC0uMjgtLjAwNWMtNC4xNzQgMC03LjYwNiAyLjg2LTcuNjA2IDYuNTA1YzAgLjU1NC4wOCAxLjA5LjIyOCAxLjZoLS4wODlhMTAgMTAgMCAwIDEtMi41ODQtLjM2OGMtLjA3NC0uMDI1LS4xNDgtLjAyNS0uMjIyLS4wMjVhLjgzLjgzIDAgMCAwLS40MTkuMTIzbC0xLjc0NyAxLjAwNWEuMzUuMzUgMCAwIDEtLjE0OC4wNWEuMjczLjI3MyAwIDAgMS0uMjctLjI3YzAtLjA3NC4wMjQtLjEyMy4wNDktLjE5N2MuMDI0LS4wMjQuMjQ2LS44MzQuMzY5LTEuMzI0YzAtLjA1LjAyNC0uMTIzLjAyNC0uMTcyYS41Ni41NiAwIDAgMC0uMjIxLS40NDFDMi4wNTkgMTMuMzc2IDEgMTEuNTg2IDEgOS41OTlDMS4wMDEgNS45NDQgNC41NzEgMyA4Ljk1MSAzYzMuNzY1IDAgNi45MyAyLjE2OSA3LjcyMyA1LjA5OG0tNS4xNTQuNDE4Yy41NzMgMCAxLjAyNi0uNDc3IDEuMDI2LTEuMDI2YzAtLjU3My0uNDUzLTEuMDI2LTEuMDI2LTEuMDI2cy0xLjAyNi40NTMtMS4wMjYgMS4wMjZzLjQ1MyAxLjAyNiAxLjAyNiAxLjAyNm0tNS4yNiAwYy41NzMgMCAxLjAyNy0uNDc3IDEuMDI3LTEuMDI2YzAtLjU3My0uNDU0LTEuMDI2LTEuMDI3LTEuMDI2Yy0uNTcyIDAtMS4wMjYuNDUzLTEuMDI2IDEuMDI2cy40NTQgMS4wMjYgMS4wMjYgMS4wMjYiLz48L3N2Zz4=" style="width:24px;height:24px;">
                                 <div>
                                     <div style="font-weight:500;font-size:15px;">WeChat & Group Chat</div>
                                     <div style="font-size:12px;color:#888;">${stats.wechat} lịch sử trò chuyện</div>
@@ -238,7 +238,7 @@
 
                         <div class="cleaner-item">
                             <div class="cleaner-item-left">
-                                <img src="https://api.iconify.design/ri:netease-cloud-music-fill.svg?color=%23ff7e5f" style="width:24px;height:24px;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNmZjdlNWYiIGQ9Ik0xMi4wMDEgMjJjLTUuNTIzIDAtMTAtNC40NzctMTAtMTBzNC40NzctMTAgMTAtMTBzMTAgNC40NzcgMTAgMTBzLTQuNDc3IDEwLTEwIDEwbS0xLjA4Ni0xMC40MzJjLjI0LS44NCAxLjA3NS0xLjU0MSAxLjk5LTEuNjQ4Yy4xODcuNjk0LjM4OCAxLjM3My41NDUgMi4wNjNjLjA1My4yMy4wMzcuNDk1LS4wMTguNzI3Yy0uMjEzLjg5Mi0xLjI0OCAxLjI0Mi0xLjk3OC42ODVjLS41My0uNDA1LS43NDItMS4xMi0uNTM5LTEuODI3bTMuODE3LS4xOTdjLS4xMjUtLjQ2NS0uMjU2LS45MjctLjM5My0xLjQyYy41LjEzLjkwNy4zNiAxLjI1NS42OTdjMS4yNTcgMS4yMjIgMS4zODUgMy4zLjI5NCA0LjczMmMtMS4xMzUgMS40OS0zLjE1NSAyLjEzNC01LjAyOCAxLjYwNWMtMi4zMDItLjY1LTMuODA4LTIuOTUyLTMuNDQxLTUuMzE2Yy4yNzQtMS43NjggMS4yNy0zLjAwNCAyLjktMy43MzNjLjQwNy0uMTgyLjU4LS41Ni40Mi0uOTNjLS4xNTctLjM2NC0uNTQtLjUwNC0uOTQ0LS4zNDNjLTIuNzIxIDEuMDg4LTQuMzIgNC4xMzQtMy42NyA2Ljk4N2MuNzEzIDMuMTE4IDMuNDk1IDUuMTYzIDYuNjc1IDQuODU5YzEuNzMyLS4xNjYgMy4xNjQtLjk0OCA0LjIxNi0yLjM0N2MxLjUwNi0yLjAwMiAxLjI5Ny00Ljc4My0uNDYzLTYuNDk5Yy0uNjY2LS42NS0xLjQ3MS0xLjAxOC0yLjM5LTEuMTUzYy0uMDgzLS4wMTMtLjIxNy0uMDUyLS4yMzItLjEwNmMtLjA4Ny0uMzEzLS4xOC0uNjMyLS4yMDYtLjk1NGMtLjAyOS0uMzU3LjI5LS42NC42NS0uNjQ1Yy4yNTMtLjAwMy40MzQuMTMuNjAzLjNjLjMwMy4zLjcwNC4zMjIuOTg4LjA2MmMuMjktLjI2NC4yOTYtLjY3OC4wMTgtMS4wMDhjLS41NjYtLjY3Mi0xLjU4Ni0uODkxLTIuNDMtLjUyM2MtLjg0Ny4zNy0xLjMyMSAxLjE4Ny0xLjIgMi4wOTNjLjAzOC4yOC4xMS41NTcuMTY3Ljg0MmwtLjI2LjA3MmEzLjg2IDMuODYgMCAwIDAtMi4wOTggMS40MTRjLS45MjEgMS4yMi0uOTM2IDIuODI4LS4wNDEgMy45NDdjMS4yNzQgMS41OTQgMy43NDcgMS4yODQgNC41MjMtLjU2OGMuMjg0LS42NzcuMjc1LTEuMzY4LjA4Ny0yLjA2NSIvPjwvc3ZnPg==" style="width:24px;height:24px;">
                                 <div>
                                     <div style="font-weight:500;font-size:15px;">Âm nhạc</div>
                                     <div style="font-size:12px;color:#888;">${stats.music} tệp lịch sử & hàng đợi</div>
@@ -327,7 +327,7 @@
                         cleanBtn.classList.remove('cleaning');
                         cleanBtn.classList.add('done');
                         cleanBtn.innerHTML = `
-                            <img src="https://api.iconify.design/mdi:check-bold.svg?color=white" style="width:50px;height:50px;margin-bottom:8px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtOSAyMC40MmwtNi4yMS02LjIxbDIuODMtMi44M0w5IDE0Ljc3bDkuODgtOS44OWwyLjgzIDIuODN6Ii8+PC9zdmc+" style="width:50px;height:50px;margin-bottom:8px;">
                             <span style="font-size:16px;font-weight:bold;">Hoàn tất</span>
                             <span style="font-size:12px;opacity:0.9;margin-top:4px;">Đã xử lý ${removed} mục</span>
                         `;

@@ -760,7 +760,7 @@ Bắt đầu tạo Input:`
     // ============ ĐĂNG KÝ FMM ============
     var _rpConfig = {
         id: 'auto_user_rp',
-        icon: '<img src="https://api.iconify.design/lucide:venetian-mask.svg?color=white" style="width:24px;height:24px;">',
+        icon: '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIj48cGF0aCBkPSJNMTggMTFjLTEuNSAwLTIuNS41LTMgMiIvPjxwYXRoIGQ9Ik00IDZhMiAyIDAgMCAwLTIgMnY0YTUgNSAwIDAgMCA1IDVhOCA4IDAgMCAxIDUgMmE4IDggMCAwIDEgNS0yYTUgNSAwIDAgMCA1LTVWOGEyIDIgMCAwIDAtMi0yaC0zYTggOCAwIDAgMC01IDJhOCA4IDAgMCAwLTUtMnoiLz48cGF0aCBkPSJNNiAxMWMxLjUgMCAyLjUuNSAzIDIiLz48L2c+PC9zdmc+" style="width:24px;height:24px;">',
         label: 'Tự Nhập Vai v0.1',
         color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
         order: 2,

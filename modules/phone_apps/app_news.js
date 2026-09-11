@@ -20,7 +20,7 @@
 
         const APP_ID = 'news';
         const APP_NAME = 'Tin tức hôm nay';
-        const APP_ICON = '<img src="https://api.iconify.design/ri:newspaper-line.svg?color=white" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTYgMjBWNEg0djE1YTEgMSAwIDAgMCAxIDF6bTMgMkg1YTMgMyAwIDAgMS0zLTNWM2ExIDEgMCAwIDEgMS0xaDE0YTEgMSAwIDAgMSAxIDF2N2g0djlhMyAzIDAgMCAxLTMgM20tMS0xMHY3YTEgMSAwIDEgMCAyIDB2LTd6TTYgNmg2djZINnptMiAydjJoMlY4em0tMiA1aDh2Mkg2em0wIDNoOHYySDZ6Ii8+PC9zdmc+" style="width:70%;height:70%">';
         const APP_COLOR = 'linear-gradient(135deg, #ef4444, #dc2626)';
         const SPECIAL_NEWS_CHANCE = 0.25;
 

@@ -24,7 +24,7 @@
 
         const APP_ID = 'theme_manager';
         const APP_NAME = 'Cá nhân hóa';
-        const APP_ICON = '<img src="https://api.iconify.design/ri:palette-line.svg?color=white" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTIgMmM1LjUyMiAwIDEwIDMuOTc4IDEwIDguODg5YTUuNTYgNS41NiAwIDAgMS01LjU1NiA1LjU1NWgtMS45NjZjLS45MjIgMC0xLjY2Ny43NDUtMS42NjcgMS42NjdjMCAuNDIyLjE2Ny44MTEuNDIyIDEuMWMuMjY3LjMuNDM0LjY4OS40MzQgMS4xMjJDMTMuNjY3IDIxLjI1NiAxMi45IDIyIDEyIDIyQzYuNDc4IDIyIDIgMTcuNTIyIDIgMTJTNi40NzggMiAxMiAybS0xLjE4OSAxNi4xMTFhMy42NjQgMy42NjQgMCAwIDEgMy42NjctMy42NjdoMS45NjZBMy41NiAzLjU2IDAgMCAwIDIwIDEwLjg5QzIwIDcuMTM5IDE2LjQ2OCA0IDEyIDRhOCA4IDAgMCAwLS42NzYgMTUuOTcyYTMuNjUgMy42NSAwIDAgMS0uNTEzLTEuODZNNy41IDEyYTEuNSAxLjUgMCAxIDEgMC0zYTEuNSAxLjUgMCAwIDEgMCAzbTkgMGExLjUgMS41IDAgMSAxIDAtM2ExLjUgMS41IDAgMCAxIDAgM00xMiA5YTEuNSAxLjUgMCAxIDEgMC0zYTEuNSAxLjUgMCAwIDEgMCAzIi8+PC9zdmc+" style="width:70%;height:70%">';
         const APP_COLOR = 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)';
         const STORAGE_KEY = 'phone_theme_settings_v1';
 

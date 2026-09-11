@@ -269,11 +269,11 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
         <div style="display:flex; flex-direction:column; height:100%; background:#f5f7fa; font-family:-apple-system, sans-serif; color:#333; padding-top:44px; box-sizing:border-box;">
             <div style="height:48px; background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); padding:10px 16px; display:flex; align-items:center; border-bottom:1px solid rgba(0,0,0,0.1); box-sizing:border-box; flex-shrink:0;">
                 <div id="btn-back-home-grp" style="font-size:24px; cursor:pointer; display:flex; align-items:center; width:40px;">
-                    <img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;">
                 </div>
                 <div style="flex:1; font-size:17px; font-weight:600; text-align:center;">Quản lý Group Chat</div>
                 <div id="btn-add-group" style="width:40px; text-align:right; font-size:24px; color:#07c160; cursor:pointer;" title="Tạo Nhóm">
-                    <img src="https://api.iconify.design/ri:group-line.svg?color=%2307c160" style="width:24px;">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMwN2MxNjAiIGQ9Ik0yIDIyYTggOCAwIDEgMSAxNiAwaC0yYTYgNiAwIDAgMC0xMiAwem04LTljLTMuMzE1IDAtNi0yLjY4NS02LTZzMi42ODUtNiA2LTZzNiAyLjY4NSA2IDZzLTIuNjg1IDYtNiA2bTAtMmMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNHMtNCAxLjc5LTQgNHMxLjc5IDQgNCA0bTguMjg0IDMuNzAzQTggOCAwIDAgMSAyMyAyMmgtMmE2IDYgMCAwIDAtMy41MzctNS40NzN6bS0uNjg4LTExLjI5QTUuNSA1LjUgMCAwIDEgMjEgOC41YTUuNSA1LjUgMCAwIDEtNSA1LjQ3OHYtMi4wMTNhMy41IDMuNSAwIDAgMCAxLjA0MS02LjYwOXoiLz48L3N2Zz4=" style="width:24px;">
                 </div>
             </div>
             <div style="flex:1; overflow-y:auto; padding:16px;">
@@ -290,17 +290,17 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
                 const memberNames = grp.members.map(id => ocs.find(o => o.id === id)?.name || 'Unknown').join(', ');
                 html += `
                 <div style="background:#fff; border-radius:12px; padding:16px; margin-bottom:12px; display:flex; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                    <img src="${grp.avatar}" onerror="this.src='https://api.iconify.design/ri:team-fill.svg?color=%23ccc'" style="width:50px; height:50px; border-radius:12px; object-fit:cover; margin-right:16px;">
+                    <img src="${grp.avatar}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNjY2MiIGQ9Ik0xMiAxMGE0IDQgMCAxIDAgMC04YTQgNCAwIDAgMCAwIDhtLTYuNSAzYTIuNSAyLjUgMCAxIDAgMC01YTIuNSAyLjUgMCAwIDAgMCA1TTIxIDEwLjVhMi41IDIuNSAwIDEgMS01IDBhMi41IDIuNSAwIDAgMSA1IDBtLTkgLjVhNSA1IDAgMCAxIDUgNXY2SDd2LTZhNSA1IDAgMCAxIDUtNW0tNyA1YzAtLjY5My4xLTEuMzYyLjI4OC0xLjk5NGwtLjE3LjAxNEEzLjUgMy41IDAgMCAwIDIgMTcuNVYyMmgzem0xNyA2di00LjVhMy41IDMuNSAwIDAgMC0zLjI4OC0zLjQ5NGMuMTg3LjYzMi4yODggMS4zMDEuMjg4IDEuOTk0djZ6Ii8+PC9zdmc+'" style="width:50px; height:50px; border-radius:12px; object-fit:cover; margin-right:16px;">
                     <div style="flex:1; overflow:hidden;">
                         <div style="font-weight:600; font-size:16px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(grp.name)} <span style="font-weight:normal; font-size:12px; color:#888;">(${grp.members.length})</span></div>
                         <div style="font-size:12px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Thành viên: ${escapeHtml(memberNames)}</div>
                     </div>
                     <div style="display:flex; gap:4px;">
                         <div class="btn-edit-grp" data-id="${grp.id}" style="padding:8px; color:#1890ff; cursor:pointer;">
-                            <img src="https://api.iconify.design/ri:edit-box-line.svg?color=%231890ff" style="width:22px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiMxODkwZmYiIGQ9Im0xNi43NTcgMi45OTdsLTIgMkg1djE0aDE0VjkuMjM5bDItMnYxMi43NThhMSAxIDAgMCAxLTEgMUg0YTEgMSAwIDAgMS0xLTF2LTE2YTEgMSAwIDAgMSAxLTF6bTMuNzI4LS45TDIxLjkgMy41MTFsLTkuMTkzIDkuMTkzbC0xLjQxMi4wMDJsLS4wMDItMS40MTZ6Ii8+PC9zdmc+" style="width:22px;">
                         </div>
                         <div class="btn-delete-grp" data-id="${grp.id}" style="padding:8px; color:#ff4d4f; cursor:pointer;">
-                            <img src="https://api.iconify.design/ri:delete-bin-line.svg?color=%23ff4d4f" style="width:22px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNmZjRkNGYiIGQ9Ik0xNyA2aDV2MmgtMnYxM2ExIDEgMCAwIDEtMSAxSDVhMSAxIDAgMCAxLTEtMVY4SDJWNmg1VjNhMSAxIDAgMCAxIDEtMWg4YTEgMSAwIDAgMSAxIDF6bTEgMkg2djEyaDEyem0tOSAzaDJ2Nkg5em00IDBoMnY2aC0yek05IDR2Mmg2VjR6Ii8+PC9zdmc+" style="width:22px;">
                         </div>
                     </div>
                 </div>`;
@@ -382,7 +382,7 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
         doc.getElementById('btn-cancel-grp').onclick = () => renderGroupManagerApp(container, doc);
         doc.getElementById('btn-save-grp').onclick = () => {
             const name = doc.getElementById('grp-name').value.trim();
-            const avatar = doc.getElementById('grp-avatar').value.trim() || 'https://api.iconify.design/ri:team-fill.svg?color=%23ccc';
+            const avatar = doc.getElementById('grp-avatar').value.trim() || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNjY2MiIGQ9Ik0xMiAxMGE0IDQgMCAxIDAgMC04YTQgNCAwIDAgMCAwIDhtLTYuNSAzYTIuNSAyLjUgMCAxIDAgMC01YTIuNSAyLjUgMCAwIDAgMCA1TTIxIDEwLjVhMi41IDIuNSAwIDEgMS01IDBhMi41IDIuNSAwIDAgMSA1IDBtLTkgLjVhNSA1IDAgMCAxIDUgNXY2SDd2LTZhNSA1IDAgMCAxIDUtNW0tNyA1YzAtLjY5My4xLTEuMzYyLjI4OC0xLjk5NGwtLjE3LjAxNEEzLjUgMy41IDAgMCAwIDIgMTcuNVYyMmgzem0xNyA2di00LjVhMy41IDMuNSAwIDAgMC0zLjI4OC0zLjQ5NGMuMTg3LjYzMi4yODggMS4zMDEuMjg4IDEuOTk0djZ6Ii8+PC9zdmc+';
             const selectedOCs = Array.from(doc.querySelectorAll('.grp-member-cb:checked')).map(cb => cb.value);
 
             if (!name) return window.parent.toastr?.warning('Vui lòng nhập tên nhóm!');
@@ -436,7 +436,7 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
         return `
             <div class="chat-list-item custom-grp-chat-item" data-grp-id="${group.id}">
                 <div class="chat-item-avatar" style="background:#f0f0f0;overflow:hidden; padding:2px;">
-                    <img src="${group.avatar}" onerror="this.src='https://api.iconify.design/ri:team-fill.svg?color=%23999'" style="width:100%;height:100%;object-fit:cover; border-radius:8px;" />
+                    <img src="${group.avatar}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM5OTkiIGQ9Ik0xMiAxMGE0IDQgMCAxIDAgMC04YTQgNCAwIDAgMCAwIDhtLTYuNSAzYTIuNSAyLjUgMCAxIDAgMC01YTIuNSAyLjUgMCAwIDAgMCA1TTIxIDEwLjVhMi41IDIuNSAwIDEgMS01IDBhMi41IDIuNSAwIDAgMSA1IDBtLTkgLjVhNSA1IDAgMCAxIDUgNXY2SDd2LTZhNSA1IDAgMCAxIDUtNW0tNyA1YzAtLjY5My4xLTEuMzYyLjI4OC0xLjk5NGwtLjE3LjAxNEEzLjUgMy41IDAgMCAwIDIgMTcuNVYyMmgzem0xNyA2di00LjVhMy41IDMuNSAwIDAgMC0zLjI4OC0zLjQ5NGMuMTg3LjYzMi4yODggMS4zMDEuMjg4IDEuOTk0djZ6Ii8+PC9zdmc+'" style="width:100%;height:100%;object-fit:cover; border-radius:8px;" />
                 </div>
                 <div class="chat-item-content">
                     <div class="chat-item-top">
@@ -510,7 +510,7 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
                 if (personaAvatar) return cachedUserAvatarPath = personaAvatar;
             }
         } catch (e) {}
-        return 'https://api.iconify.design/ri:user-3-fill.svg?color=%23999';
+        return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM5OTkiIGQ9Ik0yMCAyMkg0di0yYTUgNSAwIDAgMSA1LTVoNmE1IDUgMCAwIDEgNSA1em0tOC05YTYgNiAwIDEgMSAwLTEyYTYgNiAwIDAgMSAwIDEyIi8+PC9zdmc+';
     }
 
     function openGroupChatRoom(doc, group) {
@@ -527,15 +527,15 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
             <div class="chat-app" id="grp-chat-app-container" style="position:relative;">
                 <div class="chat-room-header">
                     <button class="chat-room-back" id="grp-btn-back">
-                        <img src="https://api.iconify.design/ri:arrow-left-s-line.svg" style="width:28px;height:28px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0ibTEwLjgyOCAxMmw0Ljk1IDQuOTVsLTEuNDE0IDEuNDE1TDggMTJsNi4zNjQtNi4zNjRsMS40MTQgMS40MTR6Ii8+PC9zdmc+" style="width:28px;height:28px;">
                     </button>
                     <div class="chat-room-title">${escapeHtml(group.name)} <span style="font-weight:normal;font-size:12px;color:#666;">(${group.members.length})</span></div>
                     <div class="chat-room-actions" style="display:flex;">
                         <button class="chat-room-btn" id="grp-btn-settings" title="Cài đặt Nhóm & AI">
-                            <img src="https://api.iconify.design/ri:settings-3-line.svg?color=%23666" style="width:20px;height:20px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM2NjYiIGQ9Ik0zLjM0IDE3YTEwIDEwIDAgMCAxLS45NzktMi4zMjZhMyAzIDAgMCAwIC4wMDMtNS4zNDdhMTAgMTAgMCAwIDEgMi41LTQuMzM3YTMgMyAwIDAgMCA0LjYzMi0yLjY3NGExMCAxMCAwIDAgMSA1LjAwNy4wMDNhMyAzIDAgMCAwIDQuNjMyIDIuNjcxYTEwLjA2IDEwLjA2IDAgMCAxIDIuNTAzIDQuMzM2YTMgMyAwIDAgMC0uMDAyIDUuMzQ3YTEwIDEwIDAgMCAxLTIuNTAxIDQuMzM3YTMgMyAwIDAgMC00LjYzMiAyLjY3NGExMCAxMCAwIDAgMS01LjAwNy0uMDAyYTMgMyAwIDAgMC00LjYzMS0yLjY3MkExMCAxMCAwIDAgMSAzLjMzOSAxN201LjY2LjE5NmE1IDUgMCAwIDEgMi4yNSAyLjc3cS43NS4wNyAxLjQ5OS4wMDJhNSA1IDAgMCAxIDIuMjUtMi43NzJhNSA1IDAgMCAxIDMuNTI2LS41NjRxLjQzNS0uNjE0Ljc0OC0xLjI5OEE1IDUgMCAwIDEgMTggMTJjMC0xLjI2LjQ3LTIuNDM3IDEuMjczLTMuMzM0YTggOCAwIDAgMC0uNzUtMS4yOThBNSA1IDAgMCAxIDE1IDYuODA0YTUgNSAwIDAgMS0yLjI1LTIuNzdxLS43NS0uMDcxLTEuNS0uMDAxQTUgNSAwIDAgMSA5IDYuODA0YTUgNSAwIDAgMS0zLjUyNi41NjRxLS40MzYuNjE0LS43NDcgMS4yOThBNSA1IDAgMCAxIDYgMTJjMCAxLjI2LS40NzEgMi40MzctMS4yNzMgMy4zMzRhOCA4IDAgMCAwIC43NSAxLjI5OEE1IDUgMCAwIDEgOSAxNy4xOTZNMTIgMTVhMyAzIDAgMSAxIDAtNmEzIDMgMCAwIDEgMCA2bTAtMmExIDEgMCAxIDAgMC0yYTEgMSAwIDAgMCAwIDIiLz48L3N2Zz4=" style="width:20px;height:20px;">
                         </button>
                         <button class="chat-room-btn" id="grp-btn-clear" title="Xóa lịch sử">
-                            <img src="https://api.iconify.design/ri:delete-bin-line.svg?color=%23666" style="width:20px;height:20px;">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiM2NjYiIGQ9Ik0xNyA2aDV2MmgtMnYxM2ExIDEgMCAwIDEtMSAxSDVhMSAxIDAgMCAxLTEtMVY4SDJWNmg1VjNhMSAxIDAgMCAxIDEtMWg4YTEgMSAwIDAgMSAxIDF6bTEgMkg2djEyaDEyem0tOSAzaDJ2Nkg5em00IDBoMnY2aC0yek05IDR2Mmg2VjR6Ii8+PC9zdmc+" style="width:20px;height:20px;">
                         </button>
                     </div>
                 </div>
@@ -604,7 +604,7 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
         } else {
             container.innerHTML = messages.map(msg => {
                 const isUser = msg.senderId === 'user';
-                let avatarUrl = 'https://api.iconify.design/ri:user-smile-fill.svg?color=%23ccc';
+                let avatarUrl = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNjY2MiIGQ9Ik0xMiAyMkM2LjQ3NyAyMiAyIDE3LjUyMyAyIDEyUzYuNDc3IDIgMTIgMnMxMCA0LjQ3NyAxMCAxMHMtNC40NzcgMTAtMTAgMTBNNyAxMmE1IDUgMCAwIDAgMTAgMGgtMmEzIDMgMCAxIDEtNiAweiIvPjwvc3ZnPg==';
                 let senderNameDisplay = '';
                 
                 if (isUser) {
@@ -626,7 +626,7 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
                             ${!isUser ? senderNameDisplay : ''}
                             <div class="msg-bubble">${escapeHtml(msg.content)}</div>
                             <div class="msg-retract-btn" data-msg-id="${msg.id}" style="cursor:pointer; position:absolute; ${isUser ? 'top:4px; left:-18px;' : 'top:18px; right:-18px;'} opacity:0.4;">
-                                <img src="https://api.iconify.design/ri:delete-back-2-line.svg" style="width:12px;">
+                                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTYuNTM1IDNoMTQuNDY0YTEgMSAwIDAgMSAxIDF2MTZhMSAxIDAgMCAxLTEgMUg2LjUzNWExIDEgMCAwIDEtLjgzMy0uNDQ1bC01LjMzMy04YTEgMSAwIDAgMSAwLTEuMTFsNS4zMzMtOEExIDEgMCAwIDEgNi41MzUgM20uNTM1IDJsLTQuNjY3IDdsNC42NjcgN0gyMFY1ek0xMyAxMC41ODZsMi44MjgtMi44MjlsMS40MTQgMS40MTVMMTQuNDE0IDEybDIuODI4IDIuODI4bC0xLjQxNCAxLjQxNWwtMi44MjktMi44MjlsLTIuODI4IDIuODI5bC0xLjQxNC0xLjQxNUwxMS41ODUgMTJMOC43NTcgOS4xNzJsMS40MTQtMS40MTV6Ii8+PC9zdmc+" style="width:12px;">
                             </div>
                         </div>
                     </div>
@@ -838,7 +838,7 @@ HÃY ĐÓNG VAI VÀ VIẾT TIN NHẮN ĐÁP TRẢ:
         PhoneSystem.registerApp({
             id: 'group_manager',
             name: 'Tạo Nhóm WeChat',
-            icon: '<img src="https://api.iconify.design/ri:group-fill.svg?color=white" style="width:65%;height:65%;">',
+            icon: '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMiAyMmE4IDggMCAxIDEgMTYgMHptOC05Yy0zLjMxNSAwLTYtMi42ODUtNi02czIuNjg1LTYgNi02czYgMi42ODUgNiA2cy0yLjY4NSA2LTYgNm03LjM2MyAyLjIzM0E3LjUwNSA3LjUwNSAwIDAgMSAyMi45ODMgMjJIMjBjMC0yLjYxLTEtNC45ODYtMi42MzctNi43NjdtLTIuMDIzLTIuMjc2QTcuOTggNy45OCAwIDAgMCAxOCA3YTcuOTYgNy45NiAwIDAgMC0xLjAxNS0zLjkwM0E1IDUgMCAwIDEgMjEgOGE1IDUgMCAwIDEtNS42NiA0Ljk1NyIvPjwvc3ZnPg==" style="width:65%;height:65%;">',
             color: 'linear-gradient(135deg, #1890ff, #096dd9)',
             order: 5
         });

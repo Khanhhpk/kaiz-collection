@@ -3965,12 +3965,20 @@ Hãy giúp tôi viết mã JSON chuẩn cho file chuyển động hoạt ảnh (
         };
 
         try {
+            const loadWithFallback = async (localPath, cdnUrl) => {
+                try {
+                    return await loadScript(localPath);
+                } catch (e) {
+                    console.warn('[Vtuber] Thử nạp CDN dự phòng:', cdnUrl);
+                    return await loadScript(cdnUrl);
+                }
+            };
             await Promise.all([
-                loadScript('https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.12/pixi.min.js'),
-                loadScript('https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js'),
-                loadScript('https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js')
+                loadWithFallback('/scripts/extensions/third-party/kaiz-collection/assets/libs/live2d/pixi.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.12/pixi.min.js'),
+                loadWithFallback('/scripts/extensions/third-party/kaiz-collection/assets/libs/live2d/live2d.min.js', 'https://cdn.jsdelivr.net/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js'),
+                loadWithFallback('/scripts/extensions/third-party/kaiz-collection/assets/libs/live2d/live2dcubismcore.min.js', 'https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js')
             ]);
-            await loadScript('https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/index.min.js');
+            await loadWithFallback('/scripts/extensions/third-party/kaiz-collection/assets/libs/live2d/pixi-live2d-display.min.js', 'https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/index.min.js');
         } catch (error) { throw error; }
     }
 

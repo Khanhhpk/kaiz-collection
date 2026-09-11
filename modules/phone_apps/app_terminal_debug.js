@@ -14,7 +14,7 @@
     // ==================== Cấu hình APP ====================
     const APP_ID = 'debugger';
     const APP_NAME = 'Terminal gỡ lỗi';
-    const APP_ICON = '<img src="https://api.iconify.design/ri:bug-fill.svg?color=white" style="width:70%;height:70%">';
+    const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNNi4wNTYgOC4zYTcgNyAwIDAgMSAuMTk5LS4zaDExLjQ5cS4xMDMuMTQ4LjE5OS4zbDIuMDItMS4xNjZsMSAxLjczMmwtMi4yMTMgMS4yNzhjLjE2Mi41OS4yNDkgMS4yMTMuMjQ5IDEuODU2djFoM3YyaC0zYTcgNyAwIDAgMS0uNTM2IDIuNjlsMi41IDEuNDQ0bC0xIDEuNzMybC0yLjUyNi0xLjQ1OEE3IDcgMCAwIDEgMTMgMjEuOTI5VjE0aC0ydjcuOTNhNyA3IDAgMCAxLTQuNDM4LTIuNTIybC0yLjUyNiAxLjQ1OGwtMS0xLjczMmwyLjUtMS40NDNBNyA3IDAgMCAxIDUgMTVIMnYtMmgzdi0xYzAtLjY0My4wODctMS4yNjUuMjQ5LTEuODU2TDMuMDM2IDguODY2bDEtMS43MzJ6TTggNmE0IDQgMCAxIDEgOCAweiIvPjwvc3ZnPg==" style="width:70%;height:70%">';
     const APP_COLOR = 'linear-gradient(135deg, #2d3436, #000000)';
 
     // ==================== Lưu trữ dữ liệu ====================

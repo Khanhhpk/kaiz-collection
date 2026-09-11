@@ -24,7 +24,7 @@
         // ============ Cấu hình APP ============
         const APP_ID = 'world-map';
         const APP_NAME = 'Bản đồ thế giới';
-        const APP_ICON = '<img src="https://api.iconify.design/ri:earth-fill.svg?color=white" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTIgMmM1LjUyMyAwIDEwIDQuNDc3IDEwIDEwcy00LjQ3NyAxMC0xMCAxMFMyIDE3LjUyMyAyIDEyUzYuNDc3IDIgMTIgMm00LjAwNCAxMC44NzhjLS4zNDUtLjUyNS0uNTk0LS45MDMtMS41NDItLjc1M2MtMS43OS4yODQtMS45ODkuNTk3LTIuMDc0IDEuMTEzbC0uMDI0LjE1NmwtLjAyNS4xNjZjLS4wOTcuNjgzLS4wOTQuOTQxLjIyIDEuMjdjMS4yNjUgMS4zMjggMi4wMjMgMi4yODUgMi4yNTMgMi44NDVjLjExMi4yNzMuNCAxLjEuMjAyIDEuOTE4YTguMiA4LjIgMCAwIDAgMy4xNTEtMi4yMzdjLjExLS4zNzQuMTktLjg0LjE5LTEuNDA0di0uMTA1YzAtLjkyMiAwLTEuMzQzLS42NTItMS43MTZhNyA3IDAgMCAwLS42NDUtLjMyNWMtLjM2Ny0uMTY3LS42MS0uMjc2LS45MzgtLjc1NnEtLjA2LS4wODUtLjExNi0uMTcyTTEyIDMuODMzYy0yLjMxNyAwLTQuNDEuOTY2LTUuODk2IDIuNTE2Yy4xNzcuMTIzLjMzMS4yOTYuNDM3LjUzNGMuMjA0LjQ1Ny4yMDQuOTI4LjIwNCAxLjM0NWMwIC4zMjggMCAuNjQuMTA1Ljg2NWMuMTQ0LjMwOC43NjYuNDQgMS4zMTUuNTU0Yy4xOTcuMDQyLjM5OS4wODQuNTgzLjEzNWMuNTA2LjE0Ljg5OC41OTUgMS4yMTEuOTZjLjEzLjE1MS4zMjMuMzc0LjQyLjQzYy4wNS0uMDM2LjIxMS0uMjExLjI5LS40OThjLjA2Mi0uMjIuMDQ0LS40MTQtLjA0NS0uNTJjLS41Ni0uNjYtLjUyOS0xLjkzLS4zNTYtMi4zOTljLjI3Mi0uNzM5IDEuMTIyLS42ODQgMS43NDQtLjY0NGMuMjMyLjAxNS40NS4wMy42MTQuMDA5Yy42MjItLjA3OC44MTQtMS4wMjUuOTQ5LTEuMjFjLjI5Mi0uNCAxLjE4Ni0xLjAwMyAxLjc0LTEuMzc1QTguMSA4LjEgMCAwIDAgMTIgMy44MzMiLz48L3N2Zz4=" style="width:70%;height:70%">';
         const APP_COLOR = 'linear-gradient(135deg, #1e88e5, #43a047)';
 
         // ============ Biến Trạng_thái ============
@@ -62,6 +62,9 @@
                             <div id="worldmap-coords" style="font-size:12px;color:#666">Kinh độ và vĩ độ</div>
                         </div>
                         <div style="display:flex;gap:8px">
+                            <button id="worldmap-companion-btn" style="flex:1;padding:10px;background:#1e88e5;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer">
+                                👥 Chọn người đi cùng
+                            </button>
                             <button id="worldmap-go-btn" style="flex:1;padding:10px;background:#43a047;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer">
                                 ✈️ Xuất phát du lịch
                             </button>
@@ -97,13 +100,21 @@
             const css = iframeDoc.createElement('link');
             css.id = 'leaflet-css';
             css.rel = 'stylesheet';
-            css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            css.href = '/scripts/extensions/third-party/kaiz-collection/assets/libs/leaflet/leaflet.css';
+            css.onerror = () => { css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; };
             iframeDoc.head.appendChild(css);
 
             // Tải JS
             const script = iframeDoc.createElement('script');
             script.id = 'leaflet-js';
-            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.src = '/scripts/extensions/third-party/kaiz-collection/assets/libs/leaflet/leaflet.js';
+            script.onerror = () => {
+                console.warn('[WorldMap] Không tải được local leaflet.js, dùng CDN dự phòng');
+                const cdnS = iframeDoc.createElement('script');
+                cdnS.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                cdnS.onload = callback;
+                iframeDoc.head.appendChild(cdnS);
+            };
             script.onload = callback;
             iframeDoc.head.appendChild(script);
         }
@@ -126,14 +137,50 @@
                 return;
             }
 
+            // Cấu hình đường dẫn marker icon Leaflet chuẩn xác từ local assets
+            try {
+                if (L.Icon && L.Icon.Default) {
+                    delete L.Icon.Default.prototype._getIconUrl;
+                    L.Icon.Default.mergeOptions({
+                        iconRetinaUrl: '/scripts/extensions/third-party/kaiz-collection/assets/libs/leaflet/images/marker-icon-2x.png',
+                        iconUrl: '/scripts/extensions/third-party/kaiz-collection/assets/libs/leaflet/images/marker-icon.png',
+                        shadowUrl: '/scripts/extensions/third-party/kaiz-collection/assets/libs/leaflet/images/marker-shadow.png',
+                    });
+                }
+            } catch (e) {}
+
             mapInstance = L.map('leaflet-map', {
                 zoomControl: false
-            }).setView([39.9042, 116.4074], 5); // Mặc định Bắc Kinh
+            }).setView([16.0544, 108.2022], 5); // Tọa độ trung tâm Việt Nam / Đông Nam Á
 
-            // Thêm layer OpenStreetMap
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(mapInstance);
+            // Layer chính: CARTO Voyager (Hiện đại, mượt mà, công khai, 100% không bị chặn 403 OSM Policy)
+            const streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
+            });
+
+            // Layer vệ tinh: Esri World Imagery
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri',
+                maxZoom: 19
+            });
+
+            // Layer địa hình: OpenTopoMap
+            const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map &copy; OpenTopoMap',
+                maxZoom: 17
+            });
+
+            streetLayer.addTo(mapInstance);
+
+            // Thêm bộ chọn chuyển đổi giao diện bản đồ ở góc trên bên phải
+            const baseLayers = {
+                "🗺️ Đường phố": streetLayer,
+                "🛰️ Vệ tinh": satelliteLayer,
+                "🏔️ Địa hình": topoLayer
+            };
+            L.control.layers(baseLayers, null, { position: 'topright' }).addTo(mapInstance);
 
             // Thêm nút điều khiển thu phóng vào góc dưới bên phải
             L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
@@ -175,31 +222,71 @@
             mapInstance.setView([lat, lng], Math.max(mapInstance.getZoom(), 10));
         }
 
-        // ============ Tìm kiếm địa điểm (Nominatim API) ============
+        // ============ Tìm kiếm địa điểm (Open-Meteo & Photon API đa ngôn ngữ) ============
         async function searchLocation(query, iframeDoc, iframeWindow) {
             const resultsDiv = iframeDoc.getElementById('worldmap-search-results');
             if (!resultsDiv) return;
 
-            resultsDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#666">Đang tìm kiếm...</div>';
+            if (!query || !query.trim()) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            resultsDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#666">🔍 Đang tìm kiếm địa điểm...</div>';
             resultsDiv.style.display = 'block';
 
             try {
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`,
-                    { headers: { 'Accept-Language': 'zh-CN,zh,en' } }
-                );
-                const data = await response.json();
+                let list = [];
 
-                if (data.length === 0) {
-                    resultsDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#999">Không tìm thấy kết quả</div>';
+                // 1. Thử Open-Meteo Geocoding API (hỗ trợ tiếng Việt tự nhiên, phản hồi dưới 2ms, không bị chặn)
+                try {
+                    const omRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query.trim())}&count=6&language=vi&format=json`);
+                    if (omRes.ok) {
+                        const omData = await omRes.json();
+                        if (omData.results && omData.results.length > 0) {
+                            list = omData.results.map(r => ({
+                                name: r.name,
+                                fullName: [r.name, r.admin1, r.country].filter(Boolean).join(', '),
+                                lat: r.latitude,
+                                lng: r.longitude
+                            }));
+                        }
+                    }
+                } catch (e) {}
+
+                // 2. Dự phòng qua Photon Geocoding (dữ liệu OSM toàn cầu mở, không bị chặn User-Agent/Policy)
+                if (list.length === 0) {
+                    try {
+                        const ptRes = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query.trim())}&limit=6`);
+                        if (ptRes.ok) {
+                            const ptData = await ptRes.json();
+                            if (ptData.features && ptData.features.length > 0) {
+                                list = ptData.features.map(f => {
+                                    const p = f.properties || {};
+                                    const name = p.name || p.city || 'Địa điểm';
+                                    const fullName = [p.name, p.district, p.city, p.state, p.country].filter((v, i, a) => v && a.indexOf(v) === i).join(', ');
+                                    return {
+                                        name: name,
+                                        fullName: fullName,
+                                        lat: f.geometry.coordinates[1],
+                                        lng: f.geometry.coordinates[0]
+                                    };
+                                });
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                if (list.length === 0) {
+                    resultsDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#999">Không tìm thấy kết quả phù hợp</div>';
                     return;
                 }
 
-                resultsDiv.innerHTML = data.map(item => `
-                    <div class="search-result-item" data-lat="${item.lat}" data-lng="${item.lon}" data-name="${item.display_name.split(',')[0]}" 
+                resultsDiv.innerHTML = list.map(item => `
+                    <div class="search-result-item" data-lat="${item.lat}" data-lng="${item.lng}" data-name="${item.name.replace(/"/g, '&quot;')}" 
                          style="padding:10px 12px;border-bottom:1px solid #eee;cursor:pointer;font-size:13px">
-                        <div style="font-weight:500;color:#333">${item.display_name.split(',')[0]}</div>
-                        <div style="font-size:11px;color:#999;margin-top:2px">${item.display_name}</div>
+                        <div style="font-weight:500;color:#1e88e5">📍 ${item.name}</div>
+                        <div style="font-size:11px;color:#64748b;margin-top:2px">${item.fullName}</div>
                     </div>
                 `).join('');
 
@@ -217,7 +304,7 @@
 
             } catch (e) {
                 console.error('[Bản đồ thế giới] Tìm kiếm thất bại:', e);
-                resultsDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#e53935">Tìm kiếm thất bại, vui lòng thử lại</div>';
+                resultsDiv.innerHTML = '<div style="padding:12px;text-align:center;color:#e53935">Tìm kiếm thất bại, vui lòng thử lại sau</div>';
             }
         }
 

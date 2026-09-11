@@ -21,7 +21,7 @@
 
         const APP_ID = 'livestream';
         const APP_NAME = 'StreamLive';
-        const APP_ICON = '<img src="https://api.iconify.design/ri:live-fill.svg?color=white" style="width:70%;height:70%">';
+        const APP_ICON = '<img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTYgNGExIDEgMCAwIDEgMSAxdjQuMmw1LjIxMy0zLjY1YS41LjUgMCAwIDEgLjc4Ny40MXYxMi4wOGEuNS41IDAgMCAxLS43ODcuNDFMMTcgMTQuOFYxOWExIDEgMCAwIDEtMSAxSDJhMSAxIDAgMCAxLTEtMVY1YTEgMSAwIDAgMSAxLTF6TTcuNCA4LjgyOWEuNC40IDAgMCAwLS4zOTIuMzJMNyA5LjIyOHY1LjU0MmEuNC40IDAgMCAwIC41NDIuMzc0bC4wNzMtLjAzNmw0LjM1NS0yLjc3MWEuNC40IDAgMCAwIC4wNjMtLjYyNWwtLjA2My0uMDVMNy42MTUgOC44OWEuNC40IDAgMCAwLS4yMTUtLjA2Ii8+PC9zdmc+" style="width:70%;height:70%">';
         const APP_COLOR = 'linear-gradient(135deg, #ff0050, #00f2fe)'; 
 
         // ============ Cấu trúc Jailbreak ============
@@ -312,17 +312,17 @@ TRẢ VỀ JSON: {"host_action": "...", "viewers_chat": [{"user": "...", "msg": 
             <div id="ls-app">
                 <div id="ls-view-feed" class="ls-fade-in" style="display:flex; flex-direction:column; height:100%;">
                     <div class="ls-header ls-safe-header">
-                        <div class="ls-icon-btn" id="ls-btn-exit-app" title="Thoát"><img src="https://api.iconify.design/ri:arrow-left-s-line.svg?color=white" style="width:24px;"></div>
+                        <div class="ls-icon-btn" id="ls-btn-exit-app" title="Thoát"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtMTAuODI4IDEybDQuOTUgNC45NWwtMS40MTQgMS40MTVMOCAxMmw2LjM2NC02LjM2NGwxLjQxNCAxLjQxNHoiLz48L3N2Zz4=" style="width:24px;"></div>
                         <div class="ls-title" style="flex:1;">StreamLive</div>
                         <div class="ls-header-actions">
-                            <div class="ls-icon-btn" id="ls-btn-refresh"><img src="https://api.iconify.design/ri:refresh-line.svg?color=white" style="width:18px;"></div>
-                            <div class="ls-icon-btn" id="ls-btn-play-bj" title="Blackjack"><img src="https://api.iconify.design/ri:gamepad-fill.svg?color=white" style="width:18px;"></div>
-                            <div class="ls-icon-btn" id="ls-btn-play-rl" title="Vòng Quay"><img src="https://api.iconify.design/ri:money-cny-circle-fill.svg?color=white" style="width:18px;"></div>
+                            <div class="ls-icon-btn" id="ls-btn-refresh"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNNS40NjMgNC40MzNBOS45NiA5Ljk2IDAgMCAxIDEyIDJjNS41MjMgMCAxMCA0LjQ3NyAxMCAxMGMwIDIuMTM2LS42NyA0LjExNi0xLjgxIDUuNzRMMTcgMTJoM0E4IDggMCAwIDAgNi40NiA2LjIyOHptMTMuMDc0IDE1LjEzNEE5Ljk2IDkuOTYgMCAwIDEgMTIgMjJDNi40NzcgMjIgMiAxNy41MjMgMiAxMmMwLTIuMTM2LjY3LTQuMTE2IDEuODEtNS43NEw3IDEySDRhOCA4IDAgMCAwIDEzLjU0IDUuNzcyeiIvPjwvc3ZnPg==" style="width:18px;"></div>
+                            <div class="ls-icon-btn" id="ls-btn-play-bj" title="Blackjack"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTcgNGE2IDYgMCAwIDEgNiA2djRhNiA2IDAgMCAxLTYgNkg3YTYgNiAwIDAgMS02LTZ2LTRhNiA2IDAgMCAxIDYtNnptLTcgNUg4djJINnYyaDEuOTk5TDggMTVoMmwtLjAwMS0ySDEydi0yaC0yem04IDRoLTJ2Mmgyem0tMi00aC0ydjJoMnoiLz48L3N2Zz4=" style="width:18px;"></div>
+                            <div class="ls-icon-btn" id="ls-btn-play-rl" title="Vòng Quay"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTIuMDA1IDIyLjAwM2MtNS41MjMgMC0xMC00LjQ3Ny0xMC0xMHM0LjQ3Ny0xMCAxMC0xMHMxMCA0LjQ3NyAxMCAxMHMtNC40NzcgMTAtMTAgMTBtMS05di0xaDN2LTJoLTIuNTg2TDE1LjU0IDcuODhsLTEuNDE0LTEuNDE0bC0yLjEyMSAyLjEyMmwtMi4xMjEtMi4xMjJMOC40NjkgNy44OGwyLjEyMiAyLjEyMkg4LjAwNXYyaDN2MWgtM3YyaDN2Mmgydi0yaDN2LTJ6Ii8+PC9zdmc+" style="width:18px;"></div>
                         </div>
                     </div>
                     <div style="padding:10px; display:flex; justify-content:center;">
                         <div class="ls-coins" id="ls-btn-cheat" style="cursor:pointer;" title="Nạp VIP Thần Hào">
-                            <img src="https://api.iconify.design/ri:coin-fill.svg?color=%23ffd700"> <span id="ls-my-coins">50000</span> xu
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNmZmQ3MDAiIGQ9Ik0yMy4wMDUgMTIuMDAzdjJjMCAzLjMxNC00LjkyNSA2LTExIDZjLTUuOTY3IDAtMTAuODI0LTIuNTkxLTEwLjk5NS01LjgyM2wtLjAwNS0uMTc3di0yYzAgMy4zMTMgNC45MjUgNiAxMSA2czExLTIuNjg3IDExLTZtLTExLThjNi4wNzUgMCAxMSAyLjY4NiAxMSA2cy00LjkyNSA2LTExIDZzLTExLTIuNjg3LTExLTZzNC45MjUtNiAxMS02Ii8+PC9zdmc+"> <span id="ls-my-coins">50000</span> xu
                         </div>
                     </div>
                     <div class="ls-feed" id="ls-feed-container"></div>
@@ -338,7 +338,7 @@ TRẢ VỀ JSON: {"host_action": "...", "viewers_chat": [{"user": "...", "msg": 
                                     <div style="font-size:10px; color:#ccc;" id="ls-room-viewers">1.2K viewers</div>
                                 </div>
                             </div>
-                            <div class="ls-close-btn" id="ls-btn-close-room"><img src="https://api.iconify.design/ri:close-line.svg?color=white" style="width:24px;"></div>
+                            <div class="ls-close-btn" id="ls-btn-close-room"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtMTIgMTAuNTg3bDQuOTUtNC45NWwxLjQxNCAxLjQxNGwtNC45NSA0Ljk1bDQuOTUgNC45NWwtMS40MTUgMS40MTRsLTQuOTUtNC45NWwtNC45NDkgNC45NWwtMS40MTQtMS40MTVsNC45NS00Ljk1bC00Ljk1LTQuOTVMNy4wNSA1LjYzOHoiLz48L3N2Zz4=" style="width:24px;"></div>
                         </div>
                         <div class="ls-host-desc" id="ls-room-action">Đang kết nối tới phòng live...</div>
                         <div class="ls-chat-area" id="ls-room-chat"></div>
@@ -346,24 +346,24 @@ TRẢ VỀ JSON: {"host_action": "...", "viewers_chat": [{"user": "...", "msg": 
                     </div>
                     <div class="ls-bottom-bar">
                         <input type="text" class="ls-input" id="ls-input-chat" placeholder="Trò chuyện..." autocomplete="off">
-                        <div class="ls-action-btn" id="ls-btn-send-chat"><img src="https://api.iconify.design/ri:send-plane-fill.svg?color=white" style="width:18px;"></div>
-                        <div class="ls-action-btn ls-gift-btn" id="ls-btn-open-gift"><img src="https://api.iconify.design/ri:gift-fill.svg?color=white" style="width:20px;"></div>
+                        <div class="ls-action-btn" id="ls-btn-send-chat"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMS45NDYgOS4zMTVjLS41MjItLjE3NC0uNTI3LS40NTUuMDEtLjYzNEwyMS4wNDQgMi4zMmMuNTI5LS4xNzYuODMyLjEyLjY4NC42MzhsLTUuNDU0IDE5LjA4NmMtLjE1LjUyOS0uNDU1LjU0Ny0uNjc5LjA0NUwxMiAxNGw2LThsLTggNnoiLz48L3N2Zz4=" style="width:18px;"></div>
+                        <div class="ls-action-btn ls-gift-btn" id="ls-btn-open-gift"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJNMTUuMDA1IDIuMDAzYTQgNCAwIDAgMSAzLjQ2NCA2aDQuNTM2djJoLTJ2MTBhMSAxIDAgMCAxLTEgMWgtMTZhMSAxIDAgMCAxLTEtMXYtMTBoLTJ2LTJINS41NGE0IDQgMCAwIDEgNi40NjUtNC42NDZhMy45OCAzLjk4IDAgMCAxIDIuOTk5LTEuMzU0bS0yIDhoLTJ2MTBoMnptLTQtNmEyIDIgMCAwIDAtLjE1IDMuOTk0bC4xNS4wMDZoMnYtMmEyIDIgMCAwIDAtMS42OTctMS45NzdsLS4xNTQtLjAxOHptNiAwYTIgMiAwIDAgMC0xLjk5NSAxLjg1bC0uMDA1LjE1djJoMmEyIDIgMCAwIDAgMS45OTQtMS44NWwuMDA2LS4xNWEyIDIgMCAwIDAtMi0yIi8+PC9zdmc+" style="width:20px;"></div>
                     </div>
                 </div>
 
                 <div class="ls-gift-panel" id="ls-gift-panel">
                     <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:10px;">
                         <div style="font-weight:bold; font-size:16px;">Tặng Quà</div>
-                        <div class="ls-coins"><img src="https://api.iconify.design/ri:coin-fill.svg?color=%23ffd700"> <span id="ls-panel-coins">0</span></div>
+                        <div class="ls-coins"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNmZmQ3MDAiIGQ9Ik0yMy4wMDUgMTIuMDAzdjJjMCAzLjMxNC00LjkyNSA2LTExIDZjLTUuOTY3IDAtMTAuODI0LTIuNTkxLTEwLjk5NS01LjgyM2wtLjAwNS0uMTc3di0yYzAgMy4zMTMgNC45MjUgNiAxMSA2czExLTIuNjg3IDExLTZtLTExLThjNi4wNzUgMCAxMSAyLjY4NiAxMSA2cy00LjkyNSA2LTExIDZzLTExLTIuNjg3LTExLTZzNC45MjUtNiAxMS02Ii8+PC9zdmc+"> <span id="ls-panel-coins">0</span></div>
                     </div>
                     <div class="ls-gift-grid" id="ls-gift-grid"></div>
                 </div>
 
                 <div id="ls-view-blackjack" class="ls-fade-in ls-safe-header">
                     <div class="casino-header">
-                        <div class="ls-icon-btn" id="ls-btn-close-bj" style="margin-right:15px;"><img src="https://api.iconify.design/ri:arrow-left-s-line.svg?color=white" style="width:24px;"></div>
+                        <div class="ls-icon-btn" id="ls-btn-close-bj" style="margin-right:15px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtMTAuODI4IDEybDQuOTUgNC45NWwtMS40MTQgMS40MTVMOCAxMmw2LjM2NC02LjM2NGwxLjQxNCAxLjQxNHoiLz48L3N2Zz4=" style="width:24px;"></div>
                         <div style="flex:1; font-weight:bold; font-size:18px; color:#fff;">Xì Dách</div>
-                        <div class="ls-coins"><img src="https://api.iconify.design/ri:coin-fill.svg?color=%23ffd700"> <span id="ls-bj-coins">0</span></div>
+                        <div class="ls-coins"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNmZmQ3MDAiIGQ9Ik0yMy4wMDUgMTIuMDAzdjJjMCAzLjMxNC00LjkyNSA2LTExIDZjLTUuOTY3IDAtMTAuODI0LTIuNTkxLTEwLjk5NS01LjgyM2wtLjAwNS0uMTc3di0yYzAgMy4zMTMgNC45MjUgNiAxMSA2czExLTIuNjg3IDExLTZtLTExLThjNi4wNzUgMCAxMSAyLjY4NiAxMSA2cy00LjkyNSA2LTExIDZzLTExLTIuNjg3LTExLTZzNC45MjUtNiAxMS02Ii8+PC9zdmc+"> <span id="ls-bj-coins">0</span></div>
                     </div>
                     <div class="bj-board">
                         <div class="bj-hand-area">
@@ -390,9 +390,9 @@ TRẢ VỀ JSON: {"host_action": "...", "viewers_chat": [{"user": "...", "msg": 
 
                 <div id="ls-view-roulette" class="ls-fade-in ls-safe-header">
                     <div class="casino-header">
-                        <div class="ls-icon-btn" id="ls-btn-close-rl" style="margin-right:15px;"><img src="https://api.iconify.design/ri:arrow-left-s-line.svg?color=white" style="width:24px;"></div>
+                        <div class="ls-icon-btn" id="ls-btn-close-rl" style="margin-right:15px;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtMTAuODI4IDEybDQuOTUgNC45NWwtMS40MTQgMS40MTVMOCAxMmw2LjM2NC02LjM2NGwxLjQxNCAxLjQxNHoiLz48L3N2Zz4=" style="width:24px;"></div>
                         <div style="flex:1; font-weight:bold; font-size:18px; color:#fff;">Vòng Xoay Bi</div>
-                        <div class="ls-coins"><img src="https://api.iconify.design/ri:coin-fill.svg?color=%23ffd700"> <span id="ls-rl-coins">0</span></div>
+                        <div class="ls-coins"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNmZmQ3MDAiIGQ9Ik0yMy4wMDUgMTIuMDAzdjJjMCAzLjMxNC00LjkyNSA2LTExIDZjLTUuOTY3IDAtMTAuODI0LTIuNTkxLTEwLjk5NS01LjgyM2wtLjAwNS0uMTc3di0yYzAgMy4zMTMgNC45MjUgNiAxMSA2czExLTIuNjg3IDExLTZtLTExLThjNi4wNzUgMCAxMSAyLjY4NiAxMSA2cy00LjkyNSA2LTExIDZzLTExLTIuNjg3LTExLTZzNC45MjUtNiAxMS02Ii8+PC9zdmc+"> <span id="ls-rl-coins">0</span></div>
                     </div>
                     <div class="rl-board">
                         <div class="rl-wheel-container">
@@ -469,10 +469,10 @@ TRẢ VỀ JSON: {"host_action": "...", "viewers_chat": [{"user": "...", "msg": 
                 html += `
                 <div class="ls-card" data-idx="${idx}" style="background-image: linear-gradient(45deg, hsl(${bgHue}, 50%, 20%), hsl(${bgHue + 40}, 50%, 10%))">
                     <div class="ls-badge-live">LIVE</div>
-                    ${s.is_pk ? `<div class="ls-badge-pk">PK ⚔️</div>` : `<div class="ls-viewers"><img src="https://api.iconify.design/ri:eye-fill.svg" style="width:12px;"> ${viewers}</div>`}
+                    ${s.is_pk ? `<div class="ls-badge-pk">PK ⚔️</div>` : `<div class="ls-viewers"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTEuMTgyIDEyQzIuMTIyIDYuODggNi42MDggMyAxMiAzczkuODc4IDMuODggMTAuODE5IDljLS45NCA1LjEyLTUuNDI3IDktMTAuODE5IDlzLTkuODc4LTMuODgtMTAuODE4LTlNMTIgMTdhNSA1IDAgMSAwIDAtMTBhNSA1IDAgMCAwIDAgMTBtMC0yYTMgMyAwIDEgMSAwLTZhMyAzIDAgMCAxIDAgNiIvPjwvc3ZnPg==" style="width:12px;"> ${viewers}</div>`}
                     <div class="ls-card-content">
                         <div class="ls-card-title">${s.title || 'Phòng Live'}</div>
-                        <div class="ls-card-host"><img src="https://api.iconify.design/ri:user-smile-fill.svg" style="width:14px;"> ${s.host || 'Idol'}</div>
+                        <div class="ls-card-host"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTEyIDIyQzYuNDc3IDIyIDIgMTcuNTIzIDIgMTJTNi40NzcgMiAxMiAyczEwIDQuNDc3IDEwIDEwcy00LjQ3NyAxMC0xMCAxME03IDEyYTUgNSAwIDAgMCAxMCAwaC0yYTMgMyAwIDEgMS02IDB6Ii8+PC9zdmc+" style="width:14px;"> ${s.host || 'Idol'}</div>
                     </div>
                 </div>`;
             });
