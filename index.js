@@ -257,7 +257,7 @@ function savePhoneConfig(config) {
 // ==========================================
 // HỆ THỐNG KIỂM TRA BẢN CẬP NHẬT TỰ ĐỘNG
 // ==========================================
-const KAIZ_CURRENT_VERSION = '2.7.0.0';
+const KAIZ_CURRENT_VERSION = '2.7.5.0';
 
 function compareVersions(vA, vB) {
     if (vA === vB) return 0;
@@ -642,14 +642,14 @@ function showKaizPatchNotes(targetWin) {
                 </div>
                 <div>
                     <div style="font-weight: 800; font-size: 1.15em; color: #10b981; letter-spacing: 0.3px;">KAIZ COLLECTION v${KAIZ_CURRENT_VERSION}</div>
-                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Cải Tiến Đột Phá Cho Hệ Thống Chọn Ảnh (Visual Novel)!</div>
+                    <div style="font-size: 0.85em; color: #94a3b8; margin-top: 2px;">Nội địa hóa 100% tài nguyên & Tối ưu hóa hiệu năng toàn diện!</div>
                 </div>
             </div>
             <button id="kaiz_btn_close_patch_notes_top" style="background: none; border: none; color: #64748b; font-size: 1.2em; cursor: pointer; padding: 4px;"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div style="font-size: 0.95em; color: #cbd5e1; line-height: 1.6;">
             Chào mừng bạn đến với bản đại cập nhật <b>v${KAIZ_CURRENT_VERSION}</b> của <b>KAIZ Collection</b>!<br><br>
-            Bản cập nhật v2.7.0.0 mang tới tính năng <b>Gán ảnh tự động bằng Tên nhân vật</b> thông minh, đồng thời sửa lỗi hệ thống lưu trữ ảnh tĩnh nội bộ giúp <b>Visual Novel</b> mượt mà hơn!<br><br>
+            Bản cập nhật v2.7.5.0 tập trung tối ưu hóa triệt để, nội địa hóa toàn bộ icons & thư viện bên ngoài, giúp hệ sinh thái hoạt động siêu mượt và độc lập 100% offline mà không phụ thuộc CDN bên ngoài.<br><br>
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
                 <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new in v${KAIZ_CURRENT_VERSION}?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square; display: flex; flex-direction: column; gap: 10px;">
@@ -1136,7 +1136,7 @@ waitForEnvironment(async (targetWin, jq) => {
     
     // Tự động hiển thị bảng cập nhật nếu là version mới (hiện tại hiển thị cho 2.5.0.0)
     if (config.last_seen_patch_notes_version !== KAIZ_CURRENT_VERSION) {
-        if (KAIZ_CURRENT_VERSION === '2.7.0.0') {
+        if (KAIZ_CURRENT_VERSION === '2.7.5.0') {
             setTimeout(() => {
                 showKaizPatchNotes(targetWin);
             }, 3000);
