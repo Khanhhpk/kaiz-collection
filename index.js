@@ -653,8 +653,9 @@ function showKaizPatchNotes(targetWin) {
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin-top: 10px;">
                 <h4 style="margin: 0 0 10px 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> What's new in v${KAIZ_CURRENT_VERSION}?</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #94a3b8; list-style-type: square; display: flex; flex-direction: column; gap: 10px;">
-                    <li><b style="color: #38bdf8;">🌟 Tự động gán ảnh theo Tên (Full Name):</b> Hệ thống giờ đây có thể tự động phân tích bối cảnh truyện (đặc biệt là fanfic, đồng nhân) để tra cứu chính xác tên đầy đủ của nhân vật, từ đó tìm kiếm và gán ảnh đại diện ngẫu nhiên từ 4 nguồn cơ sở dữ liệu lớn (Safebooru, Rule34, Yande.re, AniList) mỗi khi có nhân vật mới xuất hiện trong khung chat.</li>
-                    <li><b style="color: #34d399;">⚙️ Sửa lỗi lưu trữ ảnh Local (IndexedDB):</b> Khắc phục triệt để các vấn đề liên quan đến việc render và đồng bộ cache ảnh local/upload khi tải lại trang, đảm bảo trải nghiệm hiển thị liền mạch.</li>
+                    <li><b style="color: #38bdf8;">📦 Nội địa hóa 100% Icons (Base64 SVG):</b> Đã chuyển đổi và nhúng trực tiếp toàn bộ hơn 170 biểu tượng sang Data URI Base64 SVG nội bộ, triệt tiêu hoàn toàn lỗi không tải được icon, mất kết nối mạng CDN hoặc lỗi CORS.</li>
+                    <li><b style="color: #34d399;">⚡ Thư viện Local tích hợp:</b> Đưa toàn bộ các thư viện ngoại vi (Leaflet CSS/JS & bộ Marker Icons, Chess.js, Lucide, RemixIcon) về lưu trữ trực tiếp trong thư mục assets của extension, hỗ trợ hoạt động offline siêu mượt.</li>
+                    <li><b style="color: #f59e0b;">🛠️ Triệt tiêu lỗi 404 & Fallback an toàn:</b> Loại bỏ các API bên thứ ba đã ngừng hoạt động (như api.injahow.cn), thiết lập ảnh bìa mặc định an toàn cho App Nhạc, Virtual Tube và Thời tiết, không còn xuất hiện lỗi đỏ trong Console.</li>
                 </ul>
             </div>
         </div>
